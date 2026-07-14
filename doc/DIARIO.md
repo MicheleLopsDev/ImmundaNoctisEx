@@ -53,6 +53,14 @@ chat history; riuso integrale del `config.json` di v1 (sistema
   `SHADOWSTEP` rimosso.
 - Grafo sample: 1→2→3→(4|5)→6, 7=morte.
 
+**Altro (sessione serale):**
+- Cancellato `content/scenes.json` locale (schema vecchio, disallineato dal
+  sample): verrà rigenerato dal task ETL libro 1 con lo schema nuovo. La riga
+  in `.gitignore` resta invariata.
+- Decisione UI registrata: il libro completo si carica da file
+  nell'applicazione (side-load con picker); l'APK include solo
+  `scenes.sample.json`. Da dettagliare in fase UI.
+
 **Prossimi task** (sostituiscono i precedenti):
 1. [MICHELE] Bozza dell'estensione di `start_adventure_prompt` in
    `config.json`: i nuovi frammenti (`previousSceneText`, `continuationsText`,
