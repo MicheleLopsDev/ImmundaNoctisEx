@@ -6,7 +6,7 @@
 
 Repository: https://github.com/MicheleLopsDev/ImmundaNoctisEx.git
 
-Ultimo aggiornamento: 13 luglio 2026
+Ultimo aggiornamento: 14 luglio 2026
 
 ---
 
@@ -166,7 +166,8 @@ all'ambientazione.
 - **Manifest**: id, versione, titolo, descrizione
 - **Grafo di scene** tipizzate (canovacci, vedi §7), navigazione via
   `nextSceneId`. Le dimensioni del libro sono libere (il libro 1 convertito ha
-  ~350 scene)
+  ~350 scene; il libro originale incluso nell'APK sarà breve, indicativamente
+  ~10-20 scene)
 - **items.json**: database oggetti del libro
 - **Bestiario**: nemici con Combattività/Resistenza/immunità
 - Scena iniziale e scene finali fisse
@@ -304,14 +305,14 @@ Nota di realismo: il commento del compagno è una seconda inferenza — per ques
 
 ## 13. Decisioni aperte
 
-- [ ] Compose vs XML per la UI
-- [ ] E2B vs E4B, dopo test prestazionali reali sul device
-- [ ] Distribuzione dei libri: pacchetti inclusi nell'APK all'inizio (zero rete,
-  più semplice) con download remoto come evoluzione, oppure download da subito
-- [ ] Variabile di partita: tipo di missione (caccia, fuga, recupero, scorta)
-  e/o tono (cupo, eroico, misterioso) — sostituisce il vecchio "genere",
-  decaduto con la scelta dell'ambientazione Lupo Solitario
+- [x] Compose vs XML per la UI — **chiusa: Jetpack Compose** (vedi §4)
+- [x] E2B vs E4B — **chiusa: Gemma 4 E4B candidato primario**, resta solo la
+  conferma con test prestazionali reali sul device (vedi §3)
+- [x] Distribuzione dei libri — **chiusa: un libro originale incluso nell'APK
+  + pacchetti aggiuntivi via side-load** (vedi §6)
 - [ ] Schema JSON definitivo del pacchetto libro (manifest, canovacci, vincoli)
+
+Il seme narrativo (§7) resta il meccanismo di variazione tra le partite.
 
 ## 14. Roadmap
 
@@ -319,7 +320,8 @@ Nota di realismo: il commento del compagno è una seconda inferenza — per ques
    **in corso**
 2. Schema JSON del pacchetto libro (manifest, canovacci, items, bestiario) +
    script di validazione
-3. Primo libro di test (taglia piccola, 6 scene) scritto a mano
+3. Conversione ETL del libro 1 (*Flight from the Dark*) in pacchetto — con
+   Claude Code, partendo da `PROMPT.txt` di v1
 4. Scheletro progetto Android (dipendenze LiteRT-LM, struttura moduli)
 5. Motore di gioco Kotlin (stato, regole, randomizzatore, CombatManager) —
    senza IA, testabile da solo
@@ -327,7 +329,7 @@ Nota di realismo: il commento del compagno è una seconda inferenza — per ques
 7. UI (scena teatrale, scelte a pulsanti, Dado del Destino)
 8. Compagno (bonus + commenti)
 9. TTS
-10. Test prestazionali reali su Motorola Edge 70
+10. Test prestazionali reali su Motorola Razr 70 Ultra
 
 ## 15. Changelog
 
@@ -344,3 +346,12 @@ Nota di realismo: il commento del compagno è una seconda inferenza — per ques
   parola; compagno v1 (bonus statico + commenti occasionali); doppio prompt
   DM/Compagno; Dado del Destino; meccanica di combattimento Lupo Solitario
   confermata; tagli definitivi di STDF/generazione immagini e multi-modello.
+- **14/07/2026** — Libro come grafo di scene ramificate al posto della
+  randomizzazione della sequenza; introdotta la pipeline ETL (da v1, via
+  Claude Code) per convertire i libri originali di Lupo Solitario, d'uso
+  personale e mai distribuiti; modello di distribuzione chiuso (un libro
+  originale incluso nell'APK, altri pacchetti via side-load); nomenclatura
+  neutra/originale per i contenuti distribuibili, da definire in un refactor
+  futuro; UI chiusa su Jetpack Compose; Gemma 4 E4B candidato primario;
+  dispositivo di riferimento aggiornato a Motorola Razr 70 Ultra; aggiunta la
+  visione di un'"app generatrice" di scene assistita da IA come fase 2 estesa.
