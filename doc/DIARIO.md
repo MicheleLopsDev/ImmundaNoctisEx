@@ -38,6 +38,21 @@ chat history; riuso integrale del `config.json` di v1 (sistema
   (SIXTH_SENSE/CAMOUFLAGE) che evita il combattimento e un ramo di
   combattimento (WIN/LOSE) sulla struttura combat già presente nel file.
 
+**Decisioni chiuse (sessione serale):**
+- `narrativeText` e `choiceText`: stringhe semplici, lingua singola (inglese).
+- `language` nel manifest del pacchetto; `userLanguage` a runtime (da Android)
+  passato a Gemma per la lingua di output.
+- Campi predisposti (`minRoll`, `maxRoll`, `requiredItem`, `requiredFlag`)
+  restano nello schema anche se vuoti.
+- `toneHints` obbligatorio per scena, con un default a livello di manifest.
+- `backgroundImage`: nuovo campo per asset statici per ambiente (inn/city/
+  alley/battle/warehouse), fallback su placeholder; distinto da `sceneType`,
+  che resta START/TRANSITION/ENDING.
+- ID scena numerici (corrispondenza con le pagine dei libri-game).
+- ID disciplina in UPPER_SNAKE, solo le 10 canoniche di `GameData.kt`;
+  `SHADOWSTEP` rimosso.
+- Grafo sample: 1→2→3→(4|5)→6, 7=morte.
+
 **Prossimi task** (sostituiscono i precedenti):
 1. [MICHELE] Bozza dell'estensione di `start_adventure_prompt` in
    `config.json`: i nuovi frammenti (`previousSceneText`, `continuationsText`,
@@ -51,3 +66,11 @@ chat history; riuso integrale del `config.json` di v1 (sistema
    sul modello dei `test_*.json` di v1 — ora possibile: la struttura scena
    definitiva è chiusa (`content/scenes.sample.json`), nascono già nel
    formato giusto
+5. Analisi codice morto v1: scansione di tutti i file `.kt` del repo v1
+   (`ImmundaNoctis-master`), mappa dei riferimenti incrociati (chi importa
+   cosa, chi usa quali simboli), output in `doc/ANALISI-CODICE-MORTO.md`
+   con tre categorie: morto certo (zero riferimenti), sospetto
+   (referenziato solo da codice morto o solo da test), vivo ma legato a
+   feature abbandonate (es. generazione immagini dinamica, doppia lingua).
+   Nota: `SkillData.kt` già identificato come morto da Michele. Da fare
+   nella stessa sessione di delega dell'inventario asset v1.
