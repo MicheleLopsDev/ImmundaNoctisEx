@@ -72,8 +72,9 @@ traduzione ML Kit, ViewModel monolitico), non per problemi delle singole parti.
 - `TranslationEngine.kt` (ML Kit). Il multilingua è gestito da Gemma 4: la lingua
   del giocatore è un parametro del prompt. Le stringhe fisse dell'interfaccia
   restano su `strings.xml` standard.
-- Conversione uno-a-uno dei libri di Lupo Solitario (lo `scenes.json` di v1 con
-  *Flight from the Dark* pre-tradotto: 350 scene, 13k righe, doppio testo en/it).
+- **Solo il doppio testo** en/it dello `scenes.json` di v1 con *Flight from the
+  Dark* pre-tradotto (350 scene, 13k righe): la conversione ora è il modello
+  (grafo con prosa originale in una lingua sola), non viene abbandonata.
 - **Input di testo libero verso l'LLM.** L'interazione è esclusivamente a scelte
   strutturate (vedi §8). Sparisce l'intera classe di problemi "il giocatore scrive
   qualcosa di imprevisto e il modello improvvisa rompendo le regole".
@@ -132,9 +133,10 @@ L'LLM non riceve mai input arbitrario dell'utente: solo dati strutturati dal mot
 ### Due fonti, stesso formato
 I libri arrivano da due fonti distinte, ma nello stesso formato di pacchetto:
 - **(a) Conversione ETL dei libri originali di Lupo Solitario** — pipeline
-  `PROMPT.txt` di v1, raffinata ed eseguita con Claude Code, che trasforma il
-  testo originale in un pacchetto grafo di scene. **Uso personale, MAI
-  distribuiti** (materiale Project Aon, non redistribuibile).
+  `PROMPT.txt` di v1, raffinata ed eseguita con Claude Code, che converte il
+  libro in grafo **mantenendo la prosa originale** (una lingua sola), non la
+  comprime in canovaccio. **Uso personale, MAI distribuiti** (materiale
+  Project Aon, non redistribuibile).
 - **(b) Libri originali dell'autore**, scritti/generati con assistenza IA.
   **Distribuibili.**
 
@@ -172,28 +174,58 @@ all'ambientazione.
 - **Bestiario**: nemici con Combattività/Resistenza/immunità
 - Scena iniziale e scene finali fisse
 
-## 7. Narrazione generativa: canovacci, non prosa
+## 7. Narrazione generativa: prosa arricchita, non canovacci
 
-Le scene dei libri **non contengono la narrazione finita** ma un canovaccio
-strutturato. A ogni partita Gemma rigenera la prosa da capo.
+**Decisione ribaltata** rispetto alla versione precedente di questo documento:
+le scene **contengono la prosa finita** (`narrativeText`, una sola lingua,
+preferibilmente inglese), scritta da autori umani. Niente compressione in
+canovaccio.
+
+Motivazione: gli autori dei libri devono poter scrivere normalmente. Un
+formato a canovaccio (`beats`/`mustMention`) richiederebbe competenza logica,
+non narrativa — sbagliato per lo strumento di scrittura futuro.
+
+### Ruolo di Gemma
+Gemma **non genera da zero**: **arricchisce** la prosa esistente adattandola
+a genere e tono della partita (fantasy/horror/comico/sci-fi...), mantenendo
+fatti, struttura ed esiti inalterati.
+
+### Contesto passato a Gemma
+Il minimo indispensabile, deciso in questa sessione:
+- `narrativeText` della scena **precedente**
+- `narrativeText` della scena **attuale**
+- `narrativeText` delle possibili **continuazioni** (esiti delle scelte/combattimenti)
+- **genere** e **toneHints**
+
+Serve solo a raccordare, non a inventare. Niente tag, niente statistiche,
+niente meccaniche nel prompt.
+
+### Prompt stateless
+Nessuna chat history che si accumula: l'architettura conversazionale di
+`LlamaCppEngine` di v1 non si riusa per questo. La "memoria" è il grafo
+stesso, non la conversazione con il modello.
 
 ### Sacro (il motore lo impone, Gemma non può alterarlo)
 - I fatti della scena: chi c'è, cosa accade, cosa si trova
 - Nomi propri, statistiche dei nemici, oggetti, esiti dei tiri
 - Le scelte disponibili (sempre generate dal motore dai dati, mai dal testo)
+- **La struttura della prosa originale**
 
 ### Rigenerabile (Gemma lo reinventa a ogni partita)
-- La prosa: descrizioni, atmosfera, ritmo
-- Dettagli di colore: meteo, ora, particolari sensoriali
-- Dialoghi minori degli NPC
+- Solo il **colore/atmosfera/registro** applicato da Gemma sopra la prosa
+  originale
 
-### Struttura scena (bozza)
-`beats` (fatti in sequenza) + `mustMention` (elementi obbligatori) +
-`toneHints` (indicazioni di tono).
+### Sistema promptDescription (da v1)
+Il `config.json` di v1 si riusa **integralmente**: registro dichiarativo di
+tag (`regex` + `type` + `parameters` + `command` + `replace`), con i prompt
+definiti come **dati** nel JSON (tag `start_adventure_prompt`, tipo
+`promptDescription`, frammenti parametrici con placeholder tipo `{genre}` e
+`{scene_narrative_text}` riempiti a runtime).
 
-Per i libri convertiti (vedi §6) il `narrativeText` originale non viene usato
-come prosa fissa: l'ETL lo comprime in canovaccio (`beats` + `mustMention`),
-esattamente come per i libri originali.
+Per Ex: si estende `start_adventure_prompt` con i frammenti per scena
+precedente/continuazioni; i `gameMechanic` D&D (`strength`/`dexterity`/
+`intelligence`/`spellcraft`) si sostituiscono con le Discipline Kai;
+prospettiva futura: ogni pacchetto libro può portare i propri prompt.
 
 ### Seme narrativo
 A inizio avventura il motore estrae un piccolo insieme di variabili casuali
@@ -203,8 +235,8 @@ partita e differenzia percepibilmente le partite tra loro — non ci si affida
 alla sola temperatura del modello.
 
 ### Multilingua
-I canovacci si scrivono in una sola lingua; Gemma genera la prosa nella lingua
-del giocatore (parametro del prompt). Sparisce il doppio testo en/it di v1.
+Resta via Gemma: la lingua del giocatore è parametro del prompt, il pacchetto
+ha una sola lingua. Sparisce il doppio testo en/it di v1.
 
 ## 8. Interazione: struttura da libro-game
 
@@ -310,7 +342,10 @@ Nota di realismo: il commento del compagno è una seconda inferenza — per ques
   conferma con test prestazionali reali sul device (vedi §3)
 - [x] Distribuzione dei libri — **chiusa: un libro originale incluso nell'APK
   + pacchetti aggiuntivi via side-load** (vedi §6)
-- [ ] Schema JSON definitivo del pacchetto libro (manifest, canovacci, vincoli)
+- [ ] Schema JSON definitivo del pacchetto libro (manifest, scene, vincoli) —
+  la struttura scena riparte da quella di v1 quasi invariata (`narrativeText`
+  a lingua singola + `genre` + `toneHints`), non serve disegnare un formato
+  canovaccio
 
 Il seme narrativo (§7) resta il meccanismo di variazione tra le partite.
 
@@ -355,3 +390,8 @@ Il seme narrativo (§7) resta il meccanismo di variazione tra le partite.
   futuro; UI chiusa su Jetpack Compose; Gemma 4 E4B candidato primario;
   dispositivo di riferimento aggiornato a Motorola Razr 70 Ultra; aggiunta la
   visione di un'"app generatrice" di scene assistita da IA come fase 2 estesa.
+- **14/07/2026 (sera)** — Prosa finita mantenuta nei pacchetti (ribaltata la
+  scelta canovacci); Gemma arricchisce e raccorda (scena precedente + attuale
+  + continuazioni); prompt stateless senza chat history; riuso integrale del
+  `config.json` di v1 (sistema `promptDescription`); tag D&D da sostituire
+  con Discipline Kai.
