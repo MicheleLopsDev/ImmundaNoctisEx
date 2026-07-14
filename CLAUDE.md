@@ -11,3 +11,10 @@ quella di Lupo Solitario (Lone Wolf).
 ## Documentazione di riferimento
 Il documento di riferimento per le decisioni di design è `README.md`. Consultalo
 quando serve contesto sulle scelte architetturali o di design del progetto.
+
+## Documentazione
+Tutti i documenti di progetto vivono in `doc/`, ad eccezione di `README.md`
+(visione e design, resta in radice) e di questo stesso `CLAUDE.md`.
+
+In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:
+consultala prima di copiare o riscrivere qualunque componente ereditato.
