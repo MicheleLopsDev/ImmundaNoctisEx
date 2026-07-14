@@ -17,3 +17,6 @@ local.properties
 # Log e varie
 *.log
 .DS_Store
+
+# Contenuti Project Aon, solo uso personale locale — non vanno nel repo né nell'APK
+content/scenes.json
