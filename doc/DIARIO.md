@@ -11,6 +11,11 @@
 - Analisi di `config.json` di v1: sistema `promptDescription` (tag dichiarativi
   con prompt come dati), riuso integrale deciso.
 - README allineato alle decisioni (commit `6a702a0`).
+- Creata `content/`: `config.json` spostato lì; `scenes.json` (Project Aon)
+  reso locale, non versionato via `.gitignore`.
+- Creato `content/scenes.sample.json`: riferimento strutturale pubblico dello
+  schema E futuro libro incluso nell'APK — da espandere a mini-avventura
+  completa (~10-20 scene) con nomenclatura originale prima del rilascio.
 
 **Decisioni** (vedi changelog README §15 per il dettaglio):
 Prosa finita mantenuta nei pacchetti al posto dei canovacci; Gemma arricchisce
@@ -21,7 +26,7 @@ chat history; riuso integrale del `config.json` di v1 (sistema
 **Prossimi task** (sostituiscono i precedenti):
 1. [MICHELE] Definire la struttura scena definitiva partendo dai JSON di v1:
    quali campi restano, quali si tolgono (doppia lingua), quali si aggiungono
-   (`toneHints` se manca) — su `doc/SCHEMA-PACCHETTO.md`
+   (`toneHints` se manca) — lavora su `content/scenes.sample.json`
 2. [MICHELE] Bozza dell'estensione di `start_adventure_prompt` in
    `config.json`: i nuovi frammenti (`previousSceneText`, `continuationsText`,
    `constraintText`) — testo dei prompt, niente codice
