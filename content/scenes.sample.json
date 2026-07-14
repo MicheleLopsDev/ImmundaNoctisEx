@@ -1,155 +1,229 @@
 {
-    "adventureName": "The Cairn of Eldermoor",
+    "id": "sample-adventure",
+    "version": "1.0.0",
+    "title": "The Warehouse Letter",
+    "description": "A short fantasy vignette following a lone traveler entrusted with a mysterious errand in a border town.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["adventurous"],
     "disciplineChoices": [
         {
-            "id": "KEENSENSE",
-            "name": "Keen Sense",
-            "description": "Sharpened perception that reveals hidden dangers and details others would miss."
+            "id": "WEAPONSKILL",
+            "name": "Weaponskill",
+            "description": "Mastery with a chosen weapon type, adding a bonus to Combat Skill when wielding it."
         },
         {
-            "id": "SHADOWSTEP",
-            "name": "Shadow Step",
-            "description": "The ability to move without sound and pass unseen, even in the open."
+            "id": "CAMOUFLAGE",
+            "name": "Camouflage",
+            "description": "The art of blending into terrain and shadow to move unseen."
         },
         {
-            "id": "MENDING",
-            "name": "Mending",
-            "description": "The art of healing wounds, your own or another's, without herbs or potions."
+            "id": "HUNTING",
+            "name": "Hunting",
+            "description": "Skill at foraging and catching food in the wild, removing the need for meals."
+        },
+        {
+            "id": "SIXTH_SENSE",
+            "name": "Sixth Sense",
+            "description": "A heightened intuition that warns of danger and hidden threats."
         },
         {
             "id": "TRACKING",
             "name": "Tracking",
-            "description": "Skill in hunting, following trails, and living off the wilderness."
+            "description": "The ability to follow trails and read signs left by passage."
+        },
+        {
+            "id": "HEALING",
+            "name": "Healing",
+            "description": "The gift of mending wounds and restoring endurance without herbs."
+        },
+        {
+            "id": "MINDSHIELD",
+            "name": "Mindshield",
+            "description": "A mental ward against psychic intrusion and fear."
+        },
+        {
+            "id": "MINDBLAST",
+            "name": "Mindblast",
+            "description": "The power to strike an enemy's mind directly, aiding in combat."
+        },
+        {
+            "id": "ANIMAL_KINSHIP",
+            "name": "Animal Kinship",
+            "description": "An affinity with animals, calming beasts and reading their moods."
+        },
+        {
+            "id": "MIND_OVER_MATTER",
+            "name": "Mind Over Matter",
+            "description": "Telekinetic control, allowing objects to be moved by will alone."
         }
     ],
     "scenes": [
         {
             "id": "1",
-            "sceneType": "TRANSITION",
+            "sceneType": "START",
             "genre": "FANTASY",
-            "challengeLevel": "BASE",
-            "narrativeText": "The dirt road forks beneath a lightning-split oak. To the west, a narrow trail vanishes into a shadowed thicket. To the east, smoke rises faintly over a ridge, carrying the tang of old iron. Your pack is light, but your resolve is lighter still after three days without proper rest.",
+            "toneHints": ["calm", "mysterious"],
+            "backgroundImage": "inn",
+            "narrativeText": "You wake in a narrow room above a border-town inn, the shutters rattling with a wind that smells of rain and distant smoke. Sunlight has barely touched the sill when you notice a folded parchment slipped beneath the door sometime in the night. Cracking the wax, you find a hurried hand: reach the old warehouse in the western district before the sun sets, and come alone. No name signs it. You dress quickly, buckle on your blade, and step out into a morning that already feels too watchful for comfort.",
             "choices": [
                 {
                     "id": "choice_1_1",
-                    "choiceText": "Take the western trail into the thicket",
-                    "nextSceneId": "2"
-                },
-                {
-                    "id": "choice_1_2",
-                    "choiceText": "Head east toward the ridge and the smoke",
-                    "nextSceneId": "3"
+                    "choiceText": "Head down into the town",
+                    "nextSceneId": "2",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
                 }
             ],
             "disciplineChoices": [],
-            "location": {
-                "areaName": "Crossroads of Elden Vale",
-                "isMajorLocation": false
-            }
+            "combatChoices": [],
+            "gameMechanics": []
         },
         {
             "id": "2",
             "sceneType": "TRANSITION",
             "genre": "FANTASY",
-            "challengeLevel": "BASE",
-            "narrativeText": "Branches close overhead, and the light dims to a green murk. Something rustles just beyond sight, matching your pace step for step. The path ahead splits again around a fallen trunk thick with moss.",
+            "toneHints": ["lively", "tense"],
+            "backgroundImage": "city",
+            "narrativeText": "The market square roars with life: merchants bark prices over crates of spice and cloth, a juggler draws a ring of children, and somewhere a dog barks at nothing. Yet beneath the noise you feel eyes tracking your steps, a prickle at the back of your neck that never quite resolves into a face. Near the fountain, a hunched beggar catches your gaze and jerks his chin toward a gap between two shuttered stalls, murmuring directions to the old quarter before melting back into the crowd.",
             "choices": [
                 {
                     "id": "choice_2_1",
-                    "choiceText": "Push on along the muddy path",
-                    "nextSceneId": "4"
+                    "choiceText": "Follow the beggar's directions toward the old quarter",
+                    "nextSceneId": "3",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "combatChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "3",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["dark", "suspenseful"],
+            "backgroundImage": "alley",
+            "narrativeText": "The alley narrows as the old quarter swallows the daylight, damp stone walls pressing close on either side. Ahead, the warehouse door stands ajar, and shapes shift in the gloom before it, too still to be idle, too many to be chance. Something about the doorway's silence sets your instincts screaming. You could trust your training to find a safer path, or simply walk forward and meet whatever waits with steel in hand.",
+            "choices": [
+                {
+                    "id": "choice_3_1",
+                    "choiceText": "Walk on, hand on your weapon",
+                    "nextSceneId": "4",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
                 }
             ],
             "disciplineChoices": [
                 {
-                    "disciplineId": "SHADOWSTEP",
-                    "nextSceneId": "5"
-                }
-            ],
-            "location": {
-                "areaName": "Thicket of Whispering Boughs",
-                "isMajorLocation": false
-            }
-        },
-        {
-            "id": "3",
-            "sceneType": "COMBAT",
-            "genre": "FANTASY",
-            "challengeLevel": "MEDIUM",
-            "narrativeText": "Cresting the ridge, you find the source of the smoke: a squat, tusked brute crouched over a smouldering campfire, gnawing on a blackened bone. It rises with a snarl the moment it catches your scent, hefting a notched cleaver.",
-            "combatChoices": [
-                {
-                    "enemyName": "Ridge Brute",
-                    "combatSkill": 14,
-                    "endurance": 18,
-                    "immunity": "none",
-                    "notes": "Fights with a notched cleaver; no special resistances.",
-                    "condition": "WIN",
-                    "choiceText": "You beat the Ridge Brute",
-                    "nextSceneId": "4"
+                    "id": "dchoice_3_1",
+                    "disciplineId": "SIXTH_SENSE",
+                    "choiceText": "You sense the ambush before they see you...",
+                    "nextSceneId": "5",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
                 },
                 {
-                    "enemyName": "Ridge Brute",
-                    "combatSkill": 14,
-                    "endurance": 18,
-                    "immunity": "none",
-                    "notes": "Fights with a notched cleaver; no special resistances.",
-                    "condition": "LOSE",
-                    "choiceText": "The Ridge Brute overwhelms you",
-                    "nextSceneId": "2"
-                },
-                {
-                    "enemyName": "Ridge Brute",
-                    "combatSkill": 14,
-                    "endurance": 18,
-                    "immunity": "none",
-                    "notes": "Evasion available only to those trained in Shadow Step.",
-                    "condition": "EVADE",
-                    "requiredDiscipline": "SHADOWSTEP",
-                    "choiceText": "Slip away into the brush before the brute closes in",
-                    "nextSceneId": "2"
+                    "id": "dchoice_3_2",
+                    "disciplineId": "CAMOUFLAGE",
+                    "choiceText": "You blend with the shadows...",
+                    "nextSceneId": "5",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
                 }
             ],
-            "location": {
-                "areaName": "Smouldering Ridge",
-                "isMajorLocation": true
-            }
+            "combatChoices": [],
+            "gameMechanics": []
         },
         {
             "id": "4",
             "sceneType": "TRANSITION",
             "genre": "FANTASY",
-            "challengeLevel": "BASE",
-            "narrativeText": "Past the ridge, a cairn of grey stones marks a hollow in the hillside. Wedged between two slabs, a rust-eaten key catches the last light. As you pry it free, the wind seems to hold its breath, as if the vale itself takes note of your passing.",
-            "gameMechanics": [
-                "<ADD_ITEM id=\"cairn_key\" name=\"Rust-eaten Key\" quantity=\"1\"/>",
-                "<SET_FLAG name=\"found_cairn_key\" value=\"true\"/>"
-            ],
-            "choices": [
+            "toneHints": ["violent", "desperate"],
+            "backgroundImage": "battle",
+            "narrativeText": "Steel rasps free as two thugs step from the warehouse shadows, blades already drawn, expressions flat with practiced violence. There's no room here for words, only reflexes, footwork, and the thin margin between your training and their numbers. The nearest lunges first, forcing you to commit, while his companion circles wide to cut off any retreat toward the alley mouth.",
+            "choices": [],
+            "disciplineChoices": [],
+            "combatChoices": [
                 {
-                    "id": "choice_4_1",
-                    "choiceText": "Leave the hollow and continue on",
-                    "nextSceneId": "5"
+                    "enemyName": "Warehouse Thugs",
+                    "combatSkill": 16,
+                    "endurance": 24,
+                    "immunity": "none",
+                    "notes": "Two armed thugs fighting as one combined foe; blows from either count against your Endurance.",
+                    "condition": "WIN",
+                    "choiceText": "You beat the Warehouse Thugs",
+                    "nextSceneId": "6"
+                },
+                {
+                    "enemyName": "Warehouse Thugs",
+                    "combatSkill": 16,
+                    "endurance": 24,
+                    "immunity": "none",
+                    "notes": "Two armed thugs fighting as one combined foe; blows from either count against your Endurance.",
+                    "condition": "LOSE",
+                    "choiceText": "The Warehouse Thugs overwhelm you",
+                    "nextSceneId": "7"
                 }
             ],
-            "disciplineChoices": [],
-            "location": {
-                "areaName": "Hollow of the Old Cairn",
-                "isMajorLocation": false
-            }
+            "gameMechanics": []
         },
         {
             "id": "5",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["stealthy", "clever"],
+            "backgroundImage": "alley",
+            "narrativeText": "Rather than face the men waiting below, you find a drainpipe leading up to the rooftops and haul yourself onto the tiles, moving low and quiet along the ridge line. The warehouse's rear yard opens beneath you, unguarded, a stack of crates offering an easy drop to the cobbles. Slipping down, you cross to a service door hanging loose on one hinge; the ambush left it forgotten, and it swings open at your touch.",
+            "choices": [
+                {
+                    "id": "choice_5_1",
+                    "choiceText": "Slip through the back door",
+                    "nextSceneId": "6",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "combatChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "6",
             "sceneType": "ENDING",
             "genre": "FANTASY",
-            "challengeLevel": "BASE",
-            "narrativeText": "The gates of Eldermoor rise before you at last, torches guttering against the coming dusk. The guard at the postern recognizes the old key in your hand and waves you through without a word. Whatever waits inside, the road behind you is finally done.",
+            "toneHints": ["solemn", "rewarding"],
+            "backgroundImage": "warehouse",
+            "narrativeText": "Inside, dust hangs thick in a shaft of failing light. Stacked crates and coiled rope line the walls, and at the center, on an upturned barrel, sits exactly what the letter promised: a sealed chest bearing a mark you half recognize from old stories. You lift the lid slowly, half expecting the whole day to have been some elaborate jest. It was not. Whatever comes next, you have kept faith with a stranger's word, and the town's oldest debts have a way of finding those who do.",
             "choices": [],
             "disciplineChoices": [],
-            "location": {
-                "areaName": "Gates of Eldermoor",
-                "isMajorLocation": true
-            }
+            "combatChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "7",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "toneHints": ["grim"],
+            "backgroundImage": "battle",
+            "narrativeText": "The second thug's blade finds a gap in your guard, and the cold shock of it drops you to your knees on the alley stones. The world tilts, sound fading to a dull roar as your strength drains into the dark, spreading pool beneath you. The letter, the warehouse, whatever waited inside, all of it recedes beyond reach now. Your journey ends here, unfinished, in a nameless alley behind a stranger's warehouse, the sunset you were racing arriving without you.",
+            "choices": [],
+            "disciplineChoices": [],
+            "combatChoices": [],
+            "gameMechanics": []
         }
     ]
 }
