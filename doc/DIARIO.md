@@ -33,3 +33,8 @@ chat history; riuso integrale del `config.json` di v1 (sistema
 3. Copia di `config.json` da v1 a Ex + sostituzione tag D&D con Discipline Kai
    (delegabile a Claude Code dopo il task 2)
 4. Script ottimizzazione immagini v1 (invariato, delegabile quando si vuole)
+5. Creare in `content/` una serie di file di test per meccanica (es.
+   `test_choices.json`, `test_skillcheck.json`, `test_combat.json`,
+   `test_disciplines.json`, `test_mechanics.json`), scene minime 2-3 l'uno,
+   sul modello dei `test_*.json` di v1 — **da fare dopo che la struttura
+   scena definitiva è chiusa** (task 1), così nascono già nel formato giusto
