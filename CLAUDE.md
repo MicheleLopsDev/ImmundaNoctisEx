@@ -16,5 +16,9 @@ quando serve contesto sulle scelte architetturali o di design del progetto.
 Tutti i documenti di progetto vivono in `doc/`, ad eccezione di `README.md`
 (visione e design, resta in radice) e di questo stesso `CLAUDE.md`.
 
+`content/` contiene i contenuti di gioco: `config.json` (registro tag),
+`scenes.sample.json` (libro di esempio, versionato). `scenes.json` (libro
+Project Aon, uso locale) non è versionato.
+
 In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:
 consultala prima di copiare o riscrivere qualunque componente ereditato.
