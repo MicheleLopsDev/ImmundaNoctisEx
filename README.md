@@ -17,9 +17,12 @@ sull'ambientazione di **Lupo Solitario** (Magnamund), giocato in solitaria.
 
 Il modello è **editoriale**: i "libri" (pacchetti avventura) vengono creati e
 curati dall'autore in un flusso di lavoro separato ("master"), e rilasciati come
-contenuti che l'app di gioco consuma. L'app randomizza la sequenza delle scene e
-usa un modello IA locale (Gemma 4) per generare la prosa a ogni partita, così che
-lo stesso libro non si giochi e non si legga mai due volte allo stesso modo.
+contenuti che l'app di gioco consuma. I libri sono **grafi di scene ramificate**
+(struttura da libro-game classico: ogni scelta porta a una scena successiva via
+`nextSceneId`), non sequenze randomizzate. La rigiocabilità nasce da due fonti
+distinte: i bivi del grafo (percorsi diversi ad ogni partita) **e** la prosa
+rigenerata da un modello IA locale (Gemma 4) a ogni partita, così che lo stesso
+libro non si legga mai due volte con le stesse parole.
 
 Il motore Kotlin è l'autorità assoluta su regole, stato e esiti. Gemma narra.
 Tutto gira sul dispositivo, senza connessione richiesta durante il gioco.
@@ -79,19 +82,21 @@ traduzione ML Kit, ViewModel monolitico), non per problemi delle singole parti.
 
 ## 3. Hardware di riferimento
 
-Dispositivo di test: **Motorola Edge 70** — Snapdragon 7 Gen 4, 12 GB RAM, GPU
-Adreno 722. Fascia medio-alta, non flagship: le aspettative prestazionali vanno
-calibrate su questo device, non sui benchmark ufficiali Google (fatti su flagship).
+Dispositivo di test: **Motorola Razr 70 Ultra** — Snapdragon 8 Elite (2x Oryon
+Prime 4,32 GHz + 6x Oryon Performance 3,53 GHz), 16 GB RAM, GPU Adreno 830.
+Flagship pieghevole: schermo interno alto e stretto, perfetto per la scena
+teatrale verticale. Nota: con 16 GB di RAM il candidato primario diventa
+Gemma 4 E4B.
 
 ## 4. Stack tecnico
 
 | Area | Scelta |
 |---|---|
 | Linguaggio | Kotlin |
-| Motore IA | Gemma 4 E2B (valutare E4B dopo test prestazionali) |
+| Motore IA | Gemma 4 E4B candidato primario (confermare con test su device) |
 | Runtime IA | **LiteRT-LM** (non MediaPipe LLM Inference API, in maintenance-only) |
 | Ponte narrazione↔motore | Function calling nativo di Gemma 4 / LiteRT-LM |
-| UI | Da decidere — Compose vs XML (vedi §13) |
+| UI | Jetpack Compose (decisione chiusa: v1 era già interamente Compose, componenti riusabili; supporto nativo ai pieghevoli via WindowSizeClass) |
 | TTS | `android.speech.tts` nativo di sistema |
 | Traduzione | Nessuna libreria — multilingua via prompt Gemma 4 |
 | Immagini | Asset statici (nessuna generazione runtime) |
@@ -124,6 +129,15 @@ L'LLM non riceve mai input arbitrario dell'utente: solo dati strutturati dal mot
 
 ## 6. Modello editoriale: i "libri"
 
+### Due fonti, stesso formato
+I libri arrivano da due fonti distinte, ma nello stesso formato di pacchetto:
+- **(a) Conversione ETL dei libri originali di Lupo Solitario** — pipeline
+  `PROMPT.txt` di v1, raffinata ed eseguita con Claude Code, che trasforma il
+  testo originale in un pacchetto grafo di scene. **Uso personale, MAI
+  distribuiti** (materiale Project Aon, non redistribuibile).
+- **(b) Libri originali dell'autore**, scritti/generati con assistenza IA.
+  **Distribuibili.**
+
 ### Flusso master → gioco
 - I libri (pacchetti avventura) vengono creati e validati **fuori dall'app di
   gioco**, in un flusso di lavoro "master", e rilasciati come contenuti.
@@ -134,24 +148,28 @@ L'LLM non riceve mai input arbitrario dell'utente: solo dati strutturati dal mot
 - **Fase 2 (eventuale, dopo):** un editor grafico vero (es. Compose Desktop,
   riusando il modello dati Kotlin). Solo quando il gioco funziona — il rilascio
   del gioco non deve mai dipendere dall'editor.
+- **Visione futura (Fase 2 estesa):** "app generatrice" — un editor/generatore
+  di scene assistito da IA che produce pacchetti validi contro lo schema.
+
+### Modello di distribuzione (decisione chiusa)
+L'app esce con **un libro originale incluso nell'APK**; gli altri pacchetti si
+caricano da file (side-load). L'app distribuita **non contiene materiale
+Project Aon** — i libri convertiti via ETL restano d'uso personale.
+
+### Nomenclatura
+I contenuti distribuibili useranno ambientazione e nomi propri **originali**
+(refactor dei nomi previsto, in seguito); le meccaniche restano quelle di Lupo
+Solitario. I nomi vivono solo nei pacchetti JSON: il motore è agnostico rispetto
+all'ambientazione.
 
 ### Contenuto di un pacchetto libro (bozza)
-- **Manifest**: id, versione, titolo, descrizione, taglie supportate
-- **Pool di scene** tipizzate (canovacci, vedi §7) con vincoli di randomizzazione
-  (es. "min 1, max 2 scene COMBAT in una taglia piccola")
+- **Manifest**: id, versione, titolo, descrizione
+- **Grafo di scene** tipizzate (canovacci, vedi §7), navigazione via
+  `nextSceneId`. Le dimensioni del libro sono libere (il libro 1 convertito ha
+  ~350 scene)
 - **items.json**: database oggetti del libro
 - **Bestiario**: nemici con Combattività/Resistenza/immunità
 - Scena iniziale e scene finali fisse
-
-### Taglie delle avventure
-| Taglia | Scene totali | Di cui intermedie randomizzate |
-|---|---|---|
-| Piccola | 6 | 4 |
-| Media | 12 | 10 |
-| Grande | 18 | 16 |
-
-Prima e ultima scena fisse; le intermedie vengono pescate e ordinate dal
-randomizzatore rispettando i vincoli del manifest.
 
 ## 7. Narrazione generativa: canovacci, non prosa
 
@@ -171,6 +189,10 @@ strutturato. A ogni partita Gemma rigenera la prosa da capo.
 ### Struttura scena (bozza)
 `beats` (fatti in sequenza) + `mustMention` (elementi obbligatori) +
 `toneHints` (indicazioni di tono).
+
+Per i libri convertiti (vedi §6) il `narrativeText` originale non viene usato
+come prosa fissa: l'ETL lo comprime in canovaccio (`beats` + `mustMention`),
+esattamente come per i libri originali.
 
 ### Seme narrativo
 A inizio avventura il motore estrae un piccolo insieme di variabili casuali
