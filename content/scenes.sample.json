@@ -1,0 +1,155 @@
+{
+    "adventureName": "The Cairn of Eldermoor",
+    "disciplineChoices": [
+        {
+            "id": "KEENSENSE",
+            "name": "Keen Sense",
+            "description": "Sharpened perception that reveals hidden dangers and details others would miss."
+        },
+        {
+            "id": "SHADOWSTEP",
+            "name": "Shadow Step",
+            "description": "The ability to move without sound and pass unseen, even in the open."
+        },
+        {
+            "id": "MENDING",
+            "name": "Mending",
+            "description": "The art of healing wounds, your own or another's, without herbs or potions."
+        },
+        {
+            "id": "TRACKING",
+            "name": "Tracking",
+            "description": "Skill in hunting, following trails, and living off the wilderness."
+        }
+    ],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "challengeLevel": "BASE",
+            "narrativeText": "The dirt road forks beneath a lightning-split oak. To the west, a narrow trail vanishes into a shadowed thicket. To the east, smoke rises faintly over a ridge, carrying the tang of old iron. Your pack is light, but your resolve is lighter still after three days without proper rest.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Take the western trail into the thicket",
+                    "nextSceneId": "2"
+                },
+                {
+                    "id": "choice_1_2",
+                    "choiceText": "Head east toward the ridge and the smoke",
+                    "nextSceneId": "3"
+                }
+            ],
+            "disciplineChoices": [],
+            "location": {
+                "areaName": "Crossroads of Elden Vale",
+                "isMajorLocation": false
+            }
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "challengeLevel": "BASE",
+            "narrativeText": "Branches close overhead, and the light dims to a green murk. Something rustles just beyond sight, matching your pace step for step. The path ahead splits again around a fallen trunk thick with moss.",
+            "choices": [
+                {
+                    "id": "choice_2_1",
+                    "choiceText": "Push on along the muddy path",
+                    "nextSceneId": "4"
+                }
+            ],
+            "disciplineChoices": [
+                {
+                    "disciplineId": "SHADOWSTEP",
+                    "nextSceneId": "5"
+                }
+            ],
+            "location": {
+                "areaName": "Thicket of Whispering Boughs",
+                "isMajorLocation": false
+            }
+        },
+        {
+            "id": "3",
+            "sceneType": "COMBAT",
+            "genre": "FANTASY",
+            "challengeLevel": "MEDIUM",
+            "narrativeText": "Cresting the ridge, you find the source of the smoke: a squat, tusked brute crouched over a smouldering campfire, gnawing on a blackened bone. It rises with a snarl the moment it catches your scent, hefting a notched cleaver.",
+            "combatChoices": [
+                {
+                    "enemyName": "Ridge Brute",
+                    "combatSkill": 14,
+                    "endurance": 18,
+                    "immunity": "none",
+                    "notes": "Fights with a notched cleaver; no special resistances.",
+                    "condition": "WIN",
+                    "choiceText": "You beat the Ridge Brute",
+                    "nextSceneId": "4"
+                },
+                {
+                    "enemyName": "Ridge Brute",
+                    "combatSkill": 14,
+                    "endurance": 18,
+                    "immunity": "none",
+                    "notes": "Fights with a notched cleaver; no special resistances.",
+                    "condition": "LOSE",
+                    "choiceText": "The Ridge Brute overwhelms you",
+                    "nextSceneId": "2"
+                },
+                {
+                    "enemyName": "Ridge Brute",
+                    "combatSkill": 14,
+                    "endurance": 18,
+                    "immunity": "none",
+                    "notes": "Evasion available only to those trained in Shadow Step.",
+                    "condition": "EVADE",
+                    "requiredDiscipline": "SHADOWSTEP",
+                    "choiceText": "Slip away into the brush before the brute closes in",
+                    "nextSceneId": "2"
+                }
+            ],
+            "location": {
+                "areaName": "Smouldering Ridge",
+                "isMajorLocation": true
+            }
+        },
+        {
+            "id": "4",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "challengeLevel": "BASE",
+            "narrativeText": "Past the ridge, a cairn of grey stones marks a hollow in the hillside. Wedged between two slabs, a rust-eaten key catches the last light. As you pry it free, the wind seems to hold its breath, as if the vale itself takes note of your passing.",
+            "gameMechanics": [
+                "<ADD_ITEM id=\"cairn_key\" name=\"Rust-eaten Key\" quantity=\"1\"/>",
+                "<SET_FLAG name=\"found_cairn_key\" value=\"true\"/>"
+            ],
+            "choices": [
+                {
+                    "id": "choice_4_1",
+                    "choiceText": "Leave the hollow and continue on",
+                    "nextSceneId": "5"
+                }
+            ],
+            "disciplineChoices": [],
+            "location": {
+                "areaName": "Hollow of the Old Cairn",
+                "isMajorLocation": false
+            }
+        },
+        {
+            "id": "5",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "challengeLevel": "BASE",
+            "narrativeText": "The gates of Eldermoor rise before you at last, torches guttering against the coming dusk. The guard at the postern recognizes the old key in your hand and waves you through without a word. Whatever waits inside, the road behind you is finally done.",
+            "choices": [],
+            "disciplineChoices": [],
+            "location": {
+                "areaName": "Gates of Eldermoor",
+                "isMajorLocation": true
+            }
+        }
+    ]
+}
