@@ -82,3 +82,50 @@ chat history; riuso integrale del `config.json` di v1 (sistema
    feature abbandonate (es. generazione immagini dinamica, doppia lingua).
    Nota: `SkillData.kt` già identificato come morto da Michele. Da fare
    nella stessa sessione di delega dell'inventario asset v1.
+
+### Sessione mattutina 15/07
+
+**Fatto:**
+- Esame classi v1 completato: flusso del prompt ricostruito in 4 tappe
+  (dettagli in `doc/ANALISI-FLUSSO-PROMPT-V1.md`).
+- Censimento 56 file `.kt`: 4 morti certi (`SkillData`, `AdventureDialogs`,
+  `tools/Merger`, `tools/ValidationScript`), ~13 legati a feature abbandonate
+  (`stdf/*`, `LlamaCppEngine`/chat libera, `TranslationEngine`, doppia
+  lingua), nucleo riusabile identificato (`StringTagParser` quasi
+  integrale, `InferenceEngine`, pattern `GemmaEngine`).
+- Bug trovato in v1: parsing di `tagsPart` duplicato in `MainViewModel`
+  (~righe 1426-1444), comandi eseguiti due volte.
+- TASK 2 CHIUSO: frammenti prompt scritti e inseriti in `config.json`.
+
+**Decisioni:**
+- `buildGemmaPromptForScene` di v1 (testato con Gemma 3) è il riferimento;
+  rivisto per Ex con: lingue parametriche (`source_language` dal manifest,
+  `user_language` da Android), tono da `toneHints` scena + default
+  manifest, contesto = `narrativeText` scena precedente, continuazioni =
+  `narrativeText` scene successive, arricchimento non generazione.
+- Chiamata singola confermata (narrativa + scelte + discipline in una
+  inferenza, velocità sul Razr).
+- Formato output a righe con pipe (`CHOICE|...|...|testo`) al posto dei tag
+  XML: in v1 Gemma sbagliava i tag e il parser si inceppava. Il testo è
+  sempre l'ultimo campo: il motore splitta con limit, un pipe nel testo
+  non rompe il parsing.
+- Fallback per conteggio: se dal parsing tornano meno scelte di quelle
+  inviate, per le mancanti si usa il `choiceText` originale del pacchetto.
+  Il parsing che fallisce non blocca MAI il gioco.
+- Prompt in inglese (l'italiano era comunque testato e funzionante su
+  Gemma 3).
+- Discorsi dei personaggi tra apici singoli, mai doppi apici.
+- `challengeLevel` eliminato dallo schema Ex: verificato nel codice,
+  nessuna logica di motore dietro (una sola riga di colore nel prompt);
+  il ruolo lo coprono i `toneHints`.
+- Output reali di Gemma da salvare come fixture di test durante lo
+  sviluppo.
+
+**Prossimi task** (aggiunti ai delegabili):
+- Validatore config parser (`config.json`): regex compilano, placeholder
+  coerenti coi gruppi, tag id univoci, actor validi — in v1 le regex rotte
+  fallivano silenziosamente.
+- Suite test per parser e validatori con fixture di output Gemma reali.
+- (già a diario) validatore pacchetti scene, inventario asset v1,
+  analisi codice morto v1 — quest'ultima ora ha la base in
+  `doc/ANALISI-FLUSSO-PROMPT-V1.md`.
