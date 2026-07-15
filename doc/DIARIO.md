@@ -129,3 +129,39 @@ chat history; riuso integrale del `config.json` di v1 (sistema
 - (già a diario) validatore pacchetti scene, inventario asset v1,
   analisi codice morto v1 — quest'ultima ora ha la base in
   `doc/ANALISI-FLUSSO-PROMPT-V1.md`.
+
+**Decisione di metodo:**
+Lo sviluppo è l'ULTIMA fase. Prima si definiscono tutte le specifiche e si
+analizzano le criticità; solo a specifiche complete si passa al codice.
+Principi architetturali vincolanti per Ex:
+- separazione netta tra responsabilità di UI e di logica;
+- file più piccoli possibile, moduli con responsabilità singola;
+- anti-modello dichiarato: il `MainViewModel` di v1 (1.634 righe, fa tutto:
+  motori, prompt, parsing, comandi, combat, salvataggi, traduzione). Il bug
+  del parsing duplicato è conseguenza diretta di quella dimensione.
+
+**Piano specifiche** (sostituisce i punti di sviluppo della roadmap, che
+slittano a valle; la specifica narrazione è GIÀ CHIUSA con struttura scena
++ frammenti prompt + formato output + fallback):
+1. Architettura moduli (`doc/ARCHITETTURA.md`) — strati: data (modelli +
+   caricamento pacchetti, zero Android), engine (regole, stato, combat —
+   zero Android e zero UI, testabile da terminale), inference (dietro
+   interfaccia `InferenceEngine`: prompt builder, parser, fallback), ui
+   (Compose, solo presentazione), ViewModel piccoli, uno per schermata,
+   soli punti di raccordo. Definire i contratti tra moduli.
+2. Specifica regole di gioco — combat, Dado del Destino, gradi Kai,
+   Resistenza/Combattività, modificatori. Base: esame di
+   `GameRulesEngine` + `LoneWolfRules` + `GameLogicManager` di v1.
+3. Specifica stato e salvataggio — contenuto sessione, quando si salva,
+   formato. Base: `GameStateManager`/`SessionData` di v1.
+4. Specifica UI — schermate, scena teatrale con `backgroundImage`,
+   pulsanti scelta, semaforo token. Solo il cosa, non il come.
+5. Specifica ETL — conversione libro -> formato pacchetto.
+6. Analisi criticità (trasversale) — prestazioni inferenza su Razr 70
+   Ultra, limiti contesto Gemma, memoria, tempi caricamento modello,
+   assenza modello, degradazioni.
+
+**Prossima sessione di design:**
+Architettura moduli (punto 1), partendo dall'esame di `GameRulesEngine`,
+`LoneWolfRules` e `GameLogicManager` di v1 per mappare come v1 mischiava le
+responsabilità. Output atteso: `doc/ARCHITETTURA.md`.
