@@ -2,6 +2,31 @@
 
 ## 16/07/2026
 
+### Sessione lampo — inventario asset v1
+
+**Inventario asset v1 completato** (`doc/INVENTARIO-ASSET.md`): scansionato
+`app/src/main/res/drawable*` + `app/src/main/assets/` del repo
+`ImmundaNoctis-master` al commit `8b705b8` (branch `master`). Numeri
+chiave:
+- 18 file, 20,47 MB totali (19,84 MB in `res/drawable/`, 0,63 MB in
+  `assets/`).
+- Nessuna icona di gioco, nessuno sfondo ambiente, nessun `portrait_elara`/
+  `lupo_solitario.png`: questo commit è molto più magro del branch
+  `develop` fotografato in `ANALISI-RIUSO-V1.md` il 14/07 (43 MB in
+  drawable) — quegli asset sono stati aggiunti su `develop` dopo il merge
+  in `master` del 30/06/2025. Da tenere presente per un secondo giro di
+  inventario su `develop` se servirà.
+- Classificazione: 3 file RIUSABILI (ritratti eroe m/f, ritratto DM,
+  boilerplate launcher icon), 8 file LEGATI A FEATURE MORTA (ritratti
+  classi D&D sage/thief/warrior/witch — in Lupo Solitario non c'è
+  selezione di classe, sostituita dalle Discipline Kai), 4 DA RIFARE
+  (cleric/mage generici, map_dungeon non pertinente, scenes.json/
+  config.json vecchio schema già superati).
+- Nessun candidato v1 per i `backgroundImage` richiesti dal sample
+  (inn/city/alley/battle/warehouse): da produrre ex novo.
+- Stima conversione WebP: ~79% di risparmio sui 14 JPEG (da 19,84 MB a
+  ~4,2 MB), in linea con la stima già fatta il 14/07 sul set più ampio.
+
 ### Sessione (secondo task)
 
 **Fatto — audit e revisione `content/config.json`:**
