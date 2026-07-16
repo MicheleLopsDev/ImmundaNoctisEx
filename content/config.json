@@ -1,419 +1,289 @@
 {
   "tags": [
     {
-      "id": "e963b8d1-7c9f-4e0a-b1e7-c1a9d0f4e6b2",
-      "type": "textSubstitution",
-      "regex": "\\{object\\}",
-      "replacement": "un antico tomo rilegato in pelle",
-      "parameters": [],
-      "actor": "ANY",
-      "command": null,
-      "replace": true
-    },
-    {
-      "id": "start_adventure_prompt",
-      "type": "promptDescription",
-      "regex": "\\{start_adventure_prompt\\}",
+      "id": "narrative_choice_translation",
+      "type": "dynamicText",
+      "regex": "<choice_it\\s+scene=\\\"(\\d+)\\\"\\s+progressivo=\\\"(\\d+)\\\">([^<]*)<\\/choice_it>",
       "replacement": null,
       "parameters": [
-        {
-          "name": "baseText",
-          "value": "You are the narrator of an interactive gamebook. Your task is to enrich and translate a scene for the player."
-        },
-        {
-          "name": "previousSceneText",
-          "value": "[THE STORY SO FAR]\n{previous_scene_text}"
-        },
-        {
-          "name": "sceneText",
-          "value": "[CURRENT SCENE — source text in {source_language}]\n{scene_narrative_text}"
-        },
-        {
-          "name": "continuationsText",
-          "value": "[POSSIBLE CONTINUATIONS — for consistency only, do NOT reveal them]\n{continuations_text}"
-        },
-        {
-          "name": "choicesText",
-          "value": "[CHOICES TO TRANSLATE]\n{choices_text}"
-        },
-        {
-          "name": "constraintText",
-          "value": "Follow these instructions EXACTLY:\n1. Rewrite the CURRENT SCENE text in {user_language}, enriching it with details consistent with the '{genre}' genre and this tone: {tone_hints}. Keep all facts, characters, items and events of the source text unchanged. Do NOT invent new events, items or characters.\n2. Your answer must start DIRECTLY with the scene text. Do NOT repeat the story so far. Do NOT anticipate the continuations.\n3. Character speech goes between single quotes ' ', never between \".\n4. Never use the | character in the narrative text.\n5. NEVER generate game mechanics tags such as <ADD_ITEM> or <STAT_MOD>."
-        },
-        {
-          "name": "outputFormatText",
-          "value": "After the scene text, write the separator: --- TAGS ---\nBelow the separator, one line per choice, exactly in this format:\nCHOICE|scene_id|progressive|translated text\nDISCIPLINE|discipline_id|translated text"
-        },
-        {
-          "name": "closingText",
-          "value": "NARRATOR (in {user_language}, tone: {tone_hints}):"
-        }
-      ],
-      "actor": "ANY",
-      "command": null,
-      "replace": false
-    },
-    {
-      "id": "f5a2c1b0-8d3e-4f7c-9a2b-1c3d4e5f6a7b",
-      "type": "textSubstitution",
-      "regex": "\\{action\\}",
-      "replacement": "il personaggio si muove furtivamente tra le ombre",
-      "parameters": [],
-      "actor": "ANY",
-      "command": null,
-      "replace": true
-    },
-    {
-      "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
-      "type": "promptDescription",
-      "regex": "\\{prompt\\[(\\d+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "paramIndex",
-          "description": "Indice del parametro all'interno del tag prompt",
-          "defaultValue": 0
-        },
-        {
-          "name": "promptValue0",
-          "description": "Il primo valore per il prompt parametrizzato",
-          "value": "un maestoso drago che vola sopra montagne innevate"
-        },
-        {
-          "name": "promptValue1",
-          "description": "Il secondo valore per il prompt parametrizzato",
-          "value": "un eroe che brandisce una spada fiammeggiante"
-        },
-        {
-          "name": "promptValue2",
-          "description": "Il terzo valore per il prompt parametrizzato",
-          "value": "un misterioso manufatto antico avvolto in un'aura magica"
-        }
-      ],
-      "actor": "ANY",
-      "command": null,
-      "replace": true
-    },
-    {
-      "id": "b2c3d4e5-f6a7-8901-2345-67890abcdef0",
-      "type": "dndEnvironmentDescription",
-      "regex": "\\{ambiente_dnd\\[([^\\]]+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "environmentType",
-          "description": "Il tipo di ambiente da descrivere (es. 'foresta', 'caverna', 'città')",
-          "defaultValue": "generico"
-        },
-        {
-          "name": "dettagliAggiuntivi",
-          "description": "Dettagli specifici per l'ambiente",
-          "defaultValue": ""
-        },
-        {
-          "name": "descriptionForest",
-          "value": "Ti trovi in una fitta foresta, alberi secolari si ergono imponenti e la luce filtra a stento tra le fronde, creando giochi d'ombra misteriosi. L'aria è umida e si sente il fruscio delle foglie sotto i tuoi piedi."
-        },
-        {
-          "name": "descriptionCave",
-          "value": "L'oscurità ti avvolge mentre entri nella caverna. L'eco dei tuoi passi si disperde nel silenzio, interrotto solo dal gocciolio dell'acqua. Un leggero odore di umidità e muschio pervade l'aria."
-        }
-      ],
-      "actor": "ANY",
-      "command": null,
-      "replace": true
-    },
-    {
-      "id": "c3d4e5f6-a7b8-9012-3456-7890abcdef1",
-      "type": "chatBotSaluto",
-      "regex": "\\{greeting\\}",
-      "replacement": "Ciao! Sono qui per aiutarti. Come posso assisterti oggi?",
-      "parameters": [],
-      "actor": "ANY",
-      "command": null,
-      "replace": true
-    },
-    {
-      "id": "d4e5f6a7-b8c9-0123-4567-890abcdef2",
-      "type": "gameMechanic",
-      "regex": "\\{strength\\[(base|medium|advanced|master)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "challengeLevel",
-          "description": "The challenge level for Strength check",
-          "defaultValue": "base"
-        },
-        {
-          "name": "strengthBaseDesc",
-          "value": "Perform a basic physical feat, like pushing a small crate."
-        },
-        {
-          "name": "strengthMediumDesc",
-          "value": "Attempt to open a rusty, stuck door."
-        },
-        {
-          "name": "strengthAdvancedDesc",
-          "value": "Try to lift a fallen stone pillar to clear a path."
-        },
-        {
-          "name": "strengthMasterDesc",
-          "value": "Exert immense power to break free from magical restraints."
-        }
-      ],
-      "actor": "ANY",
-      "command": "gameChallenge",
-      "replace": true
-    },
-    {
-      "id": "d4e5f6a7-b8c9-0123-4567-890abcdef_dexterity",
-      "type": "gameMechanic",
-      "regex": "\\{dexterity\\[(base|medium|advanced|master)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "challengeLevel",
-          "description": "The challenge level for Dexterity check",
-          "defaultValue": "base"
-        },
-        {
-          "name": "dexterityBaseDesc",
-          "value": "Perform a basic agility feat, like balancing on a narrow ledge."
-        },
-        {
-          "name": "dexterityMediumDesc",
-          "value": "Attempt to pick a complex lock silently."
-        },
-        {
-          "name": "dexterityAdvancedDesc",
-          "value": "Dodge a barrage of incoming arrows with incredible speed."
-        },
-        {
-          "name": "dexterityMasterDesc",
-          "value": "Navigate a field of magical traps without triggering any."
-        }
-      ],
-      "actor": "ANY",
-      "command": "gameChallenge",
-      "replace": true
-    },
-    {
-      "id": "d4e5f6a7-b8c9-0123-4567-890abcdef_intelligence",
-      "type": "gameMechanic",
-      "regex": "\\{intelligence\\[(base|medium|advanced|master)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "challengeLevel",
-          "description": "The challenge level for Intelligence check",
-          "defaultValue": "base"
-        },
-        {
-          "name": "intelligenceBaseDesc",
-          "value": "Recall a basic historical fact about the region."
-        },
-        {
-          "name": "intelligenceMediumDesc",
-          "value": "Decipher a cryptic ancient riddle or puzzle."
-        },
-        {
-          "name": "intelligenceAdvancedDesc",
-          "value": "Unravel a complex magical enigma or obscure prophecy."
-        },
-        {
-          "name": "intelligenceMasterDesc",
-          "value": "Solve a multi-layered mystery with limited clues."
-        }
-      ],
-      "actor": "ANY",
-      "command": "gameChallenge",
-      "replace": true
-    },
-    {
-      "id": "d4e5f6a7-b8c9-0123-4567-890abcdef_spellcraft",
-      "type": "gameMechanic",
-      "regex": "\\{spellcraft\\[(base|medium|advanced|master)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "challengeLevel",
-          "description": "The challenge level for Spellcraft check",
-          "defaultValue": "base"
-        },
-        {
-          "name": "spellcraftBaseDesc",
-          "value": "Identify the basic magical aura of an item."
-        },
-        {
-          "name": "spellcraftMediumDesc",
-          "value": "Attempt to dispel a minor magical ward."
-        },
-        {
-          "name": "spellcraftAdvancedDesc",
-          "value": "Counter a powerful enemy spell in the heat of battle."
-        },
-        {
-          "name": "spellcraftMasterDesc",
-          "value": "Manipulate raw arcane energy to alter the fabric of reality."
-        }
-      ],
-      "actor": "ANY",
-      "command": "gameChallenge",
-      "replace": true
-    },
-    {
-      "id": "e5f6a7b8-c9d0-1234-5678-90abcdef3",
-      "type": "triggerAudio",
-      "regex": "\\{play_audio\\[([^\\]]+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "audioFile",
-          "description": "The name of the audio file to play",
-          "defaultValue": "default.mp3"
-        }
-      ],
-      "actor": "ANY",
-      "command": "playAudio",
-      "replace": false
-    },
-    {
-      "id": "f6a7b8c9-d0e1-2345-6789-0abcdef4",
-      "type": "generateImage",
-      "regex": "\\{generate_image\\[([^\\]]+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "prompt",
-          "description": "The prompt to send to the stable diffusion model",
-          "defaultValue": "a default image"
-        }
-      ],
-      "actor": "ANY",
-      "command": "generateImage",
-      "replace": false
-    },
-    {
-      "id": "a7b8c9d0-e1f2-3456-7890-abcdef5",
-      "type": "triggerGraphicEffect",
-      "regex": "\\{graphic_effect\\[([^\\]]+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        {
-          "name": "effectName",
-          "description": "The name of the graphic effect to trigger",
-          "defaultValue": "default_effect"
-        }
-      ],
-      "actor": "ANY",
-      "command": "triggerGraphicEffect",
-      "replace": false
-    },
-    {
-      "id": "b8c8d1e1-f2g3-7890-8901-bcdefg6",
-      "type": "triggerAudio",
-      "regex": "\\{TOKEN_LIMIT_REACHED\\}",
-      "replacement": "",
-      "parameters": [
-        {
-          "name": "audioFile",
-          "value": "bell_chime.mp3"
-        }
-      ],
-      "actor": "ANY",
-      "command": "playAudio",
-      "replace": false
-    },
-    {
-      "id": "c1d2e3f4-a5b6-7890-1234-567890c01",
-      "type": "directionalChoice",
-      "regex": "\\{left_choice\\[([^\\]]+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        { "name": "direction", "value": "LEFT" },
-        { "name": "colorHex", "value": "#FF0000" },
-        { "name": "choiceText", "value": "Vai a sinistra" },
-        { "name": "nextSceneId", "value": null }
+        { "name": "sceneId", "value": "{captured_value_from_regex_1}" },
+        { "name": "progressiveId", "value": "{captured_value_from_regex_2}" },
+        { "name": "italianText", "value": "{captured_value_from_regex_3}" }
       ],
       "actor": "DM",
-      "command": "displayDirectionalButton",
-      "replace": false
-    },
-    {
-      "id": "c1d2e3f4-a5b6-7890-1234-567890c02",
-      "type": "directionalChoice",
-      "regex": "\\{right_choice\\[([^\\]]+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        { "name": "direction", "value": "RIGHT" },
-        { "name": "colorHex", "value": "#008000" },
-        { "name": "choiceText", "value": "Vai a destra" },
-        { "name": "nextSceneId", "value": null }
-      ],
-      "actor": "DM",
-      "command": "displayDirectionalButton",
-      "replace": false
-    },
-    {
-      "id": "c1d2e3f4-a5b6-7890-1234-567890c03",
-      "type": "directionalChoice",
-      "regex": "\\{forward_choice\\[([^\\]]+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        { "name": "direction", "value": "FORWARD" },
-        { "name": "colorHex", "value": "#0000FF" },
-        { "name": "choiceText", "value": "Avanti" },
-        { "name": "nextSceneId", "value": null }
-      ],
-      "actor": "DM",
-      "command": "displayDirectionalButton",
-      "replace": false
-    },
-    {
-      "id": "c1d2e3f4-a5b6-7890-1234-567890c04",
-      "type": "directionalChoice",
-      "regex": "\\{back_choice\\[([^\\]]+)\\]\\}",
-      "replacement": null,
-      "parameters": [
-        { "name": "direction", "value": "BACK" },
-        { "name": "colorHex", "value": "#FFFF00" },
-        { "name": "choiceText", "value": "Indietro" },
-        { "name": "nextSceneId", "value": null }
-      ],
-      "actor": "DM",
-      "command": "displayDirectionalButton",
-      "replace": false
-    },
-    {
-      "id": "crti_ok_tag",
-      "type": "textSubstitution",
-      "regex": "\\{CRTI_OK\\}",
-      "replacement": "SUCCESSO CRITICO! 🎉",
-      "parameters": [],
-      "actor": "ANY",
-      "command": null,
+      "command": "updateChoiceText",
       "replace": true
     },
     {
-      "id": "crti_ko_tag",
-      "type": "textSubstitution",
-      "regex": "\\{CRTI_K0\\}",
-      "replacement": "FALLIMENTO CRITICO! 💀",
-      "parameters": [],
-      "actor": "ANY",
-      "command": null,
+      "id": "discipline_choice_translation",
+      "type": "dynamicText",
+      "regex": "<DISCIPLINE_IT\\s+id=\\\"([^\\\"]*)\\\">([^<]*)<\\/discipline_it>",
+      "replacement": null,
+      "parameters": [
+        { "name": "id", "value": "{captured_value_from_regex_1}" },
+        { "name": "italianText", "value": "{captured_value_from_regex_2}" }
+      ],
+      "actor": "DM",
+      "command": "updateDisciplineChoiceText",
+      "replace": true
+    },{
+      "id": "victory_text_translation",
+      "type": "dynamicText",
+      "regex": "<victory_text_it>([^<]*)<\\/victory_text_it>",
+      "parameters": [
+        { "name": "text", "value": "{captured_value_from_regex_1}" }
+      ],
+      "actor": "DM",
+      "command": "setVictoryText",
+      "replace": true
+    },
+    {
+      "id": "defeat_text_translation",
+      "type": "dynamicText",
+      "regex": "<defeat_text_it>([^<]*)<\\/defeat_text_it>",
+      "parameters": [
+        { "name": "text", "value": "{captured_value_from_regex_1}" }
+      ],
+      "actor": "DM",
+      "command": "setDefeatText",
+      "replace": true
+    },
+    {
+      "id": "add_item_tag",
+      "type": "gameMechanic",
+      "regex": "<addItem\\s+itemType=\\\"([^\\\"]*)\\\"\\s+itemName=\\\"([^\\\"]*)\\\"\\s+quantity=\\\"(\\d+)\\\"(?:\\s+modifier=\\\"([^\\\"]*)\\\")?(?:\\s+notes=\\\"([^\\\"]*)\\\")?\\s*\\/>",
+      "parameters": [
+        { "name": "itemType", "value": "{captured_value_from_regex_1}" },
+        { "name": "itemName", "value": "{captured_value_from_regex_2}" },
+        { "name": "quantity", "value": "{captured_value_from_regex_3}" },
+        { "name": "modifier", "value": "{captured_value_from_regex_4}" },
+        { "name": "notes", "value": "{captured_value_from_regex_5}" }
+      ],
+      "actor": "DM",
+      "command": "addItem",
+      "replace": true
+    },
+    {
+      "id": "remove_item_tag",
+      "type": "gameMechanic",
+      "regex": "<removeItem\\s+itemName=\\\"([^\\\"]*)\\\"\\s+quantity=\\\"(\\d+)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "itemName", "value": "{captured_value_from_regex_1}" },
+        { "name": "quantity", "value": "{captured_value_from_regex_2}" }
+      ],
+      "actor": "DM",
+      "command": "removeItem",
+      "replace": true
+    },{
+      "id": "victory_text_translation",
+      "type": "dynamicText",
+      "regex": "<victory_text_it>([^<]*)<\\/victory_text_it>",
+      "parameters": [
+        { "name": "text", "value": "{captured_value_from_regex_1}" }
+      ],
+      "actor": "DM",
+      "command": "setVictoryText",
+      "replace": true
+    },
+    {
+      "id": "defeat_text_translation",
+      "type": "dynamicText",
+      "regex": "<defeat_text_it>([^<]*)<\\/defeat_text_it>",
+      "parameters": [
+        { "name": "text", "value": "{captured_value_from_regex_1}" }
+      ],
+      "actor": "DM",
+      "command": "setDefeatText",
+      "replace": true
+    },
+    {
+      "id": "require_action_tag",
+      "type": "gameMechanic",
+      "regex": "<requireAction\\s+action=\\\"([^\\\"]*)\\\"\\s+penaltyStat=\\\"([^\\\"]*)\\\"\\s+penaltyValue=\\\"([+-]?\\d+)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "action", "value": "{captured_value_from_regex_1}" },
+        { "name": "penaltyStat", "value": "{captured_value_from_regex_2}" },
+        { "name": "penaltyValue", "value": "{captured_value_from_regex_3}" }
+      ],
+      "actor": "DM",
+      "command": "requireAction",
+      "replace": true
+    },
+    {
+      "id": "remove_all_tag",
+      "type": "gameMechanic",
+      "regex": "<removeAll\\s+type=\\\"([^\\\"]*)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "type", "value": "{captured_value_from_regex_1}" }
+      ],
+      "actor": "DM",
+      "command": "removeAllItems",
+      "replace": true
+    },
+    {
+      "id": "heal_tag",
+      "type": "gameMechanic",
+      "regex": "<heal\\s+statName=\\\"([^\\\"]*)\\\"\\s+amount=\\\"(\\d+|FULL)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "statName", "value": "{captured_value_from_regex_1}" },
+        { "name": "amount", "value": "{captured_value_from_regex_2}" }
+      ],
+      "actor": "DM",
+      "command": "healStat",
+      "replace": true
+    },
+    {
+      "id": "set_flag_tag",
+      "type": "gameMechanic",
+      "regex": "<setFlag\\s+flagName=\\\"([^\\\"]*)\\\"\\s+value=\\\"([^\\\"]*)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "flagName", "value": "{captured_value_from_regex_1}" },
+        { "name": "value", "value": "{captured_value_from_regex_2}" }
+      ],
+      "actor": "DM",
+      "command": "setFlag",
+      "replace": true
+    },
+    {
+      "id": "random_item_table_tag",
+      "type": "gameMechanic",
+      "regex": "<randomItemTable\\s+outcomes=\\\"(\\[[^\\]]+\\])\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "outcomes", "value": "{captured_value_from_regex_1}" }
+      ],
+      "actor": "DM",
+      "command": "rollOnItemTable",
+      "replace": true
+    },
+    {
+      "id": "random_quantity_tag",
+      "type": "gameMechanic",
+      "regex": "<randomQuantity\\s+item=\\\"([^\\\"]*)\\\"\\s+baseValue=\\\"(\\d+)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "item", "value": "{captured_value_from_regex_1}" },
+        { "name": "baseValue", "value": "{captured_value_from_regex_2}" }
+      ],
+      "actor": "DM",
+      "command": "rollForQuantity",
+      "replace": true
+    },
+    {
+      "id": "stat_mod_tag",
+      "type": "gameMechanic",
+      "regex": "<statMod\\s+statName=\\\"([^\\\"]*)\\\"\\s+amount=\\\"([+-]?\\d+|-?FULL)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "statName", "value": "{captured_value_from_regex_1}" },
+        { "name": "amount", "value": "{captured_value_from_regex_2}" }
+      ],
+      "actor": "DM",
+      "command": "applyStatModifier",
+      "replace": true
+    },
+    {
+      "id": "if_stat_tag",
+      "type": "gameMechanic",
+      "regex": "<ifStat\\s+statName=\\\"([^\\\"]*)\\\"\\s+operator=\\\"([^\\\"]*)\\\"\\s+value=\\\"([+-]?\\d+)\\\"\\s+targetScene=\\\"([^\\\"]*)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "statName", "value": "{captured_value_from_regex_1}" },
+        { "name": "operator", "value": "{captured_value_from_regex_2}" },
+        { "name": "value", "value": "{captured_value_from_regex_3}" },
+        { "name": "targetScene", "value": "{captured_value_from_regex_4}" }
+      ],
+      "actor": "DM",
+      "command": "checkStatAndJump",
+      "replace": true
+    },
+    {
+      "id": "random_choice_table_tag",
+      "type": "gameMechanic",
+      "regex": "<randomChoiceTable\\s+outcomes=\\\"(\\[.*?\\])\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "outcomes", "value": "{captured_value_from_regex_1}" }
+      ],
+      "actor": "DM",
+      "command": "handleRandomChoice",
+      "replace": true
+    },
+    {
+      "id": "if_item_choice_tag",
+      "type": "gameMechanic",
+      "regex": "<ifItem\\s+itemName=\\\"([^\\\"]*)\\\"(?:\\s+quantity=\\\"(\\d+)\\\")?\\s+operator=\\\"([^\\\"]*)\\\"\\s+nextSceneId_TRUE=\\\"([^\\\"]*)\\\"(?:\\s+nextSceneId_FALSE=\\\"([^\\\"]*)\\\")?\\s*/>",
+      "parameters": [
+        { "name": "itemName", "value": "{captured_value_from_regex_1}" },
+        { "name": "quantity", "value": "{captured_value_from_regex_2}" },
+        { "name": "operator", "value": "{captured_value_from_regex_3}" },
+        { "name": "nextSceneId_TRUE", "value": "{captured_value_from_regex_4}" },
+        { "name": "nextSceneId_FALSE", "value": "{captured_value_from_regex_5}" }
+      ],
+      "actor": "DM",
+      "command": "checkItemAndJump",
+      "replace": true
+    },
+    {
+      "id": "skill_check_tag",
+      "type": "gameMechanic",
+      "regex": "<skillCheck\\s+checkType=\\\"([^\\\"]*)\\\"(?:\\s+discipline=\\\"([^\\\"]*)\\\")?(?:\\s+modifier=\\\"([+-]?\\d+)\\\")?\\s+outcomes=\\\"(\\[.*?\\])\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "checkType", "value": "{captured_value_from_regex_1}" },
+        { "name": "discipline", "value": "{captured_value_from_regex_2}" },
+        { "name": "modifier", "value": "{captured_value_from_regex_3}" },
+        { "name": "outcomes", "value": "{captured_value_from_regex_4}" }
+      ],
+      "actor": "DM",
+      "command": "handleSkillCheck",
+      "replace": true
+    },
+    {
+      "id": "conditional_action_tag",
+      "type": "gameMechanic",
+      "regex": "<conditionalAction\\s+condition=\\\"([^\\\"]*)\\\"(?:\\s+itemName=\\\"([^\\\"]*)\\\")?\\s+action=\\\"(.*?)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "condition", "value": "{captured_value_from_regex_1}" },
+        { "name": "itemName", "value": "{captured_value_from_regex_2}" },
+        { "name": "action", "value": "{captured_value_from_regex_3}" }
+      ],
+      "actor": "DM",
+      "command": "handleConditionalAction",
+      "replace": true
+    },
+    {
+      "id": "set_global_var_tag",
+      "type": "gameMechanic",
+      "regex": "<setGlobalVar\\s+varName=\\\"([^\\\"]*)\\\"\\s+value=\\\"([^\\\"]*)\\\"\\s+operation=\\\"([^\\\"]*)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "varName", "value": "{captured_value_from_regex_1}" },
+        { "name": "value", "value": "{captured_value_from_regex_2}" },
+        { "name": "operation", "value": "{captured_value_from_regex_3}" }
+      ],
+      "actor": "DM",
+      "command": "setGlobalVar",
+      "replace": true
+    },
+    {
+      "id": "update_global_var_tag",
+      "type": "gameMechanic",
+      "regex": "<updateGlobalVar\\s+varName=\\\"([^\\\"]*)\\\"\\s+value=\\\"([+-]?\\d+)\\\"\\s+operation=\\\"([^\\\"]*)\\\"\\s*\\/>",
+      "parameters": [
+        { "name": "varName", "value": "{captured_value_from_regex_1}" },
+        { "name": "value", "value": "{captured_value_from_regex_2}" },
+        { "name": "operation", "value": "{captured_value_from_regex_3}" }
+      ],
+      "actor": "DM",
+      "command": "updateGlobalVar",
       "replace": true
     },
     {
       "id": "end_guff_tag",
       "type": "textSubstitution",
       "regex": "\\<\\|eot_id\\|",
-      "replacement": "",
+      "replacement": {
+        "italian": "",
+        "english": ""
+      },
       "parameters": [],
       "actor": "ANY",
       "command": null,
       "replace": true
     }
-
   ]
 }
