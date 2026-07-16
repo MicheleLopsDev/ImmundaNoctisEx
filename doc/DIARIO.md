@@ -2,6 +2,66 @@
 
 ## 16/07/2026
 
+### Sessione serale — chiusura specifica 2 (regole di gioco)
+
+**Specifica 2 CHIUSA** (`doc/REGOLE.md`, sostituisce la versione con solo
+il blocco 1). Blocchi 2-6:
+
+- **`globalRules` nel manifest**: lista di regole condizione ->
+  destinazione (`type`: FLAG | VAR, operatori ==/!=/>=/<=/>/<), valutate
+  a ogni transizione DOPO l'esecuzione dei `gameMechanics` della scena di
+  arrivo. Ordine di valutazione: morte built-in (Resistenza ≤ 0 ->
+  `deathSceneId`) prima di tutto, poi le `globalRules` in ordine di
+  scrittura, prima regola che matcha vince. `victorySceneId` come campo
+  dedicato eliminato: la vittoria è una `globalRule` come le altre, non
+  un caso speciale.
+- **Gradi Kai puramente cosmetici**: enum con soglie nell'engine, nomi in
+  `strings.xml`, nessun effetto meccanico (predisposizione concettuale
+  per un futuro `requiredRank`).
+- **MINDBLAST**: +2 Combattività per tutto il combattimento, attivabile
+  una volta dal menu tattico; il nemico può essere
+  `immuneToMindblast`. **WEAPONSKILL**: specializzazione scelta alla
+  creazione del personaggio, un tipo d'arma oppure `UNARMED` (bonus a
+  mani nude); il check "arma impugnata" arriva con la specifica 3.
+  **HEALING**: passiva, +1 Resistenza a ogni transizione verso una scena
+  senza combattimento, fino al massimo del personaggio. **Oggetti**:
+  flag `combatUsable` + effetto dichiarato, visibili solo nel menu
+  tattico in modalità completa.
+- **Comandi TO_IMPLEMENT chiusi**: `removeItem` tollerante (rimuove
+  quel che c'è, mai errore se manca quantità); `checkItemAndJump`
+  valutato come `ifStat` nell'ordine dei `gameMechanics`;
+  `rollOnItemTable` a intervalli espliciti di tiro 0-9 (validati per
+  copertura completa e assenza di sovrapposizioni).
+- **Dado del Destino fuori combattimento**: criterio narrativo — se il
+  tiro decide il destino tira il giocatore (`skillCheck`,
+  `randomChoiceTable`, teatro visibile); se decide una quantità tira il
+  motore in silenzio (`randomQuantity`, `rollOnItemTable`).
+
+**Emendamento §1.5** (nemico nella scena): l'authoring resta minimale
+(nome + due statistiche + destinazioni nel JSON), ma a RUNTIME il motore
+idrata un **`Character` unico** per tutti i ruoli (`role: HERO |
+COMPANION | ENEMY | NPC`, enum al posto dell'id magico `"hero"` di v1),
+erede di `GameCharacter`+`CharacterType` di v1 ripulito dai campi
+Android/presentazione e dalle feature morte. Premio della simmetria: la
+funzione di round diventa `resolveRound(a: Character, b: Character)` —
+nemici con MINDBLAST proprio o duelli eroe-contro-eroe non costano
+codice aggiuntivo al motore.
+
+**Input già decisi per la specifica 3** (stato/salvataggio): si
+serializzano i FATTI (stats base, inventario, `equippedWeapon`,
+`weaponSkillType`, `StatModifier` narrativi con sourceType/duration), i
+bonus (CS effettiva) si CALCOLANO con una sola funzione dell'engine, mai
+persistiti. Base di riuso: `HeroDetails`/`ComputedStats` di v1; difetto
+da non ripetere: in v1 `LoneWolfRules` sommava i modificatori per conto
+proprio invece di passare da `ComputedStats`, calcolo duplicato.
+
+**Nota per la specifica 5 (ETL)**: il secondo blocco storico del
+progetto v1 fu l'estrazione dei libri con un modello poco capace.
+Piano nuovo: parsing deterministico dell'XML Project Aon per la
+struttura (scene, collegamenti, sezioni) + LLM usato solo per
+classificare le meccaniche nei tag del config, con i validatori come
+rete di sicurezza finale (non come sostituto del parsing strutturale).
+
 ### Sessione serale — apertura specifica 2 (regole di gioco)
 
 **Aperta specifica 2** (`doc/REGOLE.md`). **Blocco combattimento CHIUSO:**
