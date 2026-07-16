@@ -54,6 +54,22 @@ Mappa logica del diario).
 
 **Prossima specifica: 5 (ETL — conversione libri in pacchetti).**
 
+### Aggiunta post-chiusura specifica 4
+
+- Campo opzionale `locationName` sulla scena: **appiccicoso** (eredita
+  dalla scena precedente se assente, l'autore lo scrive solo quando il
+  luogo cambia).
+- Diario del viaggio a due viste: **Racconto** (rilettura voce per
+  voce) e **Mappa logica** dei luoghi visitati (nodi col nome,
+  collegati nell'ordine del viaggio) — derivata dal diario-grafo
+  raggruppando le voci per `locationName`. v0.1: solo il nome del
+  luogo; predisposizione per annotare in futuro combattimenti (già
+  derivabili dalle Transition WIN/LOSE), NPC importanti e oggetti
+  trovati.
+- `JourneyEntry` porta con sé il `locationName` già risolto (ereditato)
+  al momento della visita: la Mappa logica non dipende dal ricalcolo
+  dell'ereditarietà a lettura.
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
