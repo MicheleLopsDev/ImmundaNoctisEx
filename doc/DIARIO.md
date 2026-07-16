@@ -34,9 +34,18 @@
   Ex diventa `PackageRepository` nel modulo data con `PackageSource`
   iniettato (niente Context).
 
+**Nota aggiuntiva:**
+- Verificato nel codice: `victory_text`/`defeat_text` di v1 erano campi di
+  `CombatState` (esito del singolo combattimento), non condizioni globali.
+  La condizione di esito globale (vittoria/sconfitta dell'avventura da
+  qualsiasi scena, su stat/flag/variabili) è un concetto NUOVO di Ex, da
+  progettare nella specifica 2 con `deathSceneId`/`victorySceneId` nel
+  manifest e regole globali valutate dall'engine a ogni transizione.
+
 **Prossime sessioni (piano specifiche, in ordine):**
 - Specifica 2: regole di gioco (combat, Dado del Destino, gradi Kai,
-  Resistenza/Combattività, modificatori) — dentro il modulo engine.
+  Resistenza/Combattività, modificatori, esiti globali
+  vittoria/sconfitta) — dentro il modulo engine.
 - Poi: stato e salvataggio (3), UI (4), ETL (5), criticità (6).
 
 ## 14/07/2026
