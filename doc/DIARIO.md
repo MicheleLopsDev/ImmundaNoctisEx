@@ -2,6 +2,43 @@
 
 ## 16/07/2026
 
+### Sessione serale — apertura specifica 2 (regole di gioco)
+
+**Aperta specifica 2** (`doc/REGOLE.md`). **Blocco combattimento CHIUSO:**
+- Due modalità a scelta del giocatore a inizio combattimento: rapido (il
+  motore itera i round fino all'esito, un solo riepilogo) e completo
+  (round per round, menu tattico continua/oggetto/disciplina/fuga).
+  Evasione, oggetti e discipline esistono solo nel completo.
+- Evasione con costo canonico Lupo Solitario (un ultimo round in cui solo
+  il giocatore subisce danni) e sblocco `evadeAfterRound` (fuga disponibile
+  solo dopo N round, default 0 = subito); fuga via disciplina (es.
+  CAMOUFLAGE) gratuita, offerta come scelta di scena prima del combattimento.
+- Priorità degli esiti: `loseSceneId` di scena batte `deathSceneId`
+  globale (il globale è il fallback, non il default); `winSceneId`
+  obbligatorio.
+- Nemico minimale nel JSON di scena: nome + `enemyCombatSkill` +
+  `enemyEndurance` + destinazioni (`winSceneId`/`loseSceneId`/
+  `evadeSceneId`/`evadeAfterRound`) — niente `GameCharacter` completo
+  come in v1.
+- `enemyName` tradotto da Gemma via nuova riga pipe `ENEMY|testo`, stessa
+  filosofia di fallback di CHOICE/DISCIPLINE (parsing fallito non blocca
+  mai il gioco).
+
+**Scoperta da v1** (`doc/MATERIALE-REGOLE-V1.md`): l'intera orchestrazione
+del combattimento in `MainViewModel` (loop round, `CombatState`, testi
+vittoria/sconfitta) è COMMENTATA, mai attiva in v1 — il combattimento non
+ha mai girato in produzione. Riuso reale limitato a due pezzi vivi: la
+tabella CRT (`LoneWolfRules.COMBAT_RESULTS_CHART`, con la trappola
+off-by-one sul tiro 0) e l'interfaccia `GameRulesEngine`
+(`canUseDiscipline`, `getKaiRank`). Il `CombatManager` di Ex nasce da
+zero, senza debito di compatibilità con un'orchestrazione mai testata.
+
+**Codice da generare** (tracciato in `doc/REGOLE.md` §1.6, non ancora
+fatto): tag `enemy_line` nel config (`^ENEMY\|(.+)$` ->
+`updateEnemyName`), riga `ENEMY` aggiunta a `outputFormatText`, blocco
+`combat` nella scena 4 (battle) di `scenes.sample.json`, regola
+validatore che rende `winSceneId` obbligatorio quando `combat` è presente.
+
 ### Sessione lampo — inventario asset v1
 
 **Inventario asset v1 completato** (`doc/INVENTARIO-ASSET.md`): scansionato
