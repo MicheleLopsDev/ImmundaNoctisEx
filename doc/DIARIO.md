@@ -2,7 +2,48 @@
 
 ## 16/07/2026
 
-### Sessione
+### Sessione (secondo task)
+
+**Fatto — audit e revisione `content/config.json`:**
+- Trovato che il commit `39030c8` (base di partenza fornita per l'audit)
+  aveva sovrascritto l'intero file e perso la sezione `start_adventure_prompt`
+  scritta e chiusa il 15/07 (commit `2d3f830`); recuperata da lì e reinserita.
+- 2 tag duplicati rimossi (`victory_text_translation`, `defeat_text_translation`
+  comparivano due volte identici).
+- `victory_text_translation`/`defeat_text_translation` eliminati del tutto
+  (anche la prima occorrenza): in Ex gli esiti sono scene ENDING con prosa
+  propria; l'esito globale è regola motore + `deathSceneId`/`victorySceneId`
+  nel manifest, non tag di traduzione.
+- `narrative_choice_translation` -> `choice_line`, regex convertita al
+  formato pipe (`^CHOICE\|([^|]+)\|([^|]+)\|(.+)$`), parametro rinominato
+  `translatedText` (il formato pipe è neutro rispetto alla lingua).
+- `discipline_choice_translation` -> `discipline_line`, stesso trattamento
+  (`^DISCIPLINE\|([^|]+)\|(.+)$`); risolve anche il bug di case della
+  vecchia regex XML (`<DISCIPLINE_IT ... </discipline_it>`).
+- `end_guff_tag`: `replacement` da oggetto `{italian, english}` a stringa
+  singola `""` (decisione lingua singola).
+- 3 tag orfani (comando assente in v1, meccanica voluta) mantenuti e
+  marcati `"status": "TO_IMPLEMENT"`: `remove_item_tag` (removeItem),
+  `if_item_choice_tag` (checkItemAndJump), `random_item_table_tag`
+  (rollOnItemTable).
+- Confermati invariati i comandi vivi in v1: `add_item_tag`,
+  `require_action_tag`, `remove_all_tag`, `heal_tag`, `set_flag_tag`,
+  `random_quantity_tag`, `stat_mod_tag`, `if_stat_tag`,
+  `random_choice_table_tag`, `skill_check_tag`, `conditional_action_tag`,
+  `set_global_var_tag`, `update_global_var_tag`.
+
+**Conferma di design:** i tag `gameMechanic` sono scelte dell'autore del
+libro, parsati SOLO dai dati del pacchetto (mai generati da Gemma);
+dall'output di Gemma si estraggono solo le righe `CHOICE|`/`DISCIPLINE|`.
+
+**Input per la specifica 2 (regole):** comandi da implementare in Ex:
+`removeItem`, `checkItemAndJump`, `rollOnItemTable`, regola globale
+Resistenza<=0 -> `deathSceneId`.
+
+**Nota schema manifest:** aggiungere `deathSceneId` e `victorySceneId`
+(opzionali) — da riportare in `doc/SCHEMA-PACCHETTO.md` quando si farà.
+
+### Sessione (primo task)
 
 **Fatto:**
 - Esame `GameRulesEngine` + `LoneWolfRules` + `GameLogicManager` di v1.
