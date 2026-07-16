@@ -2,6 +2,60 @@
 
 ## 16/07/2026
 
+### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
+
+**Specifica 3 CHIUSA** (`doc/STATO.md`). Decisioni:
+
+- **`SessionData`** con `currentSceneId` esplicito (in v1 era assente,
+  ricostruito per vie traverse dentro `GameCharacter`); `flags`/
+  `variables` tipizzati e unificati a livello di sessione — corregge tre
+  difetti di v1 insieme: il DM salvato come personaggio (retaggio
+  chatbot, in Ex non esiste nella sessione), lo stato spezzato tra
+  `HeroDetails` e `SessionData`, e la trappola `Map<String, Any>` di Gson
+  (i numeri tornano `Double`). Formato **kotlinx.serialization**, un file
+  JSON per pacchetto (`session_<packageId>.json`), dietro porta
+  iniettabile nel modulo `data` (stesso pattern di `PackageSource`, test
+  su file temporanei).
+- **Auto-save a ogni transizione di scena**, dopo `gameMechanics` +
+  `globalRules` (stato consistente per costruzione); vale per tutte le
+  difficoltà. **Il combattimento è atomico**: non si salva a metà, un
+  crash a metà combat riprende dall'ingresso della scena.
+- **Difficoltà come meta-regola sul salvataggio** (non inflazione di
+  statistiche), scelta a inizio avventura e immutabile: NORMALE 2
+  checkpoint, DIFFICILE 1, IRON 0. Checkpoint piazzati dal giocatore dal
+  menu, fotografia completa della `SessionData` su file separato,
+  **scritti una volta e mai spostabili/sovrascrivibili**, ricaricabili
+  illimitatamente (la durezza sta nell'irrevocabilità del piazzamento,
+  non nel numero di ricarichi); il ricaricamento tronca il diario al
+  punto del checkpoint. Morte in IRON = sessione cancellata, libro da
+  capo.
+- **Diario-grafo**: ogni voce `{sceneId, enrichedText, transition}` — il
+  testo generato da Gemma si salva e non si rigenera mai (costo
+  inferenza, non-determinismo, coerenza con `previous_scene_text`); la
+  sequenza delle voci è il percorso completo nel grafo (non solo dove sei
+  stato, anche per quale porta sei uscito); `visitedScenes` non esiste
+  come lista salvata, è derivato dal diario.
+- **Inventario canonico**: WEAPON max 2, BACKPACK_ITEM 8 posti,
+  SPECIAL_ITEM illimitati, GOLD 50 Corone; oggetto
+  `{name, type, quantity, combatUsable, effect}` con solo `HEAL:n`
+  implementato in v0.1 (formato dichiarativo estensibile senza cambiare
+  schema); limiti fatti rispettare dal motore, oltre soglia l'oggetto non
+  entra senza errore. `UNARMED` resta solo specializzazione WEAPONSKILL,
+  mai arma vera. `HUNTING` auto-soddisfa `requireAction action="EAT_MEAL"`
+  a costo zero (una riga di logica per l'effetto canonico della
+  disciplina).
+- **Nota di estensibilità**: il sistema è pensato per altri regolamenti
+  futuri (CRT dentro `LoneWolfRules` non nel motore, effetti oggetto
+  dichiarativi, globalRules generiche, difficoltà esterna alle regole) —
+  adattarlo tocca le implementazioni, non i contratti.
+
+**Prossima specifica: 4 (UI)** — eredita code precise già tracciate nelle
+sezioni finali di `doc/REGOLE.md` (scelta specializzazione WEAPONSKILL
+alla creazione, menu tattico, opzione MINDBLAST disabilitata se nemico
+immune) e di `doc/STATO.md` (scelta difficoltà in setup con spiegazione
+onesta di IRON, menu checkpoint con budget visibile, schermata
+inventario con equip/unequip, schermata diario/rilettura del viaggio).
+
 ### Sessione serale — chiusura specifica 2 (regole di gioco)
 
 **Specifica 2 CHIUSA** (`doc/REGOLE.md`, sostituisce la versione con solo
