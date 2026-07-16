@@ -1,52 +1,74 @@
 {
   "tags": [
     {
-      "id": "narrative_choice_translation",
+      "id": "choice_line",
       "type": "dynamicText",
-      "regex": "<choice_it\\s+scene=\\\"(\\d+)\\\"\\s+progressivo=\\\"(\\d+)\\\">([^<]*)<\\/choice_it>",
+      "regex": "^CHOICE\\|([^|]+)\\|([^|]+)\\|(.+)$",
       "replacement": null,
       "parameters": [
         { "name": "sceneId", "value": "{captured_value_from_regex_1}" },
         { "name": "progressiveId", "value": "{captured_value_from_regex_2}" },
-        { "name": "italianText", "value": "{captured_value_from_regex_3}" }
+        { "name": "translatedText", "value": "{captured_value_from_regex_3}" }
       ],
       "actor": "DM",
       "command": "updateChoiceText",
       "replace": true
     },
     {
-      "id": "discipline_choice_translation",
+      "id": "discipline_line",
       "type": "dynamicText",
-      "regex": "<DISCIPLINE_IT\\s+id=\\\"([^\\\"]*)\\\">([^<]*)<\\/discipline_it>",
+      "regex": "^DISCIPLINE\\|([^|]+)\\|(.+)$",
       "replacement": null,
       "parameters": [
         { "name": "id", "value": "{captured_value_from_regex_1}" },
-        { "name": "italianText", "value": "{captured_value_from_regex_2}" }
+        { "name": "translatedText", "value": "{captured_value_from_regex_2}" }
       ],
       "actor": "DM",
       "command": "updateDisciplineChoiceText",
       "replace": true
-    },{
-      "id": "victory_text_translation",
-      "type": "dynamicText",
-      "regex": "<victory_text_it>([^<]*)<\\/victory_text_it>",
-      "parameters": [
-        { "name": "text", "value": "{captured_value_from_regex_1}" }
-      ],
-      "actor": "DM",
-      "command": "setVictoryText",
-      "replace": true
     },
     {
-      "id": "defeat_text_translation",
-      "type": "dynamicText",
-      "regex": "<defeat_text_it>([^<]*)<\\/defeat_text_it>",
+      "id": "start_adventure_prompt",
+      "type": "promptDescription",
+      "regex": "\\{start_adventure_prompt\\}",
+      "replacement": null,
       "parameters": [
-        { "name": "text", "value": "{captured_value_from_regex_1}" }
+        {
+          "name": "baseText",
+          "value": "You are the narrator of an interactive gamebook. Your task is to enrich and translate a scene for the player."
+        },
+        {
+          "name": "previousSceneText",
+          "value": "[THE STORY SO FAR]\n{previous_scene_text}"
+        },
+        {
+          "name": "sceneText",
+          "value": "[CURRENT SCENE — source text in {source_language}]\n{scene_narrative_text}"
+        },
+        {
+          "name": "continuationsText",
+          "value": "[POSSIBLE CONTINUATIONS — for consistency only, do NOT reveal them]\n{continuations_text}"
+        },
+        {
+          "name": "choicesText",
+          "value": "[CHOICES TO TRANSLATE]\n{choices_text}"
+        },
+        {
+          "name": "constraintText",
+          "value": "Follow these instructions EXACTLY:\n1. Rewrite the CURRENT SCENE text in {user_language}, enriching it with details consistent with the '{genre}' genre and this tone: {tone_hints}. Keep all facts, characters, items and events of the source text unchanged. Do NOT invent new events, items or characters.\n2. Your answer must start DIRECTLY with the scene text. Do NOT repeat the story so far. Do NOT anticipate the continuations.\n3. Character speech goes between single quotes ' ', never between \".\n4. Never use the | character in the narrative text.\n5. NEVER generate game mechanics tags such as <ADD_ITEM> or <STAT_MOD>."
+        },
+        {
+          "name": "outputFormatText",
+          "value": "After the scene text, write the separator: --- TAGS ---\nBelow the separator, one line per choice, exactly in this format:\nCHOICE|scene_id|progressive|translated text\nDISCIPLINE|discipline_id|translated text"
+        },
+        {
+          "name": "closingText",
+          "value": "NARRATOR (in {user_language}, tone: {tone_hints}):"
+        }
       ],
-      "actor": "DM",
-      "command": "setDefeatText",
-      "replace": true
+      "actor": "ANY",
+      "command": null,
+      "replace": false
     },
     {
       "id": "add_item_tag",
@@ -73,28 +95,8 @@
       ],
       "actor": "DM",
       "command": "removeItem",
-      "replace": true
-    },{
-      "id": "victory_text_translation",
-      "type": "dynamicText",
-      "regex": "<victory_text_it>([^<]*)<\\/victory_text_it>",
-      "parameters": [
-        { "name": "text", "value": "{captured_value_from_regex_1}" }
-      ],
-      "actor": "DM",
-      "command": "setVictoryText",
-      "replace": true
-    },
-    {
-      "id": "defeat_text_translation",
-      "type": "dynamicText",
-      "regex": "<defeat_text_it>([^<]*)<\\/defeat_text_it>",
-      "parameters": [
-        { "name": "text", "value": "{captured_value_from_regex_1}" }
-      ],
-      "actor": "DM",
-      "command": "setDefeatText",
-      "replace": true
+      "replace": true,
+      "status": "TO_IMPLEMENT"
     },
     {
       "id": "require_action_tag",
@@ -153,7 +155,8 @@
       ],
       "actor": "DM",
       "command": "rollOnItemTable",
-      "replace": true
+      "replace": true,
+      "status": "TO_IMPLEMENT"
     },
     {
       "id": "random_quantity_tag",
@@ -217,7 +220,8 @@
       ],
       "actor": "DM",
       "command": "checkItemAndJump",
-      "replace": true
+      "replace": true,
+      "status": "TO_IMPLEMENT"
     },
     {
       "id": "skill_check_tag",
@@ -276,10 +280,7 @@
       "id": "end_guff_tag",
       "type": "textSubstitution",
       "regex": "\\<\\|eot_id\\|",
-      "replacement": {
-        "italian": "",
-        "english": ""
-      },
+      "replacement": "",
       "parameters": [],
       "actor": "ANY",
       "command": null,
