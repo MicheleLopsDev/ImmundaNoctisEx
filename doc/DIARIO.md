@@ -1,5 +1,59 @@
 # Diario di progetto
 
+## 17/07/2026
+
+### Sessione — chiusura specifica 4 (UI)
+
+**Specifica 4 CHIUSA** (`doc/UI.md`). Decisioni chiave:
+
+- **Estetica di v1 CONSERVATA** (riferimento: screenshot "L'Ultimo dei
+  Kai" — tema scuro, banner con ritratti sovrapposti, card personaggio
+  con grado dorato e icone stats). Corretti solo i tre elementi
+  dell'era-chatbot: via la barra di testo libero "Cosa fai?" (sostituita
+  dalla zona scelte), via le bolle chat (il testo scorre come pagina di
+  libro), il DM da personaggio salvato a **presenza visiva pura**
+  (cerchio d'oro su chi parla, nessun `Character` nei dati).
+- **7 schermate**: Home (continua/nuova/carica libro/modelli/opzioni),
+  Setup avventura (scelta difficoltà), Creazione personaggio (lupo/lupa,
+  tiro stat col Dado del Destino, 5 discipline, specializzazione
+  WEAPONSKILL), Avventura (scena teatrale), Scheda personaggio a due tab
+  (Stats e Discipline / Equipaggiamento e Zaino), Diario del viaggio
+  (Racconto + Mappa logica, esportazione Markdown), Opzioni (TTS con
+  voce per genere da `TtsPreferences` di v1, gestione modelli, lingua).
+- **Scena teatrale**: header con titolo/scena/semaforo token sul
+  pallino (verde/giallo/rosso, assorbe il contatore 0/10240 di v1);
+  banner `backgroundImage` con ritratti circolari sovrapposti
+  (narratore + eroe + compagno); flusso centrale come pagina di libro
+  (serif, continuo) con fumetto narratore a tre icone (copia,
+  originale/tradotto — toggle ex-icona "traduci", TTS) e le decisioni
+  del giocatore incorporate nel flusso come vista live del diario-grafo;
+  card di stato che apre la Scheda; zona scelte con pulsanti disciplina
+  visivamente distinti.
+- **Dado del Destino**: overlay modale animato, oggetto di scena
+  rituale — appare SOLO per i tiri del giocatore (tiro stat, skillCheck,
+  randomChoiceTable, ogni round del combattimento completo, il round di
+  danno dell'evasione); i tiri del motore (randomQuantity,
+  rollOnItemTable, combattimento rapido) restano in silenzio nel testo.
+  **Combattimento dentro la scena**, nessuna schermata separata: la zona
+  scelte si trasforma (scelta modalità rapido/completo, barre Resistenza
+  e Rapporto di Forza, menu tattico continua/oggetto/disciplina/fuga).
+- **Inventario OPERATIVO** nella Scheda: equipaggia/disequipaggia armi
+  con effetto immediato sulle stat mostrate, consuma pasti/oggetti con
+  effetto dichiarato (stesso gesto per EAT_MEAL, HUNTING auto-esente),
+  zaino con gli 8 posti disegnati anche vuoti.
+- **`gender`** con tre clienti: ritratto (lupo/lupa), voce TTS per
+  genere, placeholder `{player_gender}` nel prompt (accordi grammaticali
+  in italiano).
+
+**Code generate**: elencate nella sezione finale di `doc/UI.md` (asset
+mancanti — narratore, lupo/lupa, dado animato, icone discipline; nota:
+molte icone vivono sul branch `develop` di v1, non su `master`@8b705b8
+scansionato nell'inventario asset — da recuperare da lì; nuovo campo
+opzionale `locationName` sulla scena, ereditato/appiccicoso, per la
+Mappa logica del diario).
+
+**Prossima specifica: 5 (ETL — conversione libri in pacchetti).**
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
