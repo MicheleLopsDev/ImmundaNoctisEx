@@ -1,5 +1,44 @@
 # Diario di progetto
 
+## 16/07/2026
+
+### Sessione
+
+**Fatto:**
+- Esame `GameRulesEngine` + `LoneWolfRules` + `GameLogicManager` di v1.
+- SPECIFICA 1 CHIUSA: `doc/ARCHITETTURA.md` (moduli data/engine/inference/ui).
+
+**Decisioni:**
+- Tiro del dado iniettato nell'engine (interfaccia `DiceRoller`): il Dado
+  del Destino UI e i test deterministici usano la stessa porta.
+- `GameState` nel modulo engine come unica fonte di verità; il salvataggio
+  è una fotografia dello stato (mai stato sparso tra manager come in v1).
+- Single-activity + DI leggera (`AppContainer`) al posto dei singleton.
+  Verificato sui numeri: il multi-activity di v1 non ha prodotto file
+  piccoli (`ModelActivity` 824 righe, `AdventureActivity` 683,
+  `CharacterSheetActivity` 569) e ha costretto a introdurre il singleton.
+  La leggibilità viene dal package per schermata, non dal numero di
+  Activity.
+- Guardrail UI: file di navigazione solo routing (~100 righe max), un
+  package per schermata senza import incrociati, nessun ViewModel
+  condiviso tra schermate.
+- Interfacce solo dove esiste più di un'implementazione reale: le
+  quattro motivate sono `RulesEngine`, `InferenceEngine`, `DiceRoller`,
+  `PackageSource`. Tutto il resto classi concrete.
+- Gradi Kai come enum/id nell'engine, nomi localizzati in UI.
+- Risultato del round di combattimento = dati puri; il testo lo compone
+  chi lo mostra.
+- La Tabella dei Risultati di Combattimento di `LoneWolfRules` si riusa
+  integralmente.
+- `GameLogicManager` di v1 riclassificato: è un repository di scene, in
+  Ex diventa `PackageRepository` nel modulo data con `PackageSource`
+  iniettato (niente Context).
+
+**Prossime sessioni (piano specifiche, in ordine):**
+- Specifica 2: regole di gioco (combat, Dado del Destino, gradi Kai,
+  Resistenza/Combattività, modificatori) — dentro il modulo engine.
+- Poi: stato e salvataggio (3), UI (4), ETL (5), criticità (6).
+
 ## 14/07/2026
 
 ### Sessione serale
