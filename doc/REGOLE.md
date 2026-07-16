@@ -1,9 +1,6 @@
 # Specifica 2 — Regole di gioco
 
-Stato: IN CORSO. Blocco combattimento CHIUSO (sessione 16/07/2026 sera).
-Blocchi aperti: regole globali di esito, gradi Kai, discipline e oggetti
-in combattimento, comandi TO_IMPLEMENT (removeItem, checkItemAndJump,
-rollOnItemTable), Dado del Destino fuori dal combattimento.
+Stato: **CHIUSA** (sessioni 16/07/2026, pomeriggio e sera).
 
 Materiale di partenza: `doc/MATERIALE-REGOLE-V1.md` (estrazione da v1:
 tabella CRT, algoritmo round, scoperta che l'orchestrazione combat di v1
@@ -70,8 +67,7 @@ duplicata.
   (Motivo: l'autore che ha scritto "se perdi ti risvegli in cella"
   deve poterlo fare; la morte generica è la rete di sicurezza.)
 - Fuori dal combattimento: Resistenza ≤ 0 → `deathSceneId` globale
-  (regola valutata dall'engine a ogni transizione — dettagli nel
-  blocco regole globali, aperto).
+  (vedi Blocco 2).
 
 ### 1.5 Il nemico nel JSON di scena (minimale)
 
@@ -80,6 +76,7 @@ duplicata.
   "enemyName": "Warehouse Thug",
   "enemyCombatSkill": 14,
   "enemyEndurance": 22,
+  "immuneToMindblast": false,
   "evadeAfterRound": 2,
   "winSceneId": "6",
   "loseSceneId": "7",
@@ -87,45 +84,217 @@ duplicata.
 }
 ```
 
-- Niente `GameCharacter` completo (errore di v1): il nemico è nome +
-  due statistiche + destinazioni.
-- `evadeAfterRound` e `evadeSceneId` opzionali; `loseSceneId`
-  opzionale (fallback `deathSceneId`); `winSceneId` obbligatorio.
+- **Authoring minimale, runtime uniforme**: nel JSON l'autore scrive
+  solo nome + due statistiche + destinazioni; il motore idrata il
+  blocco in un **`Character` unico** — lo stesso tipo per eroe,
+  compagno, nemico, futuro multiplayer locale — con
+  `role: HERO | COMPANION | ENEMY | NPC` (enum al posto dell'id
+  magico `"hero"` di v1), campi mancanti a default. Eredita l'idea
+  del `GameCharacter` + `CharacterType` di v1, ripulita dai campi di
+  presentazione/persistenza che violavano la separazione (niente
+  `@DrawableRes` nel modello: il ritratto è un id/path risolto dalla
+  UI; niente campi di feature morte).
+- Premio della simmetria: la funzione di round è
+  `resolveRound(a: Character, b: Character)` — un nemico con
+  MINDBLAST proprio (che rende utile MINDSHIELD del giocatore) o un
+  duello tra due eroi non costano codice al motore.
+- `immuneToMindblast`, `evadeAfterRound`, `evadeSceneId` opzionali
+  (default: false / 0 / assente); `loseSceneId` opzionale (fallback
+  `deathSceneId`); `winSceneId` obbligatorio.
 - **`enemyName` viene tradotto da Gemma** nel giro normale della
   scena: nuova riga nel formato pipe `ENEMY|testo tradotto`, con
   fallback al nome originale del pacchetto se il parsing la perde
   (stessa filosofia di CHOICE/DISCIPLINE: il parsing fallito non
-  blocca mai il gioco). Da riflettere nel config: tag `enemy_line`.
-
-### 1.6 Impatti su altri artefatti (da fare)
-
-- [ ] `config.json`: aggiungere tag `enemy_line`
-  (`^ENEMY\|(.+)$`, comando `updateEnemyName`).
-- [ ] Frammento prompt `outputFormatText`: aggiungere la riga ENEMY
-  al formato di output quando la scena ha un blocco combat.
-- [ ] `scenes.sample.json`: la scena 4 (battle) adotta il blocco
-  combat di 1.5.
-- [ ] Validatore scene: se `combat` presente, `winSceneId`
-  obbligatorio e le destinazioni devono esistere nel grafo.
+  blocca mai il gioco). Tag `enemy_line` nel config.
 
 ---
 
-## Blocco 2 — Regole globali di esito (APERTO)
-Resistenza ≤ 0 → deathSceneId; generalizzazione su flag/variabili →
-victorySceneId; valutazione a ogni transizione. Da dettagliare.
+## Blocco 2 — Regole globali di esito (CHIUSO)
 
-## Blocco 3 — Gradi Kai (APERTO)
-Soglie da v1 (0-4 Novizio ... 10 Gran Maestro); enum in engine, nomi
-in strings.xml. Da decidere: effetti meccanici del grado, se esistono.
+### 2.1 Morte built-in
 
-## Blocco 4 — Discipline e oggetti in combattimento (APERTO)
-MINDBLAST +2 CS se nemico non immune (canonico); flag "usabile in
-combat" sugli oggetti; HEALING fuori combattimento. Da dettagliare.
+La regola "Resistenza giocatore ≤ 0 → salta a `deathSceneId`" è
+integrata nel motore. L'autore la attiva dichiarando `deathSceneId`
+nel manifest; non si scrive come regola.
 
-## Blocco 5 — Comandi TO_IMPLEMENT (APERTO)
-removeItem, checkItemAndJump, rollOnItemTable: semantica esatta,
-casi limite (oggetto assente, quantità insufficiente).
+### 2.2 `globalRules` nel manifest
 
-## Blocco 6 — Dado del Destino fuori dal combattimento (APERTO)
-skill_check_tag / random_choice_table: quando il giocatore tira
-manualmente vs quando tira il motore.
+Lista opzionale di regole condizione → destinazione, definite
+dall'autore. Meccanismo generico di "salto globale su condizione":
+la vittoria dell'avventura è un caso, ma anche esiti intermedi
+("se il sospetto sale troppo, le guardie ti arrestano") lo sono.
+`victorySceneId` come campo dedicato NON esiste: la vittoria è una
+globalRule come le altre.
+
+```json
+"deathSceneId": "7",
+"globalRules": [
+  { "type": "FLAG", "name": "traditore_smascherato",
+    "operator": "==", "value": "true", "targetSceneId": "99" },
+  { "type": "VAR", "name": "sospetto",
+    "operator": ">=", "value": "10", "targetSceneId": "66" }
+]
+```
+
+`type`: FLAG | VAR (estendibile). Operatori: ==, !=, >=, <=, >, <.
+
+### 2.3 Quando si valutano
+
+A ogni transizione di scena, **dopo** l'esecuzione dei `gameMechanics`
+della scena di arrivo (un setFlag/statMod nei mechanics deve poter far
+scattare la regola nella stessa transizione). Sequenza:
+
+transizione → esegui gameMechanics → valuta morte built-in →
+valuta globalRules in ordine → se una scatta, salta alla sua
+destinazione (e sul nuovo arrivo si ripete il giro).
+
+Il combattimento resta fuori: lì gli esiti sono gestiti dal Blocco 1
+(specifico batte globale).
+
+### 2.4 Priorità
+
+- La morte built-in si valuta PRIMA di tutte le globalRules
+  (morire batte vincere).
+- Tra le globalRules: **prima regola che matcha vince**, nell'ordine
+  di scrittura nel manifest.
+- Raccomandazione da validatore (warning, non errore): le destinazioni
+  delle globalRules dovrebbero essere scene ENDING.
+
+---
+
+## Blocco 3 — Gradi Kai (CHIUSO)
+
+Puramente **cosmetici**, come nei libri canonici: titolo calcolato dal
+numero di discipline possedute. Soglie da v1:
+
+| Discipline | Grado |
+|---|---|
+| 0-4 | Novizio Kai |
+| 5 | Iniziato Kai |
+| 6 | Discepolo Kai |
+| 7 | Viandante Kai |
+| 8 | Guerriero Kai |
+| 9 | Maestro Kai |
+| 10 | Gran Maestro Kai |
+| >10 | Gran Maestro Kai Supremo |
+
+- `enum KaiRank` con soglie nell'engine; **nomi in `strings.xml`**
+  (in v1 i nomi italiani erano hardcoded nell'engine — corretto).
+- Nessun effetto meccanico. Predisposizione concettuale (zero codice
+  oggi): se un libro futuro vorrà "serve grado X per questa scelta",
+  si aggiungerà `requiredRank` accanto a `requiredItem`/`requiredFlag`.
+
+---
+
+## Blocco 4 — Discipline e oggetti in combattimento (CHIUSO)
+
+### 4.1 MINDBLAST
++2 Combattività per tutto il combattimento. Si attiva dal menu tattico
+(modalità completa), una volta, resta attiva fino a fine combattimento.
+Il nemico può essere immune: `immuneToMindblast: true` nel blocco
+combat (non-morti e certe creature di Magnamund). Se immune, l'opzione
+non compare (o compare disabilitata con motivo — dettaglio da
+specifica UI).
+
+### 4.2 WEAPONSKILL (con specializzazione, incluso UNARMED)
+Alla creazione del personaggio, chi sceglie WEAPONSKILL sceglie anche
+una **specializzazione**: un tipo d'arma OPPURE `UNARMED` (arti
+marziali). Il +2 CS scatta quando la condizione è vera:
+- specializzazione arma: impugni un'arma di quel tipo;
+- specializzazione UNARMED: combatti **senza** armi.
+
+Il check "che arma stai impugnando" per il caso armato dipende dalla
+specifica inventario/equipaggiamento (Specifica 3) — la regola è
+definita, il collegamento dati arriva lì. Il caso UNARMED è già
+completo (nessuna arma equipaggiata = bonus).
+**Coda per la specifica UI**: la creazione del personaggio deve
+includere la scelta della specializzazione WEAPONSKILL.
+
+### 4.3 HEALING
+Passiva: +1 Resistenza a ogni transizione verso una scena **senza**
+combattimento, fino al massimo del personaggio. Non è un'azione: la
+applica il motore. In combattimento non fa nulla.
+
+### 4.4 Oggetti
+Flag `combatUsable` sull'oggetto + effetto dichiarato (es. pozione =
+heal). Nel menu tattico compaiono solo i `combatUsable`. Formato
+esatto degli oggetti → Specifica 3 (inventario); qui si fissa il
+principio.
+
+### 4.5 Le altre discipline
+SIXTH_SENSE, TRACKING, HUNTING, CAMOUFLAGE, MINDSHIELD,
+ANIMAL_KINSHIP, MIND_OVER_MATTER: nessun effetto nel combattimento.
+Agiscono a livello scena (`disciplineChoices`), già coperto dal
+design. (MINDSHIELD: predisposizione concettuale per nemici con
+attacco psichico — non specificato oggi, nessun campo riservato.)
+
+---
+
+## Blocco 5 — Comandi TO_IMPLEMENT (CHIUSO)
+
+### 5.1 `removeItem`
+Rimuove N unità dell'oggetto. Se il giocatore ne possiede meno di N,
+rimuove quel che c'è **senza errore** (il gioco non si blocca mai).
+Se l'assenza dell'oggetto deve avere conseguenze narrative, l'autore
+usa `checkItemAndJump` prima.
+
+### 5.2 `checkItemAndJump`
+Valutato all'ingresso in scena insieme agli altri `gameMechanics`,
+nell'ordine di scrittura (come `ifStat`): condizione sul possesso →
+salto immediato a `nextSceneId_TRUE` / `nextSceneId_FALSE`.
+Caso d'uso: "Se possiedi la Lanterna vai al 112, altrimenti al 87".
+
+### 5.3 `rollOnItemTable`
+Tiro 0-9 via `DiceRoller`; `outcomes` mappa **intervalli espliciti di
+tiro → oggetto** (es. 0-4: niente, 5-7: Pugnale, 8-9: Corona d'oro).
+Intervalli espliciti, non probabilità implicite: l'autore vede
+esattamente cosa esce con quale tiro, come nei libri veri. Il
+validatore verifica che gli intervalli coprano 0-9 senza
+sovrapposizioni.
+
+---
+
+## Blocco 6 — Dado del Destino fuori dal combattimento (CHIUSO)
+
+Criterio narrativo: **se il tiro decide il destino, tira il
+giocatore; se decide una quantità, tira il motore.**
+
+- **Tira il giocatore** (il gioco si ferma, appare il Dado del
+  Destino, teatro): `skillCheck`, `randomChoiceTable` — tiri che
+  determinano una biforcazione.
+- **Tira il motore** (in silenzio, il risultato appare nel testo):
+  `randomQuantity`, `rollOnItemTable` — tiri che determinano una
+  quantità o un ritrovamento ("trovi 7 Corone d'oro").
+
+Stesso `DiceRoller` sotto in entrambi i casi: cambia solo chi preme
+il grilletto.
+
+---
+
+## Code generate da questa specifica (da fare altrove)
+
+- [ ] `config.json`: tag `enemy_line` (`^ENEMY\|(.+)$`, comando
+  `updateEnemyName`); rimuovere lo status TO_IMPLEMENT dai 3 tag
+  quando implementati.
+- [ ] Frammento prompt `outputFormatText`: riga ENEMY quando la scena
+  ha blocco combat.
+- [ ] `scenes.sample.json`: scena 4 (battle) adotta il blocco combat
+  §1.5.
+- [ ] Validatore scene: `winSceneId` obbligatorio se `combat`
+  presente; destinazioni esistenti nel grafo; intervalli
+  `rollOnItemTable` completi e disgiunti; warning se destinazione di
+  globalRule non è ENDING.
+- [ ] Specifica 3 (stato/inventario): equipaggiamento armi (per
+  WEAPONSKILL), formato oggetti con `combatUsable` ed effetto.
+  **Decisioni già prese stasera**: (a) `Character` unico a runtime
+  per tutti i ruoli, con `role` enum; (b) principio "si serializzano
+  i FATTI, i bonus si CALCOLANO": nel salvataggio vivono stats base,
+  inventario, `equippedWeapon`, `weaponSkillType`, `StatModifier`
+  narrativi (con sourceType/duration da v1) e flag; la CS effettiva
+  è UNA funzione dell'engine, mai persistita. Base di riuso:
+  `HeroDetails`/`ComputedStats`/`weaponSkillType` di v1 — difetto da
+  non ripetere: calcolo duplicato (LoneWolfRules sommava i
+  modificatori per conto suo invece di usare ComputedStats).
+- [ ] Specifica UI: scelta specializzazione WEAPONSKILL alla
+  creazione; presentazione menu tattico; opzione MINDBLAST
+  disabilitata se nemico immune.
