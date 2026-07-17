@@ -22,3 +22,16 @@ fun effectiveCombatSkill(character: Character): Int {
 
     return character.baseCombatSkill + modifiersBonus
 }
+
+// Resistenza effettiva: currentEndurance + modificatori attivi su
+// ENDURANCE, clampata tra 0 e maxEndurance (mai sopra il massimo del
+// personaggio, mai sotto zero — la morte a Resistenza 0 la valuta
+// l'engine, non questa funzione).
+fun effectiveEndurance(character: Character): Int {
+    val modifiersBonus = character.activeModifiers
+        .filter { it.stat == StatType.ENDURANCE }
+        .sumOf { it.amount }
+
+    return (character.currentEndurance + modifiersBonus)
+        .coerceIn(0, character.maxEndurance)
+}
