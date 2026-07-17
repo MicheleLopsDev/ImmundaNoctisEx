@@ -67,11 +67,46 @@ class AdventureState(
     fun useDiscipline(choice: DisciplineChoice) =
         moveTo(choice.nextSceneId, Transition.DisciplineUsed(choice.disciplineId, choice.id))
 
-    // Combattimento v0.1: solo modalità RAPIDA (il menu tattico completo è
-    // il prossimo task). La sessione resta in memoria: combat atomico.
+    // CombatSession è una classe dell'engine (niente Compose): la UI si
+    // riaggancia ai suoi cambiamenti osservando questo contatore, che ogni
+    // azione di combattimento incrementa.
+    var combatTick: Int by mutableStateOf(0)
+        private set
+    var lastRound: io.github.luposolitario.immundanoctisex.core.engine.combat.RoundResult? by mutableStateOf(null)
+        private set
+
+    // Modalità RAPIDA (REGOLE.md §1.1): un tocco, il motore va fino in fondo.
     fun startQuickCombat() {
         val combat = currentScene.combat ?: return
         combatSession = CombatSession(gameState.hero, combat, dice).also { it.quickResolve() }
+        lastRound = null
+    }
+
+    // Modalità COMPLETA: round per round col menu tattico.
+    fun startCompleteCombat() {
+        val combat = currentScene.combat ?: return
+        combatSession = CombatSession(gameState.hero, combat, dice)
+        lastRound = null
+    }
+
+    fun combatFightRound() {
+        lastRound = combatSession?.fightRound()
+        combatTick++
+    }
+
+    fun combatActivateMindblast() {
+        combatSession?.activateMindblast()
+        combatTick++
+    }
+
+    fun combatUseItem(itemName: String) {
+        combatSession?.useItem(itemName)
+        combatTick++
+    }
+
+    fun combatEvade() {
+        lastRound = combatSession?.evade()
+        combatTick++
     }
 
     fun resolveCombat() {
