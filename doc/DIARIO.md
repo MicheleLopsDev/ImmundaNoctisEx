@@ -452,6 +452,14 @@ mappa documenti del piano aggiornata. In v1, contrariamente al
 ricordo, l'unica @Preview reale era in ModelSlot.kt — la volontà "ogni
 cosa in preview" diventa realtà in Ex.
 
+**Prossima sessione (richiesta Michele)**: estendere l'analisi UI **a
+ritroso** — dalle componenti di `ui/` alle Activity di v1 che le
+richiamano (`AdventureActivity` 683 righe, `CharacterSheetActivity`
+569, `SetupActivity` 451 già fatta, `MainActivity`, `ModelActivity`
+824, `ConfigurationActivity`, `DeathActivity`) — per censire le
+funzioni COMPATIBILI tra v1 ed Ex che non costano grandi riscritture.
+Poi Fase 3 (app Android minima che gioca il sample sul Razr).
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
