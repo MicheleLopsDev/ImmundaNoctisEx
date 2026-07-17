@@ -427,6 +427,31 @@ test di milestone della partita completa del sample da terminale.
 - CLAUDE.md aggiornato: **fase corrente -> Fase 3** (il libro gira
   senza Gemma).
 
+### Sessione — analisi `ui/` di v1 e convenzione @Preview (annotazione urgente Michele)
+
+Colmata la lacuna segnalata da Michele: la cartella `ui/` di v1 non
+era mai stata analizzata. Nuovo documento **`doc/ANALISI-UI-V1.md`**
+(11 file, 1.618 righe scansionate; lo zip fornito da Michele è
+identico alla copia su disco). Sintesi: `theme/` riuso quasi
+integrale; `ChoiceComponents` riuso quasi diretto (zona scelte);
+`AdventureHeader` a pezzi (CharacterPortrait, TokenSemaphoreIndicator
+= il semaforo di UI.md già fatto); `PlayerActionBar` pattern per la
+card di stato + convenzione bordo oro/argento sul dado da conservare;
+`AdventureUtils` con bug da correggere (icone mappate sui nomi display
+invece che sugli ID); `AdventureDialogs` morto, non riusare;
+`configuration/ModelSlot` base della schermata Modelli LLM E modello
+della convenzione preview. Nota mapping WeaponType v1→Ex
+(STAFF→QUARTERSTAFF, FISTS→UNARMED, GENERIC degrada).
+
+**CONVENZIONE @PREVIEW (requisito Michele)**: ogni composable di Ex ha
+la sua @Preview (chiaro+scuro), componenti stateless per costruzione
+(mai ViewModel/Context dentro), dati finti in PreviewData.kt per
+package, variante *Preview quando servono dipendenze runtime (pattern
+ModelSlot v1). Registrata in UI.md §Convenzioni e in ANALISI-UI-V1.md;
+mappa documenti del piano aggiornata. In v1, contrariamente al
+ricordo, l'unica @Preview reale era in ModelSlot.kt — la volontà "ogni
+cosa in preview" diventa realtà in Ex.
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già

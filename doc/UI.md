@@ -186,6 +186,13 @@ Non solo consultazione — **azioni sugli oggetti**:
 
 ## Convenzioni trasversali
 
+- **Ogni composable ha la sua `@Preview`** (requisito Michele,
+  17/07/2026 — dettaglio e regole in `doc/ANALISI-UI-V1.md`):
+  componenti stateless (dati in ingresso, eventi in uscita, mai
+  ViewModel/Context dentro), dati finti in `PreviewData.kt` per
+  package, preview in tema chiaro e scuro. La preview è anche il
+  guardrail: un componente non previewabile è un componente scritto
+  male.
 - Il campo `gender` del Character ha tre clienti: ritratto
   (lupo/lupa), **voce TTS per genere**, placeholder `{player_gender}`
   nel prompt Gemma (accordi grammaticali in italiano).
