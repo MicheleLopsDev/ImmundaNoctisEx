@@ -564,6 +564,32 @@ Gemma di v1 sono un default già tarato; Engine/Llama/ImageGeneration
 Preferences morte). Il censimento v1 è COMPLETO: ogni file ha un
 verdetto riusa / pattern / sostituito / morto.
 
+### Sessione — FASE 3 APERTA: persistenza e scheletro app
+
+- **3.1 `SessionStore`/`FileSessionStore`** (`:core:data/session`,
+  porta iniettabile come PackageSource): auto-save ATOMICO
+  (temp+`Files.move` ATOMIC_MOVE), salvataggio corrotto degrada a
+  nessun-salvataggio, `listSessions` per la Home, checkpoint scritti
+  UNA volta e mai sovrascrivibili (ritorna false, il contenuto resta
+  quello del primo piazzamento), ricarica illimitata,
+  `deleteAdventure` (sessione+checkpoint: morte IRON e nuova
+  avventura). 8 test JVM su directory temporanee.
+- **3.2 scheletro `:app`**: `AppContainer` (DI leggera: store su
+  filesDir/saves, `RandomDiceRoller` nuovo in engine,
+  PackageRepository su `AssetPackageSource`); `content/` montato come
+  cartella ASSET dell'APK (niente copie del sample); tema v1 portato
+  (Color/Theme, dark+light, niente dynamic color) con
+  `ThemePreferences` a tre stati (sistema/chiaro/scuro); routing
+  single-activity a stati (enum Route + back stack, solo routing);
+  **Home a riquadri** funzionante (3 tile, toggle tema in top bar,
+  @Preview chiaro+scuro come da convenzione). Aggiunta dipendenza
+  `material-icons-extended`. Build e suite verdi; APK compilato — la
+  PROVA SUL RAZR resta da fare (telefono non collegato al momento).
+
+**Prossimi task Fase 3**: 3.3 Setup avventura (difficoltà) + Creazione
+personaggio; 3.4 scena teatrale minima con transizioni+auto-save; poi
+combat UI, scheda, diario, checkpoint/morte.
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
