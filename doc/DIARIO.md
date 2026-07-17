@@ -652,6 +652,29 @@ Scheda personaggio operativa, Diario del viaggio, checkpoint UI,
 side-load libro, prova di milestone SUL DEVICE (partita completa,
 ripresa a metà, IRON).
 
+### Sessione — Fase 3.5 + 3.6: combat completo e Scheda personaggio
+
+- **3.5 Combat completo** (`CombatZone.kt`): scelta modalità
+  Rapido/Completo dopo le fughe-disciplina; nel completo: barre
+  Resistenza di entrambi, Rapporto di Forza, esito dell'ultimo tiro
+  (con "MORTE" per la sentinella KILL), menu tattico — round col dado,
+  MINDBLAST (disabilitato COL MOTIVO se immune o già attivo), oggetti
+  combatUsable, fuga (disabilitata finché `evadeAfterRound` non
+  passa, col round di sblocco mostrato). La UI osserva la
+  CombatSession dell'engine tramite un contatore (`combatTick`):
+  l'engine resta puro, niente Compose in core.
+- **3.6 Scheda personaggio** (`ui/sheet`): due tab; Stats con grado
+  Kai da strings.xml e stat EFFETTIVE dell'engine (mai ricalcolate:
+  il difetto di v1 non si ripete); Equipaggiamento con 2 slot armi
+  (tocco = impugna, evidenza sull'impugnata, effetto immediato sulla
+  CS mostrata), zaino con gli 8 POSTI DISEGNATI anche vuoti, consumo
+  a tocco degli oggetti HEAL:n, oggetti speciali e Corone/50. Overlay
+  dentro la route Avventura (stato condiviso; destinazione propria in
+  Fase 5). Equip e consumi passano dall'engine e auto-salvano.
+
+**Restano**: Diario del viaggio, checkpoint UI, side-load, prova di
+milestone sul device.
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
