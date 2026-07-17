@@ -83,6 +83,18 @@ compagno (quando esisterà).
 - **Cerchio d'oro su chi parla**: sul narratore mentre Gemma streama
   la narrazione; sul compagno quando commenterà (seconda inferenza,
   posticipata). Convenzione ereditata da v1.
+- **Stato del narratore unificato** (deciso 17/07/2026): un unico
+  stato osservabile a tre valori — **IDLE / GENERATING** (Gemma sta
+  scrivendo: lo stream di caratteri riempie il blocco del narratore)
+  **/ SPEAKING** (il TTS sta leggendo). Il cerchio d'oro sul narratore
+  è acceso sia in GENERATING sia in SPEAKING: chi guarda capisce
+  sempre se il narratore "sta scrivendo" o "sta parlando". Riuso da
+  v1: pattern `streamingText` + `isGenerating` +
+  `respondingCharacterId` del MainViewModel (lo stream live si mostra
+  troncato a `--- TAGS ---`, come già fa v1). Miglioria su v1: il
+  `TtsService` di v1 NON traccia lo stato "sto parlando" (nessun
+  `UtteranceProgressListener`) — in Ex va aggiunto il listener così il
+  TTS alimenta lo stesso stato osservabile che alimenta Gemma.
 
 ### Flusso centrale (la pagina del libro)
 Il testo scorre come pagina di libro (serif, continuo), NON come chat:
