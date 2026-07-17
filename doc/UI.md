@@ -55,11 +55,10 @@ schermata, file di navigazione solo routing (~100 righe max).
 7. **Opzioni** — **tema chiaro/scuro** dell'app (riuso del pattern
    `ThemePreferences` di v1); **abilitazione TTS** (auto-lettura,
    velocità, pitch, **voce per genere**: una maschile e una femminile
-   tra quelle di sistema, come TtsPreferences di v1); **salvataggio
-   della narrazione automatico o manuale** (deciso 17/07/2026, vedi
-   STATO.md §Opzione salvataggio narrazione: se automatico, l'icona
-   salva nei blocchi del narratore è grigia/disattivata perché tutto
-   si salva da sé); gestione modelli, lingua.
+   tra quelle di sistema, come TtsPreferences di v1; con auto-lettura
+   ACCESA l'icona leggi nei blocchi del narratore è grigia);
+   gestione modelli, lingua. Il salvataggio della narrazione è sempre
+   automatico: NON è un'opzione (deciso 17/07/2026).
 
 ---
 
@@ -89,14 +88,18 @@ compagno (quando esisterà).
 Il testo scorre come pagina di libro (serif, continuo), NON come chat:
 
 - Il testo del narratore arriva in streaming (solo fino al separatore
-  `--- TAGS ---`) dentro un **fumetto/blocco del narratore** con
-  quattro icone: **copia**, **originale/tradotto** (toggle: mostra il
+  `--- TAGS ---`) dentro un **fumetto/blocco del narratore** con tre
+  icone: **copia**, **originale/tradotto** (toggle: mostra il
   narrativeText inglese del pacchetto / il testo arricchito — entrambi
   già in memoria, costo zero; l'icona "traduci" di v1 reinterpretata),
-  **leggi (TTS)**, **salva** (persiste il testo arricchito nel
-  Racconto; se in Opzioni il salvataggio narrazione è AUTOMATICO
-  l'icona è grigia/disattivata, si salva già tutto da sé — vedi
-  STATO.md §Opzione salvataggio narrazione).
+  **leggi (TTS)** — attiva solo se l'auto-lettura è SPENTA in Opzioni;
+  con auto-lettura accesa è grigia/disattivata (legge già tutto da
+  sé). NESSUNA icona salva: il salvataggio della narrazione è sempre
+  automatico (deciso 17/07/2026, vedi STATO.md §Blocco 3). Riferimento
+  v1 (`ChatComponents.kt`, MessageBubble): copia sempre, traduci solo
+  sui messaggi del narratore con spinner durante la traduzione, leggi
+  sempre — la regola dello spinner si eredita sul toggle
+  originale/tradotto durante lo streaming.
 - **Le decisioni del giocatore entrano nel flusso** come righe
   distinte (corsivo, rientrate, con icona della scelta): il flusso è
   la vista live del diario-grafo — stessa struttura dati.
