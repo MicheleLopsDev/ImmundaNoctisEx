@@ -296,6 +296,16 @@ Richieste di Michele (screenshot v1 alla mano), recepite nei documenti:
   l'eventuale icona save ricordata vive forse sul branch develop di
   v1, non presente su disco (la copia locale non è un repo git).
   Regola dello spinner ereditata sul toggle originale/tradotto.
+- **Stato del narratore unificato** (richiesta Michele, UI.md §Banner):
+  IDLE/GENERATING/SPEAKING — cerchio d'oro acceso mentre Gemma streama
+  E mentre il TTS legge. Verificato in v1: la parte "LLM sta
+  scrivendo" esiste (`streamingText`+`isGenerating`+
+  `respondingCharacterId` nel MainViewModel, stream mostrato troncato
+  a `--- TAGS ---` in AdventureActivity, bordo sul ritratto in
+  AdventureHeader) ed è pattern riusabile; la parte "TTS sta
+  parlando" in v1 NON esiste (`TtsService` senza
+  `UtteranceProgressListener`) — in Ex si aggiunge il listener e
+  entrambe le sorgenti alimentano lo stesso stato osservabile.
 
 **Analisi riuso `SetupActivity.kt` v1** (451 righe, letta integralmente):
 
