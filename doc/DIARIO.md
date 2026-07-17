@@ -282,13 +282,20 @@ Richieste di Michele (screenshot v1 alla mano), recepite nei documenti:
 - **Opzioni** (UI.md §schermata 7): tema chiaro/scuro (pattern
   `ThemePreferences` v1), abilitazione TTS, **salvataggio narrazione
   automatico/manuale**.
-- **Salvataggio narrazione** (STATO.md §Blocco 3, nuova sottosezione):
-  l'opzione riguarda SOLO la persistenza dell'`enrichedText` nel
-  Racconto (auto = icona salva grigia nei blocchi narratore; manuale =
-  si salva ciò che il giocatore tocca). La struttura del diario-grafo
-  registra sempre tutto e l'auto-save della SessionData resta SEMPRE
-  automatico e atomico (non negoziabile, non toccato). Quarta icona
-  "salva" aggiunta al fumetto narratore in UI.md.
+- **Salvataggio narrazione** — RETTIFICA nella stessa giornata:
+  l'opzione automatico/manuale con icona salva per-blocco, prima
+  recepita, è stata SCARTATA da Michele dopo verifica di
+  `ChatComponents.kt` v1. Decisione finale: **si salva sempre tutto
+  automaticamente**, nessuna icona salva (STATO.md §Blocco 3
+  aggiornato). Nei blocchi del narratore restano TRE icone: copia,
+  originale/tradotto, leggi (TTS) — quest'ultima grigia/disattivata
+  quando l'auto-lettura è accesa in Opzioni.
+- **Verifica su v1**: in `ChatComponents.kt` (master) le icone bubble
+  sono copia (sempre), traduci (solo narratore, spinner mentre
+  traduce), leggi (sempre); NESSUNA icona save esiste in master —
+  l'eventuale icona save ricordata vive forse sul branch develop di
+  v1, non presente su disco (la copia locale non è un repo git).
+  Regola dello spinner ereditata sul toggle originale/tradotto.
 
 **Analisi riuso `SetupActivity.kt` v1** (451 righe, letta integralmente):
 
