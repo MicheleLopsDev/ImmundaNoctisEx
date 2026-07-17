@@ -130,6 +130,31 @@ ma per quale porta sei uscito.
 - Usi futuri già intravisti: rilettura del viaggio in UI, mappa del
   percorso, statistiche di fine libro, replay, debug dell'ETL.
 
+### Opzione salvataggio narrazione (automatico/manuale)
+
+Aggiunta del 17/07/2026 (richiesta Michele, vedi Opzioni in UI.md).
+In Opzioni si sceglie se il **testo arricchito** della narrazione si
+persiste nel Racconto in modo **automatico** (default, comportamento
+descritto sopra: ogni voce salva il suo `enrichedText`) o **manuale**
+(si persiste solo il testo dei blocchi su cui il giocatore tocca
+l'icona salva; in automatico quell'icona è grigia/disattivata).
+
+Perimetro preciso dell'opzione:
+
+- Riguarda SOLO l'`enrichedText`. La **struttura del diario-grafo
+  registra sempre tutto** (`sceneId` + `transition` + `locationName`):
+  percorso, Mappa logica, checkpoint e ripresa non dipendono
+  dall'opzione.
+- L'**auto-save della SessionData** (Blocco 1.3, stato di gioco a ogni
+  transizione, scrittura atomica) **resta sempre automatico**: non è
+  negoziabile e non è toccato da questa opzione.
+- In manuale, una voce non salvata mostra in rilettura il
+  `narrativeText` originale del pacchetto (la solita degradazione sul
+  contenuto originale); alla riapertura dell'app anche
+  `previous_scene_text` del prompt degrada sull'originale per le voci
+  non salvate — dentro la stessa sessione di gioco il testo resta in
+  memoria e nulla cambia.
+
 ---
 
 ## Blocco 4 — Inventario e oggetti
