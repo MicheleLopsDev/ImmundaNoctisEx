@@ -254,6 +254,23 @@ tipo canonico non si può confrontare `weaponSkillType` con l'arma
 impugnata. Fase 2 resta APERTA: `GameState`, `CombatManager`, i 18
 comandi non ancora iniziati.
 
+### Controllo pre-push — DiceRoller e funzione stat effettive
+
+Verifica da terminale: `./gradlew test` verde su tutti i moduli, commit
+`35fa280` corretto ma **incompleto** rispetto al task richiesto —
+implementata solo `effectiveCombatSkill`; manca `effectiveEndurance`
+(Resistenza effettiva, clamp tra 0 e `maxEndurance`). Da completare
+nella PROSSIMA sessione operativa, insieme a un commit separato per le
+modifiche Gradle generate dalla sync di Android Studio e non ancora
+committate: `settings.gradle.kts` (plugin `foojay-resolver-convention`
+per il toolchain) e il nuovo file `gradle/gradle-daemon-jvm.properties`
+(JDK 21 per il daemon).
+
+**Prossimo task: completare `effectiveEndurance` in `:core:engine`,
+commit Gradle a parte, poi proseguire Fase 2** (`GameState`, i 18
+comandi, `CombatManager` — questi ultimi bloccati dal task [MICHELE]
+sulla tabella CRT).
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
