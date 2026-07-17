@@ -460,6 +460,45 @@ richiamano (`AdventureActivity` 683 righe, `CharacterSheetActivity`
 funzioni COMPATIBILI tra v1 ed Ex che non costano grandi riscritture.
 Poi Fase 3 (app Android minima che gioca il sample sul Razr).
 
+### Sessione — seconda passata analisi UI: dalle Activity alle componenti
+
+Fatta la prima passata a ritroso richiesta (seconda sezione di
+`doc/ANALISI-UI-V1.md`): 8 Activity (3.505 righe) + ViewModel (2.561)
++ util/service (1.196). Sintesi dei verdetti:
+
+- **MainActivity riuso quasi diretto**: `MenuIcon`+`MainMenuScreen`
+  SONO la Home a riquadri decisa per Ex (meno le tile STDF).
+- **AdventureActivity**: scheletro buono della scena teatrale (top bar
+  con semaforo + "Paragrafo: N", streaming già troncato a
+  `--- TAGS ---`, zone nell'ordine giusto); da buttare MessageInput,
+  selezione personaggio chat e i dialoghi combat commentati.
+  `LoadingScreen`/`ErrorScreen` generiche. `InventoryFullDialog` =
+  upgrade futuro dell'inventario pieno. SCOPERTA: l'opzione "Salva
+  Chat Manualmente" viveva nel menu a tendina (con
+  `SavePreferences.isAutoSaveEnabled`) — origine del ricordo di
+  Michele; la decisione Ex (sempre automatico) resta.
+- **CharacterSheetActivity riuso forte**: gli 8 slot zaino DISEGNATI
+  ANCHE VUOTI e i 2 slot arma con bordo oro sono già implementati
+  (WeaponsCard/WeaponSlot/CommonItemsCard/CommonItemSlot + Stats/
+  Discipline/SpecialItems card). Il ViewModel invece si butta (la
+  logica ora è nell'engine).
+- **ConfigurationActivity = schermata Opzioni**: switch auto-lettura,
+  slider rate/pitch, voce per genere MALE/FEMALE già fatti; via gli
+  switch auto-save e chat; dropdown "tono narrativo" utente = feature
+  fuori design, marcata [MICHELE-PROPOSTO].
+- **ModelActivity**: si salvano `SceneJsonPicker` (side-load) e il
+  pattern ModelSlot; il dual-engine Gemma+Llama si ridimensiona.
+- **DeathActivity**: pattern per il rendering delle ENDING.
+- **Censimento finale a basso costo**: ~25 composable/classi pronte
+  quasi com'è (elenco in ANALISI-UI-V1.md §Censimento finale);
+  riscrittura vera solo per AdventureChatScreen->scena teatrale,
+  MainEngineScreen->Opzioni, MessageBubble->blocco narratore,
+  gestione modelli solo-Gemma. Tutte le migrazioni nascono con
+  @Preview.
+
+**Prossimo: Fase 3** — app Android minima che gioca il sample sul
+Razr, partendo da Home (MenuIcon/MainMenuScreen) e scena teatrale.
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già

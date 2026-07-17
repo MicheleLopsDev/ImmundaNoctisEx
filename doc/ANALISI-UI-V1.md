@@ -1,4 +1,4 @@
-# Analisi riuso — cartella `ui/` di v1
+# Analisi riuso — UI di v1 (componenti e Activity)
 
 Richiesta da Michele il 17/07/2026 (annotazione urgente): la cartella
 `app/src/main/java/io/github/luposolitario/immundanoctis/ui` di v1 non
@@ -103,3 +103,122 @@ Regole per TUTTO il codice UI di Ex, da Fase 3 in poi:
 5. Dipendenze già pronte in `app/build.gradle.kts`:
    `androidx.ui.tooling.preview` (implementation) + `androidx.ui.tooling`
    (debugImplementation). Nessuna aggiunta necessaria.
+
+---
+
+# Seconda passata (17/07/2026, sessione successiva) — dalle Activity giù alle componenti
+
+Analisi a ritroso richiesta da Michele: le 8 Activity di v1 (3.505
+righe totali) + ViewModel (2.561) + util/service (1.196), per censire
+le funzioni COMPATIBILI con Ex che non costano grandi riscritture.
+
+## Activity per Activity
+
+### `MainActivity` (208) — RIUSO QUASI DIRETTO
+`MenuIcon` (tile 120dp con tooltip, icona+etichetta) e
+`MainMenuScreen` (Scaffold, righe di tile, toggle tema nella top bar)
+sono ESATTAMENTE la Home a riquadri decisa per Ex: si tolgono le due
+tile STDF, restano Avventura / Modelli LLM / Impostazioni. Nota: in v1
+il toggle tema è nella top bar della Home; in Ex la scelta tema sta in
+Opzioni (deciso 17/07) — tenere anche il toggle rapido in Home costa
+una riga, decidere in Fase 5.
+
+### `AdventureActivity` (683) — SCHELETRO BUONO, CONTENUTO DA EX
+`AdventureChatScreen` è il prototipo della scena teatrale: top bar con
+`TokenSemaphoreIndicator` + titolo sessione + "Paragrafo: N" (l'ID
+scena nell'header di UI.md), corpo con header ritratti, lista messaggi
+con **streaming già troncato a `--- TAGS ---`** (la riga di codice è
+identica a quella progettata per Ex), `ChoicesContainer`,
+`PlayerActionsBar`, `GeneratingIndicator`. Da buttare: `MessageInput`
+(era-chatbot), la selezione personaggio per la chat, i dialoghi combat
+COMMENTATI (mai vissuti — il combat di Ex nasce da CombatSession).
+- `LoadingScreen` / `ErrorScreen`: generiche, riuso com'è.
+- `InventoryFullDialog` (scambia oggetto quando l'inventario è pieno):
+  in Ex v0.1 l'oggetto non entra in silenzio; questo dialog è
+  l'upgrade UI futuro già pronto ("scarta qualcosa", STATO.md §4.1).
+- **Scoperta**: il menu a tendina ha "Salva Chat Manualmente" visibile
+  solo con auto-save spento (`SavePreferences.isAutoSaveEnabled`) — è
+  QUESTA l'origine del ricordo di Michele sull'opzione salvataggio;
+  la decisione Ex (sempre automatico) resta.
+
+### `CharacterSheetActivity` (569) — RIUSO FORTE (tab Equipaggiamento)
+Mappa 1:1 sulla Scheda personaggio di UI.md:
+- `WeaponsCard` + `WeaponSlot`: 2 slot arma, bordo ORO sull'arma
+  impugnata, icona per `weaponType`, long-press per scartare.
+- `CommonItemsCard` + `CommonItemSlot`: griglia 4x2 che PADDA A 8
+  SLOT DISEGNATI ANCHE VUOTI — la regola di UI.md è già implementata.
+- `StatsAndMealsCard`, `KaiDisciplinesCard`, `SpecialItemsTableCard`.
+Adattamenti: `GameItem` di Ex non ha `iconResId`/`combatSkillBonus`/
+`isDiscardable` (icona risolta dalla UI per tipo; il bonus è
+WEAPONSKILL calcolato dall'engine; scartabilità da derivare); stats
+da `effectiveCombatSkill`/`effectiveEndurance`.
+`CharacterSheetViewModel` (540): NON riusare — la logica equip/consumo
+ora vive nell'engine (`Inventory`).
+
+### `DeathActivity` (76) — PATTERN MINORE
+`DeathScreen` (titolo rosso, motivo, RICOMINCIA/ESCI): in Ex la morte
+è una scena ENDING (`deathSceneId`), non una Activity; il layout serve
+da spunto per il rendering delle ENDING + azioni di fine partita
+(in IRON: cancellazione sessione).
+
+### `ConfigurationActivity` (357) — È LA SCHERMATA OPZIONI
+`MainEngineScreen`: switch auto-lettura TTS, slider velocità/pitch,
+**dropdown voce MALE/FEMALE dalle voci di sistema** (il "voce per
+genere" di UI.md già implementato su `TtsPreferences`), cancella
+sessione con dialog di conferma. Da togliere: switch auto-save
+(deciso: sempre automatico) e switch chat (morta). Da aggiungere:
+toggle tema (pattern `ThemePreferences` già usato dall'Activity).
+Nota: c'è un dropdown "tono narrativo" (originale/horror/epico/...)
+iniettato nel prompt — feature NON nel design Ex (i toni sono
+dell'autore via `toneHints`); da valutare come opzione utente futura
+**[MICHELE-PROPOSTO]**.
+
+### `ModelActivity` (824) — SOLO DUE PEZZI
+`SceneJsonPicker` (GetContent per application/json): è il side-load
+del libro di UI.md, riuso diretto. `ModelSlot`/pattern download: base
+della schermata Modelli LLM. Il resto è configurazione dual-engine
+(Gemma+Llama) di v1: Ex ha solo Gemma, si ridimensiona.
+
+### `SetupActivity` (451) — già analizzata il 17/07 (vedi diario):
+RandomStatsCard, EquipmentChoiceCard, DisciplineGridCard,
+WeaponSkillSelectionDialog, ExistingSessionScreen.
+
+### `StdfGenerationActivity` + `StdfModelActivity` (337) — MORTE
+Feature immagini abbandonata: non riusare.
+
+## ViewModel e util
+
+- `MainViewModel` (1.634): anti-modello dichiarato; si salvano solo i
+  PATTERN di stato osservabile già censiti (streamingText,
+  isGenerating, respondingCharacterId, TokenInfo) — in Ex spalmati su
+  ViewModel piccoli per schermata.
+- `SetupViewModel` (309): gating `canProceed` e tiro stat — logica da
+  rifare sottile sopra l'engine (il tiro passa da DiceRoller).
+- `util/ThemePreferences` (76), `TtsPreferences` (62): riuso del
+  pattern quasi integrale (SharedPreferences sottili).
+- `util/SavePreferences` (57): decade (auto-save sempre attivo);
+  `GameStateManager` (234): sostituito dalla porta di persistenza Ex;
+  `StringTagParser` (121): destinato alla Fase 4 (già a piano);
+  `FileHelper` (59): utile per la copia del side-load.
+- `service/TtsService` (124): riuso con l'aggiunta
+  dell'`UtteranceProgressListener` (deciso 17/07, stato SPEAKING).
+
+## Censimento finale: compatibili a basso costo
+
+Pronte quasi com'è (adattare solo modelli/tema):
+`MenuIcon`, `MainMenuScreen`, `LoadingScreen`, `ErrorScreen`,
+`TokenSemaphoreIndicator`, `CharacterPortrait`, `PlaceholderPortrait`,
+`ChoicesContainer`+`ActionChoiceCard`, `GeneratingIndicator`,
+`WeaponsCard`+`WeaponSlot`, `CommonItemsCard`+`CommonItemSlot`,
+`StatsAndMealsCard`, `KaiDisciplinesCard`, `SpecialItemsTableCard`,
+`RandomStatsCard`, `EquipmentChoiceCard`, `DisciplineGridCard`,
+`WeaponSkillSelectionDialog`, `ExistingSessionScreen`,
+`SceneJsonPicker`, `DeathScreen` (come pattern), `theme/` intero,
+`ThemePreferences`, `TtsPreferences`, `TtsService` (+listener).
+
+Riscrittura vera (ma con scheletro v1 da seguire):
+`AdventureChatScreen` → scena teatrale (via chat, dentro zone di
+UI.md), `MainEngineScreen` → Opzioni (meno switch, più tema),
+`MessageBubble` → blocco narratore (3 icone decise), gestione modelli
+(solo Gemma). Tutte le migrazioni nascono con @Preview (convenzione
+sopra).
