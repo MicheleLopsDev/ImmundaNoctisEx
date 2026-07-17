@@ -499,6 +499,37 @@ Fatta la prima passata a ritroso richiesta (seconda sezione di
 **Prossimo: Fase 3** — app Android minima che gioca il sample sul
 Razr, partendo da Home (MenuIcon/MainMenuScreen) e scena teatrale.
 
+### Sessione — terza passata: interazioni particolari nei ViewModel di v1
+
+Censite in `doc/ANALISI-UI-V1.md` §Terza passata le interazioni
+UI<->logica non ovvie:
+
+- **Tiro a due fasi** (arma->tira->risolvi con bordo oro sul dado):
+  antenato dell'overlay Dado del Destino, SI CONSERVA; da correggere
+  il trigger (v1 SNIFFA il testo italiano cercando "Tabella dei Numeri
+  Casuali" — in Ex trigger strutturale) e il Random inline (->
+  DiceRoller).
+- **SCOPERTA — WEAPONSKILL: v1 TIRA la specializzazione a caso** (con
+  dialog di conferma), che è il canone dei libri; UI.md dice invece
+  "scelta". Marcato **[MICHELE]**: decidere tiro canonico (teatrale,
+  flusso v1 pronto) vs scelta libera.
+- Gating scelte (requiredFlag/Item + canUseDiscipline): identico al
+  design Ex, riuso diretto. Decisioni nel flusso come messaggi
+  "*Sceglie di...*": embrione della vista live del diario-grafo.
+- Canali evento da riusare snelliti: `uiFeedbackEvent` (toast esiti
+  mechanics), `engineLoadingState` (Loading/Ready/Error),
+  `inventoryFullState` (dialog futuro); da NON riusare `isHeroDead`
+  (in Ex la morte è una transizione) e il `flatMapLatest` dual-engine
+  del token info (un solo motore).
+- `navigateToScene`: reset scelte/tiro identico in Ex; stranezza da
+  non ripetere: salvava solo alla PRIMA visita (`usedScenes` come
+  gate) — in Ex auto-save a ogni transizione.
+- CharacterSheetViewModel: confermata la TERZA copia del calcolo stat
+  effettive (il difetto noto) — in Ex la scheda legge solo le funzioni
+  dell'engine.
+- Combattimento: tutti i canali combat sono commentati, la UI combat
+  di Ex nasce da zero su CombatSession (nessun debito).
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già

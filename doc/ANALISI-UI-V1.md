@@ -222,3 +222,87 @@ UI.md), `MainEngineScreen` → Opzioni (meno switch, più tema),
 `MessageBubble` → blocco narratore (3 icone decise), gestione modelli
 (solo Gemma). Tutte le migrazioni nascono con @Preview (convenzione
 sopra).
+
+---
+
+# Terza passata (17/07/2026) — interazioni particolari nei ViewModel
+
+Analisi dei flussi UI<->logica in `view/` (MainViewModel 1.634,
+SetupViewModel 309, CharacterSheetViewModel 540) per censire le
+interazioni non ovvie da conservare, correggere o buttare.
+
+## 1. Tiro del dado a DUE FASI (da conservare, trigger da correggere)
+Il flusso v1 del tiro fuori combattimento è una piccola macchina a
+stati: `isRandomNumberRollRequired=true` -> le scelte SPARISCONO e il
+ritratto-dado si accende (bordo oro) -> il giocatore tocca ->
+`onRollRandomNumber` -> `randomNumberResult` mostrato ->
+`resolveRandomNumberChoice` confronta il tiro con `minRoll`/`maxRoll`
+delle scelte -> navigazione. La sequenza arma->tira->risolvi è
+l'antenato esatto dell'overlay Dado del Destino di Ex e si conserva.
+DUE DIFETTI da non ripetere: (a) il trigger è lo SNIFFING del testo
+narrativo italiano (cerca la stringa "Tabella dei Numeri Casuali"!) —
+in Ex il trigger è STRUTTURALE (scelte con minRoll/maxRoll o comandi
+skillCheck/randomChoiceTable); (b) `Random.nextInt` inline — in Ex
+passa dal `DiceRoller` iniettato.
+
+## 2. Specializzazione WEAPONSKILL: v1 la TIRA, la specifica la fa scegliere
+`SetupViewModel.rollWeaponSkillTypeForScherma`: quando il giocatore
+seleziona WEAPONSKILL, il tipo d'arma viene TIRATO A CASO e mostrato
+in un dialog di conferma (non dismissibile). È il CANONE dei libri
+(la Random Number Table decide l'arma della Scherma). UI.md invece
+dice "scelta della specializzazione". **[MICHELE] decidere**: tiro
+canonico col Dado del Destino (più teatrale, fedele al libro — flusso
+v1 già pronto) oppure scelta libera del giocatore (più moderno). La
+macchina `showWeaponSkillDialog`+`dialogRolledWeaponSkillType` si
+riusa in entrambi i casi.
+
+## 3. Gating delle scelte (identico al design Ex — riuso diretto)
+`populateChoicesForCurrentScene`: filtra le scelte su
+`requiredFlag`/`requiredItem` e le scelte-disciplina su
+`canUseDiscipline` (possiedi la disciplina E la scena la offre). È
+esattamente "le scelte non soddisfatte non si mostrano" di UI.md.
+
+## 4. Le decisioni entrano nel flusso come voci (riuso concettuale)
+`onNarrativeChoiceSelected` inserisce nel flusso un messaggio
+"*Sceglie di: ...*" / "*Usa la disciplina: ...*" prima di navigare —
+è la "vista live del diario-grafo" di UI.md già in embrione. In Ex la
+voce nasce dal `JourneyEntry` vero, non da un messaggio di chat.
+
+## 5. Canali evento (pattern da riusare, snelliti)
+- `uiFeedbackEvent: SharedFlow<String>` — feedback effimeri ("Hai
+  trovato: X", "Hai consumato un Pasto") mostrati come toast/snackbar:
+  il canale giusto anche in Ex per l'esito visibile dei gameMechanics.
+- `inventoryFullState: StateFlow<InventoryFullState?>` — stato-dialog
+  per lo scambio a inventario pieno (upgrade futuro, v. seconda
+  passata).
+- `isHeroDead: StateFlow<Boolean>` — la UI osserva e naviga alla
+  DeathActivity; in Ex non serve: la morte è una transizione a scena
+  ENDING gestita dal TransitionEngine.
+- `engineLoadingState` (Loading/Ready/Error) -> LoadingScreen/
+  ErrorScreen: pattern pulito, riuso per il caricamento di Gemma
+  (Fase 4).
+- `activeTokenInfo` con `flatMapLatest` sul motore selezionato:
+  in Ex resta un solo motore, si semplifica in uno StateFlow diretto.
+
+## 6. Navigazione scena: reset e salvataggio (correggere una stranezza)
+`navigateToScene` azzera scelte e stato-tiro, carica la scena, poi
+salva la sessione SOLO alla prima visita (`usedScenes` come gate) e
+infine genera la narrazione. In Ex: l'auto-save avviene a OGNI
+transizione (STATO.md §1.3) e `visitedScenes` non esiste (derivato
+dal diario) — il reset di scelte/tiro invece si conserva identico.
+
+## 7. CharacterSheetViewModel: il difetto noto, confermato
+`calculateEffectiveCombatSkill`/`calculateEffectiveEndurance`
+ricalcolati NEL ViewModel (terza copia del calcolo in v1, oltre a
+LoneWolfRules e MainViewModel): è il difetto già censito in
+REGOLE.md. In Ex tutta la scheda legge SOLO
+`effectiveCombatSkill`/`effectiveEndurance` dell'engine. I flussi
+equip/consuma/scarta (con chirurgia manuale dei modificatori e
+salvataggi sparsi) sono sostituiti da `Inventory` + auto-save.
+
+## 8. Combattimento: nessuna interazione da copiare
+Tutti i canali combat del MainViewModel (`combatResultEvent`,
+`showCombatChoiceEvent`, dialoghi in AdventureActivity) sono
+COMMENTATI: il flusso UI del combattimento di Ex (trasformazione
+della zona scelte, menu tattico) nasce da zero su `CombatSession`,
+senza debito v1.
