@@ -186,6 +186,63 @@ validatori — vedi `doc/ARCHITETTURA.md` e `doc/PIANO-SVILUPPO.md`).
 Task [MICHELE] in coda per questa fase: enum `WeaponType` e `KaiRank`
 (soglie da `doc/REGOLE.md` §Blocco 3).
 
+### Sessione — SVILUPPO: Fase 1 (`:core:data`) CHIUSA
+
+6 commit atomici (modelli pacchetto, modelli stato/sessione,
+`PackageSource`+`PackageRepository`, validatori, aggiornamento sample,
+test JVM).
+
+- **Modelli pacchetto**: `Manifest`, `Scene`/`SceneType`, `Choice`,
+  `DisciplineChoice`, `DisciplineDescriptor`, `Combat` (REGOLE.md
+  §1.5), `GlobalRule`/`GlobalRuleType`/`ComparisonOperator` (REGOLE.md
+  Blocco 2, operatori serializzati con `@SerialName` sui simboli
+  `==`/`!=`/ecc.), `Discipline` (10 canoniche).
+- **Modelli stato/sessione**: `Character`/`CharacterRole`, `GameItem`/
+  `ItemType`, `StatModifier`/`StatType`, `Difficulty`, `SessionData`,
+  `JourneyEntry` con `Transition` sealed (ChoiceTaken/DisciplineUsed/
+  CombatResolved/AutoJump) — fedeli a STATO.md, nessun calcolo di
+  bonus qui (si serializzano i fatti, si calcola in Fase 2).
+- **`gameMechanics` generico**: `GameMechanic(command, params:
+  JsonObject)` invece di una gerarchia tipizzata per i 18 comandi —
+  quei tipi sono comportamento (:core:engine, Fase 2), qui serve solo
+  a caricare/validare. I validatori che devono leggere i parametri
+  (rollOnItemTable) lo fanno leggendo "params" direttamente.
+- **`PackageSource` + `PackageRepository`**: quarta interfaccia
+  motivata implementata; il repository carica da `InputStream`,
+  valida, espone `getSceneById`/`startScene`/manifest; un pacchetto
+  rotto (JSON malformato o che fallisce i validatori) non lascia mai
+  l'istanza in stato parziale.
+- **5 validatori** (uno per file, orchestrati da `PackageValidator`):
+  grafo chiuso, discipline canoniche, `combat.winSceneId` obbligatorio,
+  intervalli `rollOnItemTable` completi/disgiunti (0-9), warning
+  globalRules verso scene non-ENDING. Aggiunti due controlli minimi
+  non esplicitamente elencati nel piano ma necessari per "messaggi
+  chiari": id di scena duplicati, assenza di una scena START.
+- **`content/scenes.sample.json` disallineato, ora corretto**: era
+  fermo al 14/07 (prima delle specifiche 2-4) — scena 4 usava ancora
+  `combatChoices[]` legacy invece del blocco `combat` di REGOLE.md
+  §1.5. Sostituito; aggiunto `deathSceneId` al manifest e
+  `locationName` dove il luogo cambia davvero (scene 1, 2, 3, 6 — le
+  altre ereditano, dimostra il comportamento "appiccicoso" della
+  specifica 4).
+- **Non implementato per scelta**: `WeaponType` è task [MICHELE].
+  `GameItem.weaponType` e `Character.weaponSkillType` restano `String`
+  segnaposto (impalcatura pronta per lo swap all'enum quando Michele
+  lo scrive).
+- **Milestone verificata**: 12 test JVM verdi (`PackageRepositoryTest`
+  carica il sample reale da risorsa e naviga il grafo;
+  `PackageValidatorTest`, 9 casi, isola una violazione per test —
+  destinazione inesistente, id duplicato, scena START assente,
+  disciplina non canonica, `winSceneId` vuoto, buco/sovrapposizione in
+  `rollOnItemTable`, globalRule non-ENDING come warning non errore).
+  `./gradlew test` verde su tutti i moduli.
+
+**Prossimo task: Fase 2 — `:core:engine`** (`GameState`, funzione
+unica stat effettive, i 18 comandi, `CombatManager`, `DiceRoller` —
+vedi `doc/REGOLE.md` e `doc/PIANO-SVILUPPO.md`). Task [MICHELE] in
+coda: trascrizione tabella CRT da `LoneWolfRules` di v1 + fixture di
+test scritte a mano.
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
