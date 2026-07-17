@@ -327,6 +327,47 @@ Richieste di Michele (screenshot v1 alla mano), recepite nei documenti:
   lupo/lupa, Dado del Destino teatrale per il tiro stat (in v1 è un
   bottone), scelta difficoltà (vive nel Setup avventura, schermata 2).
 
+### Sessione — Fase 2: GameState, inventario, 16 comandi, pipeline di transizione
+
+Tre commit atomici, `./gradlew test` verde su tutti i moduli dopo ognuno:
+
+- **GameState** (`engine/state`): unica fonte di verità, SessionData
+  immutabile evoluta per copia, `snapshot()` per la persistenza; accessor
+  tipizzati per flag/variabili/eroe. **Inventario** (`engine/inventory`):
+  funzioni pure con i limiti canonici (WEAPON 2, zaino 8 posti a unità
+  di quantità, GOLD 50 con aggiunta parziale fino al tetto, SPECIAL
+  illimitati e impilabili); rimozione tollerante; equip solo di armi
+  possedute; rimozione dell'arma impugnata azzera `equippedWeapon`.
+- **MechanicsExecutor** (`engine/mechanics`, + ItemMechanics /
+  StatMechanics / Params per la soglia ~200 righe): i 16 comandi di
+  scena non-combat con semantica verificata sul MainViewModel di v1.
+  Decisioni: variazioni ENDURANCE = fatti diretti su currentEndurance
+  (clamp 0..max), variazioni COMBAT_SKILL = StatModifier NARRATIVE;
+  ID stat canonici (ENDURANCE/COMBAT_SKILL, niente alias italiani);
+  operatori sia simboli sia parole v1; outcomes a intervalli espliciti
+  minRoll/maxRoll (formato del validatore, non il "range":"0-4" di v1);
+  primo salto interrompe i comandi successivi; comando/parametro
+  sconosciuto = nessun effetto, mai errore. `handleConditionalAction`
+  esegue un comando annidato STRUTTURATO ({command, params}), non una
+  stringa-tag come v1. `requireAction EAT_MEAL`: HUNTING esente a costo
+  zero, poi consumo "Meal", poi penalità dichiarata. `rollForQuantity`
+  default GOLD (come v1), override con `itemType`.
+- **TransitionEngine** (`engine/transition`): arrivo -> HEALING passiva
+  (+1 verso scene senza combat) -> gameMechanics -> morte built-in
+  (PRIMA delle globalRules: morire batte vincere, testato) ->
+  globalRules in ordine di scrittura -> giro ripetuto sulla nuova scena;
+  `maxHops=20` come rete di sicurezza sui cicli scritti male; scena
+  inesistente = si resta dov'eravamo. Restituisce gli `AutoJumpHop` per
+  le voci AutoJump del diario-grafo.
+- **Modello esteso** (`:core:data`): `AutoJumpReason` += SKILL_CHECK,
+  RANDOM_CHOICE, BUILT_IN_DEATH (anche questi salti sono porte del
+  diario-grafo).
+
+**Fase 2 ancora APERTA**: mancano CombatManager (bloccato dal task
+[MICHELE] tabella CRT), il bonus WEAPONSKILL nelle stat effettive
+(bloccato da enum WeaponType [MICHELE]) e il test di milestone "partita
+completa del sample da terminale" (ha senso a combat pronto).
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
