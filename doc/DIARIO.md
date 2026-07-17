@@ -622,6 +622,36 @@ combat UI, scheda, diario, checkpoint/morte.
 **Prossimo: 3.4 scena teatrale minima** (testo originale, scelte
 filtrate, transizioni con TransitionEngine, auto-save, diario-grafo).
 
+### Sessione — Fase 3.4: la scena teatrale minima GIRA
+
+**`AdventureState`** cabla l'engine alla UI: GameState dalla sessione
+(nuova o ripresa dall'auto-save), TransitionEngine per ogni porta,
+voce del diario-grafo AD OGNI passo (incluse le AutoJump dei salti
+d'ufficio), auto-save atomico a ogni transizione, morte in IRON che
+CANCELLA la sessione (deleteAdventure) mostrando comunque la scena di
+morte. Combat v0.1: solo modalità RAPIDA su CombatSession (riepilogo
+esito/round/Resistenze, "Continua" verso win/lose con fallback
+deathSceneId); il menu tattico completo è il prossimo task.
+
+**`AdventureScreen`** (v0.1 nelle zone giuste): header
+titolo-dal-manifest + "Scena N", testo ORIGINALE come pagina di libro,
+card di stato con CS/RES EFFETTIVE dall'engine + Corone, zona scelte
+(bottoni pieni; scelte-disciplina distinte con icona, incluse le fughe
+gratis pre-combattimento), zone combat/ending. Gating scelte:
+requiredFlag/requiredItem rispettati; scelte con minRoll/maxRoll
+nascoste (il flusso del Dado a due fasi arriva con la Fase 5; il
+sample non ne usa). `AdventureRoute` + wiring navigazione (continua
+salvataggio -> riprende dalla scena salvata; exit -> Home con stack
+pulito).
+
+Build+test verdi. Da provare sul Razr (device non collegato): il
+flusso Home -> Avventura -> creazione -> partita completa -> ENDING.
+
+**Restano per chiudere la Fase 3**: menu tattico combat completo,
+Scheda personaggio operativa, Diario del viaggio, checkpoint UI,
+side-load libro, prova di milestone SUL DEVICE (partita completa,
+ripresa a metà, IRON).
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
