@@ -15,9 +15,9 @@ enum class CharacterRole {
 // magico "hero". Si serializzano i fatti: kaiDisciplines sono ID canonici
 // (mai nomi display), la CS/Resistenza effettiva la calcola l'engine
 // (base + activeModifiers + WEAPONSKILL + eventuale MINDBLAST di
-// combattimento), mai persistita. weaponSkillType resta String finché
-// l'enum WeaponType (task [MICHELE]) non è scritto: valorizzato con un tipo
-// arma canonico oppure "UNARMED".
+// combattimento), mai persistita. weaponSkillType è la specializzazione
+// WEAPONSKILL scelta alla creazione (un tipo d'arma oppure UNARMED),
+// valorizzata solo se il personaggio possiede la disciplina.
 @Serializable
 data class Character(
     val role: CharacterRole,
@@ -26,7 +26,7 @@ data class Character(
     val currentEndurance: Int,
     val maxEndurance: Int,
     val kaiDisciplines: List<String> = emptyList(),
-    val weaponSkillType: String? = null,
+    val weaponSkillType: WeaponType? = null,
     val inventory: List<GameItem> = emptyList(),
     val equippedWeapon: String? = null,
     val activeModifiers: List<StatModifier> = emptyList(),
