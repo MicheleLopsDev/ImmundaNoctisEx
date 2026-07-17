@@ -22,3 +22,24 @@ Project Aon, uso locale) non è versionato.
 
 In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:
 consultala prima di copiare o riscrivere qualunque componente ereditato.
+
+## Sviluppo
+Design concluso (6/6 specifiche). Lo sviluppo è orchestrato da
+`doc/PIANO-SVILUPPO.md`: leggilo per intero a inizio sessione, individua
+la fase corrente da `doc/DIARIO.md` e lavora solo su quella (non
+anticipare fasi). Apri le altre specifiche solo quando il piano lo
+richiede per il task in corso.
+
+Vincoli non negoziabili (dettaglio in `doc/PIANO-SVILUPPO.md`):
+`:core:engine`/`:core:data` senza dipendenze Android; file ~200 righe
+= soglia d'allarme; il gioco non si blocca mai (ogni fallimento degrada
+sul contenuto originale); si serializzano i fatti, i bonus si
+calcolano; inferenza senza memoria (sessione Gemma nuova per scena, il
+diario non entra mai nel prompt); scrittura atomica di auto-save e
+checkpoint; interfacce solo le quattro motivate (RulesEngine,
+InferenceEngine, DiceRoller, PackageSource); ID canonici nei dati, nomi
+localizzati solo in `strings.xml`.
+
+I task marcati **[MICHELE]** nel piano sono riservati a Michele: non
+implementarli. Se bloccano un task in corso, prepara l'impalcatura
+(interfaccia/segnaposto) e segnalalo a diario.
