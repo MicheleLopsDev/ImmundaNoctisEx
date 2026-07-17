@@ -6,6 +6,7 @@
     "language": "en",
     "genre": "FANTASY",
     "toneHints": ["adventurous"],
+    "deathSceneId": "7",
     "disciplineChoices": [
         {
             "id": "WEAPONSKILL",
@@ -65,6 +66,7 @@
             "genre": "FANTASY",
             "toneHints": ["calm", "mysterious"],
             "backgroundImage": "inn",
+            "locationName": "The Sundered Anchor Inn",
             "narrativeText": "You wake in a narrow room above a border-town inn, the shutters rattling with a wind that smells of rain and distant smoke. Sunlight has barely touched the sill when you notice a folded parchment slipped beneath the door sometime in the night. Cracking the wax, you find a hurried hand: reach the old warehouse in the western district before the sun sets, and come alone. No name signs it. You dress quickly, buckle on your blade, and step out into a morning that already feels too watchful for comfort.",
             "choices": [
                 {
@@ -78,7 +80,6 @@
                 }
             ],
             "disciplineChoices": [],
-            "combatChoices": [],
             "gameMechanics": []
         },
         {
@@ -87,6 +88,7 @@
             "genre": "FANTASY",
             "toneHints": ["lively", "tense"],
             "backgroundImage": "city",
+            "locationName": "Market Square",
             "narrativeText": "The market square roars with life: merchants bark prices over crates of spice and cloth, a juggler draws a ring of children, and somewhere a dog barks at nothing. Yet beneath the noise you feel eyes tracking your steps, a prickle at the back of your neck that never quite resolves into a face. Near the fountain, a hunched beggar catches your gaze and jerks his chin toward a gap between two shuttered stalls, murmuring directions to the old quarter before melting back into the crowd.",
             "choices": [
                 {
@@ -100,7 +102,6 @@
                 }
             ],
             "disciplineChoices": [],
-            "combatChoices": [],
             "gameMechanics": []
         },
         {
@@ -109,6 +110,7 @@
             "genre": "FANTASY",
             "toneHints": ["dark", "suspenseful"],
             "backgroundImage": "alley",
+            "locationName": "Old Quarter",
             "narrativeText": "The alley narrows as the old quarter swallows the daylight, damp stone walls pressing close on either side. Ahead, the warehouse door stands ajar, and shapes shift in the gloom before it, too still to be idle, too many to be chance. Something about the doorway's silence sets your instincts screaming. You could trust your training to find a safer path, or simply walk forward and meet whatever waits with steel in hand.",
             "choices": [
                 {
@@ -143,7 +145,6 @@
                     "requiredFlag": null
                 }
             ],
-            "combatChoices": [],
             "gameMechanics": []
         },
         {
@@ -155,28 +156,15 @@
             "narrativeText": "Steel rasps free as two thugs step from the warehouse shadows, blades already drawn, expressions flat with practiced violence. There's no room here for words, only reflexes, footwork, and the thin margin between your training and their numbers. The nearest lunges first, forcing you to commit, while his companion circles wide to cut off any retreat toward the alley mouth.",
             "choices": [],
             "disciplineChoices": [],
-            "combatChoices": [
-                {
-                    "enemyName": "Warehouse Thugs",
-                    "combatSkill": 16,
-                    "endurance": 24,
-                    "immunity": "none",
-                    "notes": "Two armed thugs fighting as one combined foe; blows from either count against your Endurance.",
-                    "condition": "WIN",
-                    "choiceText": "You beat the Warehouse Thugs",
-                    "nextSceneId": "6"
-                },
-                {
-                    "enemyName": "Warehouse Thugs",
-                    "combatSkill": 16,
-                    "endurance": 24,
-                    "immunity": "none",
-                    "notes": "Two armed thugs fighting as one combined foe; blows from either count against your Endurance.",
-                    "condition": "LOSE",
-                    "choiceText": "The Warehouse Thugs overwhelm you",
-                    "nextSceneId": "7"
-                }
-            ],
+            "combat": {
+                "enemyName": "Warehouse Thugs",
+                "enemyCombatSkill": 16,
+                "enemyEndurance": 24,
+                "immuneToMindblast": false,
+                "evadeAfterRound": 0,
+                "winSceneId": "6",
+                "loseSceneId": "7"
+            },
             "gameMechanics": []
         },
         {
@@ -198,7 +186,6 @@
                 }
             ],
             "disciplineChoices": [],
-            "combatChoices": [],
             "gameMechanics": []
         },
         {
@@ -207,10 +194,10 @@
             "genre": "FANTASY",
             "toneHints": ["solemn", "rewarding"],
             "backgroundImage": "warehouse",
+            "locationName": "The Old Warehouse",
             "narrativeText": "Inside, dust hangs thick in a shaft of failing light. Stacked crates and coiled rope line the walls, and at the center, on an upturned barrel, sits exactly what the letter promised: a sealed chest bearing a mark you half recognize from old stories. You lift the lid slowly, half expecting the whole day to have been some elaborate jest. It was not. Whatever comes next, you have kept faith with a stranger's word, and the town's oldest debts have a way of finding those who do.",
             "choices": [],
             "disciplineChoices": [],
-            "combatChoices": [],
             "gameMechanics": []
         },
         {
@@ -222,7 +209,6 @@
             "narrativeText": "The second thug's blade finds a gap in your guard, and the cold shock of it drops you to your knees on the alley stones. The world tilts, sound fading to a dull roar as your strength drains into the dark, spreading pool beneath you. The letter, the warehouse, whatever waited inside, all of it recedes beyond reach now. Your journey ends here, unfinished, in a nameless alley behind a stranger's warehouse, the sunset you were racing arriving without you.",
             "choices": [],
             "disciplineChoices": [],
-            "combatChoices": [],
             "gameMechanics": []
         }
     ]
