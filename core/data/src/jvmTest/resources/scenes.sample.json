@@ -1,0 +1,215 @@
+{
+    "id": "sample-adventure",
+    "version": "1.0.0",
+    "title": "The Warehouse Letter",
+    "description": "A short fantasy vignette following a lone traveler entrusted with a mysterious errand in a border town.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["adventurous"],
+    "deathSceneId": "7",
+    "disciplineChoices": [
+        {
+            "id": "WEAPONSKILL",
+            "name": "Weaponskill",
+            "description": "Mastery with a chosen weapon type, adding a bonus to Combat Skill when wielding it."
+        },
+        {
+            "id": "CAMOUFLAGE",
+            "name": "Camouflage",
+            "description": "The art of blending into terrain and shadow to move unseen."
+        },
+        {
+            "id": "HUNTING",
+            "name": "Hunting",
+            "description": "Skill at foraging and catching food in the wild, removing the need for meals."
+        },
+        {
+            "id": "SIXTH_SENSE",
+            "name": "Sixth Sense",
+            "description": "A heightened intuition that warns of danger and hidden threats."
+        },
+        {
+            "id": "TRACKING",
+            "name": "Tracking",
+            "description": "The ability to follow trails and read signs left by passage."
+        },
+        {
+            "id": "HEALING",
+            "name": "Healing",
+            "description": "The gift of mending wounds and restoring endurance without herbs."
+        },
+        {
+            "id": "MINDSHIELD",
+            "name": "Mindshield",
+            "description": "A mental ward against psychic intrusion and fear."
+        },
+        {
+            "id": "MINDBLAST",
+            "name": "Mindblast",
+            "description": "The power to strike an enemy's mind directly, aiding in combat."
+        },
+        {
+            "id": "ANIMAL_KINSHIP",
+            "name": "Animal Kinship",
+            "description": "An affinity with animals, calming beasts and reading their moods."
+        },
+        {
+            "id": "MIND_OVER_MATTER",
+            "name": "Mind Over Matter",
+            "description": "Telekinetic control, allowing objects to be moved by will alone."
+        }
+    ],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["calm", "mysterious"],
+            "backgroundImage": "inn",
+            "locationName": "The Sundered Anchor Inn",
+            "narrativeText": "You wake in a narrow room above a border-town inn, the shutters rattling with a wind that smells of rain and distant smoke. Sunlight has barely touched the sill when you notice a folded parchment slipped beneath the door sometime in the night. Cracking the wax, you find a hurried hand: reach the old warehouse in the western district before the sun sets, and come alone. No name signs it. You dress quickly, buckle on your blade, and step out into a morning that already feels too watchful for comfort.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Head down into the town",
+                    "nextSceneId": "2",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["lively", "tense"],
+            "backgroundImage": "city",
+            "locationName": "Market Square",
+            "narrativeText": "The market square roars with life: merchants bark prices over crates of spice and cloth, a juggler draws a ring of children, and somewhere a dog barks at nothing. Yet beneath the noise you feel eyes tracking your steps, a prickle at the back of your neck that never quite resolves into a face. Near the fountain, a hunched beggar catches your gaze and jerks his chin toward a gap between two shuttered stalls, murmuring directions to the old quarter before melting back into the crowd.",
+            "choices": [
+                {
+                    "id": "choice_2_1",
+                    "choiceText": "Follow the beggar's directions toward the old quarter",
+                    "nextSceneId": "3",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "3",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["dark", "suspenseful"],
+            "backgroundImage": "alley",
+            "locationName": "Old Quarter",
+            "narrativeText": "The alley narrows as the old quarter swallows the daylight, damp stone walls pressing close on either side. Ahead, the warehouse door stands ajar, and shapes shift in the gloom before it, too still to be idle, too many to be chance. Something about the doorway's silence sets your instincts screaming. You could trust your training to find a safer path, or simply walk forward and meet whatever waits with steel in hand.",
+            "choices": [
+                {
+                    "id": "choice_3_1",
+                    "choiceText": "Walk on, hand on your weapon",
+                    "nextSceneId": "4",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [
+                {
+                    "id": "dchoice_3_1",
+                    "disciplineId": "SIXTH_SENSE",
+                    "choiceText": "You sense the ambush before they see you...",
+                    "nextSceneId": "5",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                },
+                {
+                    "id": "dchoice_3_2",
+                    "disciplineId": "CAMOUFLAGE",
+                    "choiceText": "You blend with the shadows...",
+                    "nextSceneId": "5",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "gameMechanics": []
+        },
+        {
+            "id": "4",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["violent", "desperate"],
+            "backgroundImage": "battle",
+            "narrativeText": "Steel rasps free as two thugs step from the warehouse shadows, blades already drawn, expressions flat with practiced violence. There's no room here for words, only reflexes, footwork, and the thin margin between your training and their numbers. The nearest lunges first, forcing you to commit, while his companion circles wide to cut off any retreat toward the alley mouth.",
+            "choices": [],
+            "disciplineChoices": [],
+            "combat": {
+                "enemyName": "Warehouse Thugs",
+                "enemyCombatSkill": 16,
+                "enemyEndurance": 24,
+                "immuneToMindblast": false,
+                "evadeAfterRound": 0,
+                "winSceneId": "6",
+                "loseSceneId": "7"
+            },
+            "gameMechanics": []
+        },
+        {
+            "id": "5",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["stealthy", "clever"],
+            "backgroundImage": "alley",
+            "narrativeText": "Rather than face the men waiting below, you find a drainpipe leading up to the rooftops and haul yourself onto the tiles, moving low and quiet along the ridge line. The warehouse's rear yard opens beneath you, unguarded, a stack of crates offering an easy drop to the cobbles. Slipping down, you cross to a service door hanging loose on one hinge; the ambush left it forgotten, and it swings open at your touch.",
+            "choices": [
+                {
+                    "id": "choice_5_1",
+                    "choiceText": "Slip through the back door",
+                    "nextSceneId": "6",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "6",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "toneHints": ["solemn", "rewarding"],
+            "backgroundImage": "warehouse",
+            "locationName": "The Old Warehouse",
+            "narrativeText": "Inside, dust hangs thick in a shaft of failing light. Stacked crates and coiled rope line the walls, and at the center, on an upturned barrel, sits exactly what the letter promised: a sealed chest bearing a mark you half recognize from old stories. You lift the lid slowly, half expecting the whole day to have been some elaborate jest. It was not. Whatever comes next, you have kept faith with a stranger's word, and the town's oldest debts have a way of finding those who do.",
+            "choices": [],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "7",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "toneHints": ["grim"],
+            "backgroundImage": "battle",
+            "narrativeText": "The second thug's blade finds a gap in your guard, and the cold shock of it drops you to your knees on the alley stones. The world tilts, sound fading to a dull roar as your strength drains into the dark, spreading pool beneath you. The letter, the warehouse, whatever waited inside, all of it recedes beyond reach now. Your journey ends here, unfinished, in a nameless alley behind a stranger's warehouse, the sunset you were racing arriving without you.",
+            "choices": [],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        }
+    ]
+}
