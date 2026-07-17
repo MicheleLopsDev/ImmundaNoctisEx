@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- IMPALCATURA del task [MICHELE] (PIANO-SVILUPPO Fase 3): testi italiani
+     di base perché l'app funzioni; la rifinitura dei testi è di Michele.
+     Regola: ID canonici nei dati, QUI i nomi mostrati. -->
+<resources>
+    <string name="app_name">Immunda Noctis Ex</string>
+
+    <!-- Discipline Kai (ID canonici UPPER_SNAKE -> nome + descrizione) -->
+    <string name="discipline_weaponskill">Scherma</string>
+    <string name="discipline_weaponskill_desc">Maestria con un tipo d\'arma: +2 Combattività quando la impugni.</string>
+    <string name="discipline_camouflage">Mimetismo</string>
+    <string name="discipline_camouflage_desc">L\'arte di confonderti con l\'ambiente e sparire alla vista.</string>
+    <string name="discipline_hunting">Caccia</string>
+    <string name="discipline_hunting_desc">Procurarti cibo nelle terre selvagge: non consumi mai Pasti.</string>
+    <string name="discipline_sixth_sense">Sesto Senso</string>
+    <string name="discipline_sixth_sense_desc">Un istinto che ti avverte del pericolo imminente.</string>
+    <string name="discipline_tracking">Orientamento</string>
+    <string name="discipline_tracking_desc">Seguire tracce e scegliere la strada giusta.</string>
+    <string name="discipline_healing">Guarigione</string>
+    <string name="discipline_healing_desc">Recuperi 1 punto Resistenza per ogni scena senza combattimento.</string>
+    <string name="discipline_mindshield">Schermo Psichico</string>
+    <string name="discipline_mindshield_desc">Protegge la tua mente dagli attacchi psichici.</string>
+    <string name="discipline_mindblast">Attacco Psichico</string>
+    <string name="discipline_mindblast_desc">+2 Combattività in combattimento contro nemici non immuni.</string>
+    <string name="discipline_animal_kinship">Affinità Animale</string>
+    <string name="discipline_animal_kinship_desc">Comunicare con gli animali e ottenerne l\'aiuto.</string>
+    <string name="discipline_mind_over_matter">Telecinesi</string>
+    <string name="discipline_mind_over_matter_desc">Spostare piccoli oggetti con la forza della mente.</string>
+
+    <!-- Gradi Kai (enum KaiRank) -->
+    <string name="kai_rank_novice">Novizio Kai</string>
+    <string name="kai_rank_initiate">Iniziato Kai</string>
+    <string name="kai_rank_disciple">Discepolo Kai</string>
+    <string name="kai_rank_wayfarer">Viandante Kai</string>
+    <string name="kai_rank_warrior">Guerriero Kai</string>
+    <string name="kai_rank_master">Maestro Kai</string>
+    <string name="kai_rank_grand_master">Gran Maestro Kai</string>
+    <string name="kai_rank_supreme_grand_master">Gran Maestro Kai Supremo</string>
+
+    <!-- Tipi d'arma (enum WeaponType) -->
+    <string name="weapon_dagger">Pugnale</string>
+    <string name="weapon_spear">Lancia</string>
+    <string name="weapon_mace">Mazza</string>
+    <string name="weapon_short_sword">Spada Corta</string>
+    <string name="weapon_warhammer">Martello da Guerra</string>
+    <string name="weapon_sword">Spada</string>
+    <string name="weapon_axe">Ascia</string>
+    <string name="weapon_quarterstaff">Bastone</string>
+    <string name="weapon_broadsword">Spadone</string>
+    <string name="weapon_unarmed">Mani Nude</string>
+
+    <!-- Difficoltà (STATO.md Blocco 2: spiegazione onesta) -->
+    <string name="difficulty_normal">Normale</string>
+    <string name="difficulty_normal_desc">2 checkpoint. Alla morte puoi ricaricare un checkpoint.</string>
+    <string name="difficulty_hard">Difficile</string>
+    <string name="difficulty_hard_desc">1 solo checkpoint. Alla morte puoi ricaricare quel checkpoint.</string>
+    <string name="difficulty_iron">Iron</string>
+    <string name="difficulty_iron_desc">Nessun checkpoint. Se muori la sessione viene CANCELLATA: il libro riparte da capo. Nessuna seconda possibilità.</string>
+
+    <!-- Setup avventura / Home Avventura -->
+    <string name="setup_title">Nuova avventura</string>
+    <string name="setup_choose_difficulty">Scegli la difficoltà</string>
+    <string name="setup_continue_title">Bentornato!</string>
+    <string name="setup_continue_session">Continua questa avventura</string>
+    <string name="setup_new_adventure">Nuova avventura</string>
+    <string name="setup_last_save">Ultimo salvataggio: %1$s</string>
+
+    <!-- Creazione personaggio -->
+    <string name="creation_title">Crea il tuo Eroe</string>
+    <string name="creation_subtitle">Lupo Solitario</string>
+    <string name="creation_gender">Chi sei?</string>
+    <string name="creation_gender_male">Lupo</string>
+    <string name="creation_gender_female">Lupa</string>
+    <string name="creation_stats_title">Statistiche di Combattimento</string>
+    <string name="creation_combat_skill">Combattività: %1$d</string>
+    <string name="creation_endurance">Resistenza: %1$d</string>
+    <string name="creation_gold">Corone d\'oro: %1$d</string>
+    <string name="creation_roll_stats">Tira le Statistiche</string>
+    <string name="creation_disciplines_title">Scegli 5 Discipline Kai (%1$d/5)</string>
+    <string name="creation_weaponskill_title">Specializzazione Scherma</string>
+    <string name="creation_weaponskill_pick">Scegli il tipo d\'arma della tua Scherma:</string>
+    <string name="creation_weaponskill_random">Scegli a caso</string>
+    <string name="creation_equipment_title">Equipaggiamento iniziale</string>
+    <string name="creation_pick_weapon">Scegli un\'arma:</string>
+    <string name="creation_start">Inizia l\'Avventura</string>
+
+    <!-- Comuni -->
+    <string name="common_back">Indietro</string>
+    <string name="common_confirm">Conferma</string>
+</resources>

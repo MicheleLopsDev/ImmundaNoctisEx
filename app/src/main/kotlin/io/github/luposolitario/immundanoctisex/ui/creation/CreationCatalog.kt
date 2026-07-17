@@ -1,0 +1,70 @@
+package io.github.luposolitario.immundanoctisex.ui.creation
+
+import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Healing
+import androidx.compose.material.icons.filled.Hearing
+import androidx.compose.material.icons.filled.HelpOutline
+import androidx.compose.material.icons.filled.LocationSearching
+import androidx.compose.material.icons.filled.Pets
+import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.graphics.vector.ImageVector
+import io.github.luposolitario.immundanoctisex.R
+import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
+import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
+import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
+
+// Catalogo per la creazione: le 10 discipline canoniche con nome/descrizione
+// da strings.xml e icona (mappa di v1 CORRETTA: chiavi sugli ID canonici
+// UPPER_SNAKE, non sui nomi display — bug censito in ANALISI-UI-V1.md).
+data class DisciplineUi(
+    val id: String,
+    @StringRes val nameRes: Int,
+    @StringRes val descriptionRes: Int,
+    val icon: ImageVector,
+)
+
+val KAI_DISCIPLINES_UI = listOf(
+    DisciplineUi("WEAPONSKILL", R.string.discipline_weaponskill, R.string.discipline_weaponskill_desc, Icons.Default.Shield),
+    DisciplineUi("CAMOUFLAGE", R.string.discipline_camouflage, R.string.discipline_camouflage_desc, Icons.Default.VisibilityOff),
+    DisciplineUi("HUNTING", R.string.discipline_hunting, R.string.discipline_hunting_desc, Icons.Default.Pets),
+    DisciplineUi("SIXTH_SENSE", R.string.discipline_sixth_sense, R.string.discipline_sixth_sense_desc, Icons.Default.Hearing),
+    DisciplineUi("TRACKING", R.string.discipline_tracking, R.string.discipline_tracking_desc, Icons.Default.LocationSearching),
+    DisciplineUi("HEALING", R.string.discipline_healing, R.string.discipline_healing_desc, Icons.Default.Healing),
+    DisciplineUi("MINDSHIELD", R.string.discipline_mindshield, R.string.discipline_mindshield_desc, Icons.Default.Security),
+    DisciplineUi("MINDBLAST", R.string.discipline_mindblast, R.string.discipline_mindblast_desc, Icons.Default.Psychology),
+    DisciplineUi("ANIMAL_KINSHIP", R.string.discipline_animal_kinship, R.string.discipline_animal_kinship_desc, Icons.Default.Group),
+    DisciplineUi("MIND_OVER_MATTER", R.string.discipline_mind_over_matter, R.string.discipline_mind_over_matter_desc, Icons.Default.Star),
+)
+
+fun disciplineIcon(id: String): ImageVector =
+    KAI_DISCIPLINES_UI.firstOrNull { it.id == id }?.icon ?: Icons.Default.HelpOutline
+
+@StringRes
+fun weaponTypeName(type: WeaponType): Int = when (type) {
+    WeaponType.DAGGER -> R.string.weapon_dagger
+    WeaponType.SPEAR -> R.string.weapon_spear
+    WeaponType.MACE -> R.string.weapon_mace
+    WeaponType.SHORT_SWORD -> R.string.weapon_short_sword
+    WeaponType.WARHAMMER -> R.string.weapon_warhammer
+    WeaponType.SWORD -> R.string.weapon_sword
+    WeaponType.AXE -> R.string.weapon_axe
+    WeaponType.QUARTERSTAFF -> R.string.weapon_quarterstaff
+    WeaponType.BROADSWORD -> R.string.weapon_broadsword
+    WeaponType.UNARMED -> R.string.weapon_unarmed
+}
+
+// Equipaggiamento iniziale (erede di INITIAL_WEAPONS di v1, nomi canonici
+// inglesi come i dati dei pacchetti: i nomi mostrati arriveranno con la
+// localizzazione degli oggetti in Fase 5/7).
+val INITIAL_WEAPONS = listOf(
+    GameItem(name = "Axe", type = ItemType.WEAPON, weaponType = WeaponType.AXE),
+    GameItem(name = "Sword", type = ItemType.WEAPON, weaponType = WeaponType.SWORD),
+    GameItem(name = "Mace", type = ItemType.WEAPON, weaponType = WeaponType.MACE),
+    GameItem(name = "Quarterstaff", type = ItemType.WEAPON, weaponType = WeaponType.QUARTERSTAFF),
+)

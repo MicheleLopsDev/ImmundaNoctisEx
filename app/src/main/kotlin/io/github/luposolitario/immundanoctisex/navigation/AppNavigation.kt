@@ -13,7 +13,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.luposolitario.immundanoctisex.AppContainer
+import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
+import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
+import io.github.luposolitario.immundanoctisex.ui.creation.CreationRoute
 import io.github.luposolitario.immundanoctisex.ui.home.HomeScreen
+import io.github.luposolitario.immundanoctisex.ui.setup.SetupRoute
 
 // Le destinazioni dell'app (le 7 schermate di UI.md). Solo routing qui
 // (ARCHITETTURA.md: ~100 righe max): niente logica, niente stato di gioco.
@@ -36,6 +40,10 @@ fun AppNavigation(
 ) {
     var route by rememberSaveable { mutableStateOf(Route.HOME) }
     val backStack = remember { ArrayDeque<Route>() }
+    // Parametri di navigazione della partita in corso (solo routing:
+    // la logica vive nelle route delle schermate).
+    var newDifficulty by remember { mutableStateOf(Difficulty.NORMAL) }
+    var activeSession by remember { mutableStateOf<SessionData?>(null) }
 
     fun navigateTo(destination: Route) {
         backStack.addLast(route)
@@ -53,6 +61,27 @@ fun AppNavigation(
             onAdventureClick = { navigateTo(Route.ADVENTURE_SETUP) },
             onModelsClick = { navigateTo(Route.MODELS) },
             onSettingsClick = { navigateTo(Route.OPTIONS) },
+        )
+
+        Route.ADVENTURE_SETUP -> SetupRoute(
+            container = container,
+            onContinueSession = { session ->
+                activeSession = session
+                navigateTo(Route.ADVENTURE)
+            },
+            onNewAdventure = { difficulty ->
+                newDifficulty = difficulty
+                navigateTo(Route.CHARACTER_CREATION)
+            },
+        )
+
+        Route.CHARACTER_CREATION -> CreationRoute(
+            container = container,
+            difficulty = newDifficulty,
+            onSessionCreated = { session ->
+                activeSession = session
+                navigateTo(Route.ADVENTURE)
+            },
         )
 
         // Segnaposto: si riempiono nei prossimi task della Fase 3/5.
