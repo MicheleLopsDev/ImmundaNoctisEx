@@ -401,6 +401,32 @@ controllo"). Quattro commit atomici, test verdi:
 **Restano per chiudere la Fase 2**: CombatManager (ora sbloccato) e il
 test di milestone della partita completa del sample da terminale.
 
+### Sessione — FASE 2 CHIUSA: CombatSession e milestone della partita simulata
+
+- **`CombatSession`** (`engine/combat`): nemico idratato in Character
+  unico (role ENEMY) dal blocco combat; round sulla CRT ufficiale con
+  rapporto da stat effettive simmetriche; sentinella KILL -> Resistenza
+  0; la morte del giocatore batte quella del nemico nello stesso round;
+  MINDBLAST (+2 una volta, negato da immunità/disciplina mancante,
+  decade in `playerAfterCombat`); oggetti solo `combatUsable` con
+  HEAL:n, consumati; evasione col costo canonico (round di soli danni
+  al giocatore, può uccidere -> LOSE) sbloccata da `evadeAfterRound`;
+  rapido = `quickResolve()`, loop dello STESSO round (nessuna logica
+  duplicata). `destinationSceneId` con loseSceneId nullable: il
+  chiamante degrada su `deathSceneId` (specifico batte globale).
+  Il combattimento resta atomico: la sessione vive in memoria, mai
+  salvata a metà.
+- **MILESTONE FASE 2 VERDE** (`GiocataCompletaDelSampleTest`): il
+  sample vero (content/ montato come resources di test, niente copie)
+  giocato da terminale su quattro percorsi — vittoria attraverso il
+  combattimento (2 round, tiri 0), morte in combattimento (rapporto
+  -11, KILL istantaneo, loseSceneId=deathSceneId), percorso furtivo
+  con SIXTH_SENSE + HEALING passiva (+1 per ognuna delle 4 transizioni
+  senza combat), morte built-in fuori combattimento. Diario-grafo
+  registrato dal test come farà la UI.
+- CLAUDE.md aggiornato: **fase corrente -> Fase 3** (il libro gira
+  senza Gemma).
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già

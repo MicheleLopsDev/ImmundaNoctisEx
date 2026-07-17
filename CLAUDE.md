@@ -30,8 +30,10 @@ la fase corrente da `doc/DIARIO.md` e lavora solo su quella (non
 anticipare fasi). Apri le altre specifiche solo quando il piano lo
 richiede per il task in corso.
 
-Fase corrente: **Fase 2 — `:core:engine`** (Fase 1, modelli/`PackageSource`/
-validatori in `:core:data`, chiusa il 17/07/2026).
+Fase corrente: **Fase 3 — MILESTONE REGINA: il libro gira senza Gemma**
+(Fase 2, `:core:engine` completo — stat effettive, inventario, 16
+comandi, transizioni, CombatSession su CRT ufficiale, milestone della
+partita simulata — chiusa il 17/07/2026).
 
 Vincoli non negoziabili (dettaglio in `doc/PIANO-SVILUPPO.md`):
 `:core:engine`/`:core:data` senza dipendenze Android; file ~200 righe
