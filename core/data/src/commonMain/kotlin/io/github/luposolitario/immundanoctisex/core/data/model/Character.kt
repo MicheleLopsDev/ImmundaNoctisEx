@@ -10,6 +10,14 @@ enum class CharacterRole {
     NPC,
 }
 
+// Genere del personaggio (UI.md §Convenzioni): tre clienti — ritratto
+// lupo/lupa, voce TTS per genere, placeholder {player_gender} nel prompt.
+@Serializable
+enum class Gender {
+    MALE,
+    FEMALE,
+}
+
 // Character unico per tutti i ruoli (REGOLE.md §1.5): eroe, compagni, nemici
 // e futuri duelli eroe-contro-eroe condividono lo stesso tipo, mai un id
 // magico "hero". Si serializzano i fatti: kaiDisciplines sono ID canonici
@@ -22,6 +30,7 @@ enum class CharacterRole {
 data class Character(
     val role: CharacterRole,
     val name: String,
+    val gender: Gender = Gender.MALE,
     val baseCombatSkill: Int,
     val currentEndurance: Int,
     val maxEndurance: Int,
