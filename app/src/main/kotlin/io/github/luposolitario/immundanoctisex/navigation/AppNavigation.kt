@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
+import io.github.luposolitario.immundanoctisex.ui.adventure.AdventureRoute
 import io.github.luposolitario.immundanoctisex.ui.creation.CreationRoute
 import io.github.luposolitario.immundanoctisex.ui.home.HomeScreen
 import io.github.luposolitario.immundanoctisex.ui.setup.SetupRoute
@@ -83,6 +84,23 @@ fun AppNavigation(
                 navigateTo(Route.ADVENTURE)
             },
         )
+
+        Route.ADVENTURE -> {
+            val session = activeSession
+            if (session == null) {
+                PlaceholderScreen(route)
+            } else {
+                AdventureRoute(
+                    container = container,
+                    session = session,
+                    onExitToHome = {
+                        activeSession = null
+                        backStack.clear()
+                        route = Route.HOME
+                    },
+                )
+            }
+        }
 
         // Segnaposto: si riempiono nei prossimi task della Fase 3/5.
         else -> PlaceholderScreen(route)
