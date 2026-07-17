@@ -271,6 +271,15 @@ commit Gradle a parte, poi proseguire Fase 2** (`GameState`, i 18
 comandi, `CombatManager` — questi ultimi bloccati dal task [MICHELE]
 sulla tabella CRT).
 
+**Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
+test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
+test` verde su tutti i moduli. Le modifiche Gradle risultavano già
+committate (commit `6c8bf64`, `4837dd6`, `ad87c0d` — nota: portano un
+messaggio errato "Create doc/ETL.md...", copiato per sbaglio; già
+pushati, si lasciano così). Per i build da terminale il daemon JVM
+(JDK 21 JetBrains) è risolto via `org.gradle.java.installations.paths`
+nel `gradle.properties` UTENTE (`~/.gradle/`), fuori dal repo.
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)

@@ -39,4 +39,34 @@ class EffectiveStatsTest {
 
         assertEquals(15, effectiveCombatSkill(character))
     }
+
+    @Test
+    fun enduranceSenzaModificatoriERisultatoCorrente() {
+        assertEquals(20, effectiveEndurance(hero()))
+    }
+
+    @Test
+    fun enduranceClampataAlMassimoDelPersonaggio() {
+        val character = hero(StatModifier(StatType.ENDURANCE, amount = 7, sourceType = "pozione"))
+
+        assertEquals(20, effectiveEndurance(character))
+    }
+
+    @Test
+    fun enduranceClampataAZero() {
+        val character = hero(StatModifier(StatType.ENDURANCE, amount = -25, sourceType = "veleno"))
+
+        assertEquals(0, effectiveEndurance(character))
+    }
+
+    @Test
+    fun ciascunaFunzioneIgnoraIModificatoriDellAltraStat() {
+        val character = hero(
+            StatModifier(StatType.ENDURANCE, amount = -4, sourceType = "ferita"),
+            StatModifier(StatType.COMBAT_SKILL, amount = 2, sourceType = "MINDBLAST"),
+        )
+
+        assertEquals(17, effectiveCombatSkill(character))
+        assertEquals(16, effectiveEndurance(character))
+    }
 }
