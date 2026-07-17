@@ -136,6 +136,56 @@ segnala se bloccano.
 
 **Prossima sessione: SVILUPPO, Fase 0** (checklist in fondo al piano).
 
+### Sessione — SVILUPPO: Fase 0 (Fondamenta) CHIUSA
+
+Prima sessione di codice del progetto. 4 commit atomici + questo:
+
+- **Progetto Gradle KMP**: 4 moduli (`:core:data`, `:core:engine` KMP
+  puro con target `jvm()`+`androidTarget()`, zero codice Android nel
+  common; `:app` Android/Compose; `:tool` placeholder Kotlin/JVM,
+  Compose Desktop vero arriva in Fase 6). Versioni Kotlin 2.0.21 / AGP
+  8.10.1 / Gradle 8.11.1, le stesse già in uso in v1 su questa
+  macchina. Aggiunto `.gitattributes` (LF forzato su `gradlew`, jar
+  wrapper come binario — altrimenti `core.autocrlf=true` lo rompe al
+  checkout).
+- **`kotlinx.serialization`** (1.7.3) aggiunta come dipendenza in
+  entrambi i moduli core, non ancora usata (arriva con i modelli in
+  Fase 1).
+- **Test JVM segnaposto** in `commonTest` di entrambi i moduli core
+  (kotlin.test): verificano sia `jvmTest` (puro JVM, zero SDK Android)
+  sia `testDebugUnitTest`/`testReleaseUnitTest` (target Android) —
+  doppia conferma che "zero dipendenze Android" nel codice comune è
+  rispettato meccanicamente, non solo per convenzione.
+- **`:app` scheletro**: single-activity (`MainActivity`) + Compose,
+  un solo `Text` segnaposto, tema Android di sistema (niente
+  `themes.xml`, coerente col principio "prima funziona poi è bello").
+  Namespace/applicationId scelti: `io.github.luposolitario.immundanoctisex`
+  (stesso prefisso di v1 + suffisso "ex") — da confermare con Michele,
+  facile da cambiare ora.
+- **Blocco ambiente (risolto)**: alla prima configurazione Gradle non
+  risolveva NESSUN plugin (Google/MavenCentral/Gradle Plugin Portal):
+  l'handshake TLS cadeva subito. Causa: due CA di intercettazione
+  HTTPS installate nello store di Windows (`AVG Web/Mail Shield Root`,
+  scansione SSL/TLS dell'antivirus, e `Cato Networks Root CA`) fidate
+  da Windows/.NET (PowerShell funzionava) ma non dalla JVM (Gradle e
+  curl fallivano). Sessione fermata e segnalata a Michele com da
+  regola del piano; sbloccata disattivando la scansione HTTPS di AVG.
+  Nota per sessioni future su questa macchina: se Gradle non risolve
+  dipendenze con errori di rete "istantanei" (handshake che si
+  interrompe in pochi ms), è questo — non un problema del progetto.
+- **Milestone verificata**: `./gradlew test` verde su tutti e 4 i
+  moduli; APK installato e avviato sull'AVD `Small_Desktop`
+  (android-34), activity in foreground, nessun crash in logcat
+  (verifica indiretta: `dumpsys window`/`ps`/`logcat`, lo screenshot
+  non è disponibile su questo AVD). Non testato sul Razr fisico
+  (non disponibile in questa sessione) — da fare alla prima occasione
+  con l'hardware reale.
+
+**Prossimo task: Fase 1 — `:core:data`** (modelli, `PackageSource`,
+validatori — vedi `doc/ARCHITETTURA.md` e `doc/PIANO-SVILUPPO.md`).
+Task [MICHELE] in coda per questa fase: enum `WeaponType` e `KaiRank`
+(soglie da `doc/REGOLE.md` §Blocco 3).
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
