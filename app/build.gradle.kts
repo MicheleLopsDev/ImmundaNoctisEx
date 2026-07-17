@@ -27,6 +27,13 @@ android {
     buildFeatures {
         compose = true
     }
+    sourceSets {
+        getByName("main") {
+            // Il libro incluso nell'APK: content/ (scenes.sample.json,
+            // config.json) montato come cartella asset, niente copie.
+            assets.srcDir(rootDir.resolve("content"))
+        }
+    }
 }
 
 dependencies {
@@ -41,6 +48,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.material.icons.extended)
 
     testImplementation(libs.junit)
     debugImplementation(libs.androidx.ui.tooling)
