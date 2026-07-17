@@ -122,6 +122,20 @@ Decisioni:
 
 **PROSSIMO E ULTIMO PASSO PRIMA DEL CODICE: `doc/PIANO-SVILUPPO.md`.**
 
+### Sessione — piano di sviluppo: DESIGN CONCLUSO (6/6 + piano)
+
+**`doc/PIANO-SVILUPPO.md` generato.** 8 fasi con milestone testabili
+(Fondamenta → `:core:data` → `:core:engine` → **MILESTONE REGINA**:
+il libro gira per intero senza Gemma → inference → UI funzionale
+completa → `:tool` ETL → Abbellimento). Principio "**prima funziona,
+poi è bello**": UI Material di default fino alla Fase 6, l'estetica di
+`doc/UI.md` è tutta nella Fase 7 dedicata. Task **[MICHELE]** riservati
+per fase (enum canonici, tabella CRT, fixture di test, strings.xml,
+revisione ETL) — Claude Code non li implementa, al più impalca e
+segnala se bloccano.
+
+**Prossima sessione: SVILUPPO, Fase 0** (checklist in fondo al piano).
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
