@@ -3,32 +3,43 @@ package io.github.luposolitario.immundanoctisex
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import io.github.luposolitario.immundanoctisex.navigation.AppNavigation
+import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
-// Scheletro Fase 0: single-activity, schermata segnaposto. Le 7 schermate vere
-// arrivano in Fase 5 (doc/UI.md); qui si verifica solo che l'app parta.
+// Single-activity (ARCHITETTURA.md): la MainActivity costruisce
+// l'AppContainer e monta il routing; tutto il resto sono composable.
 class MainActivity : ComponentActivity() {
+
+    private val container by lazy { AppContainer(applicationContext) }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ImmundaNoctisExPlaceholder()
-        }
-    }
-}
+            val systemDark = isSystemInDarkTheme()
+            var darkTheme by remember {
+                mutableStateOf(container.themePreferences.useDarkTheme(systemDark))
+            }
 
-@Composable
-private fun ImmundaNoctisExPlaceholder() {
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("ImmundaNoctisEx — Fase 0")
+            ImmundaNoctisTheme(darkTheme = darkTheme) {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    AppNavigation(
+                        container = container,
+                        isDarkTheme = darkTheme,
+                        onThemeToggle = {
+                            darkTheme = !darkTheme
+                            container.themePreferences.darkOverride = darkTheme
+                        },
+                    )
+                }
             }
         }
     }
