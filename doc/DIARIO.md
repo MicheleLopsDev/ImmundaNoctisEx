@@ -87,8 +87,11 @@ Mappa logica del diario).
   anche senza) -> validatori condivisi -> simulazione -> report
   human-in-the-loop (tag + frase sorgente).
 - **Modello legale**: si distribuisce lo strumento, mai il contenuto;
-  le fonti le scarica l'utente (projectaon.org vieta l'accesso
-  automatico); pacchetti solo uso personale.
+  downloader integrato nel tool come primo passo del wizard, AVVIATO
+  DALL'UTENTE (precedente: Kai Chronicles scarica da Project Aon via
+  HTTP) — solo i file dei libri 1-3, una richiesta alla volta, cache
+  locale, fallback manuale; niente script esterni per OS; pacchetti
+  solo uso personale.
 - **Perimetro v0.1**: libro 1 pilota, poi 2-3 (esperienza diretta del
   primo tentativo: oltre il 3 le meccaniche divergono; dal 6 ciclo
   Magnakai — lavoro futuro).

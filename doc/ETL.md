@@ -122,3 +122,9 @@ La decisione "engine e data zero-Android" paga qui:
 - [ ] Manifest: il convertitore genera anche il manifest (id, title,
   language "en", disciplineChoices, deathSceneId — la sezione morte
   canonica del libro).
+- [ ] Formato pacchetto v0.1: singolo file JSON (manifest + scene),
+  backgroundImage riferiti agli asset d'ambiente inclusi nell'app;
+  formato futuro: .zip con immagini del libro (il picker SAF gestisce
+  entrambi identicamente). Flusso di installazione: tool → file →
+  trasferimento libero (SD/USB/cloud) → picker nella Home → copia
+  nello storage dell'app.
