@@ -553,6 +553,17 @@ UI<->logica non ovvie:
   ic_fists->UNARMED; mancano dagger/short_sword/warhammer (da
   produrre o fallback ic_unknown_item).
 
+### Censimento di completezza: 56/56 file .kt di v1 analizzati
+
+Controllo richiesto da Michele: incrociato l'elenco completo dei 56
+file `.kt` di v1 con tutte le analisi fatte — 47 già coperti, i 9
+mancanti chiusi nella **Quarta passata** di `doc/ANALISI-UI-V1.md`
+(data/ChatMessage e GameData; util/Downloadable, Gemma/Model
+Preferences e worker/DownloadWorker riusabili in Fase 4 — i parametri
+Gemma di v1 sono un default già tarato; Engine/Llama/ImageGeneration
+Preferences morte). Il censimento v1 è COMPLETO: ogni file ha un
+verdetto riusa / pattern / sostituito / morto.
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
