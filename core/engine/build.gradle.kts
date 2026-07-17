@@ -18,6 +18,11 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
         }
+        // Il test di milestone della Fase 2 gioca il libro di esempio vero:
+        // content/ entra nel classpath di test senza copie da tenere allineate.
+        jvmTest {
+            resources.srcDir(rootDir.resolve("content"))
+        }
     }
 }
 
