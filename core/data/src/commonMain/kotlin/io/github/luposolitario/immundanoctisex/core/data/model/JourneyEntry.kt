@@ -14,6 +14,11 @@ enum class AutoJumpReason {
     GLOBAL_RULE,
     CHECK_ITEM_AND_JUMP,
     IF_STAT,
+    // Aggiunti in Fase 2: anche skillCheck e randomChoiceTable spostano il
+    // giocatore di scena, e il diario-grafo deve dire per quale porta.
+    SKILL_CHECK,
+    RANDOM_CHOICE,
+    BUILT_IN_DEATH,
 }
 
 // Come il giocatore ha lasciato la scena: non solo dove è stato, anche per
