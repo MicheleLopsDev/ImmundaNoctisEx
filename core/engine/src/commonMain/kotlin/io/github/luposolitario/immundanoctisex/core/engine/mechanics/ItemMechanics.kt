@@ -2,6 +2,7 @@ package io.github.luposolitario.immundanoctisex.core.engine.mechanics
 
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
+import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
@@ -21,7 +22,7 @@ internal object ItemMechanics {
             quantity = quantity,
             combatUsable = params.stringParam("combatUsable")?.toBooleanStrictOrNull() ?: false,
             effect = params.stringParam("effect"),
-            weaponType = params.stringParam("weaponType"),
+            weaponType = weaponType(params.stringParam("weaponType")),
         )
         state.updateHero { Inventory.addItem(it, item) }
     }
@@ -73,4 +74,7 @@ internal object ItemMechanics {
 
     private fun itemType(raw: String?): ItemType? =
         ItemType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
+
+    private fun weaponType(raw: String?): WeaponType? =
+        WeaponType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
 }

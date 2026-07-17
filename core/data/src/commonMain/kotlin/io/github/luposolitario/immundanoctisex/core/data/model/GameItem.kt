@@ -11,9 +11,9 @@ enum class ItemType {
 }
 
 // Formato oggetto canonico (STATO.md §4.2): effetto dichiarativo estensibile
-// senza cambiare schema (v0.1 implementa solo HEAL:n). weaponType è l'ID
-// canonico dell'arma solo per type == WEAPON: resta String finché l'enum
-// WeaponType (task [MICHELE], STATO.md §4.3) non è scritto.
+// senza cambiare schema (v0.1 implementa solo HEAL:n). weaponType è il tipo
+// canonico dell'arma, valorizzato solo per type == WEAPON (mai UNARMED,
+// che è una specializzazione, non un'arma).
 @Serializable
 data class GameItem(
     val name: String,
@@ -21,5 +21,5 @@ data class GameItem(
     val quantity: Int = 1,
     val combatUsable: Boolean = false,
     val effect: String? = null,
-    val weaponType: String? = null,
+    val weaponType: WeaponType? = null,
 )
