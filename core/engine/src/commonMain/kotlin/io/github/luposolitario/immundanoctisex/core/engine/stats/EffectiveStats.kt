@@ -1,26 +1,43 @@
 package io.github.luposolitario.immundanoctisex.core.engine.stats
 
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
+import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
 import io.github.luposolitario.immundanoctisex.core.data.model.StatType
+import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
+
+private const val WEAPONSKILL_BONUS = 2
 
 // Si serializzano i fatti (base, modificatori, arma equipaggiata), i bonus
 // si calcolano qui: unica funzione dell'engine per la Combattività
 // effettiva (STATO.md §1.1, REGOLE.md §1.2). Mai persistita, mai
 // ricalcolata altrove (difetto di v1 da non ripetere: LoneWolfRules
 // sommava i modificatori per conto suo).
-//
-// TODO(WEAPONSKILL): manca il bonus +2 quando character.weaponSkillType
-// coincide con l'arma impugnata (equippedWeapon), o quando la
-// specializzazione è UNARMED e non c'è arma equipaggiata (REGOLE.md §4.2).
-// In attesa dell'enum WeaponType (task [MICHELE], STATO.md §4.3): senza un
-// tipo canonico non si può confrontare weaponSkillType con l'arma
-// impugnata in modo affidabile.
 fun effectiveCombatSkill(character: Character): Int {
     val modifiersBonus = character.activeModifiers
         .filter { it.stat == StatType.COMBAT_SKILL }
         .sumOf { it.amount }
 
-    return character.baseCombatSkill + modifiersBonus
+    return character.baseCombatSkill + modifiersBonus + weaponskillBonus(character)
+}
+
+// WEAPONSKILL (REGOLE.md §4.2): +2 se la specializzazione coincide con il
+// tipo dell'arma impugnata; con specializzazione UNARMED, +2 se si combatte
+// SENZA arma. La specializzazione senza la disciplina non vale nulla.
+private fun weaponskillBonus(character: Character): Int {
+    val specialization = character.weaponSkillType ?: return 0
+    if (!character.kaiDisciplines.contains("WEAPONSKILL")) return 0
+
+    val equippedType = character.equippedWeapon?.let { name ->
+        character.inventory.firstOrNull {
+            it.type == ItemType.WEAPON && it.name.equals(name, ignoreCase = true)
+        }?.weaponType
+    }
+
+    return when {
+        specialization == WeaponType.UNARMED && equippedType == null -> WEAPONSKILL_BONUS
+        specialization != WeaponType.UNARMED && equippedType == specialization -> WEAPONSKILL_BONUS
+        else -> 0
+    }
 }
 
 // Resistenza effettiva: currentEndurance + modificatori attivi su
