@@ -243,6 +243,17 @@ vedi `doc/REGOLE.md` e `doc/PIANO-SVILUPPO.md`). Task [MICHELE] in
 coda: trascrizione tabella CRT da `LoneWolfRules` di v1 + fixture di
 test scritte a mano.
 
+### Attività — DiceRoller e funzione stat effettive (Fase 2, in corso)
+
+Primo pezzo di `:core:engine`: interfaccia `DiceRoller` (tiro 0-9,
+iniettata, mai `Random` inline) e `effectiveCombatSkill(Character)`
+(base + somma modificatori attivi su COMBATTIVITA, REGOLE.md §1.2).
+**TODO**: il bonus WEAPONSKILL nella funzione di stat resta da fare,
+in attesa dell'enum `WeaponType` [MICHELE] (STATO.md §4.3) — senza un
+tipo canonico non si può confrontare `weaponSkillType` con l'arma
+impugnata. Fase 2 resta APERTA: `GameState`, `CombatManager`, i 18
+comandi non ancora iniziati.
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
