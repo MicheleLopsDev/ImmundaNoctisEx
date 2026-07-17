@@ -70,6 +70,34 @@ Mappa logica del diario).
   al momento della visita: la Mappa logica non dipende dal ricalcolo
   dell'ereditarietà a lettura.
 
+### Sessione — chiusura specifica 5 (ETL)
+
+**Specifica 5 CHIUSA** (`doc/ETL.md`). Decisioni:
+
+- **Scoperta chiave**: Kai Chronicles (GPL v3) ha le meccaniche dei
+  libri 1-13 codificate a mano in `mechanics-X.xml` + `objects.xml`
+  bilingue — il lavoro che v1 chiedeva all'LLM esiste già; la
+  classificazione fuzzy diventa traduzione deterministica tra formati.
+- **Tool desktop Kotlin Multiplatform** nello stesso repo: `:core:data`
+  e `:core:engine` condivisi (validatori identici tra app e tool,
+  simulazione col motore vero), `:tool` Compose Desktop.
+- **Pipeline a 6 stadi**: struttura da XML Aon (deterministica) ->
+  meccaniche da KC (deterministica) -> LLM solo rifinitore opzionale
+  (`locationName`, `toneHints`; chiave dell'utente; il tool funziona
+  anche senza) -> validatori condivisi -> simulazione -> report
+  human-in-the-loop (tag + frase sorgente).
+- **Modello legale**: si distribuisce lo strumento, mai il contenuto;
+  le fonti le scarica l'utente (projectaon.org vieta l'accesso
+  automatico); pacchetti solo uso personale.
+- **Perimetro v0.1**: libro 1 pilota, poi 2-3 (esperienza diretta del
+  primo tentativo: oltre il 3 le meccaniche divergono; dal 6 ciclo
+  Magnakai — lavoro futuro).
+- **Diagnosi del blocco storico di v1**: modello debole × fonte HTML ×
+  zero validazione — tutti e tre i fattori ribaltati.
+
+**Prossima e ULTIMA specifica: 6 (analisi criticità)** — poi
+`PIANO-SVILUPPO.md` e si scrive codice.
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
