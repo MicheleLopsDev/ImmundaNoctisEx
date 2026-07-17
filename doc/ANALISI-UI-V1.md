@@ -248,13 +248,13 @@ passa dal `DiceRoller` iniettato.
 ## 2. Specializzazione WEAPONSKILL: v1 la TIRA, la specifica la fa scegliere
 `SetupViewModel.rollWeaponSkillTypeForScherma`: quando il giocatore
 seleziona WEAPONSKILL, il tipo d'arma viene TIRATO A CASO e mostrato
-in un dialog di conferma (non dismissibile). È il CANONE dei libri
+in un dialog di conferma (non dismissibile). È il canone dei libri
 (la Random Number Table decide l'arma della Scherma). UI.md invece
-dice "scelta della specializzazione". **[MICHELE] decidere**: tiro
-canonico col Dado del Destino (più teatrale, fedele al libro — flusso
-v1 già pronto) oppure scelta libera del giocatore (più moderno). La
-macchina `showWeaponSkillDialog`+`dialogRolledWeaponSkillType` si
-riusa in entrambi i casi.
+dice "scelta della specializzazione". **DECISO da Michele
+(17/07/2026): SCELTA del giocatore** — al massimo, in aggiunta, un
+bottone "scegli a caso" per chi vuole affidarsi al destino. Il tiro
+obbligatorio di v1 non si riporta; la macchina
+`showWeaponSkillDialog` si riusa per la conferma della scelta.
 
 ## 3. Gating delle scelte (identico al design Ex — riuso diretto)
 `populateChoicesForCurrentScene`: filtra le scelte su
