@@ -2,6 +2,9 @@
 .gradle/
 build/
 
+# Kotlin (cache compilatore)
+.kotlin/
+
 # Android Studio / IntelliJ
 .idea/
 *.iml
