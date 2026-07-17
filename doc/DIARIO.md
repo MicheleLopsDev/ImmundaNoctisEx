@@ -271,6 +271,45 @@ commit Gradle a parte, poi proseguire Fase 2** (`GameState`, i 18
 comandi, `CombatManager` — questi ultimi bloccati dal task [MICHELE]
 sulla tabella CRT).
 
+### Sessione — decisioni UI (Home, Opzioni, salvataggio narrazione) + riuso SetupActivity v1
+
+Richieste di Michele (screenshot v1 alla mano), recepite nei documenti:
+
+- **Home a riquadri come v1** (UI.md §schermata 1): tre tile —
+  Avventura (continua/scegli salvataggio/nuova), Modelli LLM (download
+  Gemma + configurazione inferenza), Impostazioni. NIENTE tile STDF
+  (Genera Immagini e Modelli STDF: feature morta di v1).
+- **Opzioni** (UI.md §schermata 7): tema chiaro/scuro (pattern
+  `ThemePreferences` v1), abilitazione TTS, **salvataggio narrazione
+  automatico/manuale**.
+- **Salvataggio narrazione** (STATO.md §Blocco 3, nuova sottosezione):
+  l'opzione riguarda SOLO la persistenza dell'`enrichedText` nel
+  Racconto (auto = icona salva grigia nei blocchi narratore; manuale =
+  si salva ciò che il giocatore tocca). La struttura del diario-grafo
+  registra sempre tutto e l'auto-save della SessionData resta SEMPRE
+  automatico e atomico (non negoziabile, non toccato). Quarta icona
+  "salva" aggiunta al fumetto narratore in UI.md.
+
+**Analisi riuso `SetupActivity.kt` v1** (451 righe, letta integralmente):
+
+- **RIUSABILI come pattern/struttura** (riscrivere in Ex, non copiare):
+  `RandomStatsCard` (tiro stat), `EquipmentChoiceCard` (arma
+  obbligatoria + UN oggetto speciale, righe con icona/nome/descrizione),
+  `DisciplineGridCard` (griglia adattiva 5/10 con contatore, selezione
+  che disabilita le altre a quota raggiunta, alpha 0.5), gating
+  `canProceed` (stat tirate + 5 discipline + arma + oggetto + spec
+  WEAPONSKILL se scelta), `WeaponSkillSelectionDialog` (flusso spec
+  WEAPONSKILL), `ExistingSessionScreen` ("Bentornato!", continua/nuova).
+- **DA NON RIPORTARE**: `GameStateManager.getInstance` (singleton con
+  Context — in Ex porta iniettata), `GameCharacter` come uiState del
+  ViewModel (in Ex i modelli sono in :core:data), discipline come nomi
+  display ("Weaponskill" — in Ex ID canonici UPPER_SNAKE),
+  `portraitResId`/`characterClass` (concetti v1), doppio avvio
+  Activity (in Ex single-activity + routing).
+- **Mancano in v1 e vanno aggiunti in Ex** (già in UI.md): scelta
+  lupo/lupa, Dado del Destino teatrale per il tiro stat (in v1 è un
+  bottone), scelta difficoltà (vive nel Setup avventura, schermata 2).
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già

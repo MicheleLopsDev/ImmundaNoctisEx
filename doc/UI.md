@@ -18,10 +18,18 @@ schermata, file di navigazione solo routing (~100 righe max).
 
 ## Mappa delle schermate (7)
 
-1. **Home** — continua partita (se auto-save presente), nuova
-   avventura, carica libro (side-load col picker di sistema),
-   accesso a gestione modelli e opzioni. La gestione modelli è una
-   sezione, non un mondo a parte (in v1 ModelActivity era 824 righe).
+1. **Home** — menu a riquadri come la Home di v1 (deciso 17/07/2026,
+   riferimento: screenshot v1), SENZA le tile STDF (Genera Immagini e
+   Modelli STDF: feature morta, non esiste in Ex). Tre riquadri:
+   - **Avventura**: carica l'avventura. Se esistono più salvataggi
+     (uno per pacchetto, `session_<packageId>.json`) chiede quale
+     continuare; altrimenti/in alternativa si parte con una nuova
+     avventura (→ Setup avventura → Creazione personaggio → scena di
+     gioco). Qui vive anche il side-load del libro (picker di sistema).
+   - **Modelli LLM**: download di Gemma e configurazione del motore
+     di inferenza. È una sezione, non un mondo a parte (in v1
+     ModelActivity era 824 righe).
+   - **Impostazioni**: le Opzioni (schermata 7).
 2. **Setup avventura** — scelta libro caricato, **scelta difficoltà**
    (NORMALE/DIFFICILE/IRON, con spiegazione onesta di cosa comporta
    IRON), avvio creazione.
@@ -44,9 +52,14 @@ schermata, file di navigazione solo routing (~100 righe max).
    Transition WIN/LOSE — NPC importanti e oggetti trovati). Più
    **esportazione** dell'avventura in testo/Markdown condivisibile
    (il diario-grafo è già un generatore di racconto).
-7. **Opzioni** — TTS (auto-lettura, velocità, pitch, **voce per
-   genere**: una maschile e una femminile tra quelle di sistema, come
-   TtsPreferences di v1), gestione modelli, lingua.
+7. **Opzioni** — **tema chiaro/scuro** dell'app (riuso del pattern
+   `ThemePreferences` di v1); **abilitazione TTS** (auto-lettura,
+   velocità, pitch, **voce per genere**: una maschile e una femminile
+   tra quelle di sistema, come TtsPreferences di v1); **salvataggio
+   della narrazione automatico o manuale** (deciso 17/07/2026, vedi
+   STATO.md §Opzione salvataggio narrazione: se automatico, l'icona
+   salva nei blocchi del narratore è grigia/disattivata perché tutto
+   si salva da sé); gestione modelli, lingua.
 
 ---
 
@@ -76,11 +89,14 @@ compagno (quando esisterà).
 Il testo scorre come pagina di libro (serif, continuo), NON come chat:
 
 - Il testo del narratore arriva in streaming (solo fino al separatore
-  `--- TAGS ---`) dentro un **fumetto/blocco del narratore** con tre
-  icone: **copia**, **originale/tradotto** (toggle: mostra il
+  `--- TAGS ---`) dentro un **fumetto/blocco del narratore** con
+  quattro icone: **copia**, **originale/tradotto** (toggle: mostra il
   narrativeText inglese del pacchetto / il testo arricchito — entrambi
   già in memoria, costo zero; l'icona "traduci" di v1 reinterpretata),
-  **leggi (TTS)**.
+  **leggi (TTS)**, **salva** (persiste il testo arricchito nel
+  Racconto; se in Opzioni il salvataggio narrazione è AUTOMATICO
+  l'icona è grigia/disattivata, si salva già tutto da sé — vedi
+  STATO.md §Opzione salvataggio narrazione).
 - **Le decisioni del giocatore entrano nel flusso** come righe
   distinte (corsivo, rientrate, con icona della scelta): il flusso è
   la vista live del diario-grafo — stessa struttura dati.
