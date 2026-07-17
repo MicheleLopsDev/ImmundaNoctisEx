@@ -590,6 +590,38 @@ verdetto riusa / pattern / sostituito / morto.
 personaggio; 3.4 scena teatrale minima con transizioni+auto-save; poi
 combat UI, scheda, diario, checkpoint/morte.
 
+### Sessione — Fase 3.3: Setup avventura e Creazione personaggio
+
+- **Modello**: aggiunto `Gender` (MALE/FEMALE) e `Character.gender` —
+  lacuna scoperta ora, UI.md lo richiedeva con tre clienti (ritratto,
+  TTS, prompt).
+- **`strings.xml` IMPALCATO** (il task [MICHELE] resta suo per la
+  rifinitura): nomi/descrizioni delle 10 discipline, gradi Kai, tipi
+  arma, difficoltà con spiegazione onesta di IRON, testi di setup e
+  creazione. Regola rispettata: ID canonici nei dati, nomi mostrati
+  SOLO qui.
+- **`AdventureSetupScreen`**: lista salvataggi da `listSessions` con
+  card "continua" (data ultimo salvataggio, difficoltà, scena) +
+  nuova avventura con le tre card difficoltà (IRON evidenziata in
+  rosso con la spiegazione della cancellazione). Stateless + 2
+  @Preview.
+- **`CharacterCreationScreen` + `CreationState`**: lupo/lupa
+  (segmented), tiro stat canonico (CS 10+tiro, RES 20+tiro, Corone =
+  tiro) via `DiceRoller` del container (MAI Random inline), griglia
+  discipline 5/10 con contatore e disabilitazione a quota,
+  specializzazione WEAPONSKILL A SCELTA con bottone "scegli a caso"
+  (decisione Michele), arma iniziale (4 armi canoniche), gating
+  canProceed ereditato da v1. Lo stato è una classe semplice (niente
+  androidx ViewModel: previewabile e testabile). `buildSession` crea
+  la fotografia iniziale: eroe con arma impugnata, Corone, scena START.
+- **Wiring**: `SetupRoute`/`CreationRoute` raccordano container e
+  schermate stateless (il file di navigazione resta solo routing);
+  primo auto-save alla creazione; "continua"/creazione portano al
+  segnaposto ADVENTURE (prossimo task 3.4).
+
+**Prossimo: 3.4 scena teatrale minima** (testo originale, scelte
+filtrate, transizioni con TransitionEngine, auto-save, diario-grafo).
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
