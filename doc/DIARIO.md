@@ -101,6 +101,27 @@ Mappa logica del diario).
 **Prossima e ULTIMA specifica: 6 (analisi criticità)** — poi
 `PIANO-SVILUPPO.md` e si scrive codice.
 
+### Sessione — chiusura specifica 6 (criticità) — DESIGN CONCLUSO
+
+**Specifica 6 CHIUSA** (`doc/CRITICITA.md`) — **DESIGN CONCLUSO (6/6)**.
+Decisioni:
+
+- **Modello**: Gemma 3 4B via LiteRT-LM (lo stesso di v1, provato);
+  contesto di riferimento 10240 token.
+- **INFERENZA SENZA MEMORIA**: sessione nuova per ogni scena; contesto
+  = frammenti fissi + coda scena precedente + scena + scelte; il
+  diario non entra MAI nel prompt. È la taratura del motore di
+  inferenza di Ex.
+- **Criticità madre**: velocità inferenza su Razr (misure: primo token
+  <3s, token/s vs velocità di lettura, termico su sessioni 30-45').
+- **Obblighi di piano**: scrittura ATOMICA dei salvataggi
+  (temp+rename), streaming Compose bufferizzato ~80-100ms, fixture con
+  output Gemma reali.
+- **Non-criticità liquidate con misura di conferma**: pacchetto 350
+  scene, diario, auto-save, toggle, animazione dado.
+
+**PROSSIMO E ULTIMO PASSO PRIMA DEL CODICE: `doc/PIANO-SVILUPPO.md`.**
+
 ## 16/07/2026
 
 ### Sessione notturna — chiusura specifica 3 (stato e salvataggio)
