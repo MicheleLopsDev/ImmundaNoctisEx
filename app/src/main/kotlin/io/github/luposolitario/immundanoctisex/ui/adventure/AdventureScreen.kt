@@ -58,7 +58,7 @@ fun AdventureScreen(
         Spacer(Modifier.height(8.dp))
 
         when {
-            state.combatSession != null -> CombatSummaryZone(state)
+            state.combatSession != null -> CombatActiveZone(state)
             state.currentScene.combat != null -> CombatEntryZone(state)
             state.isEnding -> EndingZone(state, onExitToHome)
             else -> ChoicesZone(state)
@@ -122,43 +122,6 @@ private fun ChoicesZone(state: AdventureState) {
                     Text(choice.choiceText, fontStyle = FontStyle.Italic, fontWeight = FontWeight.Bold)
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun CombatEntryZone(state: AdventureState) {
-    val combat = requireNotNull(state.currentScene.combat)
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            "${combat.enemyName} — CS ${combat.enemyCombatSkill}, RES ${combat.enemyEndurance}",
-            fontWeight = FontWeight.Bold,
-        )
-        // Fuga gratis via disciplina: offerta PRIMA del combattimento.
-        state.availableDisciplineChoices.forEach { choice ->
-            OutlinedCard(onClick = { state.useDiscipline(choice) }, modifier = Modifier.fillMaxWidth()) {
-                Text(choice.choiceText, Modifier.padding(12.dp), fontStyle = FontStyle.Italic)
-            }
-        }
-        Button(onClick = { state.startQuickCombat() }, modifier = Modifier.fillMaxWidth()) {
-            Text("Combatti (rapido)")
-        }
-    }
-}
-
-@Composable
-private fun CombatSummaryZone(state: AdventureState) {
-    val session = requireNotNull(state.combatSession)
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        val outcomeText = when (session.status) {
-            CombatStatus.WIN -> "VITTORIA in ${session.roundsFought} round!"
-            CombatStatus.LOSE -> "SCONFITTA dopo ${session.roundsFought} round."
-            else -> "Fuga riuscita."
-        }
-        Text(outcomeText, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
-        Text("La tua Resistenza: ${session.player.currentEndurance} — ${session.enemy.name}: ${session.enemy.currentEndurance}")
-        Button(onClick = { state.resolveCombat() }, modifier = Modifier.fillMaxWidth()) {
-            Text("Continua")
         }
     }
 }
