@@ -530,6 +530,29 @@ UI<->logica non ovvie:
 - Combattimento: tutti i canali combat sono commentati, la UI combat
   di Ex nasce da zero su CombatSession (nessun debito).
 
+### Decisioni Michele + asset v1 adottati
+
+- **WEAPONSKILL: SCELTA del giocatore** (non il tiro obbligatorio
+  canonico/v1); al massimo un bottone "scegli a caso" in aggiunta.
+  UI.md §Creazione e ANALISI-UI-V1.md §Terza passata aggiornati.
+- **Nuova opzione: scelta del FONT** del testo di lettura (rosa di
+  font, serif di default della pagina di libro) — aggiunta a UI.md
+  §Opzioni.
+- **Asset v1 adottati**: Michele ha portato nel repo la cartella
+  `origina_res/` (44 MB, set del branch develop di v1 — quello RICCO
+  che l'inventario asset su master non aveva): icone armi complete
+  (axe/sword/mace/staff/spear/broadsword/fists), icone oggetti
+  (backpack/gold/meal/potion/armor/helmet), ritratti (eroe m/f, dm,
+  elara, mage, classi), lupo_solitario.png, mappa, launcher icon
+  Android completa (mipmap + playstore), values (colors/strings/
+  themes). Committata così com'è come SORGENTE asset; il cablaggio in
+  `app/src/main/res` e l'ottimizzazione WebP (~79% stimato, molti
+  PNG da 3-4 MB) restano per le Fasi 3/7. Piace anche il tema di v1
+  (`ui/theme` + `values/themes.xml`): si riusa come da analisi.
+  Mapping icone->WeaponType Ex: ic_staff->QUARTERSTAFF,
+  ic_fists->UNARMED; mancano dagger/short_sword/warhammer (da
+  produrre o fallback ic_unknown_item).
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già

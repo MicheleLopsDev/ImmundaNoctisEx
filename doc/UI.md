@@ -37,7 +37,9 @@ schermata, file di navigazione solo routing (~100 righe max).
    dedicato per genere), tiro delle stat col Dado del Destino (prima
    apparizione teatrale), scelta delle 5 discipline (dalle 10
    canoniche), **specializzazione WEAPONSKILL** se scelta (tipo arma
-   o UNARMED), oggetti iniziali.
+   o UNARMED — **SCELTA del giocatore**, deciso 17/07/2026: niente
+   tiro obbligatorio come in v1/canone; al massimo un bottone
+   "scegli a caso" in aggiunta), oggetti iniziali.
 4. **Avventura** — la scena teatrale (dettaglio sotto).
 5. **Scheda personaggio** — due tab: *Stats e Discipline* (valori
    effettivi calcolati, grado Kai, elenco discipline) ed
@@ -53,7 +55,10 @@ schermata, file di navigazione solo routing (~100 righe max).
    **esportazione** dell'avventura in testo/Markdown condivisibile
    (il diario-grafo è già un generatore di racconto).
 7. **Opzioni** — **tema chiaro/scuro** dell'app (riuso del pattern
-   `ThemePreferences` di v1); **abilitazione TTS** (auto-lettura,
+   `ThemePreferences` di v1); **scelta del font** del testo di lettura
+   (richiesta Michele 17/07/2026: una rosa di font — la serif di
+   default della pagina di libro più alternative — applicata al flusso
+   centrale della scena); **abilitazione TTS** (auto-lettura,
    velocità, pitch, **voce per genere**: una maschile e una femminile
    tra quelle di sistema, come TtsPreferences di v1; con auto-lettura
    ACCESA l'icona leggi nei blocchi del narratore è grigia);
