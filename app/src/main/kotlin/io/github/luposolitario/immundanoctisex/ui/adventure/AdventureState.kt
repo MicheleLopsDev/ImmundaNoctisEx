@@ -124,6 +124,33 @@ class AdventureState(
         moveTo(destination, Transition.CombatResolved(outcome))
     }
 
+    // Azioni della Scheda personaggio (UI.md §Inventario operativo): ogni
+    // modifica passa dall'engine e viene auto-salvata.
+    fun equipWeapon(itemName: String) {
+        gameState.updateHero { Inventory.equipWeapon(it, itemName) }
+        autoSave()
+    }
+
+    fun unequipWeapon() {
+        gameState.updateHero { Inventory.unequipWeapon(it) }
+        autoSave()
+    }
+
+    // Consuma un oggetto con effetto dichiarato (v0.1: solo HEAL:n).
+    fun consumeItem(itemName: String) {
+        val item = gameState.hero.inventory.firstOrNull {
+            it.name.equals(itemName, ignoreCase = true) && it.quantity > 0
+        } ?: return
+        val heal = item.effect?.takeIf { it.startsWith("HEAL:") }
+            ?.substringAfter("HEAL:")?.toIntOrNull() ?: return
+        gameState.updateHero { hero ->
+            Inventory.removeItem(hero, item.name, 1).let {
+                it.copy(currentEndurance = (it.currentEndurance + heal).coerceIn(0, it.maxEndurance))
+            }
+        }
+        autoSave()
+    }
+
     private fun moveTo(targetSceneId: String, transition: Transition) {
         gameState.addJourneyEntry(
             JourneyEntry(currentScene.id, currentScene.narrativeText, transition),
