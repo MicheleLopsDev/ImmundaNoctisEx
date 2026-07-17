@@ -368,6 +368,39 @@ Tre commit atomici, `./gradlew test` verde su tutti i moduli dopo ognuno:
 (bloccato da enum WeaponType [MICHELE]) e il test di milestone "partita
 completa del sample da terminale" (ha senso a combat pronto).
 
+### Sessione — ex task [MICHELE] delegati: WeaponType, KaiRank, CRT, bonus WEAPONSKILL
+
+Michele ha delegato i task di copia ("falli tu, io al massimo
+controllo"). Quattro commit atomici, test verdi:
+
+- **`WeaponType`** (`:core:data`): le 9 armi canoniche del libro 1 +
+  UNARMED (specializzazione, mai arma di un GameItem);
+  `Character.weaponSkillType` e `GameItem.weaponType` da String? a
+  WeaponType?.
+- **`KaiRank`** (`:core:engine`): soglie di REGOLE.md Blocco 3, ID
+  canonici inglesi, nomi display rimandati a strings.xml.
+- **`CombatResultsTable`** (`:core:engine`): **la CRT di v1 è stata
+  CONFRONTATA CON L'UFFICIALE E SCARTATA** — valori difformi (rapporto
+  0/tiro 0: v1 dava 16, l'ufficiale 12), nessuna morte istantanea del
+  giocatore ai rapporti molto negativi (l'ufficiale ce l'ha da -9/-10
+  col tiro 1), bande a coppie non rispettate (in v1 -1 e -2 differivano).
+  Fonte adottata: `combatTable.ts` di Kai Chronicles (GPL v3), che
+  trascrive la tabella di Project Aon — la stessa fonte della pipeline
+  ETL. Supera anche il coerceIn [-10,+10] di REGOLE.md §1.2: le bande
+  ufficiali arrivano a ±11-o-più e la colonna estrema assorbe qualsiasi
+  rapporto. Il tiro è la chiave reale della riga: la trappola
+  off-by-one del tiro 0 di v1 è strutturalmente impossibile; fixture
+  comunque presenti (tiro 0 = colpo migliore, bande a coppie, morti
+  istantanee, campioni puntuali). **[MICHELE] da verificare**: un
+  controllo a campione della tabella contro il libro cartaceo/Project
+  Aon resta gradito.
+- **Bonus WEAPONSKILL** nelle stat effettive: +2 se arma impugnata del
+  tipo della specializzazione; UNARMED: +2 solo senza arma; la
+  specializzazione senza la disciplina non vale nulla.
+
+**Restano per chiudere la Fase 2**: CombatManager (ora sbloccato) e il
+test di milestone della partita completa del sample da terminale.
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
