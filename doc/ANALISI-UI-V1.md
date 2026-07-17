@@ -306,3 +306,45 @@ Tutti i canali combat del MainViewModel (`combatResultEvent`,
 COMMENTATI: il flusso UI del combattimento di Ex (trasformazione
 della zona scelte, menu tattico) nasce da zero su `CombatSession`,
 senza debito v1.
+
+---
+
+# Quarta passata (17/07/2026) — censimento di completezza: 56/56
+
+Verifica incrociata sull'elenco completo dei 56 file `.kt` di v1:
+47 risultavano coperti dalle analisi precedenti (queste tre passate +
+ANALISI-FLUSSO-PROMPT-V1, MATERIALE-REGOLE-V1, censimento codice
+morto del 15/07, specifiche 1-3). I 9 mancanti, chiusi qui:
+
+- `data/ChatMessage.kt` (21): modello messaggio chat con
+  `translatedText`/`isTranslating` — sostituito da JourneyEntry +
+  stato UI del blocco narratore; `isTranslating` è il pattern dello
+  spinner già ereditato sul toggle originale/tradotto. Non riusare.
+- `data/GameData.kt` (385): il calderone-modelli di v1, già
+  sostituito da `:core:data`. Si salvano SOLO: `KAI_DISCIPLINES`
+  (descrizioni discipline → strings.xml/creazione),
+  `WEAPON_SKILL_DESCRIPTIONS` (testi per il dialog specializzazione),
+  `INITIAL_WEAPONS`/`INITIAL_SPECIAL_ITEMS`/`INITIAL_COMMON_ITEMS`
+  (equipaggiamento iniziale della creazione, da riportare con nomi
+  canonici Ex). Il resto è morto o già rimpiazzato (CombatState mai
+  vivo, LocalizedText doppia lingua, ChallengeLevel eliminato,
+  SceneImage/LocationInfo di feature morte).
+- `util/Downloadable.kt` (12): data class name/source/destination —
+  riuso diretto in Fase 4 (download Gemma).
+- `util/GemmaPreferences.kt` (35): parametri inferenza provati su
+  Gemma (temperature 0.7, topK 40, topP 0.9, nLen 4096) — punto di
+  partenza TARATO per la Fase 4; nLen in Ex va a 10240 (contesto di
+  riferimento CRITICITA.md).
+- `util/ModelPreferences.kt` (113): persistenza nome/url/path del
+  modello scaricato — riuso pattern, ridotto da due modelli (DM+PG) a
+  uno.
+- `worker/DownloadWorker.kt` (163): CoroutineWorker con notifica
+  foreground e progresso per il download del modello — riuso del
+  pattern in Fase 4.
+- `util/EnginePreferences.kt` (22): switch dual-engine — MORTA (Ex ha
+  solo Gemma). `util/LlamaPreferences.kt` (53): parametri del secondo
+  motore + chat history — MORTA (era-chatbot).
+  `util/ImageGenerationPreferences.kt` (104): stdf — MORTA.
+
+Con questa passata il censimento v1 è COMPLETO: 56 file su 56 hanno
+un verdetto (riusa / riusa-come-pattern / sostituito / morto).
