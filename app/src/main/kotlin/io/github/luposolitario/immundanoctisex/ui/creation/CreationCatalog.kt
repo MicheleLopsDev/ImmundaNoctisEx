@@ -45,6 +45,20 @@ val KAI_DISCIPLINES_UI = listOf(
 fun disciplineIcon(id: String): ImageVector =
     KAI_DISCIPLINES_UI.firstOrNull { it.id == id }?.icon ?: Icons.Default.HelpOutline
 
+// Icone armi di v1 (origina_res). Mapping su ID canonici Ex:
+// ic_staff->QUARTERSTAFF, ic_fists->UNARMED; dagger/short_sword/warhammer
+// non esistono in v1 -> segnaposto ic_unknown_item (da produrre, Fase 7).
+fun weaponTypeIcon(type: WeaponType?): Int = when (type) {
+    WeaponType.SPEAR -> R.drawable.ic_spear
+    WeaponType.MACE -> R.drawable.ic_mace
+    WeaponType.SWORD -> R.drawable.ic_sword
+    WeaponType.AXE -> R.drawable.ic_axe
+    WeaponType.QUARTERSTAFF -> R.drawable.ic_staff
+    WeaponType.BROADSWORD -> R.drawable.ic_broadsword
+    WeaponType.UNARMED -> R.drawable.ic_fists
+    else -> R.drawable.ic_unknown_item
+}
+
 @StringRes
 fun weaponTypeName(type: WeaponType): Int = when (type) {
     WeaponType.DAGGER -> R.string.weapon_dagger
