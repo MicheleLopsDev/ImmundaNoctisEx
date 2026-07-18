@@ -675,6 +675,32 @@ ripresa a metà, IRON).
 **Restano**: Diario del viaggio, checkpoint UI, side-load, prova di
 milestone sul device.
 
+### Sessione — Fase 3.7 + 3.8: Diario del viaggio e Checkpoint
+
+- **Modello**: `JourneyEntry.locationName` aggiunto (il luogo GIÀ
+  RISOLTO alla visita, come da coda di UI.md); AdventureState risolve
+  l'appiccicosità (scena senza luogo eredita il precedente; alla
+  ripresa riparte dall'ultima voce del diario).
+- **3.7 `JournalScreen`** (`ui/journal`): vista **Racconto** (card per
+  voce: scena, luogo, testo, transizione in corsivo — scelta fatta,
+  disciplina usata, esito combat, salto del destino) e **Mappa
+  logica** v0.1 (i luoghi consecutivi in ordine di viaggio, derivati
+  dal diario mai salvati); **export Markdown** con lo share sheet di
+  Android (`journeyToMarkdown`: il diario è già un generatore di
+  racconto). Accesso dal bottone "Diario" nell'header.
+- **3.8 Checkpoint**: bottone di piazzamento sotto le scelte col
+  budget visibile (NORMAL 2 / HARD 1 / IRON 0), sparisce a budget
+  esaurito; `GameState.incrementCheckpointsUsed` per la contabilità;
+  slot immutabili (il FileSessionStore rifiuta le riscritture). Alla
+  MORTE fuori da IRON la scena di morte offre "Ricarica il checkpoint
+  N": ripristina la fotografia (diario troncato per costruzione),
+  la salva come sessione corrente e ricrea lo stato di gioco.
+
+**Per chiudere la Fase 3 resta SOLO la prova di milestone sul Razr**:
+partita completa, chiusura a metà e ripresa, morte in IRON che
+cancella. Il side-load del libro si sposta in Fase 5 (la milestone
+richiede solo il sample incluso). [MICHELE] rifinitura strings.xml.
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
