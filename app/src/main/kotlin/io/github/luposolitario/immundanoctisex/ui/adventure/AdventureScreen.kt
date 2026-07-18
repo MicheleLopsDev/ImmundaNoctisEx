@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 
@@ -146,7 +147,7 @@ private fun StatusCard(state: AdventureState, onClick: () -> Unit) {
         ) {
             Text(hero.name, fontWeight = FontWeight.Bold)
             Text("CS ${effectiveCombatSkill(hero)}")
-            Text("RES ${effectiveEndurance(hero)}/${hero.maxEndurance}")
+            Text("RES ${effectiveEndurance(hero)}/${effectiveMaxEndurance(hero)}")
             Text("${Inventory.countOf(hero, "Gold Crowns")} Corone")
         }
     }

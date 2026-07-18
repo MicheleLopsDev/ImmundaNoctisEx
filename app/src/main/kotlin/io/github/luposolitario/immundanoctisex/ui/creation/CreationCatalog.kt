@@ -73,6 +73,46 @@ fun weaponTypeName(type: WeaponType): Int = when (type) {
     WeaponType.UNARMED -> R.string.weapon_unarmed
 }
 
+// Oggetto speciale iniziale a scelta (come v1/canone libro 1): Mappa,
+// Elmo (+2 RES) o Gilet di maglia di ferro (+4 RES) — i bonus sono
+// l'effetto dichiarativo ENDURANCE:n calcolato dall'engine finché
+// l'oggetto è posseduto, mai sommato a mano (differenza da v1).
+data class SpecialItemUi(
+    val item: GameItem,
+    @StringRes val nameRes: Int,
+    @StringRes val descriptionRes: Int,
+    val iconRes: Int,
+)
+
+val INITIAL_SPECIAL_ITEMS = listOf(
+    SpecialItemUi(
+        item = GameItem(name = "Map", type = ItemType.SPECIAL_ITEM),
+        nameRes = R.string.item_map,
+        descriptionRes = R.string.item_map_desc,
+        iconRes = R.drawable.ic_map_icon,
+    ),
+    SpecialItemUi(
+        item = GameItem(name = "Helmet", type = ItemType.SPECIAL_ITEM, effect = "ENDURANCE:2"),
+        nameRes = R.string.item_helmet,
+        descriptionRes = R.string.item_helmet_desc,
+        iconRes = R.drawable.ic_helmet,
+    ),
+    SpecialItemUi(
+        item = GameItem(name = "Chainmail Waistcoat", type = ItemType.SPECIAL_ITEM, effect = "ENDURANCE:4"),
+        nameRes = R.string.item_chainmail,
+        descriptionRes = R.string.item_chainmail_desc,
+        iconRes = R.drawable.ic_armor,
+    ),
+)
+
+// Oggetti comuni dati a TUTTI alla partenza (come v1): una Pozione
+// Curativa (HEAL:4, canone Laumspur — non usabile in combattimento) e
+// due Pasti. Le Corone arrivano dal tiro delle stat.
+val INITIAL_COMMON_ITEMS = listOf(
+    GameItem(name = "Laumspur Potion", type = ItemType.BACKPACK_ITEM, effect = "HEAL:4"),
+    GameItem(name = "Meal", type = ItemType.BACKPACK_ITEM, quantity = 2),
+)
+
 // Equipaggiamento iniziale: TUTTI i 9 tipi d'arma canonici (richiesta
 // Michele dopo il primo test sul device), nomi canonici inglesi come i
 // dati dei pacchetti; i nomi mostrati vengono da strings.xml via

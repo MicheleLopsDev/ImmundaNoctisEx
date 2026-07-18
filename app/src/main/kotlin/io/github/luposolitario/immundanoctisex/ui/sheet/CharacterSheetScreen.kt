@@ -44,6 +44,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.rank.KaiRank
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
@@ -90,7 +91,7 @@ private fun StatsTab(hero: Character) {
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
                 Text("Combattività: ${effectiveCombatSkill(hero)}", fontWeight = FontWeight.Bold)
-                Text("Resistenza: ${effectiveEndurance(hero)}/${hero.maxEndurance}", fontWeight = FontWeight.Bold)
+                Text("Resistenza: ${effectiveEndurance(hero)}/${effectiveMaxEndurance(hero)}", fontWeight = FontWeight.Bold)
             }
         }
     }

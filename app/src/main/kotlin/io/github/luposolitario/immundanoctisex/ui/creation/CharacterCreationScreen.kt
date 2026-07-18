@@ -73,6 +73,7 @@ fun CharacterCreationScreen(
         DisciplinesCard(state)
         if (state.needsWeaponSkillChoice) WeaponSkillCard(state)
         WeaponCard(state)
+        SpecialItemCard(state)
 
         Button(
             onClick = onCreate,
@@ -254,6 +255,47 @@ private fun WeaponCard(state: CreationState) {
                     )
                 }
             }
+        }
+    }
+}
+
+// UN oggetto speciale a scelta (come v1/canone libro 1) + promemoria dei
+// comuni automatici (Pozione e due Pasti).
+@Composable
+private fun SpecialItemCard(state: CreationState) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(stringResource(R.string.creation_pick_special), style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                INITIAL_SPECIAL_ITEMS.forEach { special ->
+                    Column(Modifier.weight(1f)) {
+                        WeaponCell(
+                            iconRes = special.iconRes,
+                            nameRes = special.nameRes,
+                            selected = state.selectedSpecialItem == special,
+                            onClick = { state.selectedSpecialItem = special },
+                        )
+                    }
+                }
+            }
+            state.selectedSpecialItem?.let {
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(it.descriptionRes),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(R.string.creation_common_items),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.tertiary,
+            )
         }
     }
 }

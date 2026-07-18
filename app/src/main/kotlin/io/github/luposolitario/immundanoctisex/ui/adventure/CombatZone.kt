@@ -19,6 +19,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatResultsT
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 
 // La zona scelte trasformata in quadro di combattimento (UI.md §Il
 // combattimento nella scena): nessuna schermata separata. v0.1 senza
@@ -80,9 +81,9 @@ fun CombatActiveZone(state: AdventureState) {
 private fun EnduranceBars(session: CombatSession) {
     val ratio = effectiveCombatSkill(session.player) - effectiveCombatSkill(session.enemy)
     Text("Rapporto di Forza: $ratio", fontWeight = FontWeight.Bold)
-    Text("Tu: ${session.player.currentEndurance}/${session.player.maxEndurance}")
+    Text("Tu: ${session.player.currentEndurance}/${effectiveMaxEndurance(session.player)}")
     LinearProgressIndicator(
-        progress = { session.player.currentEndurance.toFloat() / session.player.maxEndurance },
+        progress = { session.player.currentEndurance.toFloat() / effectiveMaxEndurance(session.player) },
         modifier = Modifier.fillMaxWidth(),
     )
     Text("${session.enemy.name}: ${session.enemy.currentEndurance}/${session.enemy.maxEndurance}")
