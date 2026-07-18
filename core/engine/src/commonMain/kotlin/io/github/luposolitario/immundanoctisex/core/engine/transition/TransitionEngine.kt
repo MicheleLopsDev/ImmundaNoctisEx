@@ -9,6 +9,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 
 // Un salto d'ufficio avvenuto durante la transizione: serve all'app per
 // scrivere le voci del diario-grafo (Transition.AutoJump).
@@ -67,7 +68,7 @@ class TransitionEngine(
         if (scene.combat != null) return
         if (!state.hero.kaiDisciplines.contains("HEALING")) return
         state.updateHero { hero ->
-            hero.copy(currentEndurance = (hero.currentEndurance + 1).coerceAtMost(hero.maxEndurance))
+            hero.copy(currentEndurance = (hero.currentEndurance + 1).coerceAtMost(effectiveMaxEndurance(hero)))
         }
     }
 

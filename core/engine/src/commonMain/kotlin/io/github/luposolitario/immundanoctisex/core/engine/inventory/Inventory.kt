@@ -3,6 +3,8 @@ package io.github.luposolitario.immundanoctisex.core.engine.inventory
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
+import io.github.luposolitario.immundanoctisex.core.engine.stats.itemEnduranceBonus
 
 // Inventario con i limiti canonici di Lupo Solitario (STATO.md §4.1):
 // WEAPON 2, BACKPACK_ITEM 8 posti, SPECIAL_ITEM illimitati, GOLD 50 Corone.
@@ -17,19 +19,29 @@ object Inventory {
 
     // Un "posto" dello zaino è un'unità di quantità (8 posti disegnati
     // anche vuoti, UI.md); le Corone si contano per quantità totale.
+    // Gli oggetti con bonus Resistenza (effetto ENDURANCE:n, es. Elmo)
+    // alzano anche la Resistenza corrente al momento dell'acquisizione
+    // (canone: "aggiunge N punti al tuo totale").
     fun addItem(character: Character, item: GameItem): Character {
         if (item.quantity <= 0) return character
-        return when (item.type) {
+        val updated = when (item.type) {
             ItemType.WEAPON -> addWeapon(character, item)
             ItemType.SPECIAL_ITEM -> character.copy(inventory = merge(character.inventory, item))
             ItemType.BACKPACK_ITEM -> addCapped(character, item, MAX_BACKPACK_SLOTS)
             ItemType.GOLD -> addCapped(character, item, MAX_GOLD)
         }
+        val gainedBonus = itemEnduranceBonus(item)
+        if (updated === character || gainedBonus == 0) return updated
+        return updated.copy(
+            currentEndurance = (updated.currentEndurance + gainedBonus)
+                .coerceAtMost(effectiveMaxEndurance(updated)),
+        )
     }
 
     // Rimozione tollerante (REGOLE.md §5.1): rimuove quel che c'è, mai
     // errore se manca quantità. Se l'arma impugnata esce dall'inventario,
-    // equippedWeapon si azzera.
+    // equippedWeapon si azzera; se esce un oggetto con bonus Resistenza,
+    // la corrente si riclampa al nuovo massimo effettivo.
     fun removeItem(character: Character, itemName: String, quantity: Int): Character {
         if (quantity <= 0) return character
         var toRemove = quantity
@@ -39,12 +51,13 @@ object Inventory {
             toRemove -= removed
             if (item.quantity - removed > 0) item.copy(quantity = item.quantity - removed) else null
         }
-        return character.copy(inventory = remaining).clearEquipIfMissing()
+        return character.copy(inventory = remaining).clearEquipIfMissing().reclampEndurance()
     }
 
     fun removeAllOfType(character: Character, type: ItemType): Character =
         character.copy(inventory = character.inventory.filterNot { it.type == type })
             .clearEquipIfMissing()
+            .reclampEndurance()
 
     fun countOf(character: Character, itemName: String): Int =
         character.inventory
@@ -84,6 +97,11 @@ object Inventory {
         return inventory.map {
             if (it === existing) it.copy(quantity = it.quantity + item.quantity) else it
         }
+    }
+
+    private fun Character.reclampEndurance(): Character {
+        val max = effectiveMaxEndurance(this)
+        return if (currentEndurance > max) copy(currentEndurance = max) else this
     }
 
     private fun Character.clearEquipIfMissing(): Character {

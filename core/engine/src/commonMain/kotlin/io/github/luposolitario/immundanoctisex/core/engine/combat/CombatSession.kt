@@ -8,6 +8,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.StatType
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 
 enum class CombatStatus { ONGOING, WIN, LOSE, EVADED }
 
@@ -105,7 +106,7 @@ class CombatSession(
             ?.substringAfter("HEAL:")?.toIntOrNull()
             ?: return false
         player = Inventory.removeItem(player, item.name, 1).let { healed ->
-            healed.copy(currentEndurance = (healed.currentEndurance + healAmount).coerceIn(0, healed.maxEndurance))
+            healed.copy(currentEndurance = (healed.currentEndurance + healAmount).coerceIn(0, effectiveMaxEndurance(healed)))
         }
         return true
     }
