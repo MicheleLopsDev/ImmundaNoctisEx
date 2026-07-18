@@ -90,6 +90,30 @@ class InventoryTest {
     }
 
     @Test
+    fun elmoAlzaResistenzaCorrenteEMassimoEffettivo() {
+        val helmet = GameItem(name = "Helmet", type = ItemType.SPECIAL_ITEM, effect = "ENDURANCE:2")
+        val character = hero().copy(currentEndurance = 20, maxEndurance = 20)
+
+        val withHelmet = Inventory.addItem(character, helmet)
+
+        assertEquals(22, withHelmet.currentEndurance)
+        assertEquals(
+            22,
+            io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance(withHelmet),
+        )
+    }
+
+    @Test
+    fun perdereLElmoRiclampaLaResistenza() {
+        val helmet = GameItem(name = "Helmet", type = ItemType.SPECIAL_ITEM, effect = "ENDURANCE:2")
+        val withHelmet = Inventory.addItem(hero(), helmet)
+
+        val without = Inventory.removeItem(withHelmet, "Helmet", 1)
+
+        assertEquals(20, without.currentEndurance)
+    }
+
+    @Test
     fun equipaggiaSoloArmiPossedute() {
         val character = hero(weapon("Sword"))
 

@@ -6,6 +6,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import kotlinx.serialization.json.JsonObject
 
 // Comandi di scena sulle statistiche. Convenzione di Ex (si serializzano i
@@ -24,9 +25,10 @@ internal object StatMechanics {
         if (params.stringParam("statName") != STAT_ENDURANCE) return
         val amount = params.stringParam("amount") ?: return
         state.updateHero { hero ->
-            val healed = if (amount == "FULL") hero.maxEndurance
+            val cap = effectiveMaxEndurance(hero)
+            val healed = if (amount == "FULL") cap
             else hero.currentEndurance + (amount.toIntOrNull() ?: 0)
-            hero.copy(currentEndurance = healed.coerceIn(0, hero.maxEndurance))
+            hero.copy(currentEndurance = healed.coerceIn(0, cap))
         }
     }
 
@@ -34,7 +36,7 @@ internal object StatMechanics {
         val amount = params.intParam("amount") ?: return
         when (params.stringParam("statName")) {
             STAT_ENDURANCE -> state.updateHero { hero ->
-                hero.copy(currentEndurance = (hero.currentEndurance + amount).coerceIn(0, hero.maxEndurance))
+                hero.copy(currentEndurance = (hero.currentEndurance + amount).coerceIn(0, effectiveMaxEndurance(hero)))
             }
             STAT_COMBAT_SKILL -> state.updateHero { hero ->
                 hero.copy(
