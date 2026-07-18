@@ -79,7 +79,7 @@ fun CharacterCreationScreen(
         GenderCard(state)
         StatsCard(state)
         DisciplinesCard(state)
-        if (state.needsWeaponSkillChoice) WeaponSkillCard(state)
+        WeaponSkillCard(state)
         WeaponCard(state)
         SpecialItemCard(state)
 
@@ -202,30 +202,40 @@ private fun DisciplinesCard(state: CreationState) {
 }
 
 // Specializzazione WEAPONSKILL come MENU A TENDINA (richiesta Michele:
-// accorcia la pagina) + bottone "scegli a caso".
+// accorcia la pagina) + bottone "scegli a caso". SEMPRE visibile:
+// disabilitata con spiegazione finché la disciplina Scherma non è scelta
+// (prima compariva solo con Scherma selezionata e sembrava sparita).
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WeaponSkillCard(state: CreationState) {
     var expanded by remember { mutableStateOf(false) }
+    val enabled = state.needsWeaponSkillChoice
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text(stringResource(R.string.creation_weaponskill_title), style = MaterialTheme.typography.titleLarge)
-            Text(stringResource(R.string.creation_weaponskill_pick), style = MaterialTheme.typography.bodyMedium)
+            Text(
+                stringResource(
+                    if (enabled) R.string.creation_weaponskill_pick else R.string.creation_weaponskill_locked,
+                ),
+                style = MaterialTheme.typography.bodyMedium,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Spacer(Modifier.height(8.dp))
             ExposedDropdownMenuBox(
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
+                expanded = expanded && enabled,
+                onExpandedChange = { if (enabled) expanded = it },
             ) {
                 OutlinedTextField(
                     value = state.weaponSkillType?.let { stringResource(weaponTypeName(it)) } ?: "—",
                     onValueChange = {},
                     readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    enabled = enabled,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
                     modifier = Modifier.fillMaxWidth().menuAnchor(),
                 )
                 ExposedDropdownMenu(
-                    expanded = expanded,
+                    expanded = expanded && enabled,
                     onDismissRequest = { expanded = false },
                 ) {
                     WeaponType.entries.forEach { type ->
@@ -240,7 +250,7 @@ private fun WeaponSkillCard(state: CreationState) {
                 }
             }
             Spacer(Modifier.height(8.dp))
-            OutlinedButton(onClick = { state.rollRandomWeaponSkill() }) {
+            OutlinedButton(onClick = { state.rollRandomWeaponSkill() }, enabled = enabled) {
                 Text(stringResource(R.string.creation_weaponskill_random))
             }
         }
