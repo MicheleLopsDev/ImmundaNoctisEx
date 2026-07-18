@@ -47,7 +47,7 @@
     <string name="weapon_axe">Ascia</string>
     <string name="weapon_quarterstaff">Bastone</string>
     <string name="weapon_broadsword">Spadone</string>
-    <string name="weapon_unarmed">Mani Nude</string>
+    <string name="weapon_unarmed">Arti marziali</string>
 
     <!-- Difficoltà (STATO.md Blocco 2: spiegazione onesta) -->
     <string name="difficulty_normal">Normale</string>
