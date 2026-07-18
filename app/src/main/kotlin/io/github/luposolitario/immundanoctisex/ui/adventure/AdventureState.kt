@@ -14,6 +14,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.model.Transition
 import io.github.luposolitario.immundanoctisex.core.data.session.SessionStore
+import io.github.luposolitario.immundanoctisex.core.engine.choice.ChoiceAvailability
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
 import io.github.luposolitario.immundanoctisex.core.engine.combat.RoundResult
@@ -53,25 +54,40 @@ class AdventureState(
 
     val isEnding: Boolean get() = currentScene.sceneType == SceneType.ENDING
 
-    // Gating delle scelte (pattern v1, UI.md §Zona scelte): condizioni non
-    // soddisfatte = scelta non mostrata. Le scelte con tiro arriveranno
-    // col flusso del Dado (il sample non ne ha).
-    // requiredFlag è un NOME di flag: soddisfatto se il flag è stato posto
-    // a un valore diverso da "false" (un autore che scrive value="false"
-    // intende negare la condizione, non soddisfarla).
+    // Quali porte sono aperte: le REGOLE stanno nell'engine
+    // (ChoiceAvailability), qui si espone solo ciò che la UI disegna.
     val availableChoices: List<Choice>
-        get() = currentScene.choices.filter { choice ->
-            val flagOk = choice.requiredFlag?.let { gameState.flag(it)?.equals("false", ignoreCase = true) == false } ?: true
-            val itemOk = choice.requiredItem == null ||
-                Inventory.countOf(gameState.hero, choice.requiredItem!!) > 0
-            val noRoll = choice.minRoll == null && choice.maxRoll == null
-            flagOk && itemOk && noRoll
-        }
+        get() = ChoiceAvailability.available(currentScene, gameState)
 
     val availableDisciplineChoices: List<DisciplineChoice>
-        get() = currentScene.disciplineChoices.filter {
-            gameState.hero.kaiDisciplines.contains(it.disciplineId)
-        }
+        get() = ChoiceAvailability.disciplineChoices(currentScene, gameState)
+
+    // --- Tiro del Dado del Destino fuori dal combattimento ---
+    // Le scelte con minRoll/maxRoll sono una tabella dei numeri casuali: il
+    // giocatore non sceglie, TIRA (REGOLE.md Blocco 6). Flusso a due fasi
+    // ereditato da v1 (arma -> tira -> risolvi) ma col trigger STRUTTURALE
+    // (v1 fiutava il testo italiano della scena) e il DiceRoller iniettato.
+    // v0.1: il tiro è un bottone; l'overlay animato arriva in Fase 7.
+    val requiresRoll: Boolean
+        get() = combatSession == null && ChoiceAvailability.rollChoices(currentScene).isNotEmpty()
+
+    var lastChoiceRoll: Int? by mutableStateOf(null)
+        private set
+
+    fun rollForChoice() {
+        if (!requiresRoll || lastChoiceRoll != null) return
+        lastChoiceRoll = dice.roll()
+    }
+
+    // Risolve il tiro mostrato: la scelta il cui intervallo contiene il
+    // numero. Nessun intervallo coperto (pacchetto scritto male): il tiro
+    // si azzera e si riprova, il gioco non si blocca mai.
+    fun resolveRolledChoice() {
+        val roll = lastChoiceRoll ?: return
+        val choice = ChoiceAvailability.forRoll(currentScene, roll)
+        lastChoiceRoll = null
+        if (choice != null) takeChoice(choice)
+    }
 
     fun takeChoice(choice: Choice) =
         moveTo(choice.nextSceneId, Transition.ChoiceTaken(choice.id))
@@ -196,6 +212,7 @@ class AdventureState(
     }
 
     private fun moveTo(targetSceneId: String, transition: Transition) {
+        lastChoiceRoll = null // ogni scena nuova riarma il dado (reset di v1)
         gameState.addJourneyEntry(
             JourneyEntry(currentScene.id, currentScene.narrativeText, transition, currentLocation),
         )
