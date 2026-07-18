@@ -701,6 +701,28 @@ partita completa, chiusura a metà e ripresa, morte in IRON che
 cancella. Il side-load del libro si sposta in Fase 5 (la milestone
 richiede solo il sample incluso). [MICHELE] rifinitura strings.xml.
 
+### Sessione — feedback dal primo test sul device + manifest fuso con v1
+
+L'app GIRA SUL RAZR (primi test di Michele: "inizia a piacermi").
+Feedback applicati:
+
+- **Creazione**: lupo/lupa si sceglie TOCCANDO i ritratti
+  `class_warrior_male/female` di v1 (circolari, bordo ORO sul
+  selezionato); armi iniziali portate a TUTTE e 9 le canoniche; nuova
+  opzione "Arti marziali — nessuna arma" (esclusiva con l'arma,
+  equippedWeapon null: con WEAPONSKILL+UNARMED vale il +2 a mani nude
+  già gestito dall'engine).
+- **Manifest fuso con v1** (richiesta Michele): icona launcher
+  ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
+  png spostato da Michele), tema XML `Theme.ImmundaNoctis` (solo per
+  la finestra pre-Compose), permessi INTERNET/FOREGROUND_SERVICE/
+  DATA_SYNC/POST_NOTIFICATIONS (pronti per il download modello di
+  Fase 4), backup/data-extraction rules. NON portati: le Activity
+  multiple (single-activity), i service stdf (morti),
+  network_security_config (era il cleartext per il backend locale
+  stdf); il service WorkManager foreground si aggiunge col
+  DownloadWorker in Fase 4.
+
 **Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
 test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
 test` verde su tutti i moduli. Le modifiche Gradle risultavano già
