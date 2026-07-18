@@ -796,7 +796,42 @@ Le tre cose stanno insieme così: il package `inference` vive in
 `:app` MA le sue classi pure (PromptBuilder, ResponseParser) non hanno
 un solo import Android e sono coperte da **unit test JVM** in
 `app/src/test` — che girano da terminale senza device né modello. Solo
-il motore LiteRT-LM vero avrà dipendenze Android.
+il motore LiteRT-LM vero avrà dipendenze Android. `content/` montato
+anche come test-resources di `:app`: i parser si verificano contro i
+file VERI, non contro copie da tenere allineate.
+
+- **`ResponseParser`** (11 test): separa la prosa dal blocco tag,
+  legge `CHOICE|sceneId|progressivo|testo` (split A LIMITE: un pipe
+  dentro il testo non rompe niente — il testo è sempre l'ultimo campo),
+  `DISCIPLINE|id|testo`, `ENEMY|nome`. Aggancio alle scelte vere prima
+  per destinazione, poi **fallback per conteggio**; ogni scelta senza
+  riga tiene il testo originale del pacchetto. Coperti i casi brutti:
+  risposta vuota, separatore mai scritto, righe monche, sceneId
+  inventati, due scelte verso la stessa scena (non ricevono la stessa
+  riga). Il gioco non si blocca mai, per test.
+- **`PromptBuilder` + `PromptFragments`** (11 test): frammenti letti da
+  `content/config.json` con **default hardcoded** per ogni frammento
+  (config assente/rotta/monca -> default, nessuna eccezione). Le
+  sezioni vuote non si scrivono (un "[THE STORY SO FAR]" seguito dal
+  nulla confonde il modello e spreca contesto). Le scelte si consegnano
+  NELLA STESSA FORMA che il modello deve restituire, così tradurre è
+  meccanico e sceneId/progressivo tornano indietro giusti. Un test
+  verifica che nel prompt NON entri il diario (inferenza senza memoria).
+- **Due code documentate chiuse in `content/config.json`** (modifica
+  chirurgica, 5 righe di diff): frammento `enemyFormatText`
+  (`ENEMY|translated enemy name`, aggiunto al prompt SOLO se la scena
+  ha un combattimento) e placeholder `{player_gender}` in coda a
+  `constraintText` per gli accordi grammaticali italiani.
+
+**Osservazione da chiarire con Michele**: il piano elenca in Fase 4 un
+**`TagParser`** (erede di `StringTagParser` v1, regex -> EngineCommand).
+In v1 serviva perché le meccaniche arrivavano come TAG DI TESTO dentro
+la narrazione. In Ex i `gameMechanics` arrivano già STRUTTURATI dal
+JSON del pacchetto (`{command, params}`) e Gemma non genera mai tag: a
+runtime quel parser non ha un lavoro. I tag-regex di `config.json`
+sembrano semmai materiale per l'ETL (Fase 6), che dovrà convertire i
+tag testuali di Kai Chronicles/Aon in comandi strutturati. Da
+confermare prima di scrivere codice che nessuno chiama.
 
 - **Manifest fuso con v1** (richiesta Michele): icona launcher
   ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
