@@ -823,6 +823,44 @@ file VERI, non contro copie da tenere allineate.
   ha un combattimento) e placeholder `{player_gender}` in coda a
   `constraintText` per gli accordi grammaticali italiani.
 
+### Sessione — idea audio narrativo: progettata e RINVIATA, nasce `doc/UPGRADE.md`
+
+Michele propone tag narrativi per suoni/effetti (brusio di taverna,
+tuono, una porta che cigola) generati da Gemma. Discussione utile, con
+una correzione reciproca:
+
+- Prima analisi (mia): farlo in ETL, costo runtime zero. **Sbagliata a
+  metà**: valeva per l'ambiente di scena, non per gli effetti puntuali.
+- Contro-argomento di Michele (giusto): il valore dell'LLM è legare
+  l'effetto al TONO e al momento — stessa porta, tono horror = cigolio,
+  tono comico = risate. E l'inferenza la paghi comunque in latenza.
+- Sintesi: sono **due feature distinte**. L'ambience di scena è una
+  proprietà della scena -> ETL. Gli effetti inline **solo Gemma può
+  farli**, perché la prosa su cui ancorarli non esiste finché non la
+  scrive lei.
+
+Decisioni di formato prese: delimitatore `[[sound:id]]` DOPPIO (le
+parentesi singole sono già i marcatori di sezione del prompt: `[THE
+STORY SO FAR]`); mai il carattere `|` (regola 4 protegge il parser);
+vocabolario CHIUSO con silenzio come fallback; nel **diario si salva il
+testo già ripulito** (altrimenti i marcatori spuntano nel Racconto e
+nell'export Markdown — trovato tracciando il flusso fino a
+`JourneyEntry.enrichedText`).
+
+**RINVIATA da Michele** con motivazione sua e corretta: istruire Gemma
+su tutto il vocabolario compete con il compito principale e non si può
+valutare prima di aver MISURATO il modello sul device (che è appunto la
+milestone di questa fase).
+
+Nasce **`doc/UPGRADE.md`**: il posto per le idee rinviate, scritte per
+bene invece che perse o infilate di soppiatto in una fase in corso.
+Dentro anche le altre voci accumulate, separando ciò che il design
+chiuso già PREDISPONE (effetti oggetto oltre HEAL, requiredRank,
+MINDSHIELD, slot multipli, compagni, altri regolamenti) dalle FEATURE
+NUOVE (scambio a inventario pieno, tono narrativo scelto dall'utente,
+mappa logica più ricca, scudo). Aggiunto alla mappa documenti del piano
+con la nota "NON schedulate, non implementare".
+
 **Osservazione da chiarire con Michele**: il piano elenca in Fase 4 un
 **`TagParser`** (erede di `StringTagParser` v1, regex -> EngineCommand).
 In v1 serviva perché le meccaniche arrivavano come TAG DI TESTO dentro

@@ -48,6 +48,7 @@ quei due blocchi. Sorgenti v1 = miniera di riuso, MAI dipendenza.
 | Cosa è riusabile da v1 | `doc/MATERIALE-REGOLE-V1.md`, `doc/ANALISI-FLUSSO-PROMPT-V1.md`, `doc/INVENTARIO-ASSET.md` |
 | Cosa è riusabile dalla UI v1, convenzione @Preview | `doc/ANALISI-UI-V1.md` |
 | Storia delle decisioni | `doc/DIARIO.md` |
+| Idee rinviate (NON schedulate, non implementare) | `doc/UPGRADE.md` |
 
 ## Vincoli non negoziabili (valgono per ogni riga di codice)
 
