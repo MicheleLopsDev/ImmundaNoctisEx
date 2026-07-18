@@ -43,6 +43,7 @@ import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 fun AdventureScreen(
     state: AdventureState,
     onExitToHome: () -> Unit,
+    onReloadCheckpoint: (Int) -> Unit,
 ) {
     // Scheda e Diario come overlay dentro la route (stato condiviso;
     // diventeranno destinazioni proprie in Fase 5).
@@ -97,8 +98,18 @@ fun AdventureScreen(
         when {
             state.combatSession != null -> CombatActiveZone(state)
             state.currentScene.combat != null -> CombatEntryZone(state)
-            state.isEnding -> EndingZone(state, onExitToHome)
-            else -> ChoicesZone(state)
+            state.isEnding -> EndingZone(state, onExitToHome, onReloadCheckpoint)
+            else -> {
+                ChoicesZone(state)
+                // Piazzamento checkpoint dal menu (STATO.md Blocco 2): fuori
+                // dal combattimento, col budget della difficoltà visibile.
+                if (state.checkpointsRemaining > 0) {
+                    Spacer(Modifier.height(6.dp))
+                    androidx.compose.material3.TextButton(onClick = { state.placeCheckpoint() }) {
+                        Text("Piazza checkpoint (rimasti: ${state.checkpointsRemaining})")
+                    }
+                }
+            }
         }
     }
 }
@@ -170,7 +181,11 @@ private fun ChoicesZone(state: AdventureState) {
 }
 
 @Composable
-private fun EndingZone(state: AdventureState, onExitToHome: () -> Unit) {
+private fun EndingZone(
+    state: AdventureState,
+    onExitToHome: () -> Unit,
+    onReloadCheckpoint: (Int) -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         if (state.adventureDeleted) {
             Text(
@@ -178,6 +193,15 @@ private fun EndingZone(state: AdventureState, onExitToHome: () -> Unit) {
                 color = MaterialTheme.colorScheme.error,
                 fontWeight = FontWeight.Bold,
             )
+        }
+        // Alla morte (fuori da IRON) si offrono i checkpoint piazzati:
+        // ricaricabili illimitatamente, il diario si tronca alla fotografia.
+        if (state.isDeathEnding && !state.adventureDeleted) {
+            state.placedCheckpoints().forEach { slot ->
+                Button(onClick = { onReloadCheckpoint(slot) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Ricarica il checkpoint $slot")
+                }
+            }
         }
         Button(onClick = onExitToHome, modifier = Modifier.fillMaxWidth()) {
             Text("Torna alla Home")

@@ -131,6 +131,38 @@ class AdventureState(
         moveTo(destination, Transition.CombatResolved(outcome))
     }
 
+    // Checkpoint (STATO.md Blocco 2): budget per difficoltà, piazzati dal
+    // giocatore, scritti una volta e mai sovrascrivibili.
+    val checkpointBudget: Int
+        get() = when (gameState.session.difficulty) {
+            Difficulty.NORMAL -> 2
+            Difficulty.HARD -> 1
+            Difficulty.IRON -> 0
+        }
+
+    val checkpointsRemaining: Int
+        get() = (checkpointBudget - gameState.session.checkpointsUsed).coerceAtLeast(0)
+
+    fun placeCheckpoint(): Boolean {
+        if (checkpointsRemaining <= 0) return false
+        val slot = gameState.session.checkpointsUsed + 1
+        val snapshot = gameState.snapshot().copy(lastUpdate = System.currentTimeMillis())
+        if (!store.saveCheckpoint(snapshot, slot)) return false
+        gameState.incrementCheckpointsUsed()
+        autoSave()
+        return true
+    }
+
+    // Gli slot piazzati e ricaricabili (alla morte, fuori da IRON).
+    fun placedCheckpoints(): List<Int> =
+        (1..checkpointBudget).filter { store.loadCheckpoint(manifest.id, it) != null }
+
+    fun loadCheckpoint(slot: Int): SessionData? =
+        store.loadCheckpoint(manifest.id, slot)
+
+    val isDeathEnding: Boolean
+        get() = isEnding && currentScene.id == manifest.deathSceneId
+
     // Azioni della Scheda personaggio (UI.md §Inventario operativo): ogni
     // modifica passa dall'engine e viene auto-salvata.
     fun equipWeapon(itemName: String) {
