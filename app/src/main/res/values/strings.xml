@@ -83,6 +83,14 @@
     <string name="creation_equipment_title">Equipaggiamento iniziale</string>
     <string name="creation_pick_weapon">Scegli un\'arma (o combatti a mani nude):</string>
     <string name="creation_unarmed">Arti marziali — nessuna arma</string>
+    <string name="creation_pick_special">Scegli UN oggetto speciale:</string>
+    <string name="creation_common_items">In più ricevi: una Pozione Curativa (+4 RES) e due Pasti.</string>
+    <string name="item_map">Mappa</string>
+    <string name="item_map_desc">Rivela la tua posizione nel mondo di gioco.</string>
+    <string name="item_helmet">Elmo</string>
+    <string name="item_helmet_desc">+2 Resistenza finché lo possiedi.</string>
+    <string name="item_chainmail">Gilet di maglia di ferro</string>
+    <string name="item_chainmail_desc">+4 Resistenza finché lo possiedi.</string>
     <string name="creation_start">Inizia l\'Avventura</string>
 
     <!-- Comuni -->

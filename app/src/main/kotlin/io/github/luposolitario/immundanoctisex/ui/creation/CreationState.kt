@@ -15,6 +15,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
+import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 
 // Stato della creazione personaggio: classe semplice (niente ViewModel
 // androidx: nessuna dipendenza da lifecycle, testabile e previewabile).
@@ -43,6 +44,9 @@ class CreationState(private val dice: DiceRoller) {
     var fightsUnarmed: Boolean by mutableStateOf(false)
         private set
 
+    // UN oggetto speciale a scelta (come v1/canone): Mappa, Elmo o Gilet.
+    var selectedSpecialItem: SpecialItemUi? by mutableStateOf(null)
+
     val statsRolled: Boolean get() = combatSkill > 0
 
     val needsWeaponSkillChoice: Boolean
@@ -52,6 +56,7 @@ class CreationState(private val dice: DiceRoller) {
         get() = statsRolled &&
             selectedDisciplines.size == 5 &&
             (selectedWeapon != null || fightsUnarmed) &&
+            selectedSpecialItem != null &&
             (!needsWeaponSkillChoice || weaponSkillType != null)
 
     fun selectWeapon(weapon: GameItem) {
@@ -88,14 +93,13 @@ class CreationState(private val dice: DiceRoller) {
     }
 
     // La fotografia iniziale della partita: eroe con equipaggiamento
-    // scelto (o a mani nude), Corone tirate; scena = start del libro.
+    // scelto (o a mani nude), oggetto speciale, comuni e Corone tirate;
+    // scena = start del libro. Gli oggetti entrano tramite l'engine
+    // (Inventory.addItem): l'Elmo/Gilet applica il suo bonus Resistenza
+    // esattamente come lo farà ogni addItem futuro del libro.
     fun buildSession(manifest: Manifest, difficulty: Difficulty, startSceneId: String): SessionData {
         val weapon = selectedWeapon
-        val inventory = buildList {
-            weapon?.let { add(it) }
-            if (gold > 0) add(GameItem(name = "Gold Crowns", type = ItemType.GOLD, quantity = gold))
-        }
-        val hero = Character(
+        var hero = Character(
             role = CharacterRole.HERO,
             name = if (gender == Gender.MALE) "Lupo Solitario" else "Lupa Solitaria",
             gender = gender,
@@ -104,9 +108,15 @@ class CreationState(private val dice: DiceRoller) {
             maxEndurance = endurance,
             kaiDisciplines = selectedDisciplines.toList(),
             weaponSkillType = if (needsWeaponSkillChoice) weaponSkillType else null,
-            inventory = inventory,
-            equippedWeapon = weapon?.name,
         )
+        val startingItems = buildList {
+            weapon?.let { add(it) }
+            selectedSpecialItem?.let { add(it.item) }
+            addAll(INITIAL_COMMON_ITEMS)
+            if (gold > 0) add(GameItem(name = "Gold Crowns", type = ItemType.GOLD, quantity = gold))
+        }
+        startingItems.forEach { hero = Inventory.addItem(hero, it) }
+        weapon?.let { hero = Inventory.equipWeapon(hero, it.name) }
         return SessionData(
             saveFormatVersion = 1,
             packageId = manifest.id,
