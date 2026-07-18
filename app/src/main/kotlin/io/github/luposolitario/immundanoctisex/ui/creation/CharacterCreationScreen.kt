@@ -228,24 +228,69 @@ private fun WeaponCard(state: CreationState) {
             Text(stringResource(R.string.creation_equipment_title), style = MaterialTheme.typography.titleLarge)
             Text(stringResource(R.string.creation_pick_weapon), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                INITIAL_WEAPONS.forEach { weapon ->
-                    FilterChip(
+            // Icone di v1 in griglia, come le discipline (richiesta Michele).
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 110.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().height(420.dp),
+            ) {
+                items(INITIAL_WEAPONS) { weapon ->
+                    WeaponCell(
+                        iconRes = weaponTypeIcon(weapon.weaponType),
+                        nameRes = weaponTypeName(requireNotNull(weapon.weaponType)),
                         selected = state.selectedWeapon?.name == weapon.name,
                         onClick = { state.selectWeapon(weapon) },
-                        label = {
-                            Text(stringResource(weaponTypeName(requireNotNull(weapon.weaponType))))
-                        },
                     )
                 }
                 // Arti marziali: si parte senza armi (con WEAPONSKILL+UNARMED
                 // vale il +2 a mani nude).
-                FilterChip(
-                    selected = state.fightsUnarmed,
-                    onClick = { state.selectUnarmed() },
-                    label = { Text(stringResource(R.string.creation_unarmed)) },
-                )
+                item {
+                    WeaponCell(
+                        iconRes = weaponTypeIcon(WeaponType.UNARMED),
+                        nameRes = R.string.weapon_unarmed,
+                        selected = state.fightsUnarmed,
+                        onClick = { state.selectUnarmed() },
+                    )
+                }
             }
+        }
+    }
+}
+
+// Cella arma: icona di v1 + nome, bordo oro sulla selezionata (stessa
+// convenzione dei ritratti e dell'arma impugnata nella Scheda).
+@Composable
+private fun WeaponCell(
+    iconRes: Int,
+    nameRes: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val borderColor = if (selected) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
+    androidx.compose.material3.OutlinedCard(
+        onClick = onClick,
+        border = androidx.compose.foundation.BorderStroke(if (selected) 3.dp else 1.dp, borderColor),
+        colors = androidx.compose.material3.CardDefaults.outlinedCardColors(
+            containerColor = if (selected) Color(0xFFFFD700).copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
+        ),
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                painter = painterResource(id = iconRes),
+                contentDescription = stringResource(nameRes),
+                modifier = Modifier.size(48.dp),
+            )
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(nameRes),
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            )
         }
     }
 }
