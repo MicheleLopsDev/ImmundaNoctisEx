@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import io.github.luposolitario.immundanoctisex.AppContainer
@@ -23,15 +26,27 @@ fun AdventureRoute(
 
     when (loadResult) {
         is PackageLoadResult.Success -> {
-            val state = remember {
+            // La ricarica di un checkpoint ripristina la fotografia (diario
+            // già troncato per costruzione) e ricrea lo stato di gioco.
+            var currentSession by remember { mutableStateOf(session) }
+            val state = remember(currentSession) {
                 AdventureState(
                     manifest = loadResult.manifest,
-                    session = session,
+                    session = currentSession,
                     dice = container.diceRoller,
                     store = container.sessionStore,
                 )
             }
-            AdventureScreen(state = state, onExitToHome = onExitToHome)
+            AdventureScreen(
+                state = state,
+                onExitToHome = onExitToHome,
+                onReloadCheckpoint = { slot ->
+                    state.loadCheckpoint(slot)?.let { checkpoint ->
+                        container.sessionStore.saveSession(checkpoint)
+                        currentSession = checkpoint
+                    }
+                },
+            )
         }
 
         else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

@@ -55,5 +55,11 @@ class GameState(initial: SessionData) {
         session = session.copy(journey = session.journey + entry)
     }
 
+    // Contabilità del budget checkpoint (STATO.md Blocco 2): il numero
+    // di piazzamenti spesi è un fatto della sessione.
+    fun incrementCheckpointsUsed() {
+        session = session.copy(checkpointsUsed = session.checkpointsUsed + 1)
+    }
+
     fun snapshot(): SessionData = session
 }
