@@ -100,6 +100,7 @@ fun AdventureScreen(
             state.combatSession != null -> CombatActiveZone(state)
             state.currentScene.combat != null -> CombatEntryZone(state)
             state.isEnding -> EndingZone(state, onExitToHome, onReloadCheckpoint)
+            state.requiresRoll -> DiceZone(state)
             else -> {
                 ChoicesZone(state)
                 // Piazzamento checkpoint dal menu (STATO.md Blocco 2): fuori
@@ -176,6 +177,31 @@ private fun ChoicesZone(state: AdventureState) {
                     Spacer(Modifier.width(8.dp))
                     Text(choice.choiceText, fontStyle = FontStyle.Italic, fontWeight = FontWeight.Bold)
                 }
+            }
+        }
+    }
+}
+
+// Il Dado del Destino fuori dal combattimento (REGOLE.md Blocco 6): il
+// gioco si ferma, le scelte spariscono, si tira e POI si va. v0.1 è un
+// bottone; l'overlay animato è Fase 7.
+@Composable
+private fun DiceZone(state: AdventureState) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        val roll = state.lastChoiceRoll
+        if (roll == null) {
+            Text("Il destino decide: tira il Dado.", fontWeight = FontWeight.Bold)
+            Button(onClick = { state.rollForChoice() }, modifier = Modifier.fillMaxWidth()) {
+                Text("Tira il Dado del Destino")
+            }
+        } else {
+            Text(
+                "Hai tirato: $roll",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+            )
+            Button(onClick = { state.resolveRolledChoice() }, modifier = Modifier.fillMaxWidth()) {
+                Text("Continua")
             }
         }
     }
