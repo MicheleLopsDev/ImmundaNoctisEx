@@ -42,10 +42,14 @@ sealed interface Transition {
 // si salva e non si rigenera mai (costo inferenza, non-determinismo,
 // coerenza con previous_scene_text). La sequenza ordinata delle voci È
 // il percorso completo nel grafo: visitedScenes non esiste come lista
-// salvata, è derivabile da qui.
+// salvata, è derivabile da qui. locationName è il luogo GIÀ RISOLTO
+// (ereditato dalla scena precedente se la scena non lo dichiara,
+// decisione post-specifica 4): la Mappa logica non deve ricalcolare
+// l'ereditarietà a lettura.
 @Serializable
 data class JourneyEntry(
     val sceneId: String,
     val enrichedText: String,
     val transition: Transition,
+    val locationName: String? = null,
 )

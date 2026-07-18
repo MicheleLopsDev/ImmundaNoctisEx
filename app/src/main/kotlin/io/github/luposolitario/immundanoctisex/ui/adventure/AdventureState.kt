@@ -37,6 +37,13 @@ class AdventureState(
 
     var currentScene: Scene by mutableStateOf(sceneById(session.currentSceneId))
         private set
+
+    // Luogo corrente APPICCICOSO (UI.md): la scena che non dichiara
+    // locationName eredita quello precedente. Alla ripresa riparte
+    // dall'ultima voce del diario.
+    private var currentLocation: String? =
+        sceneById(session.currentSceneId).locationName
+            ?: session.journey.lastOrNull()?.locationName
     var combatSession: CombatSession? by mutableStateOf(null)
         private set
     var adventureDeleted: Boolean by mutableStateOf(false)
@@ -153,16 +160,20 @@ class AdventureState(
 
     private fun moveTo(targetSceneId: String, transition: Transition) {
         gameState.addJourneyEntry(
-            JourneyEntry(currentScene.id, currentScene.narrativeText, transition),
+            JourneyEntry(currentScene.id, currentScene.narrativeText, transition, currentLocation),
         )
         val result = engine.transitionTo(gameState, targetSceneId)
-        // Anche i salti d'ufficio sono porte del diario-grafo.
+        // Anche i salti d'ufficio sono porte del diario-grafo (col luogo
+        // risolto della scena da cui si salta).
         result.autoJumps.forEach { hop ->
+            val hopScene = sceneById(hop.fromSceneId)
+            currentLocation = hopScene.locationName ?: currentLocation
             gameState.addJourneyEntry(
-                JourneyEntry(hop.fromSceneId, sceneById(hop.fromSceneId).narrativeText, Transition.AutoJump(hop.reason)),
+                JourneyEntry(hop.fromSceneId, hopScene.narrativeText, Transition.AutoJump(hop.reason), currentLocation),
             )
         }
         currentScene = sceneById(result.sceneId)
+        currentLocation = currentScene.locationName ?: currentLocation
         autoSave()
         handleIronDeath()
     }
