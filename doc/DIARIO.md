@@ -772,6 +772,32 @@ prova di milestone a mano resta in attesa). Lavoro fatto nel frattempo:
   esplicitamente a "false" (ora negato, con test); un tipo scritto col
   nome pienamente qualificato invece che importato.
 
+### FASE 3 CHIUSA — il libro gira sul Razr senza Gemma
+
+**Prova sul device fatta da Michele**: il flusso gira ("per adesso
+sembra andare"). Milestone Fase 3 considerata PASSATA, con riserva
+dichiarata: **restano rifiniture da elencare** — Michele le raccoglierà
+e le affronteremo come giro di feedback, senza tenere ferma la fase.
+Note già in coda da sessioni precedenti: [MICHELE] rifinitura
+`strings.xml`; scudo come oggetto (serve il bonus deciso da lui); 3
+icone armi mancanti (dagger/short_sword/warhammer) e conversione WebP
+di `ic_axe`/`ic_map_icon` (3-4 MB l'uno) in Fase 7; side-load libro e
+schermata Opzioni in Fase 5.
+
+CLAUDE.md aggiornato: **fase corrente -> Fase 4 (inference)**.
+
+### Sessione — FASE 4 APERTA: le fondamenta testabili dell'inferenza
+
+Decisione di collocazione (conflitto apparente risolto, non
+interpretato): `PIANO-SVILUPPO` fissa 4 moduli e mette l'inference in
+`:app`; `ARCHITETTURA` §engine vieta all'engine ogni riferimento
+all'inference; il vincolo di progetto chiede testabilità da terminale.
+Le tre cose stanno insieme così: il package `inference` vive in
+`:app` MA le sue classi pure (PromptBuilder, ResponseParser) non hanno
+un solo import Android e sono coperte da **unit test JVM** in
+`app/src/test` — che girano da terminale senza device né modello. Solo
+il motore LiteRT-LM vero avrà dipendenze Android.
+
 - **Manifest fuso con v1** (richiesta Michele): icona launcher
   ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
   png spostato da Michele), tema XML `Theme.ImmundaNoctis` (solo per
