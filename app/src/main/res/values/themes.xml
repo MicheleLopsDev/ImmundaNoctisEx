@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Tema XML di v1 (origina_res): serve solo alla finestra di sistema
+     prima che Compose prenda il controllo; il tema vero dell'app vive in
+     ui/theme (ImmundaNoctisTheme). -->
+<resources>
+    <style name="Theme.ImmundaNoctis" parent="android:Theme.Material.NoActionBar" />
+</resources>
