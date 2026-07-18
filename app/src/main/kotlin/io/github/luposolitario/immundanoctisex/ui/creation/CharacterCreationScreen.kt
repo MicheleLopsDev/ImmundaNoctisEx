@@ -1,7 +1,11 @@
 package io.github.luposolitario.immundanoctisex.ui.creation
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,14 +24,15 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,25 +84,59 @@ fun CharacterCreationScreen(
     }
 }
 
+// Lupo o lupa coi RITRATTI di v1 (class_warrior, richiesta Michele dopo il
+// primo test sul device): tocco sul ritratto, cerchio evidenziato sul
+// selezionato.
 @Composable
 private fun GenderCard(state: CreationState) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(stringResource(R.string.creation_gender), style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(8.dp))
-            SingleChoiceSegmentedButtonRow {
-                SegmentedButton(
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceAround,
+            ) {
+                PortraitOption(
+                    imageRes = R.drawable.class_warrior_male,
+                    label = stringResource(R.string.creation_gender_male),
                     selected = state.gender == Gender.MALE,
                     onClick = { state.gender = Gender.MALE },
-                    shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                ) { Text(stringResource(R.string.creation_gender_male)) }
-                SegmentedButton(
+                )
+                PortraitOption(
+                    imageRes = R.drawable.class_warrior_female,
+                    label = stringResource(R.string.creation_gender_female),
                     selected = state.gender == Gender.FEMALE,
                     onClick = { state.gender = Gender.FEMALE },
-                    shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                ) { Text(stringResource(R.string.creation_gender_female)) }
+                )
             }
         }
+    }
+}
+
+// Ritratto circolare selezionabile: bordo dorato sul selezionato (la
+// convenzione oro di v1), grigio sugli altri.
+@Composable
+private fun PortraitOption(
+    imageRes: Int,
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val borderColor = if (selected) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Image(
+            painter = painterResource(id = imageRes),
+            contentDescription = label,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(110.dp)
+                .clip(CircleShape)
+                .border(if (selected) 4.dp else 1.dp, borderColor, CircleShape)
+                .clickable(onClick = onClick),
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
     }
 }
 
@@ -193,19 +232,19 @@ private fun WeaponCard(state: CreationState) {
                 INITIAL_WEAPONS.forEach { weapon ->
                     FilterChip(
                         selected = state.selectedWeapon?.name == weapon.name,
-                        onClick = { state.selectedWeapon = weapon },
+                        onClick = { state.selectWeapon(weapon) },
                         label = {
                             Text(stringResource(weaponTypeName(requireNotNull(weapon.weaponType))))
                         },
-                        leadingIcon = {
-                            androidx.compose.material3.Icon(
-                                imageVector = disciplineIcon("WEAPONSKILL"),
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                            )
-                        },
                     )
                 }
+                // Arti marziali: si parte senza armi (con WEAPONSKILL+UNARMED
+                // vale il +2 a mani nude).
+                FilterChip(
+                    selected = state.fightsUnarmed,
+                    onClick = { state.selectUnarmed() },
+                    label = { Text(stringResource(R.string.creation_unarmed)) },
+                )
             }
         }
     }

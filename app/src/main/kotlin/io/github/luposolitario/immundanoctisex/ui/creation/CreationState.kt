@@ -36,6 +36,12 @@ class CreationState(private val dice: DiceRoller) {
     var weaponSkillType: WeaponType? by mutableStateOf(null)
 
     var selectedWeapon: GameItem? by mutableStateOf(null)
+        private set
+
+    // Arti marziali: si parte SENZA armi (richiesta Michele). Alternativa
+    // esclusiva alla scelta dell'arma.
+    var fightsUnarmed: Boolean by mutableStateOf(false)
+        private set
 
     val statsRolled: Boolean get() = combatSkill > 0
 
@@ -45,8 +51,18 @@ class CreationState(private val dice: DiceRoller) {
     val canProceed: Boolean
         get() = statsRolled &&
             selectedDisciplines.size == 5 &&
-            selectedWeapon != null &&
+            (selectedWeapon != null || fightsUnarmed) &&
             (!needsWeaponSkillChoice || weaponSkillType != null)
+
+    fun selectWeapon(weapon: GameItem) {
+        selectedWeapon = weapon
+        fightsUnarmed = false
+    }
+
+    fun selectUnarmed() {
+        fightsUnarmed = true
+        selectedWeapon = null
+    }
 
     fun rollStats() {
         combatSkill = 10 + dice.roll()
@@ -72,11 +88,11 @@ class CreationState(private val dice: DiceRoller) {
     }
 
     // La fotografia iniziale della partita: eroe con equipaggiamento
-    // scelto, arma impugnata, Corone tirate; scena = start del libro.
+    // scelto (o a mani nude), Corone tirate; scena = start del libro.
     fun buildSession(manifest: Manifest, difficulty: Difficulty, startSceneId: String): SessionData {
-        val weapon = requireNotNull(selectedWeapon)
+        val weapon = selectedWeapon
         val inventory = buildList {
-            add(weapon)
+            weapon?.let { add(it) }
             if (gold > 0) add(GameItem(name = "Gold Crowns", type = ItemType.GOLD, quantity = gold))
         }
         val hero = Character(
@@ -89,7 +105,7 @@ class CreationState(private val dice: DiceRoller) {
             kaiDisciplines = selectedDisciplines.toList(),
             weaponSkillType = if (needsWeaponSkillChoice) weaponSkillType else null,
             inventory = inventory,
-            equippedWeapon = weapon.name,
+            equippedWeapon = weapon?.name,
         )
         return SessionData(
             saveFormatVersion = 1,
