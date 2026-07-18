@@ -726,6 +726,19 @@ Feedback applicati:
   facendo passare gli oggetti da `Inventory.addItem`: la stessa strada
   di ogni addItem futuro del libro. Icone v1 per elmo/armatura/mappa
   (ic_map_icon 4,1 MB: candidata WebP con ic_axe).
+- **Rifiniture da feedback**: griglia armi con le icone di v1 (mancano
+  dagger/short_sword/warhammer -> segnaposto, coda Fase 7; ic_axe e
+  ic_map_icon da 3-4 MB candidate WebP); specializzazione Scherma a
+  MENU A TENDINA, card SEMPRE visibile (disabilitata con spiegazione
+  senza la disciplina — prima appariva solo con Scherma scelta e
+  sembrava un bug); etichetta "Arti marziali".
+
+**PROSSIMA SESSIONE**: prova di milestone Fase 3 sul Razr (partita
+completa, chiusura a metà e ripresa, morte IRON che cancella,
+checkpoint piazzato e ricaricato) -> se passa, FASE 3 CHIUSA a diario
+e CLAUDE.md -> Fase 4 (inference). In coda anche: [MICHELE] rifinitura
+strings.xml; scudo come oggetto se Michele decide il bonus.
+
 - **Manifest fuso con v1** (richiesta Michele): icona launcher
   ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
   png spostato da Michele), tema XML `Theme.ImmundaNoctis` (solo per
