@@ -739,6 +739,39 @@ checkpoint piazzato e ricaricato) -> se passa, FASE 3 CHIUSA a diario
 e CLAUDE.md -> Fase 4 (inference). In coda anche: [MICHELE] rifinitura
 strings.xml; scudo come oggetto se Michele decide il bonus.
 
+### Sessione — chiusura buchi Fase 3: ciclo di vita, dado, regole fuori da :app
+
+Check di stato: push allineato, suite verde, device non collegato (la
+prova di milestone a mano resta in attesa). Lavoro fatto nel frattempo:
+
+- **`CicloVitaPartitaTest`** (`:core:engine`): la milestone Fase 3
+  AUTOMATIZZATA per la parte che non richiede occhi — gioca con
+  auto-save sullo store vero, "chiude e riapre" ricaricando SOLO da
+  disco (verifica scena e diario ripresi), piazza un checkpoint e ne
+  verifica l'immutabilità, cancella l'avventura come farebbe la morte
+  in IRON, e controlla che non restino file `.tmp` (atomicità). De-
+  rischia la prova manuale sul Razr, che resta comunque da fare.
+- **BUCO FUNZIONALE CHIUSO — il Dado fuori dal combattimento**: le
+  scelte con `minRoll`/`maxRoll` (tabelle dei numeri casuali dei libri)
+  erano SILENZIOSAMENTE NASCOSTE — il sample non ne usa, ma un libro
+  vero sarebbe stato ingiocabile. Ora la zona scelte diventa la zona
+  del Dado: "il destino decide" -> tira -> mostra il numero -> continua
+  verso la porta del suo intervallo. Flusso a due fasi ereditato da v1
+  ma col trigger STRUTTURALE (v1 fiutava la stringa italiana "Tabella
+  dei Numeri Casuali" nel testo!) e il DiceRoller iniettato. v0.1 è un
+  bottone: l'overlay animato resta Fase 7.
+- **`ChoiceAvailability`** (`:core:engine/choice`): il gating delle
+  scelte (requiredItem/requiredFlag), le scelte-disciplina possedute e
+  la tabella dei tiri erano REGOLE scritte dentro `AdventureState`,
+  cioè in `:app`, dove non sono testabili — contro il vincolo
+  "l'engine è testabile da terminale". Spostate nell'engine con 7 test;
+  `AdventureState` ora delega e resta orchestrazione pura.
+- **Tre nei corretti in `AdventureState`**: `isEnding` confrontava
+  `sceneType.name` con la stringa "ENDING" invece dell'enum;
+  `requiredFlag` considerava soddisfatto anche un flag posto
+  esplicitamente a "false" (ora negato, con test); un tipo scritto col
+  nome pienamente qualificato invece che importato.
+
 - **Manifest fuso con v1** (richiesta Michele): icona launcher
   ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
   png spostato da Michele), tema XML `Theme.ImmundaNoctis` (solo per
