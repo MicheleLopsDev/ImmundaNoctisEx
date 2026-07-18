@@ -712,6 +712,20 @@ Feedback applicati:
   opzione "Arti marziali — nessuna arma" (esclusiva con l'arma,
   equippedWeapon null: con WEAPONSKILL+UNARMED vale il +2 a mani nude
   già gestito dall'engine).
+- **Equipaggiamento iniziale completo** (richiesta Michele: in v1
+  c'erano elmo/cotta/mappa e i pasti): scelta di UN oggetto speciale
+  come v1/canone (Mappa, Elmo +2 RES, Gilet di maglia +4 RES — lo
+  scudo in v1 era solo un tipo enum senza oggetto) + comuni automatici
+  (Pozione Curativa HEAL:4 non-combat come il canone Laumspur, DUE
+  Pasti) + Corone dal tiro. NOVITÀ ENGINE: effetto dichiarativo
+  `ENDURANCE:n` — il bonus Resistenza degli oggetti posseduti è
+  CALCOLATO (`effectiveMaxEndurance`), applicato alla corrente
+  all'acquisizione e riclampato alla perdita; tutti i clamp di
+  cura/healing e i display usano il massimo effettivo (in v1 il bonus
+  era sommato a mano nel ViewModel). La creazione costruisce l'eroe
+  facendo passare gli oggetti da `Inventory.addItem`: la stessa strada
+  di ogni addItem futuro del libro. Icone v1 per elmo/armatura/mappa
+  (ic_map_icon 4,1 MB: candidata WebP con ic_axe).
 - **Manifest fuso con v1** (richiesta Michele): icona launcher
   ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
   png spostato da Michele), tema XML `Theme.ImmundaNoctis` (solo per
