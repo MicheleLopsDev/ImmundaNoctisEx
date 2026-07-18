@@ -81,7 +81,8 @@
     <string name="creation_weaponskill_pick">Scegli il tipo d\'arma della tua Scherma:</string>
     <string name="creation_weaponskill_random">Scegli a caso</string>
     <string name="creation_equipment_title">Equipaggiamento iniziale</string>
-    <string name="creation_pick_weapon">Scegli un\'arma:</string>
+    <string name="creation_pick_weapon">Scegli un\'arma (o combatti a mani nude):</string>
+    <string name="creation_unarmed">Arti marziali — nessuna arma</string>
     <string name="creation_start">Inizia l\'Avventura</string>
 
     <!-- Comuni -->

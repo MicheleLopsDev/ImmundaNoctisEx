@@ -59,12 +59,19 @@ fun weaponTypeName(type: WeaponType): Int = when (type) {
     WeaponType.UNARMED -> R.string.weapon_unarmed
 }
 
-// Equipaggiamento iniziale (erede di INITIAL_WEAPONS di v1, nomi canonici
-// inglesi come i dati dei pacchetti: i nomi mostrati arriveranno con la
-// localizzazione degli oggetti in Fase 5/7).
+// Equipaggiamento iniziale: TUTTI i 9 tipi d'arma canonici (richiesta
+// Michele dopo il primo test sul device), nomi canonici inglesi come i
+// dati dei pacchetti; i nomi mostrati vengono da strings.xml via
+// weaponTypeName. L'alternativa "nessuna arma" (arti marziali) vive in
+// CreationState.fightsUnarmed.
 val INITIAL_WEAPONS = listOf(
-    GameItem(name = "Axe", type = ItemType.WEAPON, weaponType = WeaponType.AXE),
-    GameItem(name = "Sword", type = ItemType.WEAPON, weaponType = WeaponType.SWORD),
+    GameItem(name = "Dagger", type = ItemType.WEAPON, weaponType = WeaponType.DAGGER),
+    GameItem(name = "Spear", type = ItemType.WEAPON, weaponType = WeaponType.SPEAR),
     GameItem(name = "Mace", type = ItemType.WEAPON, weaponType = WeaponType.MACE),
+    GameItem(name = "Short Sword", type = ItemType.WEAPON, weaponType = WeaponType.SHORT_SWORD),
+    GameItem(name = "Warhammer", type = ItemType.WEAPON, weaponType = WeaponType.WARHAMMER),
+    GameItem(name = "Sword", type = ItemType.WEAPON, weaponType = WeaponType.SWORD),
+    GameItem(name = "Axe", type = ItemType.WEAPON, weaponType = WeaponType.AXE),
     GameItem(name = "Quarterstaff", type = ItemType.WEAPON, weaponType = WeaponType.QUARTERSTAFF),
+    GameItem(name = "Broadsword", type = ItemType.WEAPON, weaponType = WeaponType.BROADSWORD),
 )
