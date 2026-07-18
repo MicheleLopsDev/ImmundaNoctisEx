@@ -871,6 +871,31 @@ sembrano semmai materiale per l'ETL (Fase 6), che dovrà convertire i
 tag testuali di Kai Chronicles/Aon in comandi strutturati. Da
 confermare prima di scrivere codice che nessuno chiama.
 
+### Chiusura sessione — stato e prossimi passi
+
+Stato: Fase 3 CHIUSA (provata sul Razr), Fase 4 aperta con le sue
+fondamenta testabili già in piedi (ResponseParser e PromptBuilder, 22
+test JVM verdi che girano da terminale senza device né modello). Suite
+verde su tutti i moduli, APK che compila, working tree pulita.
+
+**PROSSIMA SESSIONE — il motore vero**: LiteRT-LM dietro
+`InferenceEngine` (load, generate come Flow, reset, token tracking),
+sessione-per-scena (inferenza SENZA memoria) e streaming bufferizzato
+~80-100ms troncato a `--- TAGS ---`. Poi la milestone di fase: **le
+misure di CRITICITA.md sul Razr** (primo token, token/s, prompt token,
+termico su 30-45') annotate qui, e ogni output reale di Gemma salvato
+come fixture.
+
+**Serve da Michele per quel passo**: il file del modello Gemma (quello
+usato in v1 va bene) e sapere se è già sul Razr o va scaricato
+dall'app (nel secondo caso il DownloadWorker di v1 è già censito come
+riusabile, e i permessi sono già nel manifest).
+
+**Decisioni in attesa**: (a) il TagParser si salta in Fase 4? (vedi
+osservazione sopra); (b) rifiniture UI della Fase 3 che Michele deve
+ancora elencare; (c) rifinitura `strings.xml` [MICHELE]; (d) bonus
+dello scudo, se lo si vuole.
+
 - **Manifest fuso con v1** (richiesta Michele): icona launcher
   ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
   png spostato da Michele), tema XML `Theme.ImmundaNoctis` (solo per
