@@ -44,9 +44,10 @@ fun AdventureScreen(
     state: AdventureState,
     onExitToHome: () -> Unit,
 ) {
-    // Scheda personaggio come overlay dentro la route (stato condiviso;
-    // diventerà una destinazione propria in Fase 5).
+    // Scheda e Diario come overlay dentro la route (stato condiviso;
+    // diventeranno destinazioni proprie in Fase 5).
     var showSheet by remember { mutableStateOf(false) }
+    var showJournal by remember { mutableStateOf(false) }
     if (showSheet) {
         io.github.luposolitario.immundanoctisex.ui.sheet.CharacterSheetScreen(
             hero = state.gameState.hero,
@@ -56,9 +57,28 @@ fun AdventureScreen(
         )
         return
     }
+    if (showJournal) {
+        val context = androidx.compose.ui.platform.LocalContext.current
+        io.github.luposolitario.immundanoctisex.ui.journal.JournalScreen(
+            journey = state.gameState.session.journey,
+            onExport = {
+                val markdown = io.github.luposolitario.immundanoctisex.ui.journal.journeyToMarkdown(
+                    state.bookTitle,
+                    state.gameState.session.journey,
+                )
+                val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(android.content.Intent.EXTRA_TEXT, markdown)
+                }
+                context.startActivity(android.content.Intent.createChooser(intent, "Esporta diario"))
+            },
+            onClose = { showJournal = false },
+        )
+        return
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-        Header(state)
+        Header(state, onJournalClick = { showJournal = true })
 
         Card(
             modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp),
@@ -84,18 +104,23 @@ fun AdventureScreen(
 }
 
 @Composable
-private fun Header(state: AdventureState) {
+private fun Header(state: AdventureState, onJournalClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(state.bookTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        Text(
-            "Scena ${state.currentScene.id}",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            androidx.compose.material3.TextButton(onClick = onJournalClick) {
+                Text("Diario")
+            }
+            Text(
+                "Scena ${state.currentScene.id}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
