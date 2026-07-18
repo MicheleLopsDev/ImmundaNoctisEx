@@ -10,11 +10,13 @@ import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.JourneyEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
+import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.model.Transition
 import io.github.luposolitario.immundanoctisex.core.data.session.SessionStore
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
+import io.github.luposolitario.immundanoctisex.core.engine.combat.RoundResult
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
@@ -49,14 +51,17 @@ class AdventureState(
     var adventureDeleted: Boolean by mutableStateOf(false)
         private set
 
-    val isEnding: Boolean get() = currentScene.sceneType.name == "ENDING"
+    val isEnding: Boolean get() = currentScene.sceneType == SceneType.ENDING
 
     // Gating delle scelte (pattern v1, UI.md §Zona scelte): condizioni non
     // soddisfatte = scelta non mostrata. Le scelte con tiro arriveranno
     // col flusso del Dado (il sample non ne ha).
+    // requiredFlag è un NOME di flag: soddisfatto se il flag è stato posto
+    // a un valore diverso da "false" (un autore che scrive value="false"
+    // intende negare la condizione, non soddisfarla).
     val availableChoices: List<Choice>
         get() = currentScene.choices.filter { choice ->
-            val flagOk = choice.requiredFlag == null || gameState.flag(choice.requiredFlag!!) != null
+            val flagOk = choice.requiredFlag?.let { gameState.flag(it)?.equals("false", ignoreCase = true) == false } ?: true
             val itemOk = choice.requiredItem == null ||
                 Inventory.countOf(gameState.hero, choice.requiredItem!!) > 0
             val noRoll = choice.minRoll == null && choice.maxRoll == null
@@ -79,7 +84,7 @@ class AdventureState(
     // azione di combattimento incrementa.
     var combatTick: Int by mutableStateOf(0)
         private set
-    var lastRound: io.github.luposolitario.immundanoctisex.core.engine.combat.RoundResult? by mutableStateOf(null)
+    var lastRound: RoundResult? by mutableStateOf(null)
         private set
 
     // Modalità RAPIDA (REGOLE.md §1.1): un tocco, il motore va fino in fondo.
