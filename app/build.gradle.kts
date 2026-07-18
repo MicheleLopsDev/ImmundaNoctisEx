@@ -50,6 +50,9 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
 
+    // Le classi pure di :app (PromptBuilder, ResponseParser) si testano
+    // da terminale come i moduli core: stesso stile kotlin.test.
     testImplementation(libs.junit)
+    testImplementation(kotlin("test"))
     debugImplementation(libs.androidx.ui.tooling)
 }
