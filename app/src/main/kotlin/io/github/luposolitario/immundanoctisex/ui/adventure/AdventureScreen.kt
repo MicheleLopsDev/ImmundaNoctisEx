@@ -88,11 +88,23 @@ fun AdventureScreen(
             modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp),
             elevation = CardDefaults.cardElevation(2.dp),
         ) {
-            Text(
-                text = state.narrative,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
-            )
+            if (state.narrative.isBlank() && state.isGenerating) {
+                // Il narratore sta scrivendo: nessun testo originale da
+                // leggere, solo l'attesa dichiarata (UI.md §Flusso).
+                Text(
+                    text = "Il narratore scrive…",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontStyle = FontStyle.Italic,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp),
+                )
+            } else {
+                Text(
+                    text = state.narrative,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
+                )
+            }
         }
 
         StatusCard(state, onClick = { showSheet = true })
@@ -100,6 +112,10 @@ fun AdventureScreen(
 
         when {
             state.combatSession != null -> CombatActiveZone(state)
+            // Finché il narratore scrive non si mostrano scelte né nemico:
+            // apparirebbero col testo originale per poi cambiare sotto gli
+            // occhi (UI.md: prima lo streaming, POI i pulsanti).
+            state.isGenerating -> Unit
             state.currentScene.combat != null -> CombatEntryZone(state)
             state.isEnding -> EndingZone(state, onExitToHome, onReloadCheckpoint)
             state.requiresRoll -> DiceZone(state)

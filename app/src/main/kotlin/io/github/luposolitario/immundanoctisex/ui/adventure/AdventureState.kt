@@ -98,7 +98,12 @@ class AdventureState(
         narrationJob?.cancel()
         translatedChoices = emptyMap()
         translatedEnemyName = null
-        narrative = currentScene.narrativeText
+        // Con il narratore pronto il testo originale NON si mostra: la
+        // scena la scrive Gemma, e fino al primo pezzo si vede solo
+        // l'indicatore "il narratore scrive" (richiesta Michele 19/07).
+        // Senza motore resta il testo del pacchetto: il gioco non si
+        // ferma mai davanti a una schermata vuota.
+        narrative = if (narrator.isReady) "" else currentScene.narrativeText
         isGenerating = true
 
         narrationJob = scope.launch {

@@ -39,8 +39,16 @@ diario, checkpoint, auto-save atomico).
   velocità giudicata "molto buona". È il cuore della milestone di
   Fase 4. Restano da raccogliere i NUMERI (sotto).
 
+- **Con LLM attivo il testo originale NON si mostra più**: prima
+  compariva l'inglese del pacchetto e veniva sostituito, ora si vede
+  "Il narratore scrive…" e poi solo lo streaming della traduzione.
+  Anche scelte e nemico restano nascosti finché la generazione non
+  finisce (UI.md: prima lo streaming, POI i pulsanti), altrimenti
+  cambiavano sotto gli occhi. Senza motore tutto resta come in Fase 3.
+
 **PROSSIMO PASSO CONCRETO**: (a) Michele deve elencare le "cose da
-cambiare" emerse dalla prova; (b) **raccogliere le misure** — il motore
+cambiare" emerse dalla prova (grafica in primis, rinviata); (b)
+**raccogliere le misure** — il motore
 ora le logga da solo a ogni scena giocata: `adb logcat -s
 LiteRtLmEngine` stampa una riga `MISURA backend=… primoToken=… 
 tokenPrompt~… tokenGenerati~… velocita~… token/s`. Da giocare qualche
