@@ -51,6 +51,13 @@ dependencies {
     // Motore di inferenza on-device (LiteRT-LM).
     implementation(libs.litertlm.android)
 
+    // LiteRT-LM dichiara coroutines 1.9.0 nel POM ma è compilato con
+    // Kotlin 2.3: chiama `SendChannel.close$default` come metodo statico
+    // dell'interfaccia, forma che 1.9.0 (compilato con Kotlin più
+    // vecchio) non espone -> NoSuchMethodError a fine generazione.
+    // Si forza una versione costruita con Kotlin recente.
+    implementation(libs.kotlinx.coroutines.android)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
