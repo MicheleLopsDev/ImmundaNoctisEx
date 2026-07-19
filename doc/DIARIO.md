@@ -944,6 +944,57 @@ senza memoria per design), modalità dual-engine (solo Gemma),
 impostazioni GGUF (motore morto), doppio slot modello.
 `SceneJsonPicker` resta in Fase 5 come da piano.
 
+### Sessione 19/07 (seguito) — LiteRT-LM: indagine, scelta e motore
+
+**Problema intercettato prima di scrivere codice**: il catalogo che avevo
+messo usa file `.litertlm`, ma v1 usa **MediaPipe**, che legge `.task`.
+Runtime diversi, formati NON intercambiabili: senza accorgersene si
+scaricavano 3,66 GB inutilizzabili.
+
+Indagine (tutto verificato con richieste reali, niente memoria):
+- `com.google.ai.edge.litertlm:litertlm-android` **esiste** su Google
+  Maven, stabile **0.14.0**, API Kotlin `Engine`/`EngineConfig`.
+  (`litert-lm` sotto `com.google.ai.edge.litert` NON esiste: 404.)
+- **L'ecosistema si è spostato su LiteRT-LM**: i Gemma 4 escono solo in
+  `.litertlm`; i `.task` rimasti per i modelli grandi sono varianti
+  `-web`. MediaPipe `tasks-genai` esiste ancora (0.10.35, v1 usava
+  0.10.24) ma è la strada che si chiude.
+- Device confermato via adb: **SM8750** (Snapdragon 8 Elite), 15,5 GB
+  RAM. Esiste `gemma-4-E2B-it_qualcomm_sm8750.litertlm`: build NPU per
+  esattamente questo chip.
+- **Benchmark ufficiali del model card (Gemma 4 E4B, Android)**:
+  GPU primo token **0,8 s**, decode 22,1 tok/s, memoria 710 MB —
+  CPU primo token **5,3 s**, decode 17,7 tok/s, memoria 3283 MB.
+  CRITICITA.md fissa la soglia a **3 s**: su CPU l'obiettivo NON si
+  raggiunge, su GPU si passa largamente. **Il backend GPU non è
+  un'ottimizzazione, è un requisito.** Il decode (17-22 tok/s) è
+  comunque più veloce della lettura umana: l'altra criticità regge.
+
+**Decisione di Michele: LiteRT-LM** (`com.google.ai.edge.litertlm`).
+Conseguenza accettata: l'esperienza di v1 sul motore non si riusa, si
+riusa il *pattern* (Flow di token, token tracking, semaforo).
+
+**Aggiornamento imposto**: l'AAR è compilato con metadata Kotlin **2.3**,
+il progetto era su 2.0.21 — incompatibilità dura, non aggirabile.
+Portato tutto il progetto a **Kotlin 2.3.21** (un solo numero: tutti i
+plugin puntano a `version.ref = kotlin`) e migrato `kotlinOptions` ->
+DSL `compilerOptions`, che in 2.3 è un errore. **Suite verde su tutti i
+moduli dopo l'aggiornamento**: nessuna regressione.
+
+**`LiteRtLmEngine`**: prova la **GPU** e ripiega su **CPU** se OpenCL non
+è utilizzabile (degrada invece di lasciare il gioco senza narratore);
+espone `activeBackend` perché *un numero di misura senza sapere su quale
+backend girava non dice nulla*; `newSession()` crea una conversazione
+nuova per scena (inferenza senza memoria: è la norma, non un rimedio);
+`SamplerConfig` riceve davvero temperatura/topK/topP dalle impostazioni
+avanzate. Manifest: dichiarate `libOpenCL.so` e `libvndksupport.so` come
+librerie native opzionali.
+
+**Debito dichiarato**: il conteggio token è una **STIMA** (~4 caratteri
+per token) perché la libreria non espone un tokenizer pubblico. Serve
+solo al semaforo, che è un'indicazione di massima. Da sostituire se
+l'API esporrà il conteggio vero.
+
 ### Chiusura sessione — stato e prossimi passi
 
 Stato: Fase 3 CHIUSA (provata sul Razr), Fase 4 aperta con le sue
