@@ -48,6 +48,9 @@ dependencies {
     // Serve a leggere i frammenti del prompt da content/config.json.
     implementation(libs.kotlinx.serialization.json)
 
+    // Download del modello in background con notifica (Fase 4).
+    implementation(libs.androidx.work.runtime.ktx)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
