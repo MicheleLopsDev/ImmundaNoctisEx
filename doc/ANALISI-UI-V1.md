@@ -173,7 +173,25 @@ iniettato nel prompt — feature NON nel design Ex (i toni sono
 dell'autore via `toneHints`); da valutare come opzione utente futura
 **[MICHELE-PROPOSTO]**.
 
-### `ModelActivity` (824) — SOLO DUE PEZZI
+### `ModelActivity` (824) — analisi di dettaglio (19/07/2026)
+
+Scansione sezione per sezione, con verdetto:
+
+| Sezione v1 | Verdetto |
+|---|---|
+| Token Hugging Face + salva | **PORTATO** (migliorato: salvataggio automatico, campo mascherato, casa propria invece di ThemePreferences) |
+| **Impostazioni avanzate Gemma** (nLen, temperature, topP, topK) | **PORTATO**: i valori di v1 sono già tarati, e servono per la sessione di misure di Fase 4. Conservate tali e quali le **descrizioni oneste con l'impatto su CPU/memoria** — il pezzo migliore di quella schermata. Miglioria: in v1 serviva "riavviare la partita", in Ex no (sessione nuova a ogni scena) |
+| `SceneJsonPicker` (side-load libro) | Riusabile, ma pianificato in **Fase 5**: non anticipato |
+| "Resetta Sessione Chatbot" | NO: in Ex l'inferenza è senza memoria per design, non c'è niente da resettare a mano |
+| "Modalità Motore AI" (Gemma-only/Mixed) | NO: Ex ha solo Gemma |
+| "Impostazioni Avanzate GGUF" (personalità, persistenza contesto) | NO: motore morto, roba dell'era-chatbot |
+| Doppio slot modello (DM + Personaggi) | NO: un modello solo |
+
+Aggiunto in Ex e assente in v1: **spazio occupato dai modelli** (con file
+da 3,66 GB è informazione dovuta; v1 mostrava il percorso solo per le
+scene).
+
+### `ModelActivity` — i due pezzi già censiti nella seconda passata
 `SceneJsonPicker` (GetContent per application/json): è il side-load
 del libro di UI.md, riuso diretto. `ModelSlot`/pattern download: base
 della schermata Modelli LLM. Il resto è configurazione dual-engine
