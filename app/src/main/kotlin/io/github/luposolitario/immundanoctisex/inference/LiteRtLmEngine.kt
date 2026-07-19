@@ -119,18 +119,52 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
 
         // Il prompt speso è già contesto consumato: si conta subito, così
         // il semaforo dice la verità anche prima della risposta.
-        var used = estimateTokens(prompt)
+        val promptTokens = estimateTokens(prompt)
+        var used = promptTokens
         _tokenInfo.value = TokenInfo(used = used, maxTokens = config.maxTokens)
+
+        // MISURE della milestone di Fase 4 (CRITICITA.md): si raccolgono
+        // da sole a ogni scena giocata, così i numeri vengono dall'uso
+        // reale invece che da una prova artificiale.
+        val startedAt = System.currentTimeMillis()
+        var firstTokenAt: Long? = null
+        var generatedTokens = 0
 
         active.sendMessageAsync(prompt).collect { message ->
             val chunk = message.text()
             if (chunk.isNotEmpty()) {
+                if (firstTokenAt == null) firstTokenAt = System.currentTimeMillis()
+                generatedTokens += estimateTokens(chunk)
                 used += estimateTokens(chunk)
                 _tokenInfo.value = TokenInfo(used = used, maxTokens = config.maxTokens)
                 emit(chunk)
             }
         }
+
+        logMeasurements(startedAt, firstTokenAt, promptTokens, generatedTokens)
     }.flowOn(Dispatchers.IO)
+
+    // Una riga sola, leggibile con `adb logcat -s LiteRtLmEngine`, da
+    // riportare nel diario come misura di CRITICITA.md.
+    private fun logMeasurements(
+        startedAt: Long,
+        firstTokenAt: Long?,
+        promptTokens: Int,
+        generatedTokens: Int,
+    ) {
+        val now = System.currentTimeMillis()
+        val firstTokenSec = firstTokenAt?.let { (it - startedAt) / 1000.0 }
+        val decodeSeconds = firstTokenAt?.let { (now - it) / 1000.0 } ?: 0.0
+        val tokensPerSecond = if (decodeSeconds > 0) generatedTokens / decodeSeconds else 0.0
+        Log.i(
+            TAG,
+            "MISURA backend=$activeBackend " +
+                "primoToken=${firstTokenSec?.let { "%.2f s".format(it) } ?: "mai"} " +
+                "totale=${"%.2f s".format((now - startedAt) / 1000.0)} " +
+                "tokenPrompt~$promptTokens tokenGenerati~$generatedTokens " +
+                "velocita~${"%.1f".format(tokensPerSecond)} token/s (stima)",
+        )
+    }
 
     override suspend fun unload() = withContext(Dispatchers.IO) {
         unloadInternal()
