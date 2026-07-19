@@ -27,15 +27,21 @@ diario, checkpoint, auto-save atomico).
   `FakeEngine`. La degradazione è garantita PER TEST: motore assente o
   caduto a metà -> testo originale del pacchetto, nessuna eccezione.
 
-**PROSSIMO PASSO CONCRETO**: agganciare `SceneNarrator` ad
-`AdventureState`/`AdventureScreen` — oggi la scena mostra ancora il
-testo originale; va sostituito con lo streaming del narratore (con
-buffer ~80-100ms), il testo arricchito salvato in
-`JourneyEntry.enrichedText`, e il semaforo token nell'header. Poi
-caricare il modello vero e fare la **milestone di fase**: le misure di
-`CRITICITA.md` sul Razr (primo token, token/s, token di prompt, termico
-su 30-45') annotate qui, e ogni output reale di Gemma salvato come
-fixture.
+- **Narratore CABLATO nella scena**: la UI mostra il testo generato in
+  streaming (buffer 90ms), le scelte tradotte, il nome del nemico
+  tradotto e il semaforo nell'header. Nel diario-grafo finisce il testo
+  che il giocatore HA LETTO. Il modello si carica alla prima scena
+  (`AppContainer.ensureModelLoaded()`); se manca, il gioco prosegue col
+  testo del pacchetto senza dire nulla.
+
+**PROSSIMO PASSO CONCRETO — LA PROVA VERA (mai eseguita finora)**:
+sul Razr, con il modello scaricato, aprire un'avventura e verificare
+che Gemma parta davvero. Da guardare in `adb logcat -s LiteRtLmEngine`:
+il **backend effettivamente scelto** (deve essere GPU; se ripiega su
+CPU il primo token va a ~5 s e la soglia di 3 s salta). Poi la
+**milestone di fase**: misure di `CRITICITA.md` (primo token, token/s,
+token di prompt, termico su 30-45') annotate qui, e ogni output reale
+di Gemma salvato come fixture.
 
 **Fatti tecnici da non riscoprire** (verificati, non ipotizzati):
 - Il motore è **LiteRT-LM**, non MediaPipe di v1: i Gemma 4 escono solo
@@ -223,6 +229,36 @@ giocatore), apre una sessione nuova, streamma, e consegna il parsato.
 
 Il `FakeEngine` non è solo un attrezzo di test: permette di sviluppare
 la UI senza caricare 3,66 GB a ogni avvio.
+
+### Sessione — il narratore entra nella scena
+
+Cablaggio completo di `SceneNarrator` in `AdventureState`/
+`AdventureScreen`:
+- **Il testo parte dall'originale del pacchetto** e viene sostituito da
+  quello arricchito man mano che arriva: la scena è leggibile fin dal
+  primo istante, anche mentre il modello pensa. Nessuna schermata vuota
+  in attesa.
+- **Streaming bufferizzato a 90ms** (CRITICITA.md chiede ~80-100): senza
+  buffer ogni token farebbe ricomporre l'intera schermata.
+- Scelte e nome nemico mostrati tradotti quando arrivano, originali
+  altrimenti (`choiceText()`/`disciplineChoiceText()`/`enemyName`).
+- **Nel diario-grafo finisce il testo che il giocatore HA LETTO**, non
+  quello del pacchetto: `moveTo` salva `narrative` (STATO.md Blocco 3 —
+  si salva e non si rigenera mai). La coda di quel testo diventa il
+  `previous_scene_text` della scena dopo: contesto senza memoria.
+- **Semaforo nell'header** (UI.md): tertiary mentre genera, rosso oltre
+  il 60% di contesto, primary a riposo.
+- `AppContainer.ensureModelLoaded()` carica il modello alla prima scena
+  e lo tiene (istanza unica: costa GB e secondi). **Se il modello non
+  c'è il gioco prosegue col testo del pacchetto**, senza errori a
+  schermo — la Fase 3 continua a funzionare esattamente com'era.
+- I frammenti del prompt si leggono da `config.json` negli asset, con
+  fallback ai default hardcoded.
+
+Build e suite verdi, APK installato sul Razr. **Ma la generazione vera
+non è ancora stata osservata**: finché non si carica un modello sul
+device, tutto questo è codice che compila e passa i test col motore
+finto.
 
 ### Chiusura sessione — stato e prossimi passi
 
