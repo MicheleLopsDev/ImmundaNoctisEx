@@ -18,6 +18,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.ui.adventure.AdventureRoute
 import io.github.luposolitario.immundanoctisex.ui.creation.CreationRoute
 import io.github.luposolitario.immundanoctisex.ui.home.HomeScreen
+import io.github.luposolitario.immundanoctisex.ui.models.ModelsRoute
 import io.github.luposolitario.immundanoctisex.ui.setup.SetupRoute
 
 // Le destinazioni dell'app (le 7 schermate di UI.md). Solo routing qui
@@ -101,6 +102,11 @@ fun AppNavigation(
                 )
             }
         }
+
+        Route.MODELS -> ModelsRoute(
+            container = container,
+            onClose = { if (backStack.isNotEmpty()) route = backStack.removeLast() },
+        )
 
         // Segnaposto: si riempiono nei prossimi task della Fase 3/5.
         else -> PlaceholderScreen(route)

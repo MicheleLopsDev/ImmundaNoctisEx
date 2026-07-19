@@ -7,6 +7,7 @@ import io.github.luposolitario.immundanoctisex.core.data.session.FileSessionStor
 import io.github.luposolitario.immundanoctisex.core.data.session.SessionStore
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.dice.RandomDiceRoller
+import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import io.github.luposolitario.immundanoctisex.util.ThemePreferences
 import java.io.File
 import java.io.InputStream
@@ -17,6 +18,8 @@ import java.io.InputStream
 class AppContainer(context: Context) {
 
     val themePreferences = ThemePreferences(context)
+
+    val modelPreferences = ModelPreferences(context)
 
     val sessionStore: SessionStore =
         FileSessionStore(File(context.filesDir, "saves"))
