@@ -1,5 +1,242 @@
 # Diario di progetto
 
+> **SE STAI APRENDO UNA SESSIONE NUOVA, LEGGI SOLO IL BLOCCO QUI SOTTO.**
+> Il resto del file è la storia cronologica (dal più recente al più
+> vecchio): serve per capire *perché* una decisione è stata presa, non
+> per sapere cosa fare adesso.
+
+---
+
+## STATO CORRENTE — aggiornato 19/07/2026
+
+**Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
+Razr senza IA (Home, creazione, scena, combat a due modalità, scheda,
+diario, checkpoint, auto-save atomico).
+
+**Cosa gira già in Fase 4** (tutto committato, suite verde):
+- `ResponseParser` + `PromptBuilder` con 22 unit test JVM (girano da
+  terminale, senza device né modello).
+- Schermata **Modelli LLM**: catalogo, download riprendibile in
+  background, token Hugging Face, impostazioni avanzate (maxTokens,
+  temperatura, topK, topP). Provata sul device: funziona.
+- **`LiteRtLmEngine`**: motore reale su `com.google.ai.edge.litertlm`
+  0.14.0, backend GPU con ripiego su CPU. **Compila ma non è ancora
+  stato eseguito**: non è mai stato caricato un modello vero.
+
+**PROSSIMO PASSO CONCRETO**: cablare il motore nella scena —
+`PromptBuilder` -> `LiteRtLmEngine.generate()` -> streaming
+bufferizzato (~80-100ms, troncato a `--- TAGS ---`) -> `ResponseParser`
+-> la UI mostra testo arricchito e scelte tradotte. Poi la **milestone
+di fase**: le misure di `CRITICITA.md` sul Razr (primo token, token/s,
+token di prompt, termico su 30-45') annotate qui, e ogni output reale
+di Gemma salvato come fixture.
+
+**Fatti tecnici da non riscoprire** (verificati, non ipotizzati):
+- Il motore è **LiteRT-LM**, non MediaPipe di v1: i Gemma 4 escono solo
+  in `.litertlm` e MediaPipe legge `.task`. Formati non intercambiabili.
+- **Il backend GPU è un requisito, non un'ottimizzazione**: benchmark
+  ufficiali danno primo token 0,8 s su GPU contro 5,3 s su CPU, e
+  CRITICITA.md fissa la soglia a 3 s.
+- Il progetto è su **Kotlin 2.3.21** perché l'AAR di LiteRT-LM lo
+  impone (metadata 2.3). Usa il DSL `compilerOptions`, non
+  `kotlinOptions`.
+- Device di riferimento: Razr 60 Ultra, **SM8750** (Snapdragon 8
+  Elite), 15,5 GB RAM. Esiste una build NPU per questo chip esatto.
+- Il modello di v1 (`google/gemma-3n-E4B`) è su **repo gated**: senza
+  token restituisce 401 e si salverebbe una pagina d'errore al posto
+  del modello. I `litert-community/gemma-4-*` sono aperti.
+
+**Debiti dichiarati** (non sorprese, scelte consapevoli):
+- Il conteggio token del motore è una **STIMA** (~4 caratteri/token):
+  la libreria non espone un tokenizer pubblico. Serve solo al semaforo.
+- `strings.xml` è **impalcato** da Claude: la rifinitura dei testi è di
+  Michele.
+- Le 3 icone armi mancanti (dagger/short_sword/warhammer) usano un
+  segnaposto; `ic_axe` e `ic_map_icon` pesano 3-4 MB (WebP in Fase 7).
+
+**Decisioni in attesa di Michele**:
+1. Il `TagParser` previsto in Fase 4 si salta? (in Ex non avrebbe nulla
+   da parsare: le meccaniche arrivano già strutturate dal JSON)
+2. Le rifiniture UI di Fase 3 che voleva elencare
+3. Bonus dello scudo, se lo si vuole come oggetto iniziale
+4. Download del modello: ora vincolato al solo Wi-Fi
+
+**Idee rinviate**: stanno in `doc/UPGRADE.md` (audio narrativo, ecc.).
+NON sono schedulate: non implementarle senza una decisione esplicita.
+
+---
+
+## 19/07/2026
+
+### Sessione — download del modello e catalogo Hugging Face
+
+**Scoperta che ha cambiato il default** (verificata con richieste HEAD,
+non ipotizzata): l'URL di v1
+(`google/gemma-3n-E4B-it-litert-preview`) risponde **401 GatedRepo** —
+senza token si scaricherebbero 145 byte di pagina d'errore *salvati come
+se fossero il modello*. Michele ha giustamente ricordato che v1 IL TOKEN
+LO GESTIVA (mia ricerca del giorno prima troncata da `head`, non aveva
+visto `ThemePreferences.getToken` + `Authorization: Bearer` nel worker).
+
+Catalogo scelto, con dimensioni e gating VERIFICATI il 19/07:
+- `litert-community/gemma-4-E4B-it.litertlm` — 3,66 GB, aperto → **default**
+- `litert-community/gemma-4-E2B-it.litertlm` — 2,59 GB, aperto (ripiego
+  se le misure diranno che il Razr scotta)
+- `google/gemma-3n-E4B` di v1 — gated, resta raggiungibile col token
+Così l'app funziona anche a chi non ha un account Hugging Face.
+
+**`ModelDownloadWorker`**: pattern di v1 con i suoi difetti corretti —
+(a) il token era OBBLIGATORIO (`?: return failure()`), quindi i modelli
+aperti non si sarebbero scaricati; ora è opzionale; (b) v1 cancellava il
+parziale a ogni errore: perdere 3,6 GB per una connessione caduta al 90%
+è inaccettabile, ora il `.part` sopravvive e si RIPRENDE con richiesta
+Range; (c) un solo flusso invece di 8 connessioni parallele (su mobile
+la ripresa vale più della velocità di picco); (d) controllo dello spazio
+disco prima di iniziare; (e) **verifica della dimensione finale prima di
+promuovere il file** — un 401 o un troncamento non devono mai passare per
+un modello valido; (f) stream chiusi davvero (v1 lasciava aperto un
+`RandomAccessFile`). Stessa disciplina dei salvataggi: si scrive su
+`.part` e si rinomina solo a verifica passata.
+
+**`ModelPreferences`**: il token esce da `ThemePreferences` (in v1 un
+segreto viveva in casa delle preferenze del tema) e ha il suo posto; mai
+nei log; campo mascherato nella UI. `isDownloaded` non si fida
+dell'esistenza del file: controlla anche la dimensione attesa.
+
+**Schermata Modelli LLM** (era un segnaposto): catalogo con selezione,
+progresso, annulla-che-riprende, elimina, campo token. Download solo su
+rete non a consumo (`NetworkType.UNMETERED`) e `ExistingWorkPolicy.
+REPLACE` per non accodare due download sullo stesso file. Manifest:
+dichiarato il `SystemForegroundService` con `dataSync`.
+
+**Provato sul device da Michele (debug wifi): download OK.**
+
+### Sessione — opzioni importate da ModelActivity di v1
+
+Analisi sezione per sezione di `ModelActivity` (824 righe), tabella dei
+verdetti in `doc/ANALISI-UI-V1.md`. Importato:
+
+- **Impostazioni avanzate Gemma**: `maxTokens`, `temperature` (slider),
+  `topP` (slider), `topK`. I valori di v1 sono già tarati (0.7 / 40 /
+  0.9); `maxTokens` parte da **10240** come da CRITICITA.md, non dai
+  4096 di v1. Conservate tali e quali le **descrizioni oneste con
+  l'impatto dichiarato su CPU/memoria** — il pezzo migliore di quella
+  schermata. Migliorìa: in v1 c'era scritto "richiede il riavvio della
+  partita", in Ex no (sessione nuova a ogni scena, vale dalla prossima).
+  Aggiunto "Ripristina i valori consigliati" per tornare ai default dopo
+  una sessione di misure andata storta.
+- **Spazio occupato dai modelli**: assente in v1, ma con file da 3,66 GB
+  è informazione dovuta.
+- **`InferenceEngine`** (una delle quattro interfacce motivate), erede
+  di quella di v1 con due differenze volute: niente
+  `chatbotPersonality` nel load (era-chatbot) e `newSession()` invece di
+  `resetSession(systemPrompt)` — in Ex la sessione nuova per scena è la
+  NORMA, non il rimedio a un contesto pieno. Con `TokenInfo`/
+  `TokenStatus` (soglie di v1) per il semaforo dell'header, e
+  `InferenceConfig` che le impostazioni avanzate riempiono davvero: le
+  manopole sono cablate, non finte.
+
+NON importato, con motivo: reset sessione chatbot (in Ex l'inferenza è
+senza memoria per design), modalità dual-engine (solo Gemma),
+impostazioni GGUF (motore morto), doppio slot modello.
+`SceneJsonPicker` resta in Fase 5 come da piano.
+
+### Sessione — LiteRT-LM: indagine, scelta e motore
+
+**Problema intercettato prima di scrivere codice**: il catalogo che avevo
+messo usa file `.litertlm`, ma v1 usa **MediaPipe**, che legge `.task`.
+Runtime diversi, formati NON intercambiabili: senza accorgersene si
+scaricavano 3,66 GB inutilizzabili.
+
+Indagine (tutto verificato con richieste reali, niente memoria):
+- `com.google.ai.edge.litertlm:litertlm-android` **esiste** su Google
+  Maven, stabile **0.14.0**, API Kotlin `Engine`/`EngineConfig`.
+  (`litert-lm` sotto `com.google.ai.edge.litert` NON esiste: 404.)
+- **L'ecosistema si è spostato su LiteRT-LM**: i Gemma 4 escono solo in
+  `.litertlm`; i `.task` rimasti per i modelli grandi sono varianti
+  `-web`. MediaPipe `tasks-genai` esiste ancora (0.10.35, v1 usava
+  0.10.24) ma è la strada che si chiude.
+- Device confermato via adb: **SM8750** (Snapdragon 8 Elite), 15,5 GB
+  RAM. Esiste `gemma-4-E2B-it_qualcomm_sm8750.litertlm`: build NPU per
+  esattamente questo chip.
+- **Benchmark ufficiali del model card (Gemma 4 E4B, Android)**:
+  GPU primo token **0,8 s**, decode 22,1 tok/s, memoria 710 MB —
+  CPU primo token **5,3 s**, decode 17,7 tok/s, memoria 3283 MB.
+  CRITICITA.md fissa la soglia a **3 s**: su CPU l'obiettivo NON si
+  raggiunge, su GPU si passa largamente. **Il backend GPU non è
+  un'ottimizzazione, è un requisito.** Il decode (17-22 tok/s) è
+  comunque più veloce della lettura umana: l'altra criticità regge.
+
+**Decisione di Michele: LiteRT-LM** (`com.google.ai.edge.litertlm`).
+Conseguenza accettata: l'esperienza di v1 sul motore non si riusa, si
+riusa il *pattern* (Flow di token, token tracking, semaforo).
+
+**Aggiornamento imposto**: l'AAR è compilato con metadata Kotlin **2.3**,
+il progetto era su 2.0.21 — incompatibilità dura, non aggirabile.
+Portato tutto il progetto a **Kotlin 2.3.21** (un solo numero: tutti i
+plugin puntano a `version.ref = kotlin`) e migrato `kotlinOptions` ->
+DSL `compilerOptions`, che in 2.3 è un errore. **Suite verde su tutti i
+moduli dopo l'aggiornamento**: nessuna regressione.
+
+**`LiteRtLmEngine`**: prova la **GPU** e ripiega su **CPU** se OpenCL non
+è utilizzabile (degrada invece di lasciare il gioco senza narratore);
+espone `activeBackend` perché *un numero di misura senza sapere su quale
+backend girava non dice nulla*; `newSession()` crea una conversazione
+nuova per scena (inferenza senza memoria: è la norma, non un rimedio);
+`SamplerConfig` riceve davvero temperatura/topK/topP dalle impostazioni
+avanzate. Manifest: dichiarate `libOpenCL.so` e `libvndksupport.so` come
+librerie native opzionali.
+
+**Debito dichiarato**: il conteggio token è una **STIMA** (~4 caratteri
+per token) perché la libreria non espone un tokenizer pubblico. Serve
+solo al semaforo, che è un'indicazione di massima. Da sostituire se
+l'API esporrà il conteggio vero.
+
+### Chiusura sessione — stato e prossimi passi
+
+Stato: Fase 3 CHIUSA (provata sul Razr), Fase 4 aperta con le sue
+fondamenta testabili già in piedi (ResponseParser e PromptBuilder, 22
+test JVM verdi che girano da terminale senza device né modello). Suite
+verde su tutti i moduli, APK che compila, working tree pulita.
+
+**PROSSIMA SESSIONE — il motore vero**: LiteRT-LM dietro
+`InferenceEngine` (load, generate come Flow, reset, token tracking),
+sessione-per-scena (inferenza SENZA memoria) e streaming bufferizzato
+~80-100ms troncato a `--- TAGS ---`. Poi la milestone di fase: **le
+misure di CRITICITA.md sul Razr** (primo token, token/s, prompt token,
+termico su 30-45') annotate qui, e ogni output reale di Gemma salvato
+come fixture.
+
+**Serve da Michele per quel passo**: il file del modello Gemma (quello
+usato in v1 va bene) e sapere se è già sul Razr o va scaricato
+dall'app (nel secondo caso il DownloadWorker di v1 è già censito come
+riusabile, e i permessi sono già nel manifest).
+
+**Decisioni in attesa**: (a) il TagParser si salta in Fase 4? (vedi
+osservazione sopra); (b) rifiniture UI della Fase 3 che Michele deve
+ancora elencare; (c) rifinitura `strings.xml` [MICHELE]; (d) bonus
+dello scudo, se lo si vuole.
+
+- **Manifest fuso con v1** (richiesta Michele): icona launcher
+  ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
+  png spostato da Michele), tema XML `Theme.ImmundaNoctis` (solo per
+  la finestra pre-Compose), permessi INTERNET/FOREGROUND_SERVICE/
+  DATA_SYNC/POST_NOTIFICATIONS (pronti per il download modello di
+  Fase 4), backup/data-extraction rules. NON portati: le Activity
+  multiple (single-activity), i service stdf (morti),
+  network_security_config (era il cleartext per il backend locale
+  stdf); il service WorkManager foreground si aggiunge col
+  DownloadWorker in Fase 4.
+
+**Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
+test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
+test` verde su tutti i moduli. Le modifiche Gradle risultavano già
+committate (commit `6c8bf64`, `4837dd6`, `ad87c0d` — nota: portano un
+messaggio errato "Create doc/ETL.md...", copiato per sbaglio; già
+pushati, si lasciano così). Per i build da terminale il daemon JVM
+(JDK 21 JetBrains) è risolto via `org.gradle.java.installations.paths`
+nel `gradle.properties` UTENTE (`~/.gradle/`), fuori dal repo.
+
 ## 17/07/2026
 
 ### Sessione — chiusura specifica 4 (UI)
@@ -870,175 +1107,6 @@ runtime quel parser non ha un lavoro. I tag-regex di `config.json`
 sembrano semmai materiale per l'ETL (Fase 6), che dovrà convertire i
 tag testuali di Kai Chronicles/Aon in comandi strutturati. Da
 confermare prima di scrivere codice che nessuno chiama.
-
-### Sessione 19/07 — download del modello e catalogo Hugging Face
-
-**Scoperta che ha cambiato il default** (verificata con richieste HEAD,
-non ipotizzata): l'URL di v1
-(`google/gemma-3n-E4B-it-litert-preview`) risponde **401 GatedRepo** —
-senza token si scaricherebbero 145 byte di pagina d'errore *salvati come
-se fossero il modello*. Michele ha giustamente ricordato che v1 IL TOKEN
-LO GESTIVA (mia ricerca del giorno prima troncata da `head`, non aveva
-visto `ThemePreferences.getToken` + `Authorization: Bearer` nel worker).
-
-Catalogo scelto, con dimensioni e gating VERIFICATI il 19/07:
-- `litert-community/gemma-4-E4B-it.litertlm` — 3,66 GB, aperto → **default**
-- `litert-community/gemma-4-E2B-it.litertlm` — 2,59 GB, aperto (ripiego
-  se le misure diranno che il Razr scotta)
-- `google/gemma-3n-E4B` di v1 — gated, resta raggiungibile col token
-Così l'app funziona anche a chi non ha un account Hugging Face.
-
-**`ModelDownloadWorker`**: pattern di v1 con i suoi difetti corretti —
-(a) il token era OBBLIGATORIO (`?: return failure()`), quindi i modelli
-aperti non si sarebbero scaricati; ora è opzionale; (b) v1 cancellava il
-parziale a ogni errore: perdere 3,6 GB per una connessione caduta al 90%
-è inaccettabile, ora il `.part` sopravvive e si RIPRENDE con richiesta
-Range; (c) un solo flusso invece di 8 connessioni parallele (su mobile
-la ripresa vale più della velocità di picco); (d) controllo dello spazio
-disco prima di iniziare; (e) **verifica della dimensione finale prima di
-promuovere il file** — un 401 o un troncamento non devono mai passare per
-un modello valido; (f) stream chiusi davvero (v1 lasciava aperto un
-`RandomAccessFile`). Stessa disciplina dei salvataggi: si scrive su
-`.part` e si rinomina solo a verifica passata.
-
-**`ModelPreferences`**: il token esce da `ThemePreferences` (in v1 un
-segreto viveva in casa delle preferenze del tema) e ha il suo posto; mai
-nei log; campo mascherato nella UI. `isDownloaded` non si fida
-dell'esistenza del file: controlla anche la dimensione attesa.
-
-**Schermata Modelli LLM** (era un segnaposto): catalogo con selezione,
-progresso, annulla-che-riprende, elimina, campo token. Download solo su
-rete non a consumo (`NetworkType.UNMETERED`) e `ExistingWorkPolicy.
-REPLACE` per non accodare due download sullo stesso file. Manifest:
-dichiarato il `SystemForegroundService` con `dataSync`.
-
-**Provato sul device da Michele (debug wifi): download OK.**
-
-### Sessione 19/07 (seguito) — opzioni importate da ModelActivity di v1
-
-Analisi sezione per sezione di `ModelActivity` (824 righe), tabella dei
-verdetti in `doc/ANALISI-UI-V1.md`. Importato:
-
-- **Impostazioni avanzate Gemma**: `maxTokens`, `temperature` (slider),
-  `topP` (slider), `topK`. I valori di v1 sono già tarati (0.7 / 40 /
-  0.9); `maxTokens` parte da **10240** come da CRITICITA.md, non dai
-  4096 di v1. Conservate tali e quali le **descrizioni oneste con
-  l'impatto dichiarato su CPU/memoria** — il pezzo migliore di quella
-  schermata. Migliorìa: in v1 c'era scritto "richiede il riavvio della
-  partita", in Ex no (sessione nuova a ogni scena, vale dalla prossima).
-  Aggiunto "Ripristina i valori consigliati" per tornare ai default dopo
-  una sessione di misure andata storta.
-- **Spazio occupato dai modelli**: assente in v1, ma con file da 3,66 GB
-  è informazione dovuta.
-- **`InferenceEngine`** (una delle quattro interfacce motivate), erede
-  di quella di v1 con due differenze volute: niente
-  `chatbotPersonality` nel load (era-chatbot) e `newSession()` invece di
-  `resetSession(systemPrompt)` — in Ex la sessione nuova per scena è la
-  NORMA, non il rimedio a un contesto pieno. Con `TokenInfo`/
-  `TokenStatus` (soglie di v1) per il semaforo dell'header, e
-  `InferenceConfig` che le impostazioni avanzate riempiono davvero: le
-  manopole sono cablate, non finte.
-
-NON importato, con motivo: reset sessione chatbot (in Ex l'inferenza è
-senza memoria per design), modalità dual-engine (solo Gemma),
-impostazioni GGUF (motore morto), doppio slot modello.
-`SceneJsonPicker` resta in Fase 5 come da piano.
-
-### Sessione 19/07 (seguito) — LiteRT-LM: indagine, scelta e motore
-
-**Problema intercettato prima di scrivere codice**: il catalogo che avevo
-messo usa file `.litertlm`, ma v1 usa **MediaPipe**, che legge `.task`.
-Runtime diversi, formati NON intercambiabili: senza accorgersene si
-scaricavano 3,66 GB inutilizzabili.
-
-Indagine (tutto verificato con richieste reali, niente memoria):
-- `com.google.ai.edge.litertlm:litertlm-android` **esiste** su Google
-  Maven, stabile **0.14.0**, API Kotlin `Engine`/`EngineConfig`.
-  (`litert-lm` sotto `com.google.ai.edge.litert` NON esiste: 404.)
-- **L'ecosistema si è spostato su LiteRT-LM**: i Gemma 4 escono solo in
-  `.litertlm`; i `.task` rimasti per i modelli grandi sono varianti
-  `-web`. MediaPipe `tasks-genai` esiste ancora (0.10.35, v1 usava
-  0.10.24) ma è la strada che si chiude.
-- Device confermato via adb: **SM8750** (Snapdragon 8 Elite), 15,5 GB
-  RAM. Esiste `gemma-4-E2B-it_qualcomm_sm8750.litertlm`: build NPU per
-  esattamente questo chip.
-- **Benchmark ufficiali del model card (Gemma 4 E4B, Android)**:
-  GPU primo token **0,8 s**, decode 22,1 tok/s, memoria 710 MB —
-  CPU primo token **5,3 s**, decode 17,7 tok/s, memoria 3283 MB.
-  CRITICITA.md fissa la soglia a **3 s**: su CPU l'obiettivo NON si
-  raggiunge, su GPU si passa largamente. **Il backend GPU non è
-  un'ottimizzazione, è un requisito.** Il decode (17-22 tok/s) è
-  comunque più veloce della lettura umana: l'altra criticità regge.
-
-**Decisione di Michele: LiteRT-LM** (`com.google.ai.edge.litertlm`).
-Conseguenza accettata: l'esperienza di v1 sul motore non si riusa, si
-riusa il *pattern* (Flow di token, token tracking, semaforo).
-
-**Aggiornamento imposto**: l'AAR è compilato con metadata Kotlin **2.3**,
-il progetto era su 2.0.21 — incompatibilità dura, non aggirabile.
-Portato tutto il progetto a **Kotlin 2.3.21** (un solo numero: tutti i
-plugin puntano a `version.ref = kotlin`) e migrato `kotlinOptions` ->
-DSL `compilerOptions`, che in 2.3 è un errore. **Suite verde su tutti i
-moduli dopo l'aggiornamento**: nessuna regressione.
-
-**`LiteRtLmEngine`**: prova la **GPU** e ripiega su **CPU** se OpenCL non
-è utilizzabile (degrada invece di lasciare il gioco senza narratore);
-espone `activeBackend` perché *un numero di misura senza sapere su quale
-backend girava non dice nulla*; `newSession()` crea una conversazione
-nuova per scena (inferenza senza memoria: è la norma, non un rimedio);
-`SamplerConfig` riceve davvero temperatura/topK/topP dalle impostazioni
-avanzate. Manifest: dichiarate `libOpenCL.so` e `libvndksupport.so` come
-librerie native opzionali.
-
-**Debito dichiarato**: il conteggio token è una **STIMA** (~4 caratteri
-per token) perché la libreria non espone un tokenizer pubblico. Serve
-solo al semaforo, che è un'indicazione di massima. Da sostituire se
-l'API esporrà il conteggio vero.
-
-### Chiusura sessione — stato e prossimi passi
-
-Stato: Fase 3 CHIUSA (provata sul Razr), Fase 4 aperta con le sue
-fondamenta testabili già in piedi (ResponseParser e PromptBuilder, 22
-test JVM verdi che girano da terminale senza device né modello). Suite
-verde su tutti i moduli, APK che compila, working tree pulita.
-
-**PROSSIMA SESSIONE — il motore vero**: LiteRT-LM dietro
-`InferenceEngine` (load, generate come Flow, reset, token tracking),
-sessione-per-scena (inferenza SENZA memoria) e streaming bufferizzato
-~80-100ms troncato a `--- TAGS ---`. Poi la milestone di fase: **le
-misure di CRITICITA.md sul Razr** (primo token, token/s, prompt token,
-termico su 30-45') annotate qui, e ogni output reale di Gemma salvato
-come fixture.
-
-**Serve da Michele per quel passo**: il file del modello Gemma (quello
-usato in v1 va bene) e sapere se è già sul Razr o va scaricato
-dall'app (nel secondo caso il DownloadWorker di v1 è già censito come
-riusabile, e i permessi sono già nel manifest).
-
-**Decisioni in attesa**: (a) il TagParser si salta in Fase 4? (vedi
-osservazione sopra); (b) rifiniture UI della Fase 3 che Michele deve
-ancora elencare; (c) rifinitura `strings.xml` [MICHELE]; (d) bonus
-dello scudo, se lo si vuole.
-
-- **Manifest fuso con v1** (richiesta Michele): icona launcher
-  ORIGINALE completa (mipmap tutte le densità + adaptive + playstore
-  png spostato da Michele), tema XML `Theme.ImmundaNoctis` (solo per
-  la finestra pre-Compose), permessi INTERNET/FOREGROUND_SERVICE/
-  DATA_SYNC/POST_NOTIFICATIONS (pronti per il download modello di
-  Fase 4), backup/data-extraction rules. NON portati: le Activity
-  multiple (single-activity), i service stdf (morti),
-  network_security_config (era il cleartext per il backend locale
-  stdf); il service WorkManager foreground si aggiunge col
-  DownloadWorker in Fase 4.
-
-**Chiusura**: `effectiveEndurance` completata (clamp 0..maxEndurance,
-test su base/sforo alto/sforo basso/modificatori misti), `./gradlew
-test` verde su tutti i moduli. Le modifiche Gradle risultavano già
-committate (commit `6c8bf64`, `4837dd6`, `ad87c0d` — nota: portano un
-messaggio errato "Create doc/ETL.md...", copiato per sbaglio; già
-pushati, si lasciano così). Per i build da terminale il daemon JVM
-(JDK 21 JetBrains) è risolto via `org.gradle.java.installations.paths`
-nel `gradle.properties` UTENTE (`~/.gradle/`), fuori dal repo.
 
 ## 16/07/2026
 
