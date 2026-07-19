@@ -1,0 +1,117 @@
+package io.github.luposolitario.immundanoctisex.inference
+
+import io.github.luposolitario.immundanoctisex.core.data.model.Choice
+import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
+import io.github.luposolitario.immundanoctisex.core.data.model.Gender
+import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
+import io.github.luposolitario.immundanoctisex.core.data.model.Scene
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+
+// Cosa la UI riceve mentre la scena si genera.
+sealed interface NarrationEvent {
+    // Testo da mostrare finora (già ripulito del blocco tag).
+    data class Streaming(val textSoFar: String) : NarrationEvent
+    // Fine: prosa definitiva + scelte tradotte (o fallback).
+    data class Completed(val scene: EnrichedScene) : NarrationEvent
+}
+
+// Orchestra il giro completo di UNA scena: compone il prompt, apre una
+// sessione nuova, genera in streaming, e a fine corsa consegna il
+// risultato parsato. È il punto in cui "il resto dell'app non sa che
+// esiste Gemma" (ARCHITETTURA §inference): chiede di arricchire una
+// scena e riceve testo.
+//
+// REGOLA NON NEGOZIABILE: qualunque cosa vada storta (modello assente,
+// motore che non parte, generazione vuota) NON blocca il gioco — si
+// consegna il testo originale del pacchetto.
+class SceneNarrator(
+    private val engine: InferenceEngine,
+    private val promptBuilder: PromptBuilder,
+    private val manifest: Manifest,
+    private val userLanguage: String = "Italian",
+) {
+
+    fun narrate(
+        scene: Scene,
+        previousSceneText: String?,
+        choices: List<Choice>,
+        disciplineChoices: List<DisciplineChoice>,
+        playerGender: Gender,
+    ): Flow<NarrationEvent> = flow {
+        // Senza motore pronto si degrada subito: il giocatore legge il
+        // testo del libro invece di restare davanti a una schermata vuota.
+        if (!engine.isLoaded) {
+            emit(NarrationEvent.Completed(fallback(scene, choices, disciplineChoices)))
+            return@flow
+        }
+
+        val prompt = promptBuilder.build(
+            PromptContext(
+                scene = scene,
+                previousSceneText = previousSceneText,
+                continuations = continuationsOf(scene),
+                choices = choices,
+                disciplineChoices = disciplineChoices,
+                sourceLanguage = manifest.language,
+                userLanguage = userLanguage,
+                genre = scene.genre.ifBlank { manifest.genre },
+                toneHints = scene.toneHints.ifEmpty { manifest.toneHints },
+                playerGender = playerGender,
+            ),
+        )
+
+        // Sessione NUOVA per ogni scena: inferenza senza memoria.
+        engine.newSession()
+
+        val raw = StringBuilder()
+        var lastEmitted = ""
+        runCatching {
+            engine.generate(prompt).collect { chunk ->
+                raw.append(chunk)
+                // Si mostra solo ciò che precede il separatore: le righe
+                // dei tag non devono mai comparire a schermo.
+                val visible = ResponseParser.narrativeOf(raw.toString())
+                if (visible != lastEmitted) {
+                    lastEmitted = visible
+                    emit(NarrationEvent.Streaming(visible))
+                }
+            }
+        }.onFailure {
+            emit(NarrationEvent.Completed(fallback(scene, choices, disciplineChoices)))
+            return@flow
+        }
+
+        val parsed = ResponseParser.parse(raw.toString(), scene)
+        emit(NarrationEvent.Completed(parsed))
+    }
+
+    // Le continuazioni servono al modello per non contraddire il seguito;
+    // sono testo delle scene raggiungibili, mai rivelato al giocatore.
+    private fun continuationsOf(scene: Scene): List<String> {
+        val destinations = buildList {
+            scene.choices.forEach { add(it.nextSceneId) }
+            scene.disciplineChoices.forEach { add(it.nextSceneId) }
+            scene.combat?.let { combat ->
+                add(combat.winSceneId)
+                combat.loseSceneId?.let { add(it) }
+                combat.evadeSceneId?.let { add(it) }
+            }
+        }.distinct()
+        return destinations.mapNotNull { id ->
+            manifest.scenes.firstOrNull { it.id == id }?.narrativeText
+        }
+    }
+
+    // La degradazione: prosa e scelte originali del pacchetto.
+    private fun fallback(
+        scene: Scene,
+        choices: List<Choice>,
+        disciplineChoices: List<DisciplineChoice>,
+    ) = EnrichedScene(
+        narrative = scene.narrativeText,
+        choiceTexts = choices.associate { it.id to it.choiceText },
+        disciplineChoiceTexts = disciplineChoices.associate { it.id to it.choiceText },
+        enemyName = scene.combat?.enemyName,
+    )
+}
