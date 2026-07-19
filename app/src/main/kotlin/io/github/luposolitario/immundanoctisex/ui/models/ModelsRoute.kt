@@ -15,6 +15,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import io.github.luposolitario.immundanoctisex.AppContainer
+import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.model.DownloadableModel
 import io.github.luposolitario.immundanoctisex.model.ModelCatalog
 import io.github.luposolitario.immundanoctisex.model.ModelDownloadWorker
@@ -30,10 +31,22 @@ fun ModelsRoute(
     val preferences = container.modelPreferences
     val workManager = remember { WorkManager.getInstance(context) }
 
+    val inferencePreferences = container.inferencePreferences
+
     var selectedModelId by remember { mutableStateOf(preferences.selectedModelId) }
     var token by remember { mutableStateOf(preferences.huggingFaceToken.orEmpty()) }
     var downloadedIds by remember {
         mutableStateOf(ModelCatalog.all.filter { preferences.isDownloaded(it) }.map { it.id }.toSet())
+    }
+    var advanced by remember {
+        mutableStateOf(
+            AdvancedSettingsUi(
+                maxTokens = inferencePreferences.maxTokens.toString(),
+                temperature = inferencePreferences.temperature,
+                topK = inferencePreferences.topK.toString(),
+                topP = inferencePreferences.topP,
+            ),
+        )
     }
 
     val workInfos by workManager
@@ -67,8 +80,50 @@ fun ModelsRoute(
             preferences.deleteModel(model)
             downloadedIds = downloadedIds - model.id
         },
+        storageInfo = storageInfo(downloadedIds.size, occupiedBytes(container)),
+        advancedSettings = advanced,
+        // I campi numerici accettano solo cifre e si salvano solo quando
+        // il valore è sensato: un campo vuoto durante la digitazione non
+        // deve scrivere zero nelle preferenze.
+        onMaxTokensChange = { raw ->
+            if (raw.all { it.isDigit() } && raw.length <= 6) {
+                advanced = advanced.copy(maxTokens = raw)
+                raw.toIntOrNull()?.takeIf { it >= InferencePreferences.MIN_TOKENS }
+                    ?.let { inferencePreferences.maxTokens = it }
+            }
+        },
+        onTemperatureChange = { advanced = advanced.copy(temperature = it) },
+        onTemperatureCommit = { inferencePreferences.temperature = advanced.temperature },
+        onTopKChange = { raw ->
+            if (raw.all { it.isDigit() } && raw.length <= 3) {
+                advanced = advanced.copy(topK = raw)
+                raw.toIntOrNull()?.takeIf { it > 0 }?.let { inferencePreferences.topK = it }
+            }
+        },
+        onTopPChange = { advanced = advanced.copy(topP = it) },
+        onTopPCommit = { inferencePreferences.topP = advanced.topP },
+        onResetSettings = {
+            inferencePreferences.resetToDefaults()
+            advanced = AdvancedSettingsUi(
+                maxTokens = inferencePreferences.maxTokens.toString(),
+                temperature = inferencePreferences.temperature,
+                topK = inferencePreferences.topK.toString(),
+                topP = inferencePreferences.topP,
+            )
+        },
         onClose = onClose,
     )
+}
+
+private fun occupiedBytes(container: AppContainer): Long =
+    ModelCatalog.all
+        .map { container.modelPreferences.fileFor(it) }
+        .filter { it.exists() }
+        .sumOf { it.length() }
+
+private fun storageInfo(count: Int, bytes: Long): String? {
+    if (count == 0 || bytes <= 0L) return null
+    return "Modelli sul telefono: $count — %.2f GB occupati".format(bytes / 1_000_000_000.0)
 }
 
 private fun startDownload(

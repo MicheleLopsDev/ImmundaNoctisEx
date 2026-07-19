@@ -48,11 +48,20 @@ fun ModelsScreen(
     downloadedIds: Set<String>,
     token: String,
     downloadState: DownloadUiState,
+    storageInfo: String?,
+    advancedSettings: AdvancedSettingsUi,
     onSelectModel: (DownloadableModel) -> Unit,
     onTokenChange: (String) -> Unit,
     onDownload: (DownloadableModel) -> Unit,
     onCancel: () -> Unit,
     onDelete: (DownloadableModel) -> Unit,
+    onMaxTokensChange: (String) -> Unit,
+    onTemperatureChange: (Float) -> Unit,
+    onTemperatureCommit: () -> Unit,
+    onTopKChange: (String) -> Unit,
+    onTopPChange: (Float) -> Unit,
+    onTopPCommit: () -> Unit,
+    onResetSettings: () -> Unit,
     onClose: () -> Unit,
 ) {
     Column(
@@ -80,7 +89,28 @@ fun ModelsScreen(
             )
         }
 
+        // Con file da GB, sapere quanto stai occupando è informazione
+        // dovuta (in v1 il percorso si vedeva solo per le scene).
+        storageInfo?.let {
+            Text(
+                it,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+
         TokenCard(token = token, onTokenChange = onTokenChange)
+
+        AdvancedSettingsCard(
+            settings = advancedSettings,
+            onMaxTokensChange = onMaxTokensChange,
+            onTemperatureChange = onTemperatureChange,
+            onTemperatureCommit = onTemperatureCommit,
+            onTopKChange = onTopKChange,
+            onTopPChange = onTopPChange,
+            onTopPCommit = onTopPCommit,
+            onReset = onResetSettings,
+        )
 
         Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text("Chiudi") }
     }
@@ -192,11 +222,25 @@ private fun ModelsScreenPreview() {
             downloadedIds = emptySet(),
             token = "",
             downloadState = DownloadUiState.Running(downloaded = 1_200_000_000, total = 3_659_530_240),
+            storageInfo = "Modelli sul telefono: 1 — 3,66 GB occupati",
+            advancedSettings = AdvancedSettingsUi(
+                maxTokens = "10240",
+                temperature = 0.7f,
+                topK = "40",
+                topP = 0.9f,
+            ),
             onSelectModel = {},
             onTokenChange = {},
             onDownload = {},
             onCancel = {},
             onDelete = {},
+            onMaxTokensChange = {},
+            onTemperatureChange = {},
+            onTemperatureCommit = {},
+            onTopKChange = {},
+            onTopPChange = {},
+            onTopPCommit = {},
+            onResetSettings = {},
             onClose = {},
         )
     }
