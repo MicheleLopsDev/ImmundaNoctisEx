@@ -39,16 +39,27 @@ diario, checkpoint, auto-save atomico).
   velocità giudicata "molto buona". È il cuore della milestone di
   Fase 4. Restano da raccogliere i NUMERI (sotto).
 
-- **Con LLM attivo il testo originale NON si mostra più**: prima
-  compariva l'inglese del pacchetto e veniva sostituito, ora si vede
-  "Il narratore scrive…" e poi solo lo streaming della traduzione.
-  Anche scelte e nemico restano nascosti finché la generazione non
-  finisce (UI.md: prima lo streaming, POI i pulsanti), altrimenti
-  cambiavano sotto gli occhi. Senza motore tutto resta come in Fase 3.
+- **Con LLM attivo il testo originale NON si mostra più**: si vede "Il
+  narratore scrive…" e poi solo lo streaming della traduzione. Anche
+  scelte e nemico restano nascosti finché la generazione non finisce
+  (UI.md: prima lo streaming, POI i pulsanti), altrimenti cambiavano
+  sotto gli occhi. Senza motore tutto resta come in Fase 3.
+  **Corretto al secondo tentativo**: il primo fix svuotava il testo solo
+  quando *partiva la generazione*, ma il CARICAMENTO del modello dura
+  secondi e in quel tempo l'inglese restava a schermo. Ora
+  `AdventureState` sa fin dalla costruzione se il modello è sul telefono
+  (`expectsNarration`: basta l'esistenza del file, non serve
+  aspettare il load) e parte già in attesa. Con via d'uscita
+  (`narrationUnavailable()`) se il motore non parte: si torna al testo
+  del pacchetto invece di restare in attesa per sempre.
 
-**PROSSIMO PASSO CONCRETO**: (a) Michele deve elencare le "cose da
-cambiare" emerse dalla prova (grafica in primis, rinviata); (b)
-**raccogliere le misure** — il motore
+**PROSSIMA SESSIONE — già deciso con Michele**:
+1. **ANIMAZIONE del narratore che pensa** al posto della scritta "Il
+   narratore scrive…" (idea di Michele, gli piace molto). Registrata in
+   `UI.md §Flusso centrale`. Copre sia il caricamento del modello (la
+   prima volta, più lungo) sia la generazione di ogni scena.
+2. La **grafica** in generale, che Michele ha rinviato consapevolmente.
+3. **Raccogliere le misure** — il motore
 ora le logga da solo a ogni scena giocata: `adb logcat -s
 LiteRtLmEngine` stampa una riga `MISURA backend=… primoToken=… 
 tokenPrompt~… tokenGenerati~… velocita~… token/s`. Da giocare qualche
