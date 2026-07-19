@@ -21,9 +21,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
     buildFeatures {
         compose = true
     }
@@ -51,6 +48,9 @@ dependencies {
     // Download del modello in background con notifica (Fase 4).
     implementation(libs.androidx.work.runtime.ktx)
 
+    // Motore di inferenza on-device (LiteRT-LM).
+    implementation(libs.litertlm.android)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -66,4 +66,12 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(kotlin("test"))
     debugImplementation(libs.androidx.ui.tooling)
+}
+
+// Kotlin 2.3: il vecchio blocco kotlinOptions è un errore, si usa il DSL
+// compilerOptions (aggiornamento imposto da LiteRT-LM, compilato con 2.3).
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
