@@ -35,6 +35,11 @@
             </intent-filter>
         </activity>
 
+        <!-- Accelerazione GPU del motore di inferenza (LiteRT-LM/OpenCL).
+             Opzionali: se mancano si ripiega su CPU. -->
+        <uses-native-library android:name="libOpenCL.so" android:required="false" />
+        <uses-native-library android:name="libvndksupport.so" android:required="false" />
+
         <!-- Il download del modello (GB) prosegue con l'app in background,
              come servizio in foreground con notifica di progresso. -->
         <service
