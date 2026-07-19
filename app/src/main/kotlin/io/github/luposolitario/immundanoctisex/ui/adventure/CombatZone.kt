@@ -32,12 +32,12 @@ fun CombatEntryZone(state: AdventureState) {
     val combat = requireNotNull(state.currentScene.combat)
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
-            "${combat.enemyName} — CS ${combat.enemyCombatSkill}, RES ${combat.enemyEndurance}",
+            "${state.enemyName ?: combat.enemyName} — CS ${combat.enemyCombatSkill}, RES ${combat.enemyEndurance}",
             fontWeight = FontWeight.Bold,
         )
         state.availableDisciplineChoices.forEach { choice ->
             OutlinedButton(onClick = { state.useDiscipline(choice) }, modifier = Modifier.fillMaxWidth()) {
-                Text(choice.choiceText, fontStyle = FontStyle.Italic)
+                Text(state.disciplineChoiceText(choice), fontStyle = FontStyle.Italic)
             }
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -23,6 +23,12 @@ import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
 import io.github.luposolitario.immundanoctisex.core.engine.transition.TransitionEngine
+import io.github.luposolitario.immundanoctisex.inference.NarrationEvent
+import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
+import io.github.luposolitario.immundanoctisex.inference.TokenInfo
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 // Stato della schermata Avventura (v0.1 senza Gemma): cabla GameState,
 // TransitionEngine e CombatSession; ogni transizione registra la voce del
@@ -33,6 +39,10 @@ class AdventureState(
     session: SessionData,
     private val dice: DiceRoller,
     private val store: SessionStore,
+    // Narratore opzionale: se manca (modello non scaricato) il gioco
+    // funziona esattamente come in Fase 3, col testo del pacchetto.
+    private val narrator: SceneNarrator? = null,
+    private val scope: CoroutineScope? = null,
 ) {
     val gameState = GameState(session)
     val bookTitle: String get() = manifest.title
@@ -51,6 +61,74 @@ class AdventureState(
         private set
     var adventureDeleted: Boolean by mutableStateOf(false)
         private set
+
+    // --- Narrazione ---
+    // Il testo che la UI mostra: parte dall'originale del pacchetto e
+    // viene sostituito da quello arricchito man mano che arriva. Così la
+    // scena è leggibile fin dal primo istante, anche mentre Gemma pensa.
+    var narrative: String by mutableStateOf(sceneById(session.currentSceneId).narrativeText)
+        private set
+    var isGenerating: Boolean by mutableStateOf(false)
+        private set
+
+    // Testi delle scelte tradotti (id -> testo). Vuoto = si usa
+    // l'originale del pacchetto.
+    private var translatedChoices: Map<String, String> by mutableStateOf(emptyMap())
+    private var translatedEnemyName: String? by mutableStateOf(null)
+
+    fun choiceText(choice: Choice): String = translatedChoices[choice.id] ?: choice.choiceText
+
+    fun disciplineChoiceText(choice: DisciplineChoice): String =
+        translatedChoices[choice.id] ?: choice.choiceText
+
+    val enemyName: String? get() = translatedEnemyName ?: currentScene.combat?.enemyName
+
+    // Consumo del contesto, per il semaforo nell'header. Null quando
+    // non c'e' narratore (si gioca col testo del pacchetto).
+    val tokenInfo: TokenInfo? get() = narrator?.tokenInfo
+
+    private var narrationJob: Job? = null
+
+    // Avvia (o riavvia) la narrazione della scena corrente. Lo streaming
+    // è BUFFERIZZATO: si aggiorna la UI al massimo ogni ~90ms, altrimenti
+    // ogni token farebbe ricomporre l'intera schermata (CRITICITA.md).
+    fun startNarration(previousSceneText: String?) {
+        val narrator = this.narrator ?: return
+        val scope = this.scope ?: return
+        narrationJob?.cancel()
+        translatedChoices = emptyMap()
+        translatedEnemyName = null
+        narrative = currentScene.narrativeText
+        isGenerating = true
+
+        narrationJob = scope.launch {
+            var lastUpdate = 0L
+            narrator.narrate(
+                scene = currentScene,
+                previousSceneText = previousSceneText,
+                choices = currentScene.choices,
+                disciplineChoices = currentScene.disciplineChoices,
+                playerGender = gameState.hero.gender,
+            ).collect { event ->
+                when (event) {
+                    is NarrationEvent.Streaming -> {
+                        val now = System.currentTimeMillis()
+                        if (now - lastUpdate >= STREAM_BUFFER_MS) {
+                            lastUpdate = now
+                            narrative = event.textSoFar
+                        }
+                    }
+                    is NarrationEvent.Completed -> {
+                        narrative = event.scene.narrative
+                        translatedChoices = event.scene.choiceTexts + event.scene.disciplineChoiceTexts
+                        translatedEnemyName = event.scene.enemyName
+                        isGenerating = false
+                    }
+                }
+            }
+            isGenerating = false
+        }
+    }
 
     val isEnding: Boolean get() = currentScene.sceneType == SceneType.ENDING
 
@@ -213,8 +291,12 @@ class AdventureState(
 
     private fun moveTo(targetSceneId: String, transition: Transition) {
         lastChoiceRoll = null // ogni scena nuova riarma il dado (reset di v1)
+        // Nel diario finisce il testo che il giocatore HA LETTO (quello
+        // arricchito, se c'era): si salva e non si rigenera mai
+        // (STATO.md Blocco 3).
+        val textJustRead = narrative
         gameState.addJourneyEntry(
-            JourneyEntry(currentScene.id, currentScene.narrativeText, transition, currentLocation),
+            JourneyEntry(currentScene.id, textJustRead, transition, currentLocation),
         )
         val result = engine.transitionTo(gameState, targetSceneId)
         // Anche i salti d'ufficio sono porte del diario-grafo (col luogo
@@ -230,6 +312,9 @@ class AdventureState(
         currentLocation = currentScene.locationName ?: currentLocation
         autoSave()
         handleIronDeath()
+        // La scena nuova si racconta da sé; il contesto è la CODA della
+        // precedente (mai il diario: inferenza senza memoria).
+        startNarration(previousSceneText = textJustRead)
     }
 
     private fun autoSave() {
@@ -249,4 +334,10 @@ class AdventureState(
 
     private fun sceneById(id: String): Scene =
         manifest.scenes.first { it.id == id }
+
+    private companion object {
+        // Buffer dello streaming: la UI si aggiorna al massimo ogni tanto,
+        // non a ogni token (CRITICITA.md ~80-100ms).
+        const val STREAM_BUFFER_MS = 90L
+    }
 }

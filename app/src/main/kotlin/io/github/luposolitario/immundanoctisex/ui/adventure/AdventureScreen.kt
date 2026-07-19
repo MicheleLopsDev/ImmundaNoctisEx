@@ -15,6 +15,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -87,7 +89,7 @@ fun AdventureScreen(
             elevation = CardDefaults.cardElevation(2.dp),
         ) {
             Text(
-                text = state.currentScene.narrativeText,
+                text = state.narrative,
                 style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
             )
@@ -123,7 +125,24 @@ private fun Header(state: AdventureState, onJournalClick: () -> Unit) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(state.bookTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Semaforo di stato del motore (UI.md §Header): verde pronto,
+            // giallo generazione, rosso contesto quasi pieno.
+            val tokenInfo = state.tokenInfo
+            val color = when {
+                state.isGenerating -> MaterialTheme.colorScheme.tertiary
+                tokenInfo != null && tokenInfo.percentage > 60 -> MaterialTheme.colorScheme.error
+                else -> MaterialTheme.colorScheme.primary
+            }
+            Icon(
+                imageVector = Icons.Default.Circle,
+                contentDescription = "Stato del narratore",
+                tint = color,
+                modifier = Modifier.size(12.dp),
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(state.bookTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        }
         Row(verticalAlignment = Alignment.CenterVertically) {
             androidx.compose.material3.TextButton(onClick = onJournalClick) {
                 Text("Diario")
@@ -159,7 +178,7 @@ private fun ChoicesZone(state: AdventureState) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         state.availableChoices.forEach { choice ->
             Button(onClick = { state.takeChoice(choice) }, modifier = Modifier.fillMaxWidth()) {
-                Text(choice.choiceText)
+                Text(state.choiceText(choice))
             }
         }
         state.availableDisciplineChoices.forEach { choice ->
@@ -175,7 +194,7 @@ private fun ChoicesZone(state: AdventureState) {
                         modifier = Modifier.size(20.dp),
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text(choice.choiceText, fontStyle = FontStyle.Italic, fontWeight = FontWeight.Bold)
+                    Text(state.disciplineChoiceText(choice), fontStyle = FontStyle.Italic, fontWeight = FontWeight.Bold)
                 }
             }
         }
