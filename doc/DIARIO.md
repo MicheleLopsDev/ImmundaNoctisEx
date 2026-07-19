@@ -871,6 +871,50 @@ sembrano semmai materiale per l'ETL (Fase 6), che dovrà convertire i
 tag testuali di Kai Chronicles/Aon in comandi strutturati. Da
 confermare prima di scrivere codice che nessuno chiama.
 
+### Sessione 19/07 — download del modello e catalogo Hugging Face
+
+**Scoperta che ha cambiato il default** (verificata con richieste HEAD,
+non ipotizzata): l'URL di v1
+(`google/gemma-3n-E4B-it-litert-preview`) risponde **401 GatedRepo** —
+senza token si scaricherebbero 145 byte di pagina d'errore *salvati come
+se fossero il modello*. Michele ha giustamente ricordato che v1 IL TOKEN
+LO GESTIVA (mia ricerca del giorno prima troncata da `head`, non aveva
+visto `ThemePreferences.getToken` + `Authorization: Bearer` nel worker).
+
+Catalogo scelto, con dimensioni e gating VERIFICATI il 19/07:
+- `litert-community/gemma-4-E4B-it.litertlm` — 3,66 GB, aperto → **default**
+- `litert-community/gemma-4-E2B-it.litertlm` — 2,59 GB, aperto (ripiego
+  se le misure diranno che il Razr scotta)
+- `google/gemma-3n-E4B` di v1 — gated, resta raggiungibile col token
+Così l'app funziona anche a chi non ha un account Hugging Face.
+
+**`ModelDownloadWorker`**: pattern di v1 con i suoi difetti corretti —
+(a) il token era OBBLIGATORIO (`?: return failure()`), quindi i modelli
+aperti non si sarebbero scaricati; ora è opzionale; (b) v1 cancellava il
+parziale a ogni errore: perdere 3,6 GB per una connessione caduta al 90%
+è inaccettabile, ora il `.part` sopravvive e si RIPRENDE con richiesta
+Range; (c) un solo flusso invece di 8 connessioni parallele (su mobile
+la ripresa vale più della velocità di picco); (d) controllo dello spazio
+disco prima di iniziare; (e) **verifica della dimensione finale prima di
+promuovere il file** — un 401 o un troncamento non devono mai passare per
+un modello valido; (f) stream chiusi davvero (v1 lasciava aperto un
+`RandomAccessFile`). Stessa disciplina dei salvataggi: si scrive su
+`.part` e si rinomina solo a verifica passata.
+
+**`ModelPreferences`**: il token esce da `ThemePreferences` (in v1 un
+segreto viveva in casa delle preferenze del tema) e ha il suo posto; mai
+nei log; campo mascherato nella UI. `isDownloaded` non si fida
+dell'esistenza del file: controlla anche la dimensione attesa.
+
+**Schermata Modelli LLM** (era un segnaposto): catalogo con selezione,
+progresso, annulla-che-riprende, elimina, campo token. Download solo su
+rete non a consumo (`NetworkType.UNMETERED`) e `ExistingWorkPolicy.
+REPLACE` per non accodare due download sullo stesso file. Manifest:
+dichiarato il `SystemForegroundService` con `dataSync`.
+
+**Da provare sul device** (non collegato a fine sessione): download vero
+end-to-end, ripresa dopo interruzione, comportamento a rete assente.
+
 ### Chiusura sessione — stato e prossimi passi
 
 Stato: Fase 3 CHIUSA (provata sul Razr), Fase 4 aperta con le sue
