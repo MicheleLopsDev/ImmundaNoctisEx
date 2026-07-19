@@ -64,11 +64,18 @@ diario, checkpoint, auto-save atomico).
    narratore scrive…" (idea di Michele, gli piace molto). Registrata in
    `UI.md §Flusso centrale`. Copre sia il caricamento del modello (la
    prima volta, più lungo) sia la generazione di ogni scena.
-2. La **grafica** in generale, che Michele ha rinviato consapevolmente.
+2. **ICONE nella card di stato in basso** (segnalato da Michele
+   19/07): oggi è solo testo, in v1 c'erano ritratto-lupo tondo, grado
+   Kai con medaglia dorata, spada per la Combattività, cuore per la
+   Resistenza, monete per le Corone e la **riga delle icone delle
+   discipline possedute**. Le icone Material sono già mappate in
+   `CreationCatalog.disciplineIcon()`; `ic_gold`/`lupo_solitario` sono
+   in `origina_res`. Riferimento visivo: screenshot di v1.
+3. La **grafica** in generale, che Michele ha rinviato consapevolmente.
    Il banner c'è ma è v0.1: manca il `backgroundImage` PER SCENA (il
    sample dichiara inn/city/alley/battle/warehouse, gli asset non
    esistono — vanno prodotti, Fase 7) e manca il compagno di viaggio.
-3. **Raccogliere le misure** — il motore
+4. **Raccogliere le misure** — il motore
 ora le logga da solo a ogni scena giocata: `adb logcat -s
 LiteRtLmEngine` stampa una riga `MISURA backend=… primoToken=… 
 tokenPrompt~… tokenGenerati~… velocita~… token/s`. Da giocare qualche
