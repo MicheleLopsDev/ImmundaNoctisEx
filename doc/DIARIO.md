@@ -34,14 +34,18 @@ diario, checkpoint, auto-save atomico).
   (`AppContainer.ensureModelLoaded()`); se manca, il gioco prosegue col
   testo del pacchetto senza dire nulla.
 
-**PROSSIMO PASSO CONCRETO — LA PROVA VERA (mai eseguita finora)**:
-sul Razr, con il modello scaricato, aprire un'avventura e verificare
-che Gemma parta davvero. Da guardare in `adb logcat -s LiteRtLmEngine`:
-il **backend effettivamente scelto** (deve essere GPU; se ripiega su
-CPU il primo token va a ~5 s e la soglia di 3 s salta). Poi la
-**milestone di fase**: misure di `CRITICITA.md` (primo token, token/s,
-token di prompt, termico su 30-45') annotate qui, e ogni output reale
-di Gemma salvato come fixture.
+- **GEMMA GENERA DAVVERO SUL RAZR** (19/07, provato da Michele): la
+  scena arriva arricchita e tradotta in streaming, backend **GPU**,
+  velocità giudicata "molto buona". È il cuore della milestone di
+  Fase 4. Restano da raccogliere i NUMERI (sotto).
+
+**PROSSIMO PASSO CONCRETO**: (a) Michele deve elencare le "cose da
+cambiare" emerse dalla prova; (b) **raccogliere le misure** — il motore
+ora le logga da solo a ogni scena giocata: `adb logcat -s
+LiteRtLmEngine` stampa una riga `MISURA backend=… primoToken=… 
+tokenPrompt~… tokenGenerati~… velocita~… token/s`. Da giocare qualche
+scena e riportare i valori qui, più il comportamento termico su 30-45'.
+Poi salvare qualche output reale di Gemma come fixture di test.
 
 **Fatti tecnici da non riscoprire** (verificati, non ipotizzati):
 - Il motore è **LiteRT-LM**, non MediaPipe di v1: i Gemma 4 escono solo
@@ -259,6 +263,48 @@ Build e suite verdi, APK installato sul Razr. **Ma la generazione vera
 non è ancora stata osservata**: finché non si carica un modello sul
 device, tutto questo è codice che compila e passa i test col motore
 finto.
+
+### Sessione — PRIMA GENERAZIONE VERA: crash risolto, Gemma narra sul Razr
+
+Prima prova sul device: **crash**. Log analizzato (85.437 righe, formato
+JSON di Android Studio) — la causa NON era il nostro codice né il
+modello:
+
+```
+java.lang.NoSuchMethodError: No static method close$default(SendChannel;…)
+  at com.google.ai.edge.litertlm.Conversation.onDone(Conversation.kt:264)
+```
+
+**Diagnosi**: LiteRT-LM 0.14.0 *dichiara* `kotlinx-coroutines 1.9.0` nel
+suo POM — ed era esattamente quella risolta — ma la libreria è
+**compilata con Kotlin 2.3**, che genera i metodi con argomenti di
+default come statici nell'interfaccia; coroutines 1.9.0, costruito con
+un Kotlin più vecchio, li espone in un'altra forma. Il metodo esiste in
+compilazione e non a runtime. È un difetto di packaging della libreria.
+**Fix**: forzato `kotlinx-coroutines-android 1.11.0` (costruito con
+Kotlin recente).
+
+Dentro quel log c'erano già le notizie buone: `Modello caricato su GPU`,
+`backend: GPU`, `max_tokens: 10240`, `Creating Gemma4DataProcessor` — e
+il crash arrivava in `onDone`, cioè a generazione GIÀ FATTA. Mancava
+solo la consegna.
+
+**Dopo il fix, provato da Michele: FUNZIONA.** Gemma arricchisce e
+traduce la scena in streaming sul Razr, con velocità giudicata "molto
+buona". Il pilastro della Fase 4 regge.
+
+**Osservazione dal log da non perdere**: durante il caricamento il
+sistema era sotto forte pressione di memoria (`kswapd is busy`, `PSI
+critical`, Android che uccideva altre app). Con 15,5 GB regge, ma se
+emergessero lentezze o chiusure improvvise si sa dove guardare — e il
+modello E2B da 2,59 GB è già in catalogo come alternativa.
+
+**Strumentazione delle misure**: il motore ora logga da sé, a ogni scena
+generata, una riga `MISURA` con backend, tempo al primo token, tempo
+totale, token di prompt/generati e token/s. Così i numeri della
+milestone vengono dall'uso reale invece che da una prova artificiale.
+Nota: i conteggi di token sono STIME (la libreria non espone un
+tokenizer), i TEMPI sono reali.
 
 ### Chiusura sessione — stato e prossimi passi
 
