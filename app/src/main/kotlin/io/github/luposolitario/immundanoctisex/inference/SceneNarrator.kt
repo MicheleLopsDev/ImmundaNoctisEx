@@ -32,6 +32,10 @@ class SceneNarrator(
     private val userLanguage: String = "Italian",
 ) {
 
+    // Lo stato del contesto viene dal motore: la UI lo mostra nel
+    // semaforo senza sapere chi lo produce.
+    val tokenInfo: TokenInfo get() = engine.tokenInfo.value
+
     fun narrate(
         scene: Scene,
         previousSceneText: String?,
