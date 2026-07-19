@@ -120,7 +120,14 @@ Il testo scorre come pagina di libro (serif, continuo), NON come chat:
 - **Le decisioni del giocatore entrano nel flusso** come righe
   distinte (corsivo, rientrate, con icona della scelta): il flusso è
   la vista live del diario-grafo — stessa struttura dati.
-- Durante la generazione: indicatore "il narratore scrive…" discreto.
+- Durante la generazione: indicatore "il narratore scrive…". v0.1 è
+  testo semplice; **in Fase 7 diventa un'ANIMAZIONE del narratore che
+  pensa** (richiesta Michele 19/07/2026, idea sua e molto apprezzata):
+  è il momento in cui il giocatore aspetta davvero qualche secondo, e
+  un'attesa raccontata vale più di una scritta. Vale sia per il
+  caricamento del modello (la prima volta, più lungo) sia per la
+  generazione di ogni scena. Asset da produrre: si sposa con il
+  ritratto del narratore già previsto nel banner.
 
 ### Card di stato (in basso, sopra le scelte)
 Ritratto, nome, grado Kai (dorato), CS / Resistenza / Corone con

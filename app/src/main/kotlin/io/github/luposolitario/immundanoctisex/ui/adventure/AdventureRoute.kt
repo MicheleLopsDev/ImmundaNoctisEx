@@ -44,6 +44,11 @@ fun AdventureRoute(
                     manifest = loadResult.manifest,
                 )
             }
+            // Si sa subito se il modello è sul telefono: serve a non
+            // mostrare il testo originale durante il caricamento.
+            val modelPresent = remember {
+                container.modelPreferences.isDownloaded(container.modelPreferences.selectedModel)
+            }
             val state = remember(currentSession) {
                 AdventureState(
                     manifest = loadResult.manifest,
@@ -52,14 +57,17 @@ fun AdventureRoute(
                     store = container.sessionStore,
                     narrator = narrator,
                     scope = scope,
+                    expectsNarration = modelPresent,
                 )
             }
 
             // Il modello si carica alla prima scena e poi resta caricato.
-            // Se manca, il gioco prosegue col testo del pacchetto.
+            // Se non parte, si degrada sul testo del pacchetto.
             LaunchedEffect(state) {
                 if (container.ensureModelLoaded()) {
                     state.startNarration(previousSceneText = null)
+                } else {
+                    state.narrationUnavailable()
                 }
             }
             AdventureScreen(

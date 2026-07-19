@@ -43,6 +43,10 @@ class AdventureState(
     // funziona esattamente come in Fase 3, col testo del pacchetto.
     private val narrator: SceneNarrator? = null,
     private val scope: CoroutineScope? = null,
+    // Il modello e' sul telefono? Si sa SUBITO (basta il file), mentre
+    // caricarlo richiede secondi: senza questo si vedrebbe il testo
+    // inglese per tutta la durata del caricamento.
+    private val expectsNarration: Boolean = false,
 ) {
     val gameState = GameState(session)
     val bookTitle: String get() = manifest.title
@@ -66,9 +70,13 @@ class AdventureState(
     // Il testo che la UI mostra: parte dall'originale del pacchetto e
     // viene sostituito da quello arricchito man mano che arriva. Così la
     // scena è leggibile fin dal primo istante, anche mentre Gemma pensa.
-    var narrative: String by mutableStateOf(sceneById(session.currentSceneId).narrativeText)
+    var narrative: String by mutableStateOf(
+        if (expectsNarration) "" else sceneById(session.currentSceneId).narrativeText,
+    )
         private set
-    var isGenerating: Boolean by mutableStateOf(false)
+    // Vero gia' durante il CARICAMENTO del modello, non solo durante la
+    // generazione: e' il periodo in cui non c'e' ancora nulla da leggere.
+    var isGenerating: Boolean by mutableStateOf(expectsNarration)
         private set
 
     // Testi delle scelte tradotti (id -> testo). Vuoto = si usa
@@ -103,7 +111,7 @@ class AdventureState(
         // l'indicatore "il narratore scrive" (richiesta Michele 19/07).
         // Senza motore resta il testo del pacchetto: il gioco non si
         // ferma mai davanti a una schermata vuota.
-        narrative = if (narrator.isReady) "" else currentScene.narrativeText
+        narrative = if (expectsNarration || narrator.isReady) "" else currentScene.narrativeText
         isGenerating = true
 
         narrationJob = scope.launch {
@@ -133,6 +141,14 @@ class AdventureState(
             }
             isGenerating = false
         }
+    }
+
+    // Il motore non e' partito (modello mancante o inizializzazione
+    // fallita): si torna al testo del pacchetto invece di lasciare
+    // "il narratore scrive" per sempre.
+    fun narrationUnavailable() {
+        isGenerating = false
+        if (narrative.isBlank()) narrative = currentScene.narrativeText
     }
 
     val isEnding: Boolean get() = currentScene.sceneType == SceneType.ENDING
