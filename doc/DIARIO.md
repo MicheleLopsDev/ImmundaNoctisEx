@@ -912,8 +912,37 @@ rete non a consumo (`NetworkType.UNMETERED`) e `ExistingWorkPolicy.
 REPLACE` per non accodare due download sullo stesso file. Manifest:
 dichiarato il `SystemForegroundService` con `dataSync`.
 
-**Da provare sul device** (non collegato a fine sessione): download vero
-end-to-end, ripresa dopo interruzione, comportamento a rete assente.
+**Provato sul device da Michele (debug wifi): download OK.**
+
+### Sessione 19/07 (seguito) — opzioni importate da ModelActivity di v1
+
+Analisi sezione per sezione di `ModelActivity` (824 righe), tabella dei
+verdetti in `doc/ANALISI-UI-V1.md`. Importato:
+
+- **Impostazioni avanzate Gemma**: `maxTokens`, `temperature` (slider),
+  `topP` (slider), `topK`. I valori di v1 sono già tarati (0.7 / 40 /
+  0.9); `maxTokens` parte da **10240** come da CRITICITA.md, non dai
+  4096 di v1. Conservate tali e quali le **descrizioni oneste con
+  l'impatto dichiarato su CPU/memoria** — il pezzo migliore di quella
+  schermata. Migliorìa: in v1 c'era scritto "richiede il riavvio della
+  partita", in Ex no (sessione nuova a ogni scena, vale dalla prossima).
+  Aggiunto "Ripristina i valori consigliati" per tornare ai default dopo
+  una sessione di misure andata storta.
+- **Spazio occupato dai modelli**: assente in v1, ma con file da 3,66 GB
+  è informazione dovuta.
+- **`InferenceEngine`** (una delle quattro interfacce motivate), erede
+  di quella di v1 con due differenze volute: niente
+  `chatbotPersonality` nel load (era-chatbot) e `newSession()` invece di
+  `resetSession(systemPrompt)` — in Ex la sessione nuova per scena è la
+  NORMA, non il rimedio a un contesto pieno. Con `TokenInfo`/
+  `TokenStatus` (soglie di v1) per il semaforo dell'header, e
+  `InferenceConfig` che le impostazioni avanzate riempiono davvero: le
+  manopole sono cablate, non finte.
+
+NON importato, con motivo: reset sessione chatbot (in Ex l'inferenza è
+senza memoria per design), modalità dual-engine (solo Gemma),
+impostazioni GGUF (motore morto), doppio slot modello.
+`SceneJsonPicker` resta in Fase 5 come da piano.
 
 ### Chiusura sessione — stato e prossimi passi
 
