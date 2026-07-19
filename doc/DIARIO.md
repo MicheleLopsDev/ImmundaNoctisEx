@@ -53,12 +53,21 @@ diario, checkpoint, auto-save atomico).
   (`narrationUnavailable()`) se il motore non parte: si torna al testo
   del pacchetto invece di restare in attesa per sempre.
 
+- **Banner della scena** (v1): sfondo mappa + ritratti circolari di
+  narratore ed eroe (per genere), con **cerchio d'oro su chi parla** —
+  narratore mentre scrive, eroe quando tocca a lui. Corretto anche un
+  difetto della card di stato (nome e valori si attaccavano: "Lupo
+  SolitarioCS 18RES 22/223 Corone").
+
 **PROSSIMA SESSIONE — già deciso con Michele**:
 1. **ANIMAZIONE del narratore che pensa** al posto della scritta "Il
    narratore scrive…" (idea di Michele, gli piace molto). Registrata in
    `UI.md §Flusso centrale`. Copre sia il caricamento del modello (la
    prima volta, più lungo) sia la generazione di ogni scena.
 2. La **grafica** in generale, che Michele ha rinviato consapevolmente.
+   Il banner c'è ma è v0.1: manca il `backgroundImage` PER SCENA (il
+   sample dichiara inn/city/alley/battle/warehouse, gli asset non
+   esistono — vanno prodotti, Fase 7) e manca il compagno di viaggio.
 3. **Raccogliere le misure** — il motore
 ora le logga da solo a ogni scena giocata: `adb logcat -s
 LiteRtLmEngine` stampa una riga `MISURA backend=… primoToken=… 

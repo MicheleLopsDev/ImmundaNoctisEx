@@ -84,6 +84,14 @@ fun AdventureScreen(
     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
         Header(state, onJournalClick = { showJournal = true })
 
+        // Il palcoscenico: sfondo + ritratti, col cerchio d'oro su chi
+        // "parla" (il narratore mentre scrive, altrimenti l'eroe).
+        AdventureBanner(
+            heroName = state.gameState.hero.name,
+            heroGender = state.gameState.hero.gender,
+            narratorSpeaking = state.isGenerating,
+        )
+
         Card(
             modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp),
             elevation = CardDefaults.cardElevation(2.dp),
@@ -177,14 +185,26 @@ private fun Header(state: AdventureState, onJournalClick: () -> Unit) {
 private fun StatusCard(state: AdventureState, onClick: () -> Unit) {
     val hero = state.gameState.hero
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
+        // Nome su una riga e valori sotto: in una riga sola i testi si
+        // attaccavano e "Corone" andava a capo su schermi stretti.
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
             Text(hero.name, fontWeight = FontWeight.Bold)
-            Text("CS ${effectiveCombatSkill(hero)}")
-            Text("RES ${effectiveEndurance(hero)}/${effectiveMaxEndurance(hero)}")
-            Text("${Inventory.countOf(hero, "Gold Crowns")} Corone")
+            Spacer(Modifier.height(2.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Text("CS ${effectiveCombatSkill(hero)}", style = MaterialTheme.typography.bodyMedium)
+                Text(
+                    "RES ${effectiveEndurance(hero)}/${effectiveMaxEndurance(hero)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    "${Inventory.countOf(hero, "Gold Crowns")} Corone",
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                )
+            }
         }
     }
 }
