@@ -32,6 +32,10 @@ class SceneNarrator(
     private val userLanguage: String = "Italian",
 ) {
 
+    // Se il motore e' pronto la scena verra' RIscritta da Gemma: la UI
+    // lo usa per non mostrare il testo originale in attesa.
+    val isReady: Boolean get() = engine.isLoaded
+
     // Lo stato del contesto viene dal motore: la UI lo mostra nel
     // semaforo senza sapere chi lo produce.
     val tokenInfo: TokenInfo get() = engine.tokenInfo.value
