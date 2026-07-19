@@ -22,14 +22,20 @@ diario, checkpoint, auto-save atomico).
 - **`LiteRtLmEngine`**: motore reale su `com.google.ai.edge.litertlm`
   0.14.0, backend GPU con ripiego su CPU. **Compila ma non è ancora
   stato eseguito**: non è mai stato caricato un modello vero.
+- **`SceneNarrator`**: il giro completo di una scena (prompt -> sessione
+  nuova -> streaming ripulito dei tag -> parsing), con 6 test su
+  `FakeEngine`. La degradazione è garantita PER TEST: motore assente o
+  caduto a metà -> testo originale del pacchetto, nessuna eccezione.
 
-**PROSSIMO PASSO CONCRETO**: cablare il motore nella scena —
-`PromptBuilder` -> `LiteRtLmEngine.generate()` -> streaming
-bufferizzato (~80-100ms, troncato a `--- TAGS ---`) -> `ResponseParser`
--> la UI mostra testo arricchito e scelte tradotte. Poi la **milestone
-di fase**: le misure di `CRITICITA.md` sul Razr (primo token, token/s,
-token di prompt, termico su 30-45') annotate qui, e ogni output reale
-di Gemma salvato come fixture.
+**PROSSIMO PASSO CONCRETO**: agganciare `SceneNarrator` ad
+`AdventureState`/`AdventureScreen` — oggi la scena mostra ancora il
+testo originale; va sostituito con lo streaming del narratore (con
+buffer ~80-100ms), il testo arricchito salvato in
+`JourneyEntry.enrichedText`, e il semaforo token nell'header. Poi
+caricare il modello vero e fare la **milestone di fase**: le misure di
+`CRITICITA.md` sul Razr (primo token, token/s, token di prompt, termico
+su 30-45') annotate qui, e ogni output reale di Gemma salvato come
+fixture.
 
 **Fatti tecnici da non riscoprire** (verificati, non ipotizzati):
 - Il motore è **LiteRT-LM**, non MediaPipe di v1: i Gemma 4 escono solo
@@ -191,6 +197,32 @@ librerie native opzionali.
 per token) perché la libreria non espone un tokenizer pubblico. Serve
 solo al semaforo, che è un'indicazione di massima. Da sostituire se
 l'API esporrà il conteggio vero.
+
+### Sessione — SceneNarrator e diario preparato per la ripartenza
+
+**Diario riorganizzato** su richiesta di Michele (la sessione potrebbe
+saturarsi): cronologia rimessa dal più recente (era 17->19->16) e
+soprattutto aggiunto in testa il blocco **STATO CORRENTE**, ~65 righe
+che bastano a una sessione nuova per sapere dove siamo, cosa fare e
+quali fatti NON riscoprire (LiteRT-LM vs MediaPipe, GPU come requisito,
+Kotlin 2.3, repo gated). Il resto del file resta come storia del
+*perché*, non del *cosa fare*.
+
+**`SceneNarrator`**: orchestra il giro di una scena — compone il prompt
+(con le continuazioni prese dalle scene raggiungibili, mai rivelate al
+giocatore), apre una sessione nuova, streamma, e consegna il parsato.
+È il punto in cui "il resto dell'app non sa che esiste Gemma".
+6 test su un `FakeEngine` che verificano quello che conta:
+- motore non caricato -> testo originale del pacchetto;
+- motore che cade a metà generazione -> degradazione, nessuna eccezione
+  propagata;
+- **le righe dei tag non compaiono MAI nello streaming** (si mostra solo
+  ciò che precede `--- TAGS ---`);
+- una sessione nuova per ogni scena;
+- il prompt porta continuazioni e coda precedente, ma non il diario.
+
+Il `FakeEngine` non è solo un attrezzo di test: permette di sviluppare
+la UI senza caricare 3,66 GB a ogni avvio.
 
 ### Chiusura sessione — stato e prossimi passi
 
