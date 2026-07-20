@@ -45,6 +45,16 @@ val KAI_DISCIPLINES_UI = listOf(
 fun disciplineIcon(id: String): ImageVector =
     KAI_DISCIPLINES_UI.firstOrNull { it.id == id }?.icon ?: Icons.Default.HelpOutline
 
+// Nome e descrizione localizzati. Null per un id fuori catalogo: chi
+// chiama degrada sull'ID canonico invece di mostrare una stringa vuota
+// (l'ID nei dati, il nome solo in strings.xml — vincolo di progetto).
+@StringRes
+fun disciplineName(id: String): Int? = KAI_DISCIPLINES_UI.firstOrNull { it.id == id }?.nameRes
+
+@StringRes
+fun disciplineDescription(id: String): Int? =
+    KAI_DISCIPLINES_UI.firstOrNull { it.id == id }?.descriptionRes
+
 // Icone armi di v1 (origina_res). Mapping su ID canonici Ex:
 // ic_staff->QUARTERSTAFF, ic_fists->UNARMED; dagger/short_sword/warhammer
 // non esistono in v1 -> segnaposto ic_unknown_item (da produrre, Fase 7).

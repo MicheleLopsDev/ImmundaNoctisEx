@@ -45,7 +45,9 @@ import io.github.luposolitario.immundanoctisex.core.engine.rank.KaiRank
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
+import io.github.luposolitario.immundanoctisex.ui.creation.disciplineDescription
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
+import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
 // Scheda personaggio (UI.md §schermata 5), due tab. Stateless: eroe in
@@ -99,20 +101,36 @@ private fun StatsTab(hero: Character) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Discipline Kai", style = MaterialTheme.typography.titleLarge)
             hero.kaiDisciplines.forEach { id ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // Prima si mostrava l'ID canonico grezzo ("MINDBLAST"):
+                // nome e descrizione erano già in strings.xml, inutilizzati.
+                Row(verticalAlignment = Alignment.Top) {
                     Icon(
                         imageVector = disciplineIcon(id),
-                        contentDescription = id,
+                        contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(22.dp),
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text(id)
-                    if (id == "WEAPONSKILL" && hero.weaponSkillType != null) {
-                        Text(
-                            " (${hero.weaponSkillType})",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = disciplineName(id)?.let { stringResource(it) } ?: id,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            if (id == "WEAPONSKILL" && hero.weaponSkillType != null) {
+                                Text(
+                                    " (${hero.weaponSkillType})",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                        disciplineDescription(id)?.let { desc ->
+                            Text(
+                                text = stringResource(desc),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }

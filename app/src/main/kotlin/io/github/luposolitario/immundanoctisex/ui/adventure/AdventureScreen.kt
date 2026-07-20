@@ -28,13 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.R
-import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 
 // La scena teatrale in forma minima (Fase 3, "prima funziona poi è
@@ -243,22 +241,12 @@ private fun EndingZone(
         // UN FINALE DICHIARA SEMPRE COM'È ANDATA (richiesta Michele
         // 20/07/2026): prima si arrivava in fondo al libro e si tornava al
         // menu senza sapere se si era vinto o perso.
-        val outcome = state.endingOutcome
-        Text(
-            text = stringResource(
-                when (outcome) {
-                    EndingOutcome.VICTORY -> R.string.ending_victory_title
-                    EndingOutcome.DEFEAT -> R.string.ending_defeat_title
-                    EndingOutcome.NEUTRAL -> R.string.ending_neutral_title
-                },
-            ),
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            color = when (outcome) {
-                EndingOutcome.VICTORY -> Color(0xFFFFD700)
-                EndingOutcome.DEFEAT -> MaterialTheme.colorScheme.error
-                EndingOutcome.NEUTRAL -> MaterialTheme.colorScheme.onSurface
-            },
+        // Teschio per la morte, sole nascente per la vittoria (richiesta
+        // Michele 20/07/2026). NEUTRAL non ha immagine: non c'è niente da
+        // celebrare né da piangere.
+        EndingBadge(
+            outcome = state.endingOutcome,
+            modifier = Modifier.fillMaxWidth(),
         )
         if (state.adventureDeleted) {
             Text(

@@ -67,6 +67,45 @@ class PromptBuilderTest {
         assertFalse(prompt.contains("CURRENT SCENE"), "non c'è nessuna scena sorgente da arricchire")
     }
 
+    // Il finale chiude, ma non sbatte la porta (richiesta Michele).
+    @Test
+    fun ilFinaleChiudeMaLasciaUnFilo() {
+        val vuota = scene().copy(
+            id = "__ex_synthetic_defeat__",
+            sceneType = SceneType.ENDING,
+            narrativeText = "",
+        )
+        val prompt = PromptBuilder().build(context(scene = vuota, syntheticEnding = true))
+        assertTrue(prompt.contains("faint thread"), "deve lasciare una possibilità di continuo")
+        assertTrue(prompt.contains("read as an ENDING"), "ma deve restare un finale")
+        // Genere e tono valgono anche qui: il finale è dell'eroe di QUESTA
+        // partita, non di un eroe generico.
+        assertTrue(prompt.contains("male"))
+        assertTrue(prompt.contains("dark, suspenseful"))
+    }
+
+    // Le Discipline Kai sono poteri, non mestieri: solo i Kai le hanno.
+    @Test
+    fun conUnaDisciplinaInGiocoSiChiedeEnfasiSoprannaturale() {
+        val prompt = PromptBuilder().build(
+            context(
+                disciplineChoices = listOf(
+                    DisciplineChoice(id = "d1", disciplineId = "SIXTH_SENSE", choiceText = "Ascolta", nextSceneId = "5"),
+                ),
+            ),
+        )
+        assertTrue(prompt.contains("KAI DISCIPLINES"))
+        assertTrue(prompt.contains("preternatural"))
+        // L'enfasi non è licenza di inventare: resta il limite sui fatti.
+        assertTrue(prompt.contains("do NOT invent effects"))
+    }
+
+    @Test
+    fun senzaDiscipline_lEnfasiNonSpreccaContesto() {
+        val prompt = PromptBuilder().build(context(disciplineChoices = emptyList()))
+        assertFalse(prompt.contains("KAI DISCIPLINES"))
+    }
+
     @Test
     fun unaScenaNormaleNonRiceveLIstruzioneDelFinale() {
         val prompt = PromptBuilder().build(context())
