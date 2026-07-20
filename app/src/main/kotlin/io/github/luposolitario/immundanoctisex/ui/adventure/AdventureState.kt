@@ -118,6 +118,11 @@ class AdventureState(
     // l'originale del pacchetto.
     private var translatedChoices: Map<String, String> by mutableStateOf(emptyMap())
     private var translatedEnemyName: String? by mutableStateOf(null)
+    // Nome dell'immagine di sfondo (SceneImageCatalog), non un drawable:
+    // la UI risolve il nome in risorsa. Arriva già deciso da
+    // EnrichedScene.backgroundImage — dichiarato dal pacchetto se c'è,
+    // altrimenti il tag di Gemma se valido (esperimento 20/07/2026).
+    private var sceneBackgroundImage: String? by mutableStateOf(null)
 
     fun choiceText(choice: Choice): String = translatedChoices[choice.id] ?: choice.choiceText
 
@@ -125,6 +130,11 @@ class AdventureState(
         translatedChoices[choice.id] ?: choice.choiceText
 
     val enemyName: String? get() = translatedEnemyName ?: currentScene.combat?.enemyName
+
+    // Fallback sul pacchetto: se il motore non è mai partito
+    // (narrationUnavailable) sceneBackgroundImage resta null, ma la
+    // scena potrebbe comunque avere un backgroundImage dichiarato.
+    val backgroundImage: String? get() = sceneBackgroundImage ?: currentScene.backgroundImage
 
     // Consumo del contesto, per il semaforo nell'header. Null quando
     // non c'e' narratore (si gioca col testo del pacchetto).
@@ -141,6 +151,7 @@ class AdventureState(
         narrationJob?.cancel()
         translatedChoices = emptyMap()
         translatedEnemyName = null
+        sceneBackgroundImage = null
         // Con il narratore pronto il testo originale NON si mostra: la
         // scena la scrive Gemma, e fino al primo pezzo si vede solo
         // l'indicatore "il narratore scrive" (richiesta Michele 19/07).
@@ -173,6 +184,7 @@ class AdventureState(
                         narrative = event.scene.narrative
                         translatedChoices = event.scene.choiceTexts + event.scene.disciplineChoiceTexts
                         translatedEnemyName = event.scene.enemyName
+                        sceneBackgroundImage = event.scene.backgroundImage
                         isGenerating = false
                     }
                 }

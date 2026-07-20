@@ -138,6 +138,24 @@ prima di riconsiderarla.
   `InventoryCards.kt` (Zaino/Oggetti spostati lì, invariati, solo per
   restare sotto la soglia delle 200 righe). **Mai vista sul device.**
 
+- **ESPERIMENTO: GEMMA SCEGLIE LO SFONDO** (20/07, "vediamo se può
+  funzionare"): quando la scena non ha `backgroundImage` dichiarato,
+  il prompt offre le 21 location del catalogo (`SceneImageCatalog`,
+  unica fonte di verità condivisa tra prompt/parser/UI) e Gemma può
+  scrivere `IMAGE|nome` — stesso formato pipe di CHOICE/DISCIPLINE/
+  ENEMY, NON XML (Michele l'ha chiesto esplicitamente: è il motivo per
+  cui il formato pipe esiste, v1 andava in stallo sui tag XML
+  sbagliati). Vocabolario CHIUSO: un nome inventato è scartato dal
+  parser in silenzio; l'autore vince sempre se ha già dichiarato uno
+  sfondo. 4 test nuovi sul parser, 2 sul prompt builder. **Mai visto
+  girare**: è un esperimento, si giudica solo giocando e guardando se
+  Gemma sceglie bene o se ignora/inventa.
+
+  Nota a margine: `AdventureState.kt` è a 450 righe, ben oltre la
+  soglia dei ~200 — ma il debito è PREGRESSO (438 già prima di oggi),
+  non introdotto da questo lavoro (+12 righe). Andrà spezzato, ma non
+  in questa sessione: fuori scope per la richiesta di oggi.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.

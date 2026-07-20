@@ -115,6 +115,7 @@ fun AdventureScreen(
             // L'alone pulsa solo finché non c'è nulla da leggere: appena
             // arriva il primo pezzo di testo torna fermo.
             narratorThinking = state.isGenerating && state.narrative.isBlank(),
+            backgroundImageName = state.backgroundImage,
         )
 
         Card(

@@ -123,5 +123,6 @@ class SceneNarrator(
         choiceTexts = choices.associate { it.id to it.choiceText },
         disciplineChoiceTexts = disciplineChoices.associate { it.id to it.choiceText },
         enemyName = scene.combat?.enemyName,
+        backgroundImage = scene.backgroundImage,
     )
 }

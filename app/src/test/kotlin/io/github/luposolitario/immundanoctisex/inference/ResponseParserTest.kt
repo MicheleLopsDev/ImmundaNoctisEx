@@ -19,6 +19,7 @@ class ResponseParserTest {
         choices: List<Choice> = emptyList(),
         disciplineChoices: List<DisciplineChoice> = emptyList(),
         combat: Combat? = null,
+        backgroundImage: String? = null,
     ) = Scene(
         id = "3",
         sceneType = SceneType.TRANSITION,
@@ -27,6 +28,7 @@ class ResponseParserTest {
         choices = choices,
         disciplineChoices = disciplineChoices,
         combat = combat,
+        backgroundImage = backgroundImage,
     )
 
     private fun choice(id: String, next: String, text: String) =
@@ -204,5 +206,36 @@ class ResponseParserTest {
         val streaming = "Prima parte della prosa\n--- TAGS ---\nCHOICE|4|1|non mostrare"
 
         assertEquals("Prima parte della prosa", ResponseParser.narrativeOf(streaming))
+    }
+
+    // --- Sfondo di scena (vocabolario chiuso, esperimento 20/07/2026) ---
+
+    @Test
+    fun immagineScelta_seValidaEDentroIlCatalogo() {
+        val tradotto = ResponseParser.parse("Prosa.\n--- TAGS ---\nIMAGE|loc_tavern", scene())
+        assertEquals("loc_tavern", tradotto.backgroundImage)
+    }
+
+    @Test
+    fun immagineInventata_scartataInSilenzio() {
+        // Un nome che NON esiste nel catalogo: vocabolario chiuso, il
+        // parser non deve mai far arrivare alla UI qualcosa che non
+        // corrisponde a una risorsa vera.
+        val tradotto = ResponseParser.parse("Prosa.\n--- TAGS ---\nIMAGE|loc_wizard_tower_that_does_not_exist", scene())
+        assertNull(tradotto.backgroundImage)
+    }
+
+    @Test
+    fun sfondoGiaDichiaratoDalPacchetto_battelSempreQuelloDiGemma() {
+        // L'autore ha gia' deciso: Gemma e' un ripiego, mai una
+        // sovrascrittura di una scelta gia' fatta.
+        val conSfondo = scene(backgroundImage = "loc_market")
+        val tradotto = ResponseParser.parse("Prosa.\n--- TAGS ---\nIMAGE|loc_crypt", conSfondo)
+        assertEquals("loc_market", tradotto.backgroundImage)
+    }
+
+    @Test
+    fun nessunaRigaImage_backgroundImageRestaNull() {
+        assertNull(ResponseParser.parse("Prosa.\n--- TAGS ---", scene()).backgroundImage)
     }
 }

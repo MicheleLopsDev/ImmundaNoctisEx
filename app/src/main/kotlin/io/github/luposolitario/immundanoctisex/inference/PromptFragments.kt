@@ -32,6 +32,12 @@ data class PromptFragments(
     val syntheticEndingConstraintText: String,
     val outputFormatText: String,
     val enemyFormatText: String,
+    // Esperimento (Michele 20/07/2026, vedi DIARIO.md): Gemma può
+    // suggerire lo sfondo SOLO quando la scena non ne ha già uno
+    // dichiarato (PromptBuilder lo aggiunge in quel caso soltanto —
+    // l'autore ha sempre priorità). {available_locations} è il
+    // vocabolario chiuso di SceneImageCatalog.
+    val imageFormatText: String,
     val closingText: String,
 ) {
     companion object {
@@ -87,6 +93,15 @@ data class PromptFragments(
             // Aggiunta solo quando la scena ha un combattimento
             // (REGOLE.md §1.5: enemyName tradotto nel giro normale).
             enemyFormatText = "ENEMY|translated enemy name",
+            // Aggiunta solo quando la scena non ha già uno sfondo
+            // dichiarato dal pacchetto (PromptBuilder). OPTIONAL e
+            // parsimonioso di proposito: un tag sbagliato non rompe nulla
+            // (vocabolario chiuso, il parser scarta ciò che non riconosce),
+            // ma un tag forzato su ogni scena sarebbe rumore, non aiuto.
+            imageFormatText = "IMAGE|location_id — OPTIONAL. Only if one of these locations is a " +
+                "strong, obvious match for this scene, add this line with its exact id. If none " +
+                "fits well, omit the line entirely — do not guess.\n" +
+                "Available locations: {available_locations}",
             closingText = "NARRATOR (in {user_language}, tone: {tone_hints}):",
         )
 
@@ -125,6 +140,7 @@ data class PromptFragments(
                 ),
                 outputFormatText = value("outputFormatText", DEFAULTS.outputFormatText),
                 enemyFormatText = value("enemyFormatText", DEFAULTS.enemyFormatText),
+                imageFormatText = value("imageFormatText", DEFAULTS.imageFormatText),
                 closingText = value("closingText", DEFAULTS.closingText),
             )
         }

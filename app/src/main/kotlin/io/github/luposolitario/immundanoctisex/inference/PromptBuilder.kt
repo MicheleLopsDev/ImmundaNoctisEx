@@ -64,13 +64,15 @@ class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEF
         return fill(sections.joinToString("\n\n"), context)
     }
 
-    // La riga ENEMY si chiede solo se c'è davvero un nemico da nominare.
-    private fun outputFormat(context: PromptContext): String =
-        if (context.scene.combat != null) {
-            "${fragments.outputFormatText}\n${fragments.enemyFormatText}"
-        } else {
-            fragments.outputFormatText
-        }
+    // La riga ENEMY si chiede solo se c'è davvero un nemico da nominare;
+    // la riga IMAGE solo se l'autore non ha già dichiarato uno sfondo per
+    // la scena (Scene.backgroundImage) — Gemma è il ripiego, mai la
+    // sovrascrittura di una scelta già fatta.
+    private fun outputFormat(context: PromptContext): String = buildString {
+        append(fragments.outputFormatText)
+        if (context.scene.combat != null) append("\n${fragments.enemyFormatText}")
+        if (context.scene.backgroundImage == null) append("\n${fragments.imageFormatText}")
+    }
 
     private fun fill(template: String, context: PromptContext): String {
         val toneHints = context.toneHints.takeIf { it.isNotEmpty() }
@@ -86,6 +88,7 @@ class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEF
             .replace("{genre}", context.genre)
             .replace("{tone_hints}", toneHints)
             .replace("{player_gender}", playerGender(context.playerGender))
+            .replace("{available_locations}", SceneImageCatalog.LOCATIONS.joinToString(", "))
     }
 
     // Le scelte si consegnano NELLA STESSA FORMA che il modello deve

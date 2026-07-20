@@ -95,6 +95,21 @@ sembrava non facesse nulla. Ora per ~1,5s appare una spunta verde
 circolari sovrapposti al bordo inferiore: **narratore** + eroe +
 compagno (quando esisterà).
 
+**Sfondo scelto da Gemma — ESPERIMENTO** (20/07/2026, richiesta di
+Michele: "vediamo se può funzionare"): quando la scena NON ha un
+`backgroundImage` dichiarato dall'autore, il prompt offre a Gemma un
+vocabolario chiuso delle 21 location del catalogo
+(`SceneImageCatalog`) e la lascia scegliere, con una riga `IMAGE|nome`
+nello stesso formato pipe di `CHOICE`/`DISCIPLINE`/`ENEMY` — **niente
+XML** (il formato pipe esiste proprio perché in v1 il modello sbagliava
+i tag XML e mandava in stallo il parser). Un nome che Gemma inventa
+viene scartato in silenzio dal parser, mai un errore; l'autore, se ha
+già dichiarato uno sfondo, vince sempre — Gemma è un ripiego, mai una
+sovrascrittura. **Solo locazioni** (`loc_*`): i ritratti di NPC/nemici
+restano fuori da questo giro. Non ancora vista sul device: è un
+esperimento, si giudica da quanto spesso Gemma indovina un nome
+sensato invece di ometterlo o inventarne uno scartato.
+
 - **Il narratore è una presenza visiva, NON un Character nei dati**:
   puro elemento UI, come il sipario di un teatro.
 - **Cerchio d'oro su chi parla**: sul narratore mentre Gemma streama
