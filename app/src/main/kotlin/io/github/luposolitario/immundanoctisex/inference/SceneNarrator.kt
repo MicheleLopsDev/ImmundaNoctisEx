@@ -1,5 +1,6 @@
 package io.github.luposolitario.immundanoctisex.inference
 
+import android.util.Log
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
@@ -92,7 +93,23 @@ class SceneNarrator(
             return@flow
         }
 
-        val parsed = ResponseParser.parse(raw.toString(), scene)
+        val rawText = raw.toString()
+        val parsed = ResponseParser.parse(rawText, scene)
+        // Diagnostica per l'esperimento IMAGE (21/07/2026): senza questo
+        // log non c'è modo di distinguere "Gemma non ha scritto la riga"
+        // da "l'ha scritta in un formato che il parser scarta" — i due
+        // casi degradano allo stesso modo (sfondo di default) e da fuori
+        // sembrano identici. adb logcat -s SceneNarrator.
+        // runCatching: android.util.Log non è mockato nei test JVM del
+        // modulo (nessun Robolectric, per scelta — vedi CLAUDE.md), un
+        // log non deve mai far fallire un test.
+        runCatching {
+            Log.i(
+                TAG,
+                "IMAGE risolto=${parsed.backgroundImage} — blocco tag:\n" +
+                    rawText.substringAfter(ResponseParser.SEPARATOR, missingDelimiterValue = "(separatore assente)").trim(),
+            )
+        }
         emit(NarrationEvent.Completed(parsed))
     }
 
@@ -125,4 +142,8 @@ class SceneNarrator(
         enemyName = scene.combat?.enemyName,
         backgroundImage = scene.backgroundImage,
     )
+
+    private companion object {
+        const val TAG = "SceneNarrator"
+    }
 }
