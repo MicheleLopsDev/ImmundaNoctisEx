@@ -431,6 +431,18 @@ prima di riconsiderarla.
     "Gemma dovrebbe OMETTERE il tag", ora si aspetta `IMAGE|xxx` —
     il file narrativo non è cambiato, solo cosa ci si aspetta in
     uscita con la quarta formulazione).
+
+  **CONFERMATO su device anche `test_image_author_wins.json`**
+  (21/07): `backgroundImage: "loc_crypt"` dichiarato dall'autore,
+  Gemma non interpellata sull'immagine (la condizione in
+  `PromptBuilder.outputFormat` non aggiunge `imageFormatText` quando
+  lo sfondo è già valido) — lo sfondo mostrato è quello giusto.
+  Scenari dell'esperimento IMAGE confermati funzionanti sul device o
+  su LM Studio: autore esplicito, Gemma sceglie bene (locanda), la
+  quarta formulazione (sempre una riga). Restano da provare:
+  `test_image_dead_placeholder`, `test_image_similar_pair`,
+  `test_image_no_match`/`_desert` (con `xxx` atteso),
+  `test_image_with_combat` (ENEMY+IMAGE insieme).
   JSON validati. **Mai caricati sul device**: da provare col
   side-load.
 
