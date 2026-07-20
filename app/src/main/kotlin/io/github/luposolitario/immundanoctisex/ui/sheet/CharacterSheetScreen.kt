@@ -214,7 +214,8 @@ private fun EquipmentTab(
     }
 }
 
-private fun kaiRankName(rank: KaiRank): Int = when (rank) {
+// internal: il grado Kai si mostra anche nella card di stato della scena.
+internal fun kaiRankName(rank: KaiRank): Int = when (rank) {
     KaiRank.NOVICE -> R.string.kai_rank_novice
     KaiRank.INITIATE -> R.string.kai_rank_initiate
     KaiRank.DISCIPLE -> R.string.kai_rank_disciple

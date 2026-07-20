@@ -31,11 +31,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
-import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
-import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
-import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
-import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 
 // La scena teatrale in forma minima (Fase 3, "prima funziona poi è
@@ -112,7 +107,7 @@ fun AdventureScreen(
             }
         }
 
-        StatusCard(state, onClick = { showSheet = true })
+        StatusCard(hero = state.gameState.hero, onClick = { showSheet = true })
         Spacer(Modifier.height(8.dp))
 
         when {
@@ -173,35 +168,6 @@ private fun Header(state: AdventureState, onJournalClick: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-    }
-}
-
-// Il tocco apre la Scheda personaggio (UI.md §Card di stato).
-@Composable
-private fun StatusCard(state: AdventureState, onClick: () -> Unit) {
-    val hero = state.gameState.hero
-    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-        // Nome su una riga e valori sotto: in una riga sola i testi si
-        // attaccavano e "Corone" andava a capo su schermi stretti.
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
-            Text(hero.name, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(2.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                Text("CS ${effectiveCombatSkill(hero)}", style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    "RES ${effectiveEndurance(hero)}/${effectiveMaxEndurance(hero)}",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    "${Inventory.countOf(hero, "Gold Crowns")} Corone",
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                )
-            }
         }
     }
 }
