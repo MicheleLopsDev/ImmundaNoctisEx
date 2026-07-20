@@ -256,11 +256,21 @@ Nessuna schermata separata: **la zona scelte si trasforma**.
 
 ## Inventario operativo (Scheda personaggio, tab Equipaggiamento)
 
+**Combattività e Resistenza SCOMPOSTE** (20/07/2026 — riferimento
+fotografato dal registro cartaceo ufficiale, richiesta di Michele): non
+solo il totale, ma il totale E la scomposizione — Base, poi ogni
+modificatore in una riga sua (es. "+2 WEAPONSKILL (Spada)"). La UI non
+ricalcola nulla: legge le stesse funzioni che calcolano il numero
+finale (`weaponskillBonus`, `itemEnduranceBonus`, ora pubbliche in
+`EffectiveStats.kt`), così spiega il numero invece di indovinarlo — lo
+stesso principio per cui LoneWolfRules di v1 fu scartata.
+
 Non solo consultazione — **azioni sugli oggetti**:
 
-- **Equipaggia / disequipaggia** armi (max 2 portate, una impugnata:
-  `equippedWeapon`); il bonus WEAPONSKILL si riflette subito nelle
-  stat effettive mostrate.
+- **Equipaggia / disequipaggia** armi (**max 2 portate**, una
+  impugnata: `equippedWeapon`); il bonus WEAPONSKILL si riflette
+  subito nelle stat effettive mostrate, e nello slot impugnato appare
+  come "Impugnata · +2" quando la specializzazione coincide.
 - **Consuma / usa** oggetti con effetto dichiarato: la pozione
   (HEAL:n) cura; il **Pasto si consuma** dal medesimo gesto — è lo
   stesso flusso con cui si soddisfa `requireAction EAT_MEAL` (chi ha
