@@ -42,7 +42,10 @@ schermata, file di navigazione solo routing (~100 righe max).
    "scegli a caso" in aggiunta), oggetti iniziali.
 4. **Avventura** — la scena teatrale (dettaglio sotto).
 5. **Scheda personaggio** — due tab: *Stats e Discipline* (valori
-   effettivi calcolati, grado Kai, elenco discipline) ed
+   effettivi calcolati, grado Kai, elenco discipline **col nome
+   localizzato e una riga di descrizione** — fino al 20/07/2026 la
+   schermata mostrava l'ID canonico grezzo, "MINDBLAST", mentre nome e
+   descrizione erano già in `strings.xml` inutilizzati) ed
    *Equipaggiamento e Zaino* (dettaglio sotto). Vi si accede toccando
    la card di stato nella scena o dall'icona header.
 6. **Diario del viaggio** — due viste: *Racconto* (rilettura del
@@ -150,6 +153,28 @@ personaggio** (tab Stats).
 > volute anche nella card — come in v1 — perché servono a colpo d'occhio
 > mentre si sceglie, senza aprire la scheda. Nella scheda restano (lì
 > con nome e descrizione), nella card sono solo icone.
+
+### Zona del finale (20/07/2026)
+Un'avventura **dichiara sempre com'è andata** (vedi REGOLE.md §2.2-bis).
+La zona mostra, sopra i pulsanti:
+
+- **Vittoria**: un **sole nascente** in oro (l'oro è la convenzione del
+  Kai: cerchio d'oro su chi parla, medaglia del grado).
+- **Sconfitta**: un **teschio con ossa incrociate**, color osso.
+- **Neutro**: nessuna immagine — non c'è niente da celebrare né da
+  piangere, ma il titolo dice comunque che l'avventura è finita.
+
+Entrambi sono **VectorDrawable scritti a mano** (`ic_ending_victory`,
+`ic_ending_defeat`): pesano byte invece dei 3-4 MB dei PNG di v1 e
+scalano su ogni schermo. **Nessun tint dal tema**: le cavità del teschio
+sono buchi scuri dentro l'osso, e una tinta unica lo riempirebbe
+rendendolo una macchia piena. Il contorno scuro serve a reggere anche su
+tema chiaro (due `@Preview`, chiaro e scuro, in `EndingBadge.kt`).
+
+Il **testo** del finale è conclusivo ma lascia **un filo aperto** — una
+possibilità di continuo, senza promettere un seguito né offrire una
+scelta. Rispetta genere del personaggio e tono dell'avventura come ogni
+altra scena.
 
 ### Zona scelte
 - Pulsanti pieni per le scelte normali (choiceText tradotto, con

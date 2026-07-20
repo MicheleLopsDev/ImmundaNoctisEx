@@ -20,6 +20,10 @@ data class PromptFragments(
     val syntheticEndingText: String,
     val continuationsText: String,
     val choicesText: String,
+    // Le Discipline Kai non sono abilità comuni: le possiedono SOLO i Kai
+    // (richiesta Michele 20/07/2026). Si aggiunge quando la scena mette in
+    // gioco una disciplina, per non sprecare contesto quando non serve.
+    val disciplineEmphasisText: String,
     val constraintText: String,
     // Il vincolo normale ordina di RISCRIVERE la scena sorgente: per un
     // finale fabbricato non esiste scena sorgente, e chiederglielo lo
@@ -42,11 +46,20 @@ data class PromptFragments(
             // Poche righe e definitive — questa schermata chiude la partita.
             syntheticEndingText = "[FINAL SCENE — the source book has no ending for this outcome]\n" +
                 "Write a short, final scene in which the hero's journey ends here in defeat. " +
-                "Base it only on THE STORY SO FAR: do not invent new characters or places, " +
-                "and do not offer any way forward. Three or four sentences, no more.",
+                "It must read as an ENDING — closed, with weight — but leave one faint thread " +
+                "open: a hint that this might not be the last word. Do not promise a sequel and " +
+                "do not offer the player a choice. " +
+                "Base it only on THE STORY SO FAR: do not invent new characters or places. " +
+                "Three or four sentences, no more.",
             continuationsText = "[POSSIBLE CONTINUATIONS — for consistency only, do NOT reveal them]\n" +
                 "{continuations_text}",
             choicesText = "[CHOICES TO TRANSLATE]\n{choices_text}",
+            disciplineEmphasisText = "[KAI DISCIPLINES]\n" +
+                "The hero is a Kai. Kai Disciplines are NOT ordinary skills: they are " +
+                "preternatural gifts that only the Kai possess. When the scene shows one being " +
+                "used, give it weight — the sense of something beyond common ability, uncanny to " +
+                "anyone watching. Keep this to the telling: do NOT invent effects, powers or " +
+                "outcomes beyond what the source text states.",
             constraintText = "Follow these instructions EXACTLY:\n" +
                 "1. Rewrite the CURRENT SCENE text in {user_language}, enriching it with details " +
                 "consistent with the '{genre}' genre and this tone: {tone_hints}. Keep all facts, " +
@@ -59,8 +72,9 @@ data class PromptFragments(
                 "5. NEVER generate game mechanics tags such as <ADD_ITEM> or <STAT_MOD>.\n" +
                 "6. The player character is {player_gender}: use the correct grammatical agreement.",
             syntheticEndingConstraintText = "Follow these instructions EXACTLY:\n" +
-                "1. Write the final scene in {user_language}, consistent with the '{genre}' genre " +
-                "and this tone: {tone_hints}.\n" +
+                "1. Write the final scene in {user_language}. Match the '{genre}' genre and " +
+                "above all this tone: {tone_hints} — the ending must sound like the rest of " +
+                "THIS adventure, not like a generic one.\n" +
                 "2. Your answer must start DIRECTLY with the scene text.\n" +
                 "3. Character speech goes between single quotes ' ', never between \".\n" +
                 "4. Never use the | character in the narrative text.\n" +
@@ -103,6 +117,7 @@ data class PromptFragments(
                 syntheticEndingText = value("syntheticEndingText", DEFAULTS.syntheticEndingText),
                 continuationsText = value("continuationsText", DEFAULTS.continuationsText),
                 choicesText = value("choicesText", DEFAULTS.choicesText),
+                disciplineEmphasisText = value("disciplineEmphasisText", DEFAULTS.disciplineEmphasisText),
                 constraintText = value("constraintText", DEFAULTS.constraintText),
                 syntheticEndingConstraintText = value(
                     "syntheticEndingConstraintText",

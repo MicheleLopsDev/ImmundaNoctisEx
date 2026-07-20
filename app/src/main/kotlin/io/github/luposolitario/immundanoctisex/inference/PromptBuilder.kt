@@ -48,6 +48,9 @@ class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEF
             if (context.choices.isNotEmpty() || context.disciplineChoices.isNotEmpty()) {
                 add(fragments.choicesText)
             }
+            // L'enfasi sul soprannaturale si spende solo quando c'è
+            // davvero una disciplina in gioco: contesto sprecato altrimenti.
+            if (context.disciplineChoices.isNotEmpty()) add(fragments.disciplineEmphasisText)
             add(
                 if (context.isSyntheticEnding) {
                     fragments.syntheticEndingConstraintText
