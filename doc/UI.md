@@ -226,13 +226,30 @@ Nessuna schermata separata: **la zona scelte si trasforma**.
    scelta di modalità: **Rapido / Completo**.
 2. **Rapido**: il motore risolve tutto; appare il riepilogo (esito,
    round, danni totali) e la transizione.
-3. **Completo**: la zona diventa il quadro di combattimento — nome
-   nemico (tradotto, riga ENEMY), **barre Resistenza** tua e del
-   nemico, Rapporto di Forza visibile; Dado del Destino al tocco per
-   ogni round; tra i round il **menu tattico**: continua / usa
-   oggetto (solo `combatUsable`) / usa disciplina (MINDBLAST —
-   disabilitata con motivo se il nemico è immune) / fuggi (se
-   `evadeSceneId` esiste e il round supera `evadeAfterRound`).
+3. **Completo**: la zona diventa il **Diario di Combattimento**
+   (`CombatDiaryPanel`, 20/07/2026 — riferimento fotografato dal
+   registro cartaceo ufficiale di Lupo Solitario, richiesta di
+   Michele). Non un popup per round: un pannello che resta aperto per
+   l'INTERO combattimento e si aggiorna a ogni colpo — RES e CS di
+   entrambi i contendenti (coi modificatori attivi, es. "+2 CS
+   (MINDBLAST)"), Rapporto di Forza al centro, e lì il **dado a 10
+   facce** (`TenSidedDie`) che innesca il round al tocco: gira
+   un istante, poi si ferma sul tiro vero — la faccia dello ZERO porta
+   il simbolo del lupo al posto del numero, come nel dado fisico
+   ufficiale. Sotto, il **menu tattico** invariato: usa oggetto (solo
+   `combatUsable`) / usa disciplina (MINDBLAST — disabilitata con
+   motivo se il nemico è immune) / fuggi (se `evadeSceneId` esiste e
+   il round supera `evadeAfterRound`). **L'esito resta nello stesso
+   pannello**: quando il combattimento finisce, i numeri restano
+   visibili congelati sull'ultimo round e sotto compare "VITTORIA/
+   SCONFITTA in N round" — mai un salto a una schermata diversa.
+
+   > Anticipa di proposito un pezzo di Fase 7: `UI.md` assegna
+   > l'overlay animato del Dado del Destino a quella fase, ma qui è
+   > solo il combattimento completo — gli altri tiri (skillCheck,
+   > creazione, `randomChoiceTable`) restano v0.1, un bottone. Non è
+   > una svista: Michele ha scelto esplicitamente di anticiparlo solo
+   > per questo pezzo, nonostante costi lavoro grafico di Fase 7.
 4. Esito (WIN/LOSE/EVADE) → transizione, la zona torna alle scelte.
 
 ---

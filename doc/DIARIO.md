@@ -114,6 +114,18 @@ device" (`UPGRADE.md §1`): primo token e velocità sono misurati, **manca
 ancora termico e batteria** — Michele ha scelto di aspettare quei due
 prima di riconsiderarla.
 
+- **IL DIARIO DI COMBATTIMENTO** (20/07, richiesta di Michele con foto
+  del registro cartaceo ufficiale): il combattimento COMPLETO ha ora
+  un pannello che resta aperto per l'intero scontro — RES/CS di
+  entrambi coi modificatori, Rapporto di Forza, dado a 10 facce
+  (faccia zero = simbolo del lupo) che gira e si ferma sul tiro vero.
+  **Anticipa di proposito un pezzo di Fase 7** (l'overlay animato del
+  Dado del Destino), solo per questo caso — scelta esplicita di
+  Michele, annotata come tale in `UI.md`. Nuovi file
+  `CombatDiaryPanel.kt` e `TenSidedDie.kt` (quest'ultimo pensato
+  riusabile per il resto dei tiri quando arriverà Fase 7).
+  **Mai visto girare sul device.**
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
@@ -268,6 +280,37 @@ confermare i primi tre.
   gli archi con testo inciso sulla pietra non si sono potuti pulire).
   In `drawable-nodpi`, non `drawable`: altrimenti Android le scala fino
   a 4× su schermi xxxhdpi. **Ancora nessun codice le usa.**
+
+**Il Diario di Combattimento.** Michele ha fotografato due pagine del
+registro cartaceo ufficiale: la prima (scheda personaggio) era il
+riferimento sbagliato, corretto subito dopo con la seconda — il
+"Diario di Combattimento" vero, quello che si compila round per round
+con RES/CS di entrambi i contendenti e il Rapporto di Forza al centro.
+Tre domande chiuse prima di scrivere codice (il pannello sostituisce
+tutto o si affianca? il dado gira con animazione o secco? resta aperto
+fino alla fine o torna alla vista attuale a un certo punto?) — le
+risposte hanno deciso l'architettura: un pannello UNICO dal primo
+colpo al riepilogo finale, mai un salto visivo.
+
+Un dettaglio tecnico ha deciso l'ordine delle operazioni:
+`CombatSession.fightRound()` è SINCRONO — tira e applica i danni in un
+solo colpo. Se il dado avesse chiamato quella funzione al TOCCO,
+Resistenza e Combattività sarebbero cambiate mentre il dado stava
+ancora girando, rovinando l'effetto. Soluzione: il tiro vero parte
+SOLO a fine animazione (`TenSidedDie.onRoll`, chiamato dopo il loop di
+rotazione); i numeri mostrati durante il giro sono scenografia pura,
+non anticipano nulla.
+
+`combatFightRound()` è stata cambiata da `Unit` a `RoundResult?` (unico
+chiamante, nessun rischio) perché il dado ha bisogno del tiro uscito
+per fermarsi sulla faccia giusta.
+
+Il dado è finito in un file suo (`TenSidedDie.kt`, non `internal`,
+pubblico) invece di restare dentro il pannello: `CombatDiaryPanel.kt`
+aveva superato le 200 righe, e il dado è un componente autonomo che
+probabilmente tornerà utile quando Fase 7 costruirà l'overlay generale
+del Dado del Destino per gli altri tiri (skillCheck, creazione,
+`randomChoiceTable`).
 
 ---
 
