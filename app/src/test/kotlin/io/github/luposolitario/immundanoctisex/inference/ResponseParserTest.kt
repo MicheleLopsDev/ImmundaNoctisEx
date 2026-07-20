@@ -234,6 +234,30 @@ class ResponseParserTest {
         assertEquals("loc_market", tradotto.backgroundImage)
     }
 
+    // BUG del 20/07/2026, trovato da Michele giocando: qui vinceva
+    // scene.backgroundImage per la sola presenza (!= null). Il sample
+    // dichiara backgroundImage su TUTTE le scene con placeholder storici
+    // mai risolti ("inn", "city"...): quel valore bloccava per sempre
+    // anche il tag di Gemma, coerente col bug gemello in PromptBuilder
+    // (che per lo stesso motivo non chiedeva mai la riga IMAGE).
+    @Test
+    fun sfondoDichiaratoMaFuoriCatalogo_vinceIlTagDiGemmaSeValido() {
+        val placeholder = scene(backgroundImage = "inn")
+        val tradotto = ResponseParser.parse("Prosa.\n--- TAGS ---\nIMAGE|loc_tavern", placeholder)
+        assertEquals("loc_tavern", tradotto.backgroundImage)
+    }
+
+    @Test
+    fun sfondoDichiaratoMaFuoriCatalogo_senzaTagRestaIlPlaceholderOriginale() {
+        // Né l'autore né Gemma hanno un nome che risolve a un file vero:
+        // si tiene comunque "inn" invece di perderlo con un null secco —
+        // la UI degrada comunque sul default, ma l'intento dell'autore
+        // (una locanda, anche se l'asset manca) non sparisce dal dato.
+        val placeholder = scene(backgroundImage = "inn")
+        val tradotto = ResponseParser.parse("Prosa.\n--- TAGS ---", placeholder)
+        assertEquals("inn", tradotto.backgroundImage)
+    }
+
     @Test
     fun nessunaRigaImage_backgroundImageRestaNull() {
         assertNull(ResponseParser.parse("Prosa.\n--- TAGS ---", scene()).backgroundImage)

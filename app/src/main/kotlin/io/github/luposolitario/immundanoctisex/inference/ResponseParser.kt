@@ -47,10 +47,21 @@ object ResponseParser {
             choiceTexts = resolveChoices(scene.choices, parsedChoices),
             disciplineChoiceTexts = resolveDisciplineChoices(scene.disciplineChoices, parsedDisciplines),
             enemyName = lines.firstNotNullOfOrNull(::parseEnemyLine) ?: scene.combat?.enemyName,
-            // Il pacchetto vince SEMPRE se l'autore ha già dichiarato uno
-            // sfondo: Gemma è un ripiego per le scene che ne sono prive,
-            // mai una sovrascrittura di una scelta dell'autore.
-            backgroundImage = scene.backgroundImage ?: lines.firstNotNullOfOrNull(::parseImageLine),
+            // Il pacchetto vince se l'autore ha dichiarato uno sfondo
+            // VALIDO (esiste nel catalogo): Gemma è un ripiego, mai una
+            // sovrascrittura di una scelta vera. BUG del 20/07/2026: qui
+            // vinceva scene.backgroundImage per la sola presenza (!=
+            // null), quindi i placeholder morti del sample ("inn",
+            // "city"...) bloccavano per sempre anche il tag di Gemma —
+            // coerente con PromptBuilder, che per lo stesso motivo non
+            // chiedeva mai la riga IMAGE su quelle scene. Se né l'autore
+            // né Gemma hanno un nome valido, resta il valore originale
+            // (anche se placeholder): si perde la risoluzione a un file
+            // vero — la UI degrada comunque — ma non l'informazione che
+            // l'autore intendeva QUALCOSA.
+            backgroundImage = scene.backgroundImage?.takeIf(SceneImageCatalog::isValid)
+                ?: lines.firstNotNullOfOrNull(::parseImageLine)
+                ?: scene.backgroundImage,
         )
     }
 

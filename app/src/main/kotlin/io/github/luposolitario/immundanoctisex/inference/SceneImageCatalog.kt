@@ -37,5 +37,9 @@ object SceneImageCatalog {
         "loc_tomb_interior",
     )
 
-    fun isValid(name: String): Boolean = name in LOCATIONS
+    // Nullable apposta: sia "non dichiarato" (null) sia "dichiarato con
+    // un placeholder morto" (una stringa che non è nel catalogo, es. i
+    // vecchi "inn"/"city" del sample) devono contare come "non valido" —
+    // stessa domanda, la stessa risposta.
+    fun isValid(name: String?): Boolean = name != null && name in LOCATIONS
 }
