@@ -363,6 +363,17 @@ prima di riconsiderarla.
   girare**: prossimo passo di Michele è riprovare
   `test_image_gemma_picks.json` con questa build.
 
+  **LOG DEL PROMPT COMPLETO** (21/07, richiesta di Michele — "voglio
+  provare il prompt su Gemma in locale sul PC"): estratta
+  `logChunked(tag, label, text)`, funzione di file (non di classe,
+  riusabile). Logga sia il prompt intero (nuovo) sia il blocco tag
+  ricevuto (già c'era) spezzandoli in pezzi da 3500 caratteri
+  numerati `[i/n]` — **logcat tronca in silenzio oltre ~4000
+  caratteri per riga**, e il prompt col dizionario delle 24 location
+  li supera abbondantemente (senza lo split Michele avrebbe visto un
+  prompt incompleto senza saperlo). `adb logcat -s SceneNarrator`.
+  Compilazione e suite `app` verdi.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
