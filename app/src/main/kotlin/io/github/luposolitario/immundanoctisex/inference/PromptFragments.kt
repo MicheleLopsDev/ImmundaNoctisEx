@@ -116,23 +116,29 @@ data class PromptFragments(
             // "OPTIONAL" TOLTO (21/07/2026, stesso giorno, prova di
             // Michele su LM Studio): con "OPTIONAL" all'inizio Gemma
             // saltava la riga; riformulata a mano in modo imperativo
-            // ("decidi ORA") ha funzionato. Presa la lezione (tono
-            // imperativo, non "puoi anche non farlo") SENZA la sua
-            // formulazione letterale, che diceva "se nessuno è coerente
-            // scegli comunque" — violerebbe il vincolo del 21/07
-            // mattina: se nessuna location calza, la riga va OMESSA, mai
-            // indovinata.
-            imageFormatText = "IMAGE|location_id — Decide now whether one of the locations below " +
-                "is a strong, obvious match for THIS scene. Below is a CLOSED dictionary of " +
-                "available locations, each with a short description of what it depicts. If there " +
-                "is a strong match, write this line using its id EXACTLY as written below — do " +
-                "not modify, abbreviate, translate or combine it. " +
+            // ("decidi ORA") ha funzionato.
+            //
+            // SEMPRE UNA RIGA, MAI "OMETTI" (21/07/2026, idea di Michele
+            // — "così evitiamo che sbagli, per lui è più facile prendere
+            // sempre una decisione, se poi troviamo xxx lo ignoriamo"):
+            // "decidi se scrivere la riga" è un giudizio in più (quanto
+            // sono sicuro?) sopra quello vero (quale location?). Tolto:
+            // la riga si scrive SEMPRE, e quando nessuna location calza
+            // si scrive un id-spazzatura (`xxx`) invece di inventarne uno
+            // plausibile. Non serve toccare il parser: `SceneImageCatalog
+            // .isValid` scarta già in silenzio qualunque id fuori dal
+            // catalogo, `xxx` compreso — stesso esito finale
+            // dell'omissione, compito più semplice per il modello.
+            imageFormatText = "IMAGE|location_id — ALWAYS write this line, choosing from the " +
+                "CLOSED dictionary of location ids below (each with a short description of what " +
+                "it depicts). Decide now: does one of them strongly match THIS scene? If yes, " +
+                "write its id EXACTLY as written below — do not modify, abbreviate, translate or " +
+                "combine it. You MUST NOT invent a new id that is not in this dictionary, even if " +
+                "you think it would fit better. If none of them is a good match, write IMAGE|xxx " +
+                "instead of guessing. " +
                 "Example of the exact line to write (illustrating the syntax only — pick " +
                 "whichever id from the list below actually matches THIS scene, not necessarily " +
-                "this one): IMAGE|loc_tavern. " +
-                "You MUST NOT invent a new id that is not in this dictionary, even if you think " +
-                "it would fit better. If none of these locations is a good match, do not write " +
-                "this line at all — omit it, do not guess.\n" +
+                "this one): IMAGE|loc_tavern.\n" +
                 "{available_locations}",
             closingText = "NARRATOR (in {user_language}, tone: {tone_hints}):",
         )
