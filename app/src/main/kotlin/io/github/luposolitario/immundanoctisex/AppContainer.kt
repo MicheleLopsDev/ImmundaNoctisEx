@@ -16,6 +16,7 @@ import io.github.luposolitario.immundanoctisex.util.AccentColorPreferences
 import io.github.luposolitario.immundanoctisex.util.FontPreferences
 import io.github.luposolitario.immundanoctisex.util.LanguagePreferences
 import io.github.luposolitario.immundanoctisex.util.NarrativeTonePreferences
+import io.github.luposolitario.immundanoctisex.util.StatusCardColorPreferences
 import io.github.luposolitario.immundanoctisex.util.ThemePreferences
 import io.github.luposolitario.immundanoctisex.util.TtsPreferences
 import java.io.File
@@ -43,6 +44,8 @@ class AppContainer(context: Context) {
     val narrativeTonePreferences = NarrativeTonePreferences(context)
 
     val accentColorPreferences = AccentColorPreferences(context)
+
+    val statusCardColorPreferences = StatusCardColorPreferences(context)
 
     // Istanza unica a scope applicazione (ARCHITETTURA §istanze): il
     // modello costa GB e secondi di caricamento, si carica una volta.

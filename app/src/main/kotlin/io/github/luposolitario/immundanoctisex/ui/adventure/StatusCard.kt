@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -41,6 +42,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndura
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 import io.github.luposolitario.immundanoctisex.ui.sheet.kaiRankName
+import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 
 // La card di stato in fondo alla scena (UI.md §Card di stato), con le
 // icone di v1 al posto del solo testo: ritratto-lupo tondo, medaglia
@@ -50,8 +52,20 @@ import io.github.luposolitario.immundanoctisex.ui.sheet.kaiRankName
 private val KAI_GOLD = Color(0xFFFFD700)
 
 @Composable
-fun StatusCard(hero: Character, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Card(onClick = onClick, modifier = modifier.fillMaxWidth()) {
+fun StatusCard(
+    hero: Character,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    // Scelto in Opzioni (StatusCardColorPreferences, 21/07/2026): DEFAULT
+    // non passa colori a Card, resta la superficie standard di Material.
+    cardColor: StatusCardColor = StatusCardColor.DEFAULT,
+) {
+    val colors = if (cardColor.background != null && cardColor.content != null) {
+        CardDefaults.cardColors(containerColor = cardColor.background, contentColor = cardColor.content)
+    } else {
+        CardDefaults.cardColors()
+    }
+    Card(onClick = onClick, modifier = modifier.fillMaxWidth(), colors = colors) {
         Row(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,

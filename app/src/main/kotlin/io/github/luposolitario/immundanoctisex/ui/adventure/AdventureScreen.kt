@@ -62,6 +62,11 @@ fun AdventureScreen(
     // Nessun controllo per cambiarlo dentro la scena (a differenza della
     // grandezza): si sceglie in Opzioni e basta, un semplice parametro.
     boldText: Boolean = false,
+    // Sfondo della card di stato (Michele 21/07/2026, "un altro picker
+    // per la barra di sotto" — questa card): stesso trattamento, un
+    // semplice parametro, nessun controllo diretto nella scena.
+    statusCardColor: io.github.luposolitario.immundanoctisex.util.StatusCardColor =
+        io.github.luposolitario.immundanoctisex.util.StatusCardColor.DEFAULT,
 ) {
     // Scheda e Diario come overlay dentro la route (stato condiviso;
     // diventeranno destinazioni proprie in Fase 5).
@@ -169,7 +174,7 @@ fun AdventureScreen(
             }
         }
 
-        StatusCard(hero = state.hero, onClick = { showSheet = true })
+        StatusCard(hero = state.hero, onClick = { showSheet = true }, cardColor = statusCardColor)
         Spacer(Modifier.height(8.dp))
 
         when {

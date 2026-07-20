@@ -32,6 +32,7 @@ import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.NarrativeTone
 import io.github.luposolitario.immundanoctisex.util.OutputLanguage
 import io.github.luposolitario.immundanoctisex.util.ReadingFont
+import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 
 // Opzioni (UI.md schermata 7): tema, font, lingua, TTS, link ai modelli.
 // Componente stateless — la Route legge/scrive le preferenze vere.
@@ -42,6 +43,8 @@ fun OptionsScreen(
     onThemeSelect: (Boolean?) -> Unit,
     accentColor: AccentColor,
     onAccentColorSelect: (AccentColor) -> Unit,
+    statusCardColor: StatusCardColor,
+    onStatusCardColorSelect: (StatusCardColor) -> Unit,
     readingFont: ReadingFont,
     onFontSelect: (ReadingFont) -> Unit,
     boldText: Boolean,
@@ -83,6 +86,7 @@ fun OptionsScreen(
         ) {
             ThemeSection(darkOverride, onThemeSelect)
             AccentColorSection(accentColor, onAccentColorSelect)
+            StatusCardColorSection(statusCardColor, onStatusCardColorSelect)
             LanguageSection(outputLanguage, onLanguageSelect)
             ToneSection(narrativeTone, onToneSelect)
             FontSection(readingFont, onFontSelect, boldText, onBoldTextChange)
@@ -160,6 +164,8 @@ private fun OptionsScreenPreview() {
             onThemeSelect = {},
             accentColor = AccentColor.BLUE,
             onAccentColorSelect = {},
+            statusCardColor = StatusCardColor.DEFAULT,
+            onStatusCardColorSelect = {},
             readingFont = ReadingFont.SERIF,
             onFontSelect = {},
             boldText = false,
