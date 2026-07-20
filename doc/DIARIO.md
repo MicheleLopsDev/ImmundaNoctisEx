@@ -413,6 +413,27 @@ prima di riconsiderarla.
   test, il rotto corretto). **Mai vista girare né su device né su LM
   Studio**: prossimo test di Michele.
 
+  **CONFERMATO che il meccanismo funziona** (Michele: "funziona"),
+  poi richiesti altri libri di test più uno con "una loc non
+  definita". 2 nuovi file in `content/test-books/` e uno aggiornato:
+  - `test_image_no_match_desert.json`: secondo campione di "nessuna
+    location calza" (deserto, soggetto diverso dalla nave di
+    `test_image_no_match.json`) — un solo campione non basta a
+    fidarsi che `IMAGE|xxx` sia il comportamento reale e non un
+    colpo di fortuna, serve triangolare.
+  - `test_image_with_combat.json`: combattimento (`combat`) senza
+    `backgroundImage`, ambientato in una caverna (`loc_caves`) — mai
+    provato insieme a IMAGE, verifica che il blocco tag contenga
+    ENTRAMBI `ENEMY|...` e `IMAGE|...` nella stessa risposta
+    (`enemyFormatText` e `imageFormatText` si aggiungono entrambi
+    quando c'è combat e nessuno sfondo valido, mai testato insieme).
+  - `test_image_no_match.json`: descrizione aggiornata (diceva
+    "Gemma dovrebbe OMETTERE il tag", ora si aspetta `IMAGE|xxx` —
+    il file narrativo non è cambiato, solo cosa ci si aspetta in
+    uscita con la quarta formulazione).
+  JSON validati. **Mai caricati sul device**: da provare col
+  side-load.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
