@@ -25,11 +25,14 @@ fun sceneBackgroundRes(name: String?): Int = when (name) {
     "loc_market" -> R.drawable.loc_market
     "loc_monastery_dawn" -> R.drawable.loc_monastery_dawn
     "loc_mountain" -> R.drawable.loc_mountain
+    "loc_mountain_pass" -> R.drawable.loc_mountain_pass
     "loc_smithy_exterior" -> R.drawable.loc_smithy_exterior
     "loc_smithy_interior" -> R.drawable.loc_smithy_interior
     "loc_standing_stones" -> R.drawable.loc_standing_stones
+    "loc_storm_tower" -> R.drawable.loc_storm_tower
     "loc_tavern" -> R.drawable.loc_tavern
     "loc_tomb_exterior" -> R.drawable.loc_tomb_exterior
     "loc_tomb_interior" -> R.drawable.loc_tomb_interior
+    "loc_warehouse" -> R.drawable.loc_warehouse
     else -> R.drawable.map_dungeon
 }
