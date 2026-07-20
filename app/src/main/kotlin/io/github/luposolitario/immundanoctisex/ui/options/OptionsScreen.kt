@@ -40,6 +40,8 @@ fun OptionsScreen(
     onThemeSelect: (Boolean?) -> Unit,
     readingFont: ReadingFont,
     onFontSelect: (ReadingFont) -> Unit,
+    boldText: Boolean,
+    onBoldTextChange: (Boolean) -> Unit,
     outputLanguage: OutputLanguage,
     onLanguageSelect: (OutputLanguage) -> Unit,
     ttsUi: TtsUi,
@@ -75,7 +77,7 @@ fun OptionsScreen(
         ) {
             ThemeSection(darkOverride, onThemeSelect)
             LanguageSection(outputLanguage, onLanguageSelect)
-            FontSection(readingFont, onFontSelect)
+            FontSection(readingFont, onFontSelect, boldText, onBoldTextChange)
             TtsSection(
                 ui = ttsUi,
                 onAutoReadChange = onAutoReadChange,
@@ -150,6 +152,8 @@ private fun OptionsScreenPreview() {
             onThemeSelect = {},
             readingFont = ReadingFont.SERIF,
             onFontSelect = {},
+            boldText = false,
+            onBoldTextChange = {},
             outputLanguage = OutputLanguage.ITALIAN,
             onLanguageSelect = {},
             ttsUi = TtsUi(

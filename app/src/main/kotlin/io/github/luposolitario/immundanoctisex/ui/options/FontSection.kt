@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,9 +23,17 @@ import io.github.luposolitario.immundanoctisex.util.ReadingFont
 
 // Scelta del font per il testo di lettura (UI.md schermata 7, richiesta
 // Michele 17/07/2026): un'anteprima nel font stesso, non solo il nome —
-// così si vede davvero la differenza prima di scegliere.
+// così si vede davvero la differenza prima di scegliere. Il grassetto
+// (21/07/2026) è un interruttore in più nella stessa card, non una
+// scelta a sé: si applica all'anteprima così l'effetto combinato si
+// vede subito, prima di uscire dalla schermata.
 @Composable
-fun FontSection(selected: ReadingFont, onSelect: (ReadingFont) -> Unit) {
+fun FontSection(
+    selected: ReadingFont,
+    onSelect: (ReadingFont) -> Unit,
+    bold: Boolean,
+    onBoldChange: (Boolean) -> Unit,
+) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text("Font di lettura", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
@@ -45,10 +55,21 @@ fun FontSection(selected: ReadingFont, onSelect: (ReadingFont) -> Unit) {
                         Text(
                             "Il narratore racconta la storia",
                             fontFamily = font.family,
+                            fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal,
                             style = MaterialTheme.typography.bodyLarge,
                         )
                     }
                 }
+            }
+
+            HorizontalDivider(Modifier.padding(vertical = 4.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth().selectable(selected = bold, onClick = { onBoldChange(!bold) }),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("Grassetto")
+                Switch(checked = bold, onCheckedChange = onBoldChange)
             }
         }
     }
@@ -58,6 +79,6 @@ fun FontSection(selected: ReadingFont, onSelect: (ReadingFont) -> Unit) {
 @Composable
 private fun FontSectionPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
-        FontSection(selected = ReadingFont.SERIF, onSelect = {})
+        FontSection(selected = ReadingFont.SERIF, onSelect = {}, bold = false, onBoldChange = {})
     }
 }

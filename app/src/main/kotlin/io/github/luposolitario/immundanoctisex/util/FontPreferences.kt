@@ -57,9 +57,16 @@ class FontPreferences(context: Context) {
             ?: TextScale.MEDIUM
         set(value) = prefs.edit().putString(KEY_TEXT_SCALE, value.name).apply()
 
+    // Grassetto (richiesta Michele 21/07/2026): un interruttore in più
+    // nella stessa card del font, non una scelta a sé.
+    var boldText: Boolean
+        get() = prefs.getBoolean(KEY_BOLD, false)
+        set(value) = prefs.edit().putBoolean(KEY_BOLD, value).apply()
+
     private companion object {
         const val PREFS_NAME = "font_preferences"
         const val KEY_FONT = "reading_font"
         const val KEY_TEXT_SCALE = "text_scale"
+        const val KEY_BOLD = "bold_text"
     }
 }
