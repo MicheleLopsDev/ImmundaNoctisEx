@@ -1,17 +1,16 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -24,10 +23,15 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 // L'insegna dell'esito, isolata dalla EndingZone SOLO per poterla vedere
 // in @Preview: la zona vera dipende da AdventureState, che in preview non
 // si costruisce. Così i due disegni si guardano senza device.
+//
+// Le illustrazioni sono TAVOLE A CHINA fornite da Michele (20/07/2026),
+// ritagliate da un'unica immagine. Fondo bianco e cornice fanno parte
+// del disegno e si tengono: è l'estetica dei libri di Lupo Solitario,
+// una tavola stampata dentro la pagina.
 @androidx.annotation.DrawableRes
 private fun endingImageRes(outcome: EndingOutcome): Int? = when (outcome) {
-    EndingOutcome.VICTORY -> R.drawable.ic_ending_victory
-    EndingOutcome.DEFEAT -> R.drawable.ic_ending_defeat
+    EndingOutcome.VICTORY -> R.drawable.ending_victory
+    EndingOutcome.DEFEAT -> R.drawable.ending_defeat
     EndingOutcome.NEUTRAL -> null
 }
 
@@ -45,7 +49,11 @@ fun EndingBadge(outcome: EndingOutcome, modifier: Modifier = Modifier) {
             Image(
                 painter = painterResource(id = image),
                 contentDescription = null,
-                modifier = Modifier.size(88.dp),
+                // Altezza contenuta: la zona del finale ospita anche i
+                // pulsanti (ricarica checkpoint, Torna alla Home) e su uno
+                // schermo stretto un'illustrazione grande li spinge fuori.
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.heightIn(max = 150.dp),
             )
         }
         Text(
@@ -62,28 +70,28 @@ fun EndingBadge(outcome: EndingOutcome, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(showBackground = true, name = "Esiti — scuro")
+@Preview(showBackground = true, name = "Vittoria")
 @Composable
-private fun EndingBadgeDarkPreview() {
+private fun EndingVictoryPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier.padding(16.dp)) {
-            EndingBadge(EndingOutcome.VICTORY)
-            EndingBadge(EndingOutcome.DEFEAT)
-            EndingBadge(EndingOutcome.NEUTRAL)
-        }
+        EndingBadge(EndingOutcome.VICTORY, modifier = Modifier.padding(16.dp))
     }
 }
 
-// Il teschio deve reggere anche su fondo chiaro: è il motivo del contorno
-// scuro nel vettoriale.
-@Preview(showBackground = true, name = "Esiti — chiaro")
+@Preview(showBackground = true, name = "Sconfitta")
 @Composable
-private fun EndingBadgeLightPreview() {
-    ImmundaNoctisTheme(darkTheme = false) {
-        Row(horizontalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier.padding(16.dp)) {
-            EndingBadge(EndingOutcome.VICTORY)
-            EndingBadge(EndingOutcome.DEFEAT)
-            EndingBadge(EndingOutcome.NEUTRAL)
-        }
+private fun EndingDefeatPreview() {
+    ImmundaNoctisTheme(darkTheme = true) {
+        EndingBadge(EndingOutcome.DEFEAT, modifier = Modifier.padding(16.dp))
+    }
+}
+
+// Senza esito dichiarato: nessuna tavola, ma l'avventura dice comunque
+// che è finita.
+@Preview(showBackground = true, name = "Neutro")
+@Composable
+private fun EndingNeutralPreview() {
+    ImmundaNoctisTheme(darkTheme = true) {
+        EndingBadge(EndingOutcome.NEUTRAL, modifier = Modifier.padding(16.dp))
     }
 }
