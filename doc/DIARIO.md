@@ -302,10 +302,20 @@ prima di riconsiderarla.
    partita** (memoria nativa). Su 15,5 GB non si sente con 3 partite;
    l'ottimizzazione si fa alla fine. Non è una svista: è una scelta.
 7. La **grafica** rinviata consapevolmente: il banner è v0.1, manca il
-   `backgroundImage` PER SCENA (il sample dichiara
-   inn/city/alley/battle/warehouse, gli asset non esistono — vanno
-   prodotti, Fase 7) e manca il compagno di viaggio. I PNG da 3-4 MB
-   (`ic_axe`, `ic_map_icon`, `ic_gold`) vanno in WebP.
+   compagno di viaggio. I PNG da 3-4 MB (`ic_axe`, `ic_map_icon`,
+   `ic_gold`) vanno in WebP.
+8. **SEGNALATO da Michele (21/07), non ancora strutturato — "la
+   strutturiamo meglio dopo"**: se manca una location adatta nel
+   catalogo, Gemma potrebbe pescare da un ALTRO catalogo tematico
+   invece di omettere il tag — es. una scena di battaglia senza
+   `loc_*` adatto potrebbe usare `misc_battle_clash`, un incontro con
+   un lupo potrebbe usare `beast_wolves` come sfondo/illustrazione.
+   Da decidere quando arriva il turno: come distinguere "sfondo di
+   scena" da "illustrazione di un evento/creatura" nella UI (sono
+   concettualmente cose diverse, vedi la nota su `misc_battle_clash`
+   sopra), se serve un tag diverso da IMAGE per non confondere i due
+   vocabolari, e se il rischio di scelte bizzarre (un lupo come sfondo
+   di un'intera scena) è accettabile o va limitato a casi precisi.
 
 **Misure ancora mancanti**: il **termico** su 30-45' (il log più lungo
 copre 6'20") e il **drain della batteria** (osservazione di Michele
