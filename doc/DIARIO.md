@@ -612,6 +612,19 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   sul device**: né la scelta in sé, né l'effetto vero su cosa scrive
   Gemma con un tono forzato.
 
+  Michele, subito dopo: "non trovo la modifica" (riferito al tono).
+  Codice riverificato: `ToneSection` è chiamata correttamente in
+  `OptionsScreen.kt`, tutto committato su `develop` — sospetto più
+  probabile: l'APK sul Razr non era stato ricompilato dopo l'ultimo
+  commit. Chiesta conferma, non ancora arrivata risposta.
+
+  **DIMENSIONI DEL FONT AUMENTATE, stesso giorno** ("aumenta le
+  dimensioni del font"): i tre valori di `TextScale` (il ciclo del
+  pulsante lente) partivano troppo vicini alla taglia normale di
+  Material per sentirsi un vero cambiamento — 0.85/1/1.2 diventano
+  1/1.25/1.5. Compilazione e suite verdi. **Mai visto girare sul
+  device.**
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.

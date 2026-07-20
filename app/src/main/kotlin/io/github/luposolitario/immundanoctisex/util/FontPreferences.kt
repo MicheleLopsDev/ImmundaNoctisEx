@@ -31,10 +31,15 @@ enum class ReadingFont(val displayName: String, val family: FontFamily) {
 // cicla la taglia — non una schermata a parte). Moltiplicatore sul
 // bodyLarge di Material, non una dimensione assoluta: segue comunque
 // eventuali cambi di tema tipografico futuri.
+//
+// Valori alzati lo stesso giorno ("aumenta le dimensioni del font"):
+// la prima terna (0.85/1/1.2) partiva dal bodyLarge di Material com'è
+// — troppo vicina alla taglia normale per sentirsi davvero un
+// cambiamento quando si tocca il pulsante.
 enum class TextScale(val multiplier: Float, val icon: String) {
-    SMALL(0.85f, "A-"),
-    MEDIUM(1f, "A"),
-    LARGE(1.2f, "A+"),
+    SMALL(1f, "A-"),
+    MEDIUM(1.25f, "A"),
+    LARGE(1.5f, "A+"),
     ;
 
     fun next(): TextScale = entries[(ordinal + 1) % entries.size]
