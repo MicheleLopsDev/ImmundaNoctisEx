@@ -796,6 +796,28 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   ancora spezzato — continua a crescere). **Mai visto girare sul
   device.**
 
+  **SEGNALATO da Michele per il futuro validatore**: "quando
+  implementiamo il software per scrivere/validare il JSON dobbiamo
+  tenere presente tutte queste regole". Verificato: i validatori
+  esistenti (`:core:data/validation/`, Fase 2 CHIUSA — `GraphValidator`,
+  `CombatValidator`, `DisciplineValidator`, `GameMechanicValidator`...)
+  **non controllano NESSUNO dei limiti di inventario**.
+  `GameMechanicValidator` oggi verifica solo la copertura dei tiri di
+  `rollOnItemTable`, nient'altro. Regole da coprire quando si estende
+  (qui, o nel `:tool` ETL di Fase 6, che ha già "validatori condivisi"
+  nel piano):
+  - Più `addItem`/`offerItem` di tipo `WEAPON` sulla stessa scena (o
+    sommati a quelle già possedute) oltre `Inventory.MAX_WEAPONS` (2):
+    con `addItem` è un probabile errore dell'autore (l'eccedenza si
+    scarta in silenzio) — con `offerItem` è voluto, ma solo se ce ne
+    sono ALMENO 2 offerte per lasciare una scelta vera.
+  - Idem per `BACKPACK_ITEM`/`GOLD` oltre `MAX_BACKPACK_SLOTS` (8) /
+    `MAX_GOLD` (50).
+  - Nessun limite per `SPECIAL_ITEM` (giusto non validarlo).
+  - Un `addItem` che offre PIÙ ARMI di quante ne stiano dovrebbe
+    probabilmente essere un WARNING ("forse volevi `offerItem`?"), non
+    un errore bloccante — coerente con "il gioco non si blocca mai".
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
