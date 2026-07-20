@@ -374,6 +374,25 @@ prima di riconsiderarla.
   prompt incompleto senza saperlo). `adb logcat -s SceneNarrator`.
   Compilazione e suite `app` verdi.
 
+  **CONFERMATO su LM Studio, stesso giorno**: Michele ha provato il
+  prompt (copiato dal log) su `gemma-4-E4B-it` GGUF locale, con
+  `imageFormatText` RISCRITTO A MANO in modo imperativo — ha
+  funzionato, `IMAGE|loc_tavern` scritto correttamente. Conferma
+  l'ipotesi 2 di prima: la parola "OPTIONAL" era il problema, non la
+  posizione nel prompt né la mancanza di un esempio (quello già
+  c'era dal tentativo precedente). **Non adottata la formulazione
+  letterale di Michele**: diceva "se nessuno è coerente scegli
+  comunque una location" — funziona, ma contraddice il vincolo del
+  21/07 mattina ("se nessuna calza, ometti, non indovinare").
+  Riscritto `imageFormatText` prendendo solo la lezione (tono
+  imperativo, "decidi ORA" invece di "OPTIONAL") mantenendo la
+  possibilità di omettere la riga quando nessuna location è un buon
+  match. Aggiornati di nuovo entrambi i posti (`PromptFragments.kt`
+  DEFAULTS e `content/config.json`). Suite `app` verde. **Ancora da
+  provare sul device con questa terza formulazione** — il test su LM
+  Studio ha validato "l'imperativo funziona", non ancora "l'imperativo
+  CHE OMETTE SE SERVE funziona altrettanto".
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.

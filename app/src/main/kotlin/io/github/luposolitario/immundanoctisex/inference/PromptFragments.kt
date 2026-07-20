@@ -112,16 +112,27 @@ data class PromptFragments(
             // solo descritta a parole. L'esempio usa un id vero del
             // dizionario ma dice esplicitamente di non copiarlo: mostra
             // la SINTASSI, non suggerisce la scelta.
-            imageFormatText = "IMAGE|location_id — OPTIONAL. Below is a CLOSED dictionary of " +
-                "available locations, each with a short description of what it depicts. If one " +
-                "of them is a strong, obvious match for THIS scene, add this line using its id " +
-                "EXACTLY as written below — do not modify, abbreviate, translate or combine it. " +
+            //
+            // "OPTIONAL" TOLTO (21/07/2026, stesso giorno, prova di
+            // Michele su LM Studio): con "OPTIONAL" all'inizio Gemma
+            // saltava la riga; riformulata a mano in modo imperativo
+            // ("decidi ORA") ha funzionato. Presa la lezione (tono
+            // imperativo, non "puoi anche non farlo") SENZA la sua
+            // formulazione letterale, che diceva "se nessuno è coerente
+            // scegli comunque" — violerebbe il vincolo del 21/07
+            // mattina: se nessuna location calza, la riga va OMESSA, mai
+            // indovinata.
+            imageFormatText = "IMAGE|location_id — Decide now whether one of the locations below " +
+                "is a strong, obvious match for THIS scene. Below is a CLOSED dictionary of " +
+                "available locations, each with a short description of what it depicts. If there " +
+                "is a strong match, write this line using its id EXACTLY as written below — do " +
+                "not modify, abbreviate, translate or combine it. " +
                 "Example of the exact line to write (illustrating the syntax only — pick " +
                 "whichever id from the list below actually matches THIS scene, not necessarily " +
                 "this one): IMAGE|loc_tavern. " +
                 "You MUST NOT invent a new id that is not in this dictionary, even if you think " +
-                "it would fit better. If none of these locations fits well, omit the line " +
-                "entirely — do not guess and do not invent one.\n" +
+                "it would fit better. If none of these locations is a good match, do not write " +
+                "this line at all — omit it, do not guess.\n" +
                 "{available_locations}",
             closingText = "NARRATOR (in {user_language}, tone: {tone_hints}):",
         )
