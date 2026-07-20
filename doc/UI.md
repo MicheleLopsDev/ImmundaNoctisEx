@@ -138,9 +138,18 @@ Il testo scorre come pagina di libro (serif, continuo), NON come chat:
   `portrait_dm` già nel banner.
 
 ### Card di stato (in basso, sopra le scelte)
-Ritratto, nome, grado Kai (dorato), CS / Resistenza / Corone con
-icone. **Il tocco apre la Scheda personaggio** (tab Stats). Le icone
-discipline vivono nella scheda, non nella card.
+Ritratto-lupo tondo con bordo d'oro, nome, grado Kai (dorato, con
+medaglia), poi la riga dei valori con le icone di v1: **spada** per la
+Combattività, **cuore** per la Resistenza, **monete** per le Corone.
+Sotto, la **riga delle icone delle discipline possedute** (le stesse
+della creazione, `disciplineIcon()`). **Il tocco apre la Scheda
+personaggio** (tab Stats).
+
+> Correzione 20/07/2026: la versione precedente di questa sezione diceva
+> che le icone discipline vivevano SOLO nella scheda. Michele le ha
+> volute anche nella card — come in v1 — perché servono a colpo d'occhio
+> mentre si sceglie, senza aprire la scheda. Nella scheda restano (lì
+> con nome e descrizione), nella card sono solo icone.
 
 ### Zona scelte
 - Pulsanti pieni per le scelte normali (choiceText tradotto, con
