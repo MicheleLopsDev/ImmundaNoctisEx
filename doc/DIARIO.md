@@ -85,23 +85,30 @@ diario, checkpoint, auto-save atomico).
   CRITICITA.md. Caricamento del modello ~9,0 s. Dettaglio e tabella
   nella voce del 20/07.
 
-**APERTO — il primo controllo della prossima sessione**:
-1. **IL DECODE RALLENTA del 38% in tre scene** (19,9 -> 13,4 -> 12,3
-   tok/s) a **telefono freddo**, mentre il primo token resta stabile.
-   Rallenta solo il decode, non il prefill: punta a qualcosa che si
-   ACCUMULA tra le generazioni. Sospetto su
-   `LiteRtLmEngine.newSession()`, che scarta l'esito di
-   `conversation?.close()`. **Prova decisa con Michele: ~10 scene di
-   fila** — se si stabilizza è il contesto, se continua a scendere è un
-   bug e viene prima di tutto. La stessa giocata serve anche per il
-   TERMICO, che non è ancora misurato (il log copre 1'54", ne servono
-   30-45').
-2. **L'animazione si inchioda quando serve**: 187 frame saltati / 2,1 s
+- **IL BUG DELL'ACCUMULO NON ESISTE** (misurato 20/07 su 15 generazioni,
+  3 partite di fila): la velocità reale del Razr è **12,1 token/s**, e i
+  18,5 delle prime due generazioni sono il BOOST iniziale del SoC, non
+  una velocità che si perde. Dettaglio sotto. **Ipotesi mia smentita dai
+  dati.**
+
+**APERTO — in ordine deciso con Michele (20/07)**:
+1. **L'animazione si inchioda quando serve**: 187 frame saltati / 2,1 s
    di UI congelata durante il caricamento del modello. Difetto del
    lavoro del 20/07.
-3. **TTS da implementare** (richiesta Michele 20/07) e le rifiniture
-   grafiche, in quest'ordine dopo i punti 1-2.
+2. **TTS da implementare** (richiesta Michele 20/07) e le rifiniture
+   grafiche.
+3. **Agganciare le 41 immagini** del catalogo alle scene
+   (`Scene.backgroundImage`) e ai personaggi: oggi sono nell'APK ma
+   nessun codice le usa.
 4. Mancano ancora le **fixture** da output reali di Gemma.
+5. **RINVIATO CONSAPEVOLMENTE da Michele**: il leak di **140 MB per
+   partita** (memoria nativa). Su 15,5 GB non si sente con 3 partite;
+   l'ottimizzazione si fa alla fine. Non è una svista: è una scelta.
+
+**Misure ancora mancanti**: il **termico** su 30-45' (il log più lungo
+copre 6'20") e il **drain della batteria** (osservazione di Michele
+20/07: su un gioco che tiene la GPU occupata conta più della memoria —
+va aggiunto alle misure di CRITICITA.md).
 5. La **grafica** rinviata consapevolmente: il banner è v0.1, manca il
    `backgroundImage` PER SCENA (il sample dichiara
    inn/city/alley/battle/warehouse, gli asset non esistono — vanno
@@ -226,7 +233,55 @@ backend: GPU`, delegate LITERT_CL su tutti i 2712 nodi).
 caricato su GPU"). L'animazione fatta stamattina non era un vezzo:
 nove secondi con una scritta ferma sembrano un blocco.
 
-### Il sospetto sul decode — DA VERIFICARE, non è una diagnosi
+### RISOLTO in giornata: il bug dell'accumulo NON ESISTE
+
+Michele ha giocato **3 partite di fila senza chiudere l'app**, 15
+generazioni, con la strumentazione nuova. I dati smentiscono l'ipotesi
+qui sotto — la lascio scritta perché il ragionamento che portava a
+sbagliare è istruttivo.
+
+**1. Le conversazioni si chiudono**: `vive=1` in tutte e 15 le
+generazioni, `chiusureFallite=0`. Il `close()` sospettato non c'entra.
+
+**2. Non è un degrado progressivo, è un GRADINO**. Rigiocando le stesse
+scene (prompt IDENTICI, quindi confronto pulito):
+
+| prompt | giro 1 | giro 2 | giro 3 |
+|--------|--------|--------|--------|
+| ~552   | 18,4   | 12,5   | 12,0   |
+| ~689   | 18,6   | 12,4   | 12,5   |
+| ~867   | 12,2   | 12,4   | 12,4   |
+| ~505   | 12,2   | 12,2   | 12,3   |
+
+Dopo le prime due generazioni la velocità si assesta a **12,1 token/s e
+ci resta per 13 generazioni**. Il giro 3 va come il giro 2.
+
+**Le anomale sono le prime due, non le altre**: il SoC parte in boost di
+frequenza e poi scende al regime sostenibile. Questo spiega anche le
+misure di stamattina — quel "19,9 -> 12,3" che leggevamo come degrado
+era lo stesso fenomeno, e "riavviare l'app resetta la velocità" voleva
+solo dire "rimette il telefono in boost".
+
+**La velocità vera del Razr su Gemma 4 E4B è 12 token/s.** I 18,5 dei
+primi secondi non sono una velocità che perdiamo: sono un transitorio.
+
+**3. La strumentazione ha però trovato un problema DIVERSO e reale**: la
+memoria nativa cresce di **~140 MB a ogni PARTITA** (1086 -> 1226 ->
+1365 MB), non a ogni generazione. Il salto avviene quando si torna alla
+Home e si ricomincia. Causa ignota: l'engine non viene ricreato e le
+conversazioni si chiudono. **Michele ha deciso di rinviarlo**: su
+15,5 GB non si sente, le prestazioni sono decenti e il calore
+accettabile. L'ottimizzazione si fa alla fine.
+
+**Lezione di metodo**: l'ipotesi era ragionevole (rallenta solo il
+decode, non il prefill -> qualcosa si accumula) ed era sbagliata. A
+salvarla non è stato ragionare meglio ma **misurare**: tre righe di
+contatori nel log hanno chiuso in una giocata una questione che
+sarebbe rimasta aperta per sessioni.
+
+---
+
+### Il sospetto sul decode — SMENTITO, si tiene per memoria del metodo
 
 La velocità di decode **scende del 38% in tre scene** e l'attesa reale
 per scena sale da 10,7 a 18,5 s. Michele riferisce **telefono freddo**:
