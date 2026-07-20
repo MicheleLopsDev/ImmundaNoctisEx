@@ -28,6 +28,7 @@ fun OptionsRoute(
 
     var themeOverride by remember { mutableStateOf(darkOverride) }
     var font by remember { mutableStateOf(container.fontPreferences.readingFont) }
+    var bold by remember { mutableStateOf(container.fontPreferences.boldText) }
     var language by remember { mutableStateOf(container.languagePreferences.outputLanguage) }
 
     var autoRead by remember { mutableStateOf(container.ttsPreferences.autoReadEnabled) }
@@ -55,6 +56,11 @@ fun OptionsRoute(
         onFontSelect = { selected ->
             font = selected
             container.fontPreferences.readingFont = selected
+        },
+        boldText = bold,
+        onBoldTextChange = { enabled ->
+            bold = enabled
+            container.fontPreferences.boldText = enabled
         },
         outputLanguage = language,
         onLanguageSelect = { selected ->

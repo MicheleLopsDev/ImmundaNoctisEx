@@ -579,6 +579,17 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   girare sul device**: da riconfermare che ORA siano davvero
   distinguibili.
 
+  **GRASSETTO, stesso giorno** (richiesta di Michele: "aggiungi che
+  si può mettere in grassetto"): nuovo `boldText: Boolean` in
+  `FontPreferences.kt`, interruttore in più nella stessa card del
+  font (non una scelta a sé) — si applica anche all'anteprima in
+  `FontSection.kt`, così l'effetto combinato font+grassetto si vede
+  subito. A differenza della grandezza (che ha il pulsante lente
+  nell'header, cambiabile dentro la scena), il grassetto si sceglie
+  SOLO in Opzioni: `AdventureScreen` lo riceve come semplice
+  parametro `boldText`, niente stato locale da ciclare. Compilazione
+  e suite verdi. **Mai visto girare sul device.**
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.

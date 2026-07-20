@@ -59,6 +59,9 @@ fun AdventureScreen(
     initialTextScale: io.github.luposolitario.immundanoctisex.util.TextScale =
         io.github.luposolitario.immundanoctisex.util.TextScale.MEDIUM,
     onTextScaleChange: (io.github.luposolitario.immundanoctisex.util.TextScale) -> Unit = {},
+    // Nessun controllo per cambiarlo dentro la scena (a differenza della
+    // grandezza): si sceglie in Opzioni e basta, un semplice parametro.
+    boldText: Boolean = false,
 ) {
     // Scheda e Diario come overlay dentro la route (stato condiviso;
     // diventeranno destinazioni proprie in Fase 5).
@@ -159,6 +162,7 @@ fun AdventureScreen(
                     text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
                     style = MaterialTheme.typography.bodyLarge,
                     fontFamily = readingFont,
+                    fontWeight = if (boldText) FontWeight.Bold else FontWeight.Normal,
                     fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale.multiplier,
                     modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
                 )

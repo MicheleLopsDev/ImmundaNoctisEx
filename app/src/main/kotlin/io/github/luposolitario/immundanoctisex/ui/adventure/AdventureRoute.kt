@@ -92,6 +92,7 @@ fun AdventureRoute(
                 readingFont = container.fontPreferences.readingFont.family,
                 initialTextScale = container.fontPreferences.textScale,
                 onTextScaleChange = { container.fontPreferences.textScale = it },
+                boldText = container.fontPreferences.boldText,
             )
         }
 
