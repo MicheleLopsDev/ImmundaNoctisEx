@@ -99,12 +99,10 @@ diario, checkpoint, auto-save atomico).
   device solo per l'ultimo dei quattro**; gli altri tre non ancora
   rivisti dopo il fix successivo.
 
-**CONFERMATO da Michele su device**: il testo con i puntini (attesa
-generazione/caricamento) **si vede e va bene**, nonostante il blocco di
-2,1s nei log — declassato, non è più un problema prioritario. Non
-confermato invece l'alone dorato pulsante nel banner (l'altra metà
-dell'animazione, attorno al ritratto): Michele non l'ha menzionato,
-verificare alla prossima prova.
+**CONFERMATA da Michele su device, ENTRAMBE LE METÀ**: il testo con i
+puntini e l'alone dorato pulsante nel banner. Nonostante il blocco di
+2,1s nei log — declassato, non è più un problema prioritario.
+L'animazione del narratore è CHIUSA.
 
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **TTS da implementare** (richiesta Michele 20/07) e le rifiniture
