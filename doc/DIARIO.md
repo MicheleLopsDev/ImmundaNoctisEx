@@ -73,6 +73,13 @@ diario, checkpoint, auto-save atomico).
   in `StatusCard.kt` (lo schermo era oltre le ~200 righe).
   `kaiRankName` è diventata `internal`. Provata sul device: gira.
 
+- **UN'AVVENTURA DICHIARA SEMPRE COM'È ANDATA** (20/07): `Scene.outcome`
+  dichiarato dall'autore, scena di finale **garantita** dal motore anche
+  se il pacchetto non ce l'ha (`AdventureEnding`, 10 test JVM), tavole a
+  china di Michele per vittoria e sconfitta. Chiusi tre modi in cui il
+  gioco poteva restare fermo o schiantarsi. Dettaglio sotto.
+  **Mai visto girare sul device.**
+
 - **MILESTONE DI FASE 4 RAGGIUNTA** (20/07, misure reali dal Razr):
   **primo token 1,43-1,88 s su GPU, sotto la soglia di 3 s** di
   CRITICITA.md. Caricamento del modello ~9,0 s. Dettaglio e tabella
@@ -256,6 +263,69 @@ prima di tutto il resto.
   registra. Per l'SM8750 esiste una build dedicata: opportunità, non
   problema.
 - "Image decoding logging dropped!" a raffica = i PNG da 3-4 MB.
+
+### Un'avventura finisce sempre dichiarando com'è andata
+
+Nata da una frase di Michele dopo la prova: *"si è chiusa, non ho capito
+se è andata bene"*. **Non era un crash**: il sample ha 7 scene, la 6 e la
+7 sono ENDING, quindi aveva semplicemente finito il libro. Il difetto era
+che la schermata di finale **non diceva l'esito** — mostrava solo "Torna
+alla Home", tranne che alla morte in IRON.
+
+Scavando sono usciti altri tre modi di lasciare il giocatore senza
+finale, tutti contro il vincolo "il gioco non si blocca mai":
+- manifest senza `deathSceneId` -> la morte built-in NON era attiva: si
+  continuava a giocare con Resistenza <= 0;
+- sconfitta in combattimento senza `loseSceneId` né `deathSceneId` ->
+  `?: return`, il giocatore restava fermo nella scena persa;
+- `sceneById` usava `.first{}` -> un id inesistente (grafo rotto,
+  sessione di un libro poi cambiato) chiudeva il gioco con un'eccezione.
+
+Decisioni prese con Michele (le tre alternative gli sono state
+sottoposte, non interpretate):
+- **`Scene.outcome`** (VICTORY|DEFEAT|NEUTRAL) lo dichiara l'AUTORE. Il
+  motore non indovina: un finale amaro raggiunto vivi e una vittoria si
+  somigliano troppo. Unica deduzione ammessa: la morte built-in, che
+  BATTE la dichiarazione. Assente = NEUTRAL.
+- **`AdventureEnding.withGuaranteedEnding`** fabbrica la scena di morte
+  quando manca e la aggiunge al grafo, così il resto del motore lavora
+  su un manifest dove `deathSceneId` punta sempre a qualcosa di vero.
+- **Il finale fabbricato lo scrive Gemma** (scelta di Michele), con il
+  testo fisso di `strings.xml` sotto: il vincolo di degradazione resta.
+
+Regola in `:core:engine` con **10 test JVM**. `REGOLE.md` §2.2-bis.
+
+**Il vincolo del prompt l'ha trovato un test, non la lettura**: il
+`constraintText` normale ordina di "riscrivere la CURRENT SCENE", che
+per un finale da inventare è contraddittorio. È servito un
+`syntheticEndingConstraintText` dedicato.
+
+### Le quattro richieste successive di Michele
+
+1. **Testo del finale**: conclusivo ma con "un filo aperto" — possibilità
+   di continuo senza promettere un seguito. Genere e tono erano già nel
+   prompt; il vincolo ora insiste che suoni come QUESTA avventura.
+2. **Immagini dell'esito**: prima due VectorDrawable disegnati a mano,
+   poi **sostituiti dalle tavole a china fornite da Michele** (scheletri
+   / sole nascente). Taglio a metà misurato sulla densità di pixel scuri
+   (banda bianca esatta: colonne 500-529), non a occhio. **WebP
+   lossless** perché il lossy sporcava i bordi del tratteggio: 160 e
+   149 KB. Fondo bianco e cornice TENUTI: è la tavola stampata nella
+   pagina, come nei gamebook.
+3. **Descrizione delle discipline** nella scheda. Qui c'era di peggio
+   della richiesta: **la scheda mostrava gli ID canonici GREZZI**
+   ("MINDBLAST") mentre nome e descrizione italiani erano in
+   `strings.xml` da sempre, mai collegati — contro il vincolo "nomi
+   localizzati solo in strings.xml".
+4. **Enfasi soprannaturale** delle Discipline Kai nel prompt
+   (`disciplineEmphasisText`), con il **limite esplicito** di non
+   inventare effetti oltre il testo sorgente: l'enfasi sta nel racconto,
+   non nelle meccaniche, altrimenti il narratore contraddice le regole.
+   Si spende solo se la scena ha davvero una disciplina in gioco.
+
+**Nulla di tutto questo è stato visto girare**: compila, la suite è
+verde, le preview mostrano i disegni. Il percorso "muori in un libro
+senza deathSceneId" non l'ha ancora eseguito nessuno.
 
 **Cosa NON sappiamo ancora**: il **termico**. Il log copre **1 minuto e
 54 secondi**; CRITICITA.md chiede 30-45'. "Telefono freddo" dopo due
