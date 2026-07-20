@@ -16,6 +16,9 @@ import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
+import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
+import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
+import io.github.luposolitario.immundanoctisex.core.engine.transition.TransitionEngine
 
 // Stato della creazione personaggio: classe semplice (niente ViewModel
 // androidx: nessuna dipendenza da lifecycle, testabile e previewabile).
@@ -117,7 +120,7 @@ class CreationState(private val dice: DiceRoller) {
         }
         startingItems.forEach { hero = Inventory.addItem(hero, it) }
         weapon?.let { hero = Inventory.equipWeapon(hero, it.name) }
-        return SessionData(
+        val rawSession = SessionData(
             saveFormatVersion = 1,
             packageId = manifest.id,
             packageVersion = manifest.version,
@@ -126,5 +129,20 @@ class CreationState(private val dice: DiceRoller) {
             characters = listOf(hero),
             lastUpdate = System.currentTimeMillis(),
         )
+        // BUG (21/07/2026, Michele: "non mi ha aggiunto nulla all'inventario"
+        // — un libro di test dava oggetti via gameMechanics sulla scena
+        // START): la sessione nasceva già "dentro" quella scena
+        // (currentSceneId = startSceneId), senza mai passare da
+        // TransitionEngine.transitionTo — l'UNICO punto che esegue
+        // gameMechanics/HEALING/regole globali (REGOLE.md §2.3). Un
+        // libro non poteva MAI dare oggetti extra o applicare regole
+        // sulla propria scena d'apertura, in nessun caso, non solo in
+        // questo test. Si fa girare la stessa pipeline UNA VOLTA qui,
+        // alla nascita della sessione — non in AdventureState (quello
+        // gira anche alla ripresa di un checkpoint, dove rieseguire i
+        // gameMechanics darebbe gli oggetti una seconda volta).
+        val gameState = GameState(rawSession)
+        TransitionEngine(manifest, MechanicsExecutor(dice)).transitionTo(gameState, startSceneId)
+        return gameState.snapshot()
     }
 }
