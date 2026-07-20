@@ -9,6 +9,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.CombatOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
+import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.JourneyEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
@@ -23,6 +24,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.combat.RoundResult
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
+import io.github.luposolitario.immundanoctisex.core.engine.inventory.ItemOffers
 import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
 import io.github.luposolitario.immundanoctisex.core.engine.transition.TransitionEngine
@@ -93,6 +95,40 @@ class AdventureState(
         private set
     var adventureDeleted: Boolean by mutableStateOf(false)
         private set
+
+    // Oggetti "sul banco" già presi in questa scena (Michele 21/07/2026,
+    // §pick esplicito): stato COMPOSE-osservabile — i flag di GameState
+    // non lo sono (stesso problema già risolto per CombatSession/
+    // combatTick), qui serve la UI del pulsante "Preso" per aggiornarsi
+    // subito. Ricostruito dai flag alla ripresa di un checkpoint, così un
+    // oggetto già preso prima del salvataggio non ricompare.
+    private var pickedItemNames: Set<String> by mutableStateOf(pickedNamesFor(currentScene))
+        private set
+
+    private fun pickedNamesFor(scene: Scene): Set<String> =
+        ItemOffers.offeredItems(scene)
+            .map { it.name }
+            .filter { gameState.flag(pickedFlagKey(scene.id, it)) != null }
+            .toSet()
+
+    private fun pickedFlagKey(sceneId: String, itemName: String) = "picked_item_${sceneId}_$itemName"
+
+    // Quelli ancora disponibili — la UI ne fa un pulsante "Prendi" per
+    // ciascuno.
+    val availableItems: List<GameItem>
+        get() = ItemOffers.offeredItems(currentScene).filterNot { it.name in pickedItemNames }
+
+    // Per disabilitare il pulsante col motivo giusto PRIMA del tocco, non
+    // scoprirlo da un click che silenziosamente non fa nulla.
+    fun canPickItem(item: GameItem): Boolean = Inventory.canAdd(hero, item)
+
+    fun pickItem(item: GameItem) {
+        if (item.name in pickedItemNames || !canPickItem(item)) return
+        gameState.updateHero { Inventory.addItem(it, item) }
+        gameState.setFlag(pickedFlagKey(currentScene.id, item.name), "true")
+        pickedItemNames = pickedItemNames + item.name
+        autoSave()
+    }
 
     // --- Narrazione ---
     // Il testo che la UI mostra: parte dall'originale del pacchetto e
@@ -414,6 +450,7 @@ class AdventureState(
         }
         currentScene = sceneById(result.sceneId)
         currentLocation = currentScene.locationName ?: currentLocation
+        pickedItemNames = pickedNamesFor(currentScene)
         autoSave()
         handleIronDeath()
         // La scena nuova si racconta da sé; il contesto è la CODA della

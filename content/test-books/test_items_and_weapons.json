@@ -2,7 +2,7 @@
     "id": "test-items-and-weapons",
     "version": "1.0.0",
     "title": "TEST: Oggetti e armi",
-    "description": "Scena con 3 armi (per testare la scelta tra i 2 soli slot — la terza non deve entrare), oggetti zaino e uno speciale, per verificare equipaggiamento/consumo/scarto e i limiti dell'inventario.",
+    "description": "Scena con 3 armi in bella vista (solo 2 slot esistono) e altri oggetti offerti con offerItem: il giocatore sceglie cosa prendere, un oggetto alla volta, col pulsante 'Prendi' — niente più addItem automatici che scartano in silenzio quello che eccede lo spazio (21/07/2026, richiesta di Michele).",
     "language": "en",
     "genre": "FANTASY",
     "toneHints": ["calm"],
@@ -22,23 +22,23 @@
             ],
             "gameMechanics": [
                 {
-                    "command": "addItem",
+                    "command": "offerItem",
                     "params": { "itemName": "Broadsword", "itemType": "WEAPON", "weaponType": "BROADSWORD" }
                 },
                 {
-                    "command": "addItem",
+                    "command": "offerItem",
                     "params": { "itemName": "Mace", "itemType": "WEAPON", "weaponType": "MACE" }
                 },
                 {
-                    "command": "addItem",
+                    "command": "offerItem",
                     "params": { "itemName": "Dagger", "itemType": "WEAPON", "weaponType": "DAGGER" }
                 },
                 {
-                    "command": "addItem",
+                    "command": "offerItem",
                     "params": { "itemName": "Meal", "itemType": "BACKPACK_ITEM", "quantity": 3 }
                 },
                 {
-                    "command": "addItem",
+                    "command": "offerItem",
                     "params": {
                         "itemName": "Laumspur Potion",
                         "itemType": "BACKPACK_ITEM",
@@ -47,11 +47,11 @@
                     }
                 },
                 {
-                    "command": "addItem",
+                    "command": "offerItem",
                     "params": { "itemName": "Tarnished Ring of the Old Kingdom", "itemType": "SPECIAL_ITEM" }
                 },
                 {
-                    "command": "addItem",
+                    "command": "offerItem",
                     "params": { "itemName": "Gold Crowns", "itemType": "GOLD", "quantity": 15 }
                 }
             ]

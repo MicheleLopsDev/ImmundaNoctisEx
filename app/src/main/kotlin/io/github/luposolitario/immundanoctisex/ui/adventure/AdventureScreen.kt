@@ -188,6 +188,10 @@ fun AdventureScreen(
             state.isEnding -> EndingZone(state, onExitToHome, onReloadCheckpoint)
             state.requiresRoll -> DiceZone(state)
             else -> {
+                if (state.availableItems.isNotEmpty()) {
+                    PickupZone(state)
+                    Spacer(Modifier.height(6.dp))
+                }
                 ChoicesZone(state)
                 // Piazzamento checkpoint dal menu (STATO.md Blocco 2): fuori
                 // dal combattimento, col budget della difficoltà visibile.

@@ -743,6 +743,59 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   `:app` e `:core:engine` verdi. **Mai visto girare sul device**: da
   riprovare con lo stesso `test_items_and_weapons.json`.
 
+- **PICK ESPLICITO DEGLI OGGETTI, stesso giorno** (Michele, dopo aver
+  visto lo scarto silenzioso: "il pick deve sempre necessariamente
+  essere di una singola cosa per volta, addItem non può funzionare in
+  maniera silenziosa"). Nuovo concetto di gameplay, non discusso
+  prima in `REGOLE.md`: quando una scena offre più oggetti di quanti
+  se ne possano prendere (es. 3 armi, 2 soli slot), la scelta di
+  quale prendere dev'essere del giocatore — mai un cap automatico che
+  scarta in silenzio in base all'ordine di scrittura nel JSON.
+
+  **Nuovo comando `offerItem`** (accanto ad `addItem`, che resta
+  invariato per gli oggetti che l'autore vuole dare senza ambiguità):
+  a differenza di `addItem`, `MechanicsExecutor` non lo esegue
+  all'arrivo in scena — il comando non è nel suo `when`, cade nel
+  ramo di default (nessun effetto), blindato da un test dedicato.
+  Resta "sul banco" finché il giocatore non lo sceglie esplicitamente.
+
+  `Inventory.canAdd(character, item): Boolean` (nuovo, `:core:engine`):
+  sapere PRIMA se c'è spazio, per disabilitare il pulsante "Prendi"
+  con un motivo esplicito ("Hai già 2 armi", "Zaino pieno", "Borsa
+  piena") — mai un tocco che silenziosamente non fa nulla. Riusata
+  anche da `addCapped` per togliere una piccola duplicazione.
+
+  `ItemOffers.offeredItems(scene): List<GameItem>` (nuovo, pubblico,
+  `core.engine.inventory`): estrae gli `offerItem` di una scena senza
+  eseguirli — stessa logica di parsing di `ItemMechanics.addItem`,
+  factorizzata in `Params.kt` (`itemType`/`weaponType` erano private
+  dentro `ItemMechanics`, spostate `internal` top-level per essere
+  riusabili nello stesso modulo da un package diverso).
+
+  `AdventureState`: `availableItems` (gli offerti non ancora presi),
+  `canPickItem`, `pickItem` — un oggetto alla volta, mai automatico.
+  "Già preso" tracciato con un flag di sessione (`picked_item_<scena>
+  _<nome>`, sopravvive a checkpoint/autosave) MA lo stato che guida la
+  UI è un `Set<String>` Compose-osservabile separato, ricalcolato ad
+  ogni cambio scena — i flag di `GameState` da soli non bastano a far
+  ricomporre (stesso problema già risolto ieri per `CombatSession`/
+  `combatTick`).
+
+  Nuova `ui/adventure/PickupZone.kt`: una card "Puoi prendere" con un
+  pulsante per oggetto, mostrata sopra le scelte normali quando la
+  scena ne ha. Riscritto `test_items_and_weapons.json` per usare
+  `offerItem` su tutti gli oggetti (non solo le armi): il principio
+  vale in generale, non solo quando lo spazio è il problema.
+
+  6 test nuovi (`InventoryTest`: `canAdd` nei 4 casi di capacità;
+  `ItemOffersTest`, nuovo file: parsing, `addItem` che non conta come
+  offerta, le 3 armi che restano tutte disponibili, e il test che
+  blinda "`MechanicsExecutor` non deve mai eseguire `offerItem` da
+  solo"). Compilazione e suite verdi. **`AdventureState.kt` è salito
+  a 497 righe** (era già a 450, debito pregresso segnalato ieri, non
+  ancora spezzato — continua a crescere). **Mai visto girare sul
+  device.**
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.

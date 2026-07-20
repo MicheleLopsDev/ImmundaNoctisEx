@@ -123,4 +123,44 @@ class InventoryTest {
         assertEquals("Sword", equipped.equippedWeapon)
         assertNull(ignored.equippedWeapon)
     }
+
+    // canAdd (21/07/2026, Michele: "addItem non può funzionare in maniera
+    // silenziosa" — serve sapere PRIMA se c'è spazio, per il pick
+    // esplicito di ItemOffers): stessa regola di addCapped/addWeapon,
+    // senza eseguire nulla.
+    @Test
+    fun canAddFalsoConDueArmiGiaPossedute() {
+        val character = hero(weapon("Sword"), weapon("Axe"))
+
+        assertEquals(false, Inventory.canAdd(character, weapon("Mace")))
+    }
+
+    @Test
+    fun canAddVeroConUnoSoloSlotArmaLibero() {
+        val character = hero(weapon("Sword"))
+
+        assertEquals(true, Inventory.canAdd(character, weapon("Mace")))
+    }
+
+    @Test
+    fun canAddFalsoConZainoPieno() {
+        val character = hero(meal(8))
+
+        assertEquals(false, Inventory.canAdd(character, meal(1)))
+    }
+
+    @Test
+    fun canAddFalsoConCoroneAlTetto() {
+        val character = hero(gold(50))
+
+        assertEquals(false, Inventory.canAdd(character, gold(1)))
+    }
+
+    @Test
+    fun canAddSempreVeroPerOggettiSpeciali() {
+        val character = hero()
+        val special = GameItem(name = "Map of Sommerlund", type = ItemType.SPECIAL_ITEM)
+
+        assertEquals(true, Inventory.canAdd(character, special))
+    }
 }
