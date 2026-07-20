@@ -467,6 +467,23 @@ prima di riconsiderarla.
   test per intercettarlo, non uno unitario JVM): da confermare sul
   device.
 
+  **CONFERMATO da Michele su device, stesso giorno**: "sembra
+  sistemato il bug". Ha allegato un log di ~21 minuti, 18 generazioni
+  consecutive (side-load ripetuto del sample), analizzato per intero
+  a caccia di ALTRI problemi: nessun crash, nessuna eccezione. Tag
+  IMAGE risolto a un valore valido in tutte le 18 generazioni
+  (`loc_warehouse`/`loc_tavern`/`loc_market`, mai `null` né `xxx` —
+  nessuna scena di questo giro era un vero "no match", quel caso
+  resta da vedere con `test_image_no_match`/`_desert`). Due fenomeni
+  presenti ma GIÀ NOTI, non nuovi bug: velocità in calo da ~18-19 a
+  ~11-13 tok/s (boost iniziale del SoC che si esaurisce, misurato il
+  20/07) e memoria nativa in crescita da 1017 a ~1496 MB in 17 cicli
+  (il leak già rinviato consapevolmente da Michele). **Nota minore
+  nuova**: micro-blocchi UI sparsi da 30-34 frame (~0,5s), più piccoli
+  del blocco noto di caricamento modello (~193-198 frame) — probabile
+  decodifica delle immagini di sfondo, non un malfunzionamento, da
+  tenere d'occhio se la fluidità peggiora.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
