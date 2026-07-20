@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import io.github.luposolitario.immundanoctisex.navigation.AppNavigation
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.util.AccentColor
 
 // Single-activity (ARCHITETTURA.md): la MainActivity costruisce
 // l'AppContainer e monta il routing; tutto il resto sono composable.
@@ -28,8 +29,14 @@ class MainActivity : ComponentActivity() {
             var darkTheme by remember {
                 mutableStateOf(container.themePreferences.useDarkTheme(systemDark))
             }
+            // Colore d'accento (Michele 21/07/2026, "una selezione dei
+            // colori" vista la card di stato): stesso pattern del tema,
+            // stato qui perché deve applicarsi SUBITO senza riavviare.
+            var accentColor by remember {
+                mutableStateOf(container.accentColorPreferences.accentColor)
+            }
 
-            ImmundaNoctisTheme(darkTheme = darkTheme) {
+            ImmundaNoctisTheme(darkTheme = darkTheme, accentColor = accentColor) {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     AppNavigation(
                         container = container,
@@ -44,6 +51,10 @@ class MainActivity : ComponentActivity() {
                         onThemeOverrideChange = { override ->
                             darkTheme = override ?: systemDark
                             container.themePreferences.darkOverride = override
+                        },
+                        onAccentColorChange = { selected ->
+                            accentColor = selected
+                            container.accentColorPreferences.accentColor = selected
                         },
                     )
                 }

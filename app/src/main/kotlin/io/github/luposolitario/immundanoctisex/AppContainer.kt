@@ -12,6 +12,7 @@ import io.github.luposolitario.immundanoctisex.inference.InferenceEngine
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
+import io.github.luposolitario.immundanoctisex.util.AccentColorPreferences
 import io.github.luposolitario.immundanoctisex.util.FontPreferences
 import io.github.luposolitario.immundanoctisex.util.LanguagePreferences
 import io.github.luposolitario.immundanoctisex.util.NarrativeTonePreferences
@@ -40,6 +41,8 @@ class AppContainer(context: Context) {
     val ttsPreferences = TtsPreferences(context)
 
     val narrativeTonePreferences = NarrativeTonePreferences(context)
+
+    val accentColorPreferences = AccentColorPreferences(context)
 
     // Istanza unica a scope applicazione (ARCHITETTURA §istanze): il
     // modello costa GB e secondi di caricamento, si carica una volta.
