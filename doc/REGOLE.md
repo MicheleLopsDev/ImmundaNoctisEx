@@ -126,6 +126,32 @@ la vittoria dell'avventura è un caso, ma anche esiti intermedi
 `victorySceneId` come campo dedicato NON esiste: la vittoria è una
 globalRule come le altre.
 
+### 2.2-bis L'esito dichiarato e la garanzia del finale (20/07/2026)
+
+Aggiunto dopo una prova sul campo: Michele ha finito il libro di esempio
+ed è tornato al menu **senza sapere se aveva vinto o perso**. Un'avventura
+deve sempre dichiarare com'è andata.
+
+- **`Scene.outcome`** (`VICTORY` | `DEFEAT` | `NEUTRAL`), solo sulle
+  scene `ENDING`. **Lo dichiara l'autore, il motore non lo indovina**:
+  un finale amaro raggiunto vivi e una vittoria si somigliano troppo
+  perché si possa dedurli dallo stato del gioco. Assente = `NEUTRAL`
+  (si dice che è finita, non si mente sull'esito).
+- **La morte built-in batte la dichiarazione**: la scena `deathSceneId`
+  è `DEFEAT` anche se l'autore ha scritto altro. Ci si arriva morendo.
+- **Una scena di finale esiste SEMPRE**
+  (`AdventureEnding.withGuaranteedEnding`): se `deathSceneId` manca o
+  punta a una scena inesistente, il motore ne **fabbrica** una e la
+  aggiunge al grafo. Prima di questo, un libro senza `deathSceneId`
+  lasciava giocare con Resistenza ≤ 0 e una sconfitta in combattimento
+  senza destinazione lasciava il giocatore fermo sul posto.
+- **Il finale fabbricato nasce senza testo**: lo scrive il narratore
+  (frammento `syntheticEndingText`). Se il modello non c'è o fallisce,
+  la UI mette il testo fisso di `strings.xml` — il gioco non si blocca
+  mai vale anche qui.
+
+La regola vive in `:core:engine` (`AdventureEnding`), con test JVM.
+
 ```json
 "deathSceneId": "7",
 "globalRules": [

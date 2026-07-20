@@ -28,9 +28,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
+import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 
 // La scena teatrale in forma minima (Fase 3, "prima funziona poi è
@@ -100,7 +104,11 @@ fun AdventureScreen(
                 NarratorThinking(loadingModel = state.isLoadingModel)
             } else {
                 Text(
-                    text = state.narrative,
+                    // Il finale fabbricato dal motore nasce senza testo: lo
+                    // scrive il narratore. Se non ha potuto (modello assente
+                    // o generazione fallita) si mette quello fisso, perché
+                    // una schermata vuota non è un finale.
+                    text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
                 )
@@ -232,6 +240,26 @@ private fun EndingZone(
     onReloadCheckpoint: (Int) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // UN FINALE DICHIARA SEMPRE COM'È ANDATA (richiesta Michele
+        // 20/07/2026): prima si arrivava in fondo al libro e si tornava al
+        // menu senza sapere se si era vinto o perso.
+        val outcome = state.endingOutcome
+        Text(
+            text = stringResource(
+                when (outcome) {
+                    EndingOutcome.VICTORY -> R.string.ending_victory_title
+                    EndingOutcome.DEFEAT -> R.string.ending_defeat_title
+                    EndingOutcome.NEUTRAL -> R.string.ending_neutral_title
+                },
+            ),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = when (outcome) {
+                EndingOutcome.VICTORY -> Color(0xFFFFD700)
+                EndingOutcome.DEFEAT -> MaterialTheme.colorScheme.error
+                EndingOutcome.NEUTRAL -> MaterialTheme.colorScheme.onSurface
+            },
+        )
         if (state.adventureDeleted) {
             Text(
                 "Morte in IRON: la sessione è stata cancellata.",

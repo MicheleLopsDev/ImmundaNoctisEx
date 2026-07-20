@@ -32,6 +32,7 @@ class PromptBuilderTest {
         ),
         disciplineChoices: List<DisciplineChoice> = emptyList(),
         gender: Gender = Gender.MALE,
+        syntheticEnding: Boolean = false,
     ) = PromptContext(
         scene = scene,
         previousSceneText = previous,
@@ -43,7 +44,35 @@ class PromptBuilderTest {
         genre = "FANTASY",
         toneHints = scene.toneHints,
         playerGender = gender,
+        isSyntheticEnding = syntheticEnding,
     )
+
+    // Il finale che il libro non ha: non c'è testo da arricchire, c'è un
+    // finale da scrivere. Senza questo il prompt conterrebbe una scena
+    // vuota e il modello inventerebbe a caso.
+    @Test
+    fun ilFinaleFabbricatoChiedeDiSCRIVERLONonDiTradurlo() {
+        val vuota = scene().copy(
+            id = "__ex_synthetic_defeat__",
+            sceneType = SceneType.ENDING,
+            narrativeText = "",
+        )
+        val prompt = PromptBuilder().build(context(scene = vuota, syntheticEnding = true))
+
+        assertTrue(prompt.contains("FINAL SCENE"), "deve chiedere di scrivere il finale")
+        assertTrue(prompt.contains("ends here in defeat"))
+        // La storia fin qui resta: è l'unico appiglio che ha per non
+        // inventare personaggi e luoghi nuovi.
+        assertTrue(prompt.contains("You left the inn with the letter."))
+        assertFalse(prompt.contains("CURRENT SCENE"), "non c'è nessuna scena sorgente da arricchire")
+    }
+
+    @Test
+    fun unaScenaNormaleNonRiceveLIstruzioneDelFinale() {
+        val prompt = PromptBuilder().build(context())
+        assertFalse(prompt.contains("FINAL SCENE"))
+        assertTrue(prompt.contains("CURRENT SCENE"))
+    }
 
     @Test
     fun tuttiIPlaceholderVengonoRiempiti() {
