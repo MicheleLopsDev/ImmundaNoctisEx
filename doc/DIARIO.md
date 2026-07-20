@@ -139,15 +139,28 @@ prima di riconsiderarla.
   restare sotto la soglia delle 200 righe). **Mai vista sul device.**
 
 - **ESPERIMENTO: GEMMA SCEGLIE LO SFONDO** (20/07, "vediamo se può
-  funzionare"): quando la scena non ha `backgroundImage` dichiarato,
-  il prompt offre le 21 location del catalogo (`SceneImageCatalog`,
-  unica fonte di verità condivisa tra prompt/parser/UI) e Gemma può
-  scrivere `IMAGE|nome` — stesso formato pipe di CHOICE/DISCIPLINE/
-  ENEMY, NON XML (Michele l'ha chiesto esplicitamente: è il motivo per
-  cui il formato pipe esiste, v1 andava in stallo sui tag XML
-  sbagliati). Vocabolario CHIUSO: un nome inventato è scartato dal
-  parser in silenzio; l'autore vince sempre se ha già dichiarato uno
-  sfondo. 4 test nuovi sul parser, 2 sul prompt builder. **Mai visto
+  funzionare"): quando la scena non ha un `backgroundImage` VALIDO
+  dichiarato, il prompt offre le 21 location del catalogo
+  (`SceneImageCatalog`, unica fonte di verità condivisa tra
+  prompt/parser/UI) e Gemma può scrivere `IMAGE|nome` — stesso formato
+  pipe di CHOICE/DISCIPLINE/ENEMY, NON XML (Michele l'ha chiesto
+  esplicitamente: è il motivo per cui il formato pipe esiste, v1 andava
+  in stallo sui tag XML sbagliati). Vocabolario CHIUSO: un nome
+  inventato è scartato dal parser in silenzio; l'autore vince sempre se
+  ha dichiarato uno sfondo che esiste davvero.
+
+  **BUG trovato da Michele lo stesso giorno, giocando**: la condizione
+  era solo `!= null`, non "esiste nel catalogo". Il sample dichiara
+  `backgroundImage` su TUTTE le 7 scene con i vecchi placeholder mai
+  risolti ("inn", "city", "alley"...) — quindi il tag non veniva MAI
+  chiesto a Gemma. L'esperimento era morto sul nascere, e nulla nei log
+  o nei test lo segnalava: i test di ieri usavano solo nomi validi
+  ("loc_market") o `null`, mai un placeholder come quelli VERI del
+  sample. Corretto in `PromptBuilder` e `ResponseParser`: si controlla
+  `SceneImageCatalog.isValid`, non la sola presenza. 2 test nuovi per
+  file, con `"inn"` — il valore reale del sample, non uno inventato.
+
+  6 test sul parser, 3 sul prompt builder in totale. **Mai visto
   girare**: è un esperimento, si giudica solo giocando e guardando se
   Gemma sceglie bene o se ignora/inventa.
 

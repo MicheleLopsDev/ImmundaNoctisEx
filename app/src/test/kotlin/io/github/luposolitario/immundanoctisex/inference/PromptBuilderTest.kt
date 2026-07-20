@@ -260,4 +260,16 @@ class PromptBuilderTest {
         val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "loc_market")))
         assertFalse(prompt.contains("IMAGE|location_id"))
     }
+
+    // BUG del 20/07/2026, trovato da Michele giocando: il sample dichiara
+    // backgroundImage su TUTTE le scene con placeholder storici mai
+    // risolti in un file ("inn", "city"...). La condizione era solo
+    // "!= null", quindi il tag non veniva MAI chiesto — l'esperimento
+    // era silenziosamente morto sul nascere. Un placeholder che non
+    // esiste nel catalogo non è una scelta valida: si chiede comunque.
+    @Test
+    fun sfondoDichiaratoMaFuoriCatalogo_siChiedeComunqueAGemma() {
+        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "inn")))
+        assertContains(prompt, "IMAGE|location_id")
+    }
 }

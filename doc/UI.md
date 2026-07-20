@@ -108,19 +108,31 @@ circolari sovrapposti al bordo inferiore: **narratore** + eroe +
 compagno (quando esisterà).
 
 **Sfondo scelto da Gemma — ESPERIMENTO** (20/07/2026, richiesta di
-Michele: "vediamo se può funzionare"): quando la scena NON ha un
-`backgroundImage` dichiarato dall'autore, il prompt offre a Gemma un
-vocabolario chiuso delle 21 location del catalogo
+Michele: "vediamo se può funzionare"): quando la scena non ha un
+`backgroundImage` **VALIDO** dichiarato dall'autore, il prompt offre a
+Gemma un vocabolario chiuso delle 21 location del catalogo
 (`SceneImageCatalog`) e la lascia scegliere, con una riga `IMAGE|nome`
 nello stesso formato pipe di `CHOICE`/`DISCIPLINE`/`ENEMY` — **niente
 XML** (il formato pipe esiste proprio perché in v1 il modello sbagliava
 i tag XML e mandava in stallo il parser). Un nome che Gemma inventa
 viene scartato in silenzio dal parser, mai un errore; l'autore, se ha
-già dichiarato uno sfondo, vince sempre — Gemma è un ripiego, mai una
-sovrascrittura. **Solo locazioni** (`loc_*`): i ritratti di NPC/nemici
-restano fuori da questo giro. Non ancora vista sul device: è un
-esperimento, si giudica da quanto spesso Gemma indovina un nome
-sensato invece di ometterlo o inventarne uno scartato.
+dichiarato uno sfondo che esiste davvero nel catalogo, vince sempre —
+Gemma è un ripiego, mai una sovrascrittura. **Solo locazioni** (`loc_*`):
+i ritratti di NPC/nemici restano fuori da questo giro.
+
+> **Bug corretto 20/07/2026, trovato da Michele giocando**: la prima
+> versione controllava solo `!= null`. Il sample dichiara
+> `backgroundImage` su TUTTE le scene con i vecchi placeholder mai
+> risolti in un file ("inn", "city", "alley"...) — quindi il tag non
+> veniva MAI chiesto a Gemma, l'esperimento era morto sul nascere senza
+> che nessuno se ne accorgesse dal codice. Ora si controlla il
+> catalogo, non la sola presenza: un placeholder morto non è una
+> scelta valida. Coperto da 2 test nuovi per file (`PromptBuilderTest`,
+> `ResponseParserTest`) che riproducono esattamente questo caso.
+
+Non ancora vista sul device: è un esperimento, si giudica da quanto
+spesso Gemma indovina un nome sensato invece di ometterlo o inventarne
+uno scartato.
 
 - **Il narratore è una presenza visiva, NON un Character nei dati**:
   puro elemento UI, come il sipario di un teatro.

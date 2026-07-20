@@ -65,13 +65,18 @@ class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEF
     }
 
     // La riga ENEMY si chiede solo se c'è davvero un nemico da nominare;
-    // la riga IMAGE solo se l'autore non ha già dichiarato uno sfondo per
-    // la scena (Scene.backgroundImage) — Gemma è il ripiego, mai la
-    // sovrascrittura di una scelta già fatta.
+    // la riga IMAGE solo se l'autore non ha già dichiarato uno sfondo
+    // VALIDO — Gemma è il ripiego, mai la sovrascrittura di una scelta
+    // già fatta. BUG del 20/07/2026 (trovato da Michele): la condizione
+    // era solo "!= null", ma il sample dichiara backgroundImage su TUTTE
+    // le scene con placeholder storici ("inn", "city"...) mai risolti in
+    // un file vero (Fase 7). Con "!= null" il tag non scattava MAI: un
+    // placeholder morto non è una scelta, è un buco travestito da
+    // scelta. Ora si controlla il CATALOGO, non la sola presenza.
     private fun outputFormat(context: PromptContext): String = buildString {
         append(fragments.outputFormatText)
         if (context.scene.combat != null) append("\n${fragments.enemyFormatText}")
-        if (context.scene.backgroundImage == null) append("\n${fragments.imageFormatText}")
+        if (!SceneImageCatalog.isValid(context.scene.backgroundImage)) append("\n${fragments.imageFormatText}")
     }
 
     private fun fill(template: String, context: PromptContext): String {
