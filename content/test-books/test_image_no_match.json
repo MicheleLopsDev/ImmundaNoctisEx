@@ -2,7 +2,7 @@
     "id": "test-image-no-match",
     "version": "1.0.0",
     "title": "TEST: Nessuna location corrisponde",
-    "description": "backgroundImage assente, ambientazione che non esiste nel catalogo (il ponte di una nave in mare aperto): Gemma dovrebbe OMETTERE il tag, non forzare un id sbagliato.",
+    "description": "backgroundImage assente, ambientazione che non esiste nel catalogo (il ponte di una nave in mare aperto): Gemma dovrebbe scrivere IMAGE|xxx, non inventare o forzare un id sbagliato (21/07: la riga va SEMPRE scritta, non piu' omessa).",
     "language": "en",
     "genre": "FANTASY",
     "toneHints": ["adventurous"],

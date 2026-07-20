@@ -1,0 +1,44 @@
+{
+    "id": "test-image-with-combat",
+    "version": "1.0.0",
+    "title": "TEST: IMAGE insieme a ENEMY",
+    "description": "Scena di combattimento senza backgroundImage, ambientata in una caverna (loc_caves): mai provato insieme, verifica che il blocco tag contenga sia ENEMY che IMAGE nella stessa risposta.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["tense"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["dark", "dangerous"],
+            "narrativeText": "The cave mouth swallows the daylight as you step inside, wild vegetation giving way to damp rock. A low growl echoes from the darkness ahead, and two glinting eyes catch what little light remains before the creature lunges.",
+            "choices": [],
+            "combat": {
+                "enemyName": "Cave Lurker",
+                "enemyCombatSkill": 14,
+                "enemyEndurance": 18,
+                "winSceneId": "2",
+                "loseSceneId": "3"
+            }
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "outcome": "VICTORY",
+            "genre": "FANTASY",
+            "toneHints": ["relieved"],
+            "narrativeText": "The creature falls still. You catch your breath in the sudden silence of the cave, the fight over as quickly as it began.",
+            "choices": []
+        },
+        {
+            "id": "3",
+            "sceneType": "ENDING",
+            "outcome": "DEFEAT",
+            "genre": "FANTASY",
+            "toneHints": ["grim"],
+            "narrativeText": "The creature proves too strong. Your journey ends here, in the dark of a nameless cave.",
+            "choices": []
+        }
+    ]
+}

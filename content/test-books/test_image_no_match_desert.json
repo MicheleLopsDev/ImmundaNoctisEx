@@ -1,0 +1,34 @@
+{
+    "id": "test-image-no-match-desert",
+    "version": "1.0.0",
+    "title": "TEST: Nessuna location (deserto)",
+    "description": "Secondo caso di 'nessuna location calza', soggetto diverso da test_image_no_match (nave): un deserto sconfinato. Serve a triangolare - un solo campione non basta a fidarsi che IMAGE|xxx sia il comportamento reale e non un colpo di fortuna.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["harsh"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["scorching", "desolate"],
+            "narrativeText": "Heat shimmers off endless dunes in every direction, the horizon dissolving into a haze of gold and white. Your waterskin is half empty and the sun sits mercilessly at its zenith, with no shade, no landmark, nothing but sand as far as the eye can see.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Press on toward the setting sun",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "The dunes give way at last to a rocky ridge. Whatever lies beyond it will have to wait for another day.",
+            "choices": []
+        }
+    ]
+}
