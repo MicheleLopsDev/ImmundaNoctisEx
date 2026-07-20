@@ -16,7 +16,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Circle
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -49,6 +51,15 @@ fun AdventureScreen(
     // diventeranno destinazioni proprie in Fase 5).
     var showSheet by remember { mutableStateOf(false) }
     var showJournal by remember { mutableStateOf(false) }
+    // Conferma prima di uscire (Michele 20/07/2026: mancava un modo per
+    // tornare al menu dalla scena). L'auto-save è sempre attivo, quindi
+    // non si perde nulla — la conferma serve solo contro il tocco
+    // accidentale che interrompe la lettura.
+    var showExitConfirm by remember { mutableStateOf(false) }
+    // Il numero di piazzamenti riusciti, non un booleano: incrementarlo
+    // ad ogni salvataggio riavvia il LaunchedEffect anche se il
+    // messaggio precedente non è ancora sparito.
+    var checkpointsSaved by remember { mutableStateOf(0) }
     if (showSheet) {
         io.github.luposolitario.immundanoctisex.ui.sheet.CharacterSheetScreen(
             hero = state.hero,
@@ -78,8 +89,22 @@ fun AdventureScreen(
         return
     }
 
+    if (showExitConfirm) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showExitConfirm = false },
+            title = { Text("Tornare al menu?") },
+            text = { Text("La partita è già salvata: puoi riprenderla da dove l'hai lasciata.") },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = onExitToHome) { Text("Torna al menu") }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showExitConfirm = false }) { Text("Annulla") }
+            },
+        )
+    }
+
     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-        Header(state, onJournalClick = { showJournal = true })
+        Header(state, onJournalClick = { showJournal = true }, onExitClick = { showExitConfirm = true })
 
         // Il palcoscenico: sfondo + ritratti, col cerchio d'oro su chi
         // "parla" (il narratore mentre scrive, altrimenti l'eroe).
@@ -131,8 +156,17 @@ fun AdventureScreen(
                 // dal combattimento, col budget della difficoltà visibile.
                 if (state.checkpointsRemaining > 0) {
                     Spacer(Modifier.height(6.dp))
-                    androidx.compose.material3.TextButton(onClick = { state.placeCheckpoint() }) {
-                        Text("Piazza checkpoint (rimasti: ${state.checkpointsRemaining})")
+                    // Prima non c'era NESSUN riscontro visivo: il file si
+                    // scriveva ma la scritta restava uguale, e sembrava che
+                    // il tasto non facesse nulla (Michele 20/07/2026).
+                    if (checkpointsSaved > 0) {
+                        SaveConfirmedRow(onExpired = { checkpointsSaved = 0 })
+                    } else {
+                        androidx.compose.material3.TextButton(
+                            onClick = { if (state.placeCheckpoint()) checkpointsSaved++ },
+                        ) {
+                            Text("Piazza checkpoint (rimasti: ${state.checkpointsRemaining})")
+                        }
                     }
                 }
             }
@@ -140,8 +174,29 @@ fun AdventureScreen(
     }
 }
 
+// Spunta verde + testo per ~1,5s dopo un salvataggio riuscito, poi torna
+// al pulsante normale. `onExpired` invece di un timer nella Screen: la
+// UI non deve sapere quanto dura, solo che prima o poi finisce.
 @Composable
-private fun Header(state: AdventureState, onJournalClick: () -> Unit) {
+private fun SaveConfirmedRow(onExpired: () -> Unit) {
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(1500)
+        onExpired()
+    }
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = Icons.Default.Check,
+            contentDescription = null,
+            tint = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+            modifier = Modifier.size(18.dp),
+        )
+        Spacer(Modifier.width(6.dp))
+        Text("Checkpoint salvato", color = androidx.compose.ui.graphics.Color(0xFF4CAF50))
+    }
+}
+
+@Composable
+private fun Header(state: AdventureState, onJournalClick: () -> Unit, onExitClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -174,6 +229,16 @@ private fun Header(state: AdventureState, onJournalClick: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Spacer(Modifier.width(4.dp))
+            // Uscita al menu (Michele 20/07/2026: mancava del tutto). Con
+            // conferma: un tocco qui non deve interrompere la lettura per
+            // sbaglio, anche se l'auto-save rende l'uscita innocua.
+            androidx.compose.material3.IconButton(onClick = onExitClick) {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Torna al menu",
+                )
+            }
         }
     }
 }

@@ -80,6 +80,15 @@ motore** (pallino: verde pronto / giallo generazione / rosso contesto
 quasi pieno; il tocco mostra il dettaglio token — assorbe il contatore
 0/10240 di v1), icone scheda personaggio e diario.
 
+**Icona Home** (20/07/2026, mancava): torna al menu principale, con
+conferma — l'auto-save è sempre attivo, la conferma serve solo contro
+il tocco accidentale che interrompe la lettura.
+
+**Riscontro visivo del checkpoint** (20/07/2026, mancava): prima il
+tasto "Piazza checkpoint" scriveva il file ma il testo restava uguale,
+sembrava non facesse nulla. Ora per ~1,5s appare una spunta verde
+"Checkpoint salvato" al posto del pulsante.
+
 ### Banner (il palcoscenico)
 `backgroundImage` della scena a tutto schermo in larghezza; default
 (mappa di Magnamund) se la scena non ne dichiara uno. Ritratti
