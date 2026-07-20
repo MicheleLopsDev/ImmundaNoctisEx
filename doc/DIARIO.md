@@ -446,6 +446,27 @@ prima di riconsiderarla.
   JSON validati. **Mai caricati sul device**: da provare col
   side-load.
 
+- **BUG: il Diario di Combattimento non si aggiornava** (21/07,
+  Michele: "click su MINDBLAST non succede nulla, click sul dado non
+  cambia i valori di RES"). Causa: `CombatSession` (`:core:engine`,
+  classe pura senza dipendenze Android per vincolo architetturale) ha
+  `var player`/`var enemy` interne che mutano DAVVERO ad ogni round —
+  `fightRound()`/`activateMindblast()` funzionano, i numeri sono
+  giusti in memoria — ma Compose non può saperlo: il riferimento a
+  `session` non cambia mai, solo i suoi campi interni. C'era già un
+  contatore pensato apposta (`AdventureState.combatTick`, dal lavoro
+  di ieri sul Diario) e già letto in `CombatActiveZone`, ma la sola
+  LETTURA non bastava a garantire la ricomposizione del blocco che
+  mostra i numeri. Corretto avvolgendo `CombatDiaryPanel` +
+  `TacticalMenu` in `key(state.combatTick) { ... }`
+  ([CombatZone.kt](app/src/main/kotlin/io/github/luposolitario/immundanoctisex/ui/adventure/CombatZone.kt)):
+  forza la ricreazione completa del blocco ad ogni azione, invece di
+  affidarsi al gruppo di ricomposizione implicito. Compilazione e
+  suite `app` verdi — **nessun test automatico copre questo bug**
+  (è un problema di ricomposizione Compose, serve un instrumented
+  test per intercettarlo, non uno unitario JVM): da confermare sul
+  device.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.

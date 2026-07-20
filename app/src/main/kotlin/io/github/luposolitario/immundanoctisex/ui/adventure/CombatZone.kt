@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -50,13 +51,23 @@ fun CombatEntryZone(state: AdventureState) {
 // primo colpo al riepilogo finale — mai un salto visivo a metà scontro.
 @Composable
 fun CombatActiveZone(state: AdventureState) {
-    state.combatTick // sottoscrive gli aggiornamenti della sessione engine
     val session = requireNotNull(state.combatSession)
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        CombatDiaryPanel(state, session)
-        if (session.status == CombatStatus.ONGOING) {
-            TacticalMenu(state, session)
+    // BUG (Michele 21/07/2026, "click su MINDBLAST/sul dado e i RES non
+    // cambiano"): CombatSession è una classe pura dell'engine (niente
+    // Compose per vincolo architetturale) — le sue `var` interne mutano
+    // davvero (fightRound/activateMindblast funzionano, i dati sono
+    // giusti), ma Compose non ha modo di saperlo: il riferimento a
+    // `session` non cambia mai, solo i suoi campi. La sola LETTURA di
+    // combatTick in questo punto non bastava a garantire la ricomposizione
+    // (il gruppo poteva restare skippato). key() forza la ricreazione
+    // completa del blocco ad ogni azione di combattimento.
+    key(state.combatTick) {
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            CombatDiaryPanel(state, session)
+            if (session.status == CombatStatus.ONGOING) {
+                TacticalMenu(state, session)
+            }
         }
     }
 }
