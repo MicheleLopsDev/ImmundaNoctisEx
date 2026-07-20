@@ -39,6 +39,13 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
     var activeBackend: String = "—"
         private set
 
+    // Contatori della diagnostica sull'accumulo. Se "vive" cresce oltre 1
+    // le conversazioni non si stanno chiudendo, ed è quello il colpevole.
+    private var conversazioniCreate = 0
+    private var conversazioniChiuse = 0
+    private var chiusureFallite = 0
+    private var generazioni = 0
+
     private val _tokenInfo = MutableStateFlow(TokenInfo())
     override val tokenInfo: StateFlow<TokenInfo> = _tokenInfo.asStateFlow()
 
@@ -91,9 +98,23 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
 
     // Una conversazione NUOVA per ogni scena: l'inferenza è senza memoria
     // (CRITICITA.md). Non è un reset d'emergenza come in v1, è la norma.
+    //
+    // DIAGNOSTICA (20/07/2026): il decode rallenta del 38% in cinque scene
+    // a telefono freddo, mentre il primo token resta stabile — cala solo
+    // la fase che gira token per token, quindi qualcosa si ACCUMULA tra le
+    // generazioni. Prima, l'esito di close() veniva scartato: se la
+    // chiusura falliva, le conversazioni (e la loro KV cache sulla GPU) si
+    // sarebbero sommate in silenzio. Ora si conta e si dice.
     override suspend fun newSession() = withContext(Dispatchers.IO) {
         val active = engine ?: return@withContext
-        runCatching { conversation?.close() }
+        conversation?.let { vecchia ->
+            runCatching { vecchia.close() }
+                .onSuccess { conversazioniChiuse++ }
+                .onFailure { errore ->
+                    chiusureFallite++
+                    Log.e(TAG, "CHIUSURA CONVERSAZIONE FALLITA (#$chiusureFallite): ${errore.message}", errore)
+                }
+        }
         conversation = runCatching {
             active.createConversation(
                 ConversationConfig(
@@ -104,7 +125,9 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                     ),
                 ),
             )
-        }.getOrNull()
+        }.onSuccess { conversazioniCreate++ }
+            .onFailure { Log.e(TAG, "Creazione conversazione fallita: ${it.message}") }
+            .getOrNull()
         _tokenInfo.value = TokenInfo(used = 0, maxTokens = config.maxTokens)
     }
 
@@ -156,13 +179,21 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
         val firstTokenSec = firstTokenAt?.let { (it - startedAt) / 1000.0 }
         val decodeSeconds = firstTokenAt?.let { (now - it) / 1000.0 } ?: 0.0
         val tokensPerSecond = if (decodeSeconds > 0) generatedTokens / decodeSeconds else 0.0
+        generazioni++
+        // `gen` e `vive` servono a leggere il degrado: se la velocita' cala
+        // mentre gen sale, e vive resta 1, l'accumulo NON e' nelle
+        // conversazioni e va cercato dentro la libreria.
+        val vive = conversazioniCreate - conversazioniChiuse
         Log.i(
             TAG,
-            "MISURA backend=$activeBackend " +
+            "MISURA gen=$generazioni backend=$activeBackend " +
                 "primoToken=${firstTokenSec?.let { "%.2f s".format(it) } ?: "mai"} " +
                 "totale=${"%.2f s".format((now - startedAt) / 1000.0)} " +
                 "tokenPrompt~$promptTokens tokenGenerati~$generatedTokens " +
-                "velocita~${"%.1f".format(tokensPerSecond)} token/s (stima)",
+                "velocita~${"%.1f".format(tokensPerSecond)} token/s (stima) " +
+                "conversazioni: create=$conversazioniCreate chiuse=$conversazioniChiuse " +
+                "vive=$vive chiusureFallite=$chiusureFallite " +
+                "heap=${usedHeapMb()}MB nativa=${nativeHeapMb()}MB",
         )
     }
 
@@ -182,6 +213,17 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
     // Il testo di un Message sta nei suoi Content di tipo Text.
     private fun com.google.ai.edge.litertlm.Message.text(): String =
         contents.contents.filterIsInstance<Content.Text>().joinToString("") { it.text }
+
+    // La memoria è l'altra faccia dell'accumulo: una KV cache che non
+    // viene liberata si vede crescere qui, e soprattutto nella memoria
+    // NATIVA — il modello vive lì, non nell'heap Java.
+    private fun usedHeapMb(): Long {
+        val rt = Runtime.getRuntime()
+        return (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024)
+    }
+
+    private fun nativeHeapMb(): Long =
+        android.os.Debug.getNativeHeapAllocatedSize() / (1024 * 1024)
 
     // STIMA, non conteggio: la libreria non espone un tokenizer pubblico.
     // Serve solo al semaforo (verde/giallo/rosso), che è un'indicazione
