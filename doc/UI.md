@@ -158,18 +158,24 @@ personaggio** (tab Stats).
 Un'avventura **dichiara sempre com'è andata** (vedi REGOLE.md §2.2-bis).
 La zona mostra, sopra i pulsanti:
 
-- **Vittoria**: un **sole nascente** in oro (l'oro è la convenzione del
-  Kai: cerchio d'oro su chi parla, medaglia del grado).
-- **Sconfitta**: un **teschio con ossa incrociate**, color osso.
-- **Neutro**: nessuna immagine — non c'è niente da celebrare né da
+- **Vittoria**: il **sole che sorge** su una piana con un castello
+  lontano (`ending_victory`).
+- **Sconfitta**: **scheletri armati su un campo di ossa**
+  (`ending_defeat`).
+- **Neutro**: nessuna tavola — non c'è niente da celebrare né da
   piangere, ma il titolo dice comunque che l'avventura è finita.
 
-Entrambi sono **VectorDrawable scritti a mano** (`ic_ending_victory`,
-`ic_ending_defeat`): pesano byte invece dei 3-4 MB dei PNG di v1 e
-scalano su ogni schermo. **Nessun tint dal tema**: le cavità del teschio
-sono buchi scuri dentro l'osso, e una tinta unica lo riempirebbe
-rendendolo una macchia piena. Il contorno scuro serve a reggere anche su
-tema chiaro (due `@Preview`, chiaro e scuro, in `EndingBadge.kt`).
+Sono **tavole a china fornite da Michele** (20/07/2026), ritagliate da
+un'unica immagine e convertite in **WebP lossless** (160 KB e 149 KB
+contro i 318 KB dei PNG di partenza; il lossy sporcava i bordi del
+tratto). **Fondo bianco e cornice si tengono**: è l'estetica dei libri
+di Lupo Solitario, la tavola stampata dentro la pagina — non si
+invertono per il tema scuro.
+
+Altezza limitata a 150dp: la zona del finale ospita anche i pulsanti
+(ricarica checkpoint, Torna alla Home) e su schermi stretti
+un'illustrazione a piena altezza li spingerebbe fuori.
+Tre `@Preview` in `EndingBadge.kt`, una per esito.
 
 Il **testo** del finale è conclusivo ma lascia **un filo aperto** — una
 possibilità di continuo, senza promettere un seguito né offrire una
