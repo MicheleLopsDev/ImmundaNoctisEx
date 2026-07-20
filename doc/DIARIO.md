@@ -286,6 +286,33 @@ prima di riconsiderarla.
   sincronizzato di proposito — fuori scope. Compilazione e suite
   `app` verdi. **Mai visto girare.**
 
+- **5 LIBRI DI TEST per l'esperimento IMAGE** (21/07, richiesta di
+  Michele — "facciamo dei file scene personalizzati con poche scene
+  per provare queste cose"): nuova cartella `content/test-books/`
+  (side-load, NON asset dell'APK — CLAUDE.md elenca solo config.json e
+  scenes.sample.json in `content/`, questa è un'aggiunta accanto, da
+  tenere a mente se si aggiorna quel documento). Un file per scenario,
+  2-3 scene ciascuno, `id` distinto per non mischiarsi nella lista
+  "Continua" (già filtrata per `packageId`, vedi side-load del 20/07):
+  - `test_image_author_wins.json`: `backgroundImage` valido dichiarato
+    (`loc_crypt`) — Gemma NON deve mai essere interpellata.
+  - `test_image_gemma_picks.json`: nessun `backgroundImage`, testo che
+    punta chiaramente a una location del catalogo (locanda affollata)
+    — Gemma dovrebbe scegliere `loc_tavern`.
+  - `test_image_no_match.json`: nessun `backgroundImage`, ambientazione
+    assente dal catalogo (ponte di nave in mare aperto) — Gemma
+    dovrebbe OMETTERE il tag, non forzare un id sbagliato.
+  - `test_image_dead_placeholder.json`: `backgroundImage` dichiarato
+    ma non nel catalogo (`"tavern_old"`, il bug del 20/07) — deve
+    contare come non valido, Gemma va comunque interpellata.
+  - `test_image_similar_pair.json`: due scene consecutive con portali
+    di pietra quasi identici (`loc_black_gate` vs `loc_helgedad_gate`)
+    — verifica se la descrizione nel dizionario basta a distinguerli.
+
+  JSON validati contro lo schema (`Manifest`/`Scene`, tutti i campi
+  opzionali omessi si affidano ai default già in uso nel sample). **Mai
+  caricati sul device**: da provare col side-load di ieri.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.

@@ -1,0 +1,48 @@
+{
+    "id": "test-image-similar-pair",
+    "version": "1.0.0",
+    "title": "TEST: Coppie simili",
+    "description": "Due scene ambientate in portali di pietra quasi identici (loc_black_gate vs loc_helgedad_gate): verifica se la descrizione nel dizionario basta a distinguerli.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["ominous"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["ominous", "cold"],
+            "narrativeText": "Deep in the forest you find it: a dark stone gate flanked by two skull-horned guardian statues, their empty eyes fixed on the path. Beyond the threshold, a staircase descends into darkness.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Descend the staircase",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["ominous", "tense"],
+            "narrativeText": "The stairs end at another archway entirely, this one guarded by two horned warriors carved in stone, runes cut deep above the lintel. Stairs beyond lead down into a passage lit by some unseen source.",
+            "choices": [
+                {
+                    "id": "choice_2_1",
+                    "choiceText": "Walk into the lit passage",
+                    "nextSceneId": "3"
+                }
+            ]
+        },
+        {
+            "id": "3",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "The passage ends in a bare chamber, empty and silent. Whatever once was here is long gone.",
+            "choices": []
+        }
+    ]
+}

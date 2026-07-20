@@ -1,0 +1,34 @@
+{
+    "id": "test-image-no-match",
+    "version": "1.0.0",
+    "title": "TEST: Nessuna location corrisponde",
+    "description": "backgroundImage assente, ambientazione che non esiste nel catalogo (il ponte di una nave in mare aperto): Gemma dovrebbe OMETTERE il tag, non forzare un id sbagliato.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["adventurous"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["windswept", "tense"],
+            "narrativeText": "The deck tilts hard beneath your boots as the ship crests another swell, spray stinging your face under a grey open sky. Sailors haul on rigging above you, shouting over the wind, with nothing but open water in every direction.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Climb toward the lookout for a better view",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "The horizon stays empty. The voyage continues without incident, for now.",
+            "choices": []
+        }
+    ]
+}
