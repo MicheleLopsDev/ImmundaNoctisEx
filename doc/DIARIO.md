@@ -313,6 +313,24 @@ prima di riconsiderarla.
   opzionali omessi si affidano ai default già in uso nel sample). **Mai
   caricati sul device**: da provare col side-load di ieri.
 
+- **PRIMO TEST SUL DEVICE, sfondo assente** (21/07): Michele ha provato
+  `test_image_gemma_picks.json` (locanda affollata, nessun
+  `backgroundImage` — ci si aspettava `loc_tavern`) e lo sfondo mostrato
+  era il default (`map_dungeon`), non la taverna. Il log fornito si
+  fermava alla riga `MISURA gen=1...`: nessun log esistente mostra il
+  blocco TAGS grezzo o l'esito del parsing IMAGE, quindi da fuori è
+  impossibile distinguere "Gemma non ha scritto la riga" da "l'ha
+  scritta in un formato che il parser scarta" — stesso sintomo, cause
+  opposte. Aggiunto un log (`SceneNarrator`, `Log.i` con
+  `runCatching` attorno — `android.util.Log` non è mockato nei test JVM
+  del modulo, nessun Robolectric per scelta, un log non deve mai far
+  fallire un test) che stampa l'esito di `backgroundImage` e l'intero
+  blocco tag ricevuto da Gemma: `adb logcat -s SceneNarrator`. Non
+  ancora diagnosticato: serve rilanciare il test con questo log per
+  vedere cosa Gemma ha scritto davvero. Compilazione e suite `app`
+  verdi (4 test rotti dal primo tentativo senza `runCatching`, poi
+  risistemati).
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
