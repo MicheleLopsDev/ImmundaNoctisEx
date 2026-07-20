@@ -17,6 +17,21 @@ object Inventory {
     const val MAX_BACKPACK_SLOTS = 8
     const val MAX_GOLD = 50
 
+    // C'è spazio per DAVVERO (Michele 21/07/2026: "addItem non può
+    // funzionare in maniera silenziosa" — quando il giocatore sceglie
+    // esplicitamente cosa prendere, tra più oggetti offerti in scena,
+    // deve saperlo PRIMA di premere, non scoprirlo da un click che non fa
+    // nulla). Stessa regola di addCapped/addWeapon, senza eseguire nulla.
+    fun canAdd(character: Character, item: GameItem): Boolean = when (item.type) {
+        ItemType.WEAPON -> character.inventory.count { it.type == ItemType.WEAPON } < MAX_WEAPONS
+        ItemType.SPECIAL_ITEM -> true
+        ItemType.BACKPACK_ITEM -> remainingCapacity(character, ItemType.BACKPACK_ITEM, MAX_BACKPACK_SLOTS) > 0
+        ItemType.GOLD -> remainingCapacity(character, ItemType.GOLD, MAX_GOLD) > 0
+    }
+
+    private fun remainingCapacity(character: Character, type: ItemType, cap: Int): Int =
+        cap - character.inventory.filter { it.type == type }.sumOf { it.quantity }
+
     // Un "posto" dello zaino è un'unità di quantità (8 posti disegnati
     // anche vuoti, UI.md); le Corone si contano per quantità totale.
     // Gli oggetti con bonus Resistenza (effetto ENDURANCE:n, es. Elmo)
@@ -83,8 +98,7 @@ object Inventory {
     }
 
     private fun addCapped(character: Character, item: GameItem, cap: Int): Character {
-        val used = character.inventory.filter { it.type == item.type }.sumOf { it.quantity }
-        val space = cap - used
+        val space = remainingCapacity(character, item.type, cap)
         if (space <= 0) return character
         val accepted = minOf(item.quantity, space)
         return character.copy(inventory = merge(character.inventory, item.copy(quantity = accepted)))

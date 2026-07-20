@@ -1,5 +1,7 @@
 package io.github.luposolitario.immundanoctisex.core.engine.mechanics
 
+import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
+import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -39,3 +41,12 @@ internal fun compare(left: Int, operator: String, right: Int): Boolean = when (o
     "<", "LESS_THAN" -> left < right
     else -> false
 }
+
+// Spostate da ItemMechanics (erano private lì): servono anche a
+// ItemOffers, che vive fuori da questo package (:core:engine.inventory)
+// ma nello stesso modulo — internal basta, non serve renderle public.
+internal fun itemType(raw: String?): ItemType? =
+    ItemType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
+
+internal fun weaponType(raw: String?): WeaponType? =
+    WeaponType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }

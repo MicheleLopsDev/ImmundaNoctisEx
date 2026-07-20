@@ -71,10 +71,4 @@ internal object ItemMechanics {
         val met = if (params.stringParam("operator") == "NOT_HAS") !has else has
         return if (met) params.stringParam("nextSceneId_TRUE") else params.stringParam("nextSceneId_FALSE")
     }
-
-    private fun itemType(raw: String?): ItemType? =
-        ItemType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
-
-    private fun weaponType(raw: String?): WeaponType? =
-        WeaponType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
 }
