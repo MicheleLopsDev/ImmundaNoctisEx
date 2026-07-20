@@ -32,6 +32,11 @@ class SceneNarrator(
     private val promptBuilder: PromptBuilder,
     private val manifest: Manifest,
     private val userLanguage: String = "Italian",
+    // Scelto in Opzioni (NarrativeTonePreferences, 21/07/2026): null =
+    // l'autore decide (comportamento di sempre), altrimenti SOSTITUISCE
+    // i toneHints della scena per tutta la sessione — il giocatore vince
+    // esplicitamente, non si mischia coi toni dell'autore.
+    private val toneOverride: List<String>? = null,
 ) {
 
     // Se il motore e' pronto la scena verra' RIscritta da Gemma: la UI
@@ -66,7 +71,7 @@ class SceneNarrator(
                 sourceLanguage = manifest.language,
                 userLanguage = userLanguage,
                 genre = scene.genre.ifBlank { manifest.genre },
-                toneHints = scene.toneHints.ifEmpty { manifest.toneHints },
+                toneHints = toneOverride ?: scene.toneHints.ifEmpty { manifest.toneHints },
                 playerGender = playerGender,
                 isSyntheticEnding = scene.id == AdventureEnding.SYNTHETIC_DEFEAT_SCENE_ID,
             ),

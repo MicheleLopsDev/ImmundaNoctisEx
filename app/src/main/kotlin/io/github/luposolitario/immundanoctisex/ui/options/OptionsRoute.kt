@@ -30,6 +30,7 @@ fun OptionsRoute(
     var font by remember { mutableStateOf(container.fontPreferences.readingFont) }
     var bold by remember { mutableStateOf(container.fontPreferences.boldText) }
     var language by remember { mutableStateOf(container.languagePreferences.outputLanguage) }
+    var tone by remember { mutableStateOf(container.narrativeTonePreferences.narrativeTone) }
 
     var autoRead by remember { mutableStateOf(container.ttsPreferences.autoReadEnabled) }
     var speechRate by remember { mutableStateOf(container.ttsPreferences.speechRate) }
@@ -66,6 +67,11 @@ fun OptionsRoute(
         onLanguageSelect = { selected ->
             language = selected
             container.languagePreferences.outputLanguage = selected
+        },
+        narrativeTone = tone,
+        onToneSelect = { selected ->
+            tone = selected
+            container.narrativeTonePreferences.narrativeTone = selected
         },
         ttsUi = TtsUi(
             autoReadEnabled = autoRead,
