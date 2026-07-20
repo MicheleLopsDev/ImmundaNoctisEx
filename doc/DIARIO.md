@@ -7,7 +7,7 @@
 
 ---
 
-## STATO CORRENTE — aggiornato 19/07/2026
+## STATO CORRENTE — aggiornato 20/07/2026
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
 Razr senza IA (Home, creazione, scena, combat a due modalità, scheda,
@@ -59,23 +59,32 @@ diario, checkpoint, auto-save atomico).
   difetto della card di stato (nome e valori si attaccavano: "Lupo
   SolitarioCS 18RES 22/223 Corone").
 
+- **ANIMAZIONE del narratore che pensa** (20/07, FATTA): al posto della
+  scritta ferma, l'alone d'oro attorno al ritratto del narratore PULSA
+  nel banner e tre puntini si accendono in sequenza nel blocco testo.
+  Distingue a parole i due momenti — "Il narratore apre il libro…"
+  mentre CARICA il modello, "Il narratore scrive…" mentre genera
+  (nuovo `AdventureState.isLoadingModel`). Zero asset nuovi: si riusa
+  `portrait_dm`. **Non ancora vista sul device** (Razr non collegato).
+
+- **ICONE nella card di stato** (20/07, FATTA): ritratto-lupo tondo col
+  bordo d'oro, medaglia dorata del grado Kai, spada/cuore/monete e la
+  riga delle discipline possedute. La card è uscita da `AdventureScreen`
+  in `StatusCard.kt` (lo schermo era oltre le ~200 righe).
+  `kaiRankName` è diventata `internal`. **Non ancora vista sul device.**
+
 **PROSSIMA SESSIONE — già deciso con Michele**:
-1. **ANIMAZIONE del narratore che pensa** al posto della scritta "Il
-   narratore scrive…" (idea di Michele, gli piace molto). Registrata in
-   `UI.md §Flusso centrale`. Copre sia il caricamento del modello (la
-   prima volta, più lungo) sia la generazione di ogni scena.
-2. **ICONE nella card di stato in basso** (segnalato da Michele
-   19/07): oggi è solo testo, in v1 c'erano ritratto-lupo tondo, grado
-   Kai con medaglia dorata, spada per la Combattività, cuore per la
-   Resistenza, monete per le Corone e la **riga delle icone delle
-   discipline possedute**. Le icone Material sono già mappate in
-   `CreationCatalog.disciplineIcon()`; `ic_gold`/`lupo_solitario` sono
-   in `origina_res`. Riferimento visivo: screenshot di v1.
+1. **PROVARE SUL RAZR** i due lavori del 20/07 (animazione e card):
+   scritti e con la suite verde, ma mai visti girare.
+2. **RACCOGLIERE LE MISURE**: è il pezzo che manca alla milestone di
+   Fase 4 (vedi punto 4 qui sotto). Non è partito perché il device non
+   era collegato.
 3. La **grafica** in generale, che Michele ha rinviato consapevolmente.
    Il banner c'è ma è v0.1: manca il `backgroundImage` PER SCENA (il
    sample dichiara inn/city/alley/battle/warehouse, gli asset non
    esistono — vanno prodotti, Fase 7) e manca il compagno di viaggio.
-4. **Raccogliere le misure** — il motore
+4. **Raccogliere le misure — ANCORA APERTO, è il blocco della
+   milestone di Fase 4** — il motore
 ora le logga da solo a ogni scena giocata: `adb logcat -s
 LiteRtLmEngine` stampa una riga `MISURA backend=… primoToken=… 
 tokenPrompt~… tokenGenerati~… velocita~… token/s`. Da giocare qualche
@@ -103,7 +112,8 @@ Poi salvare qualche output reale di Gemma come fixture di test.
 - `strings.xml` è **impalcato** da Claude: la rifinitura dei testi è di
   Michele.
 - Le 3 icone armi mancanti (dagger/short_sword/warhammer) usano un
-  segnaposto; `ic_axe` e `ic_map_icon` pesano 3-4 MB (WebP in Fase 7).
+  segnaposto; `ic_axe`, `ic_map_icon` e `ic_gold` pesano 3-4 MB l'una
+  (conversione WebP in Fase 7).
 
 **Decisioni in attesa di Michele**:
 1. Il `TagParser` previsto in Fase 4 si salta? (in Ex non avrebbe nulla
@@ -114,6 +124,75 @@ Poi salvare qualche output reale di Gemma come fixture di test.
 
 **Idee rinviate**: stanno in `doc/UPGRADE.md` (audio narrativo, ecc.).
 NON sono schedulate: non implementarle senza una decisione esplicita.
+
+---
+
+## 20/07/2026
+
+### Sessione — l'attesa raccontata e la card che si legge a colpo d'occhio
+
+Due lavori di UI, entrambi chiesti da Michele il 19/07. Nessuno dei due
+tocca il motore: la suite era e resta verde, e il comportamento con LLM
+assente non cambia di una riga.
+
+**1. L'animazione del narratore che pensa.** In `origina_res` non c'era
+NULLA di animato — solo immagini statiche, nessun Lottie, nessuna
+sequenza di frame. Chiesto a Michele prima di inventare, come da
+istruzioni: ha scelto di animare il ritratto che c'è già invece di
+aspettare un asset da produrre. Quindi zero file nuovi.
+
+Due metà che si accendono insieme: nel banner l'alone d'oro attorno a
+`portrait_dm` **pulsa** (da 1 a 4 dp, ciclo 900ms) invece di restare
+fisso; nel blocco testo tre puntini si accendono in sequenza, sfasati di
+un terzo di ciclo, così l'onda va da sinistra a destra invece di far
+lampeggiare i tre insieme.
+
+**La parte che conta davvero è la distinzione dei due momenti**, che
+durano molto diversamente: il caricamento del modello è secondi, una
+volta per partita; la generazione della scena è breve. Con la stessa
+frase sopra, l'attesa lunga della prima volta sembra un blocco. Ora
+`AdventureState.isLoadingModel` li separa e la UI dice "Il narratore
+apre il libro…" contro "Il narratore scrive…". Il flag si spegne sia
+quando parte la narrazione sia in `narrationUnavailable()`: se il motore
+non parte non resta acceso per sempre, stessa disciplina del resto.
+
+L'alone pulsa solo finché `narrative` è vuoto: appena arriva il primo
+pezzo di streaming torna fermo, altrimenti pulserebbe per tutta la scena.
+
+**Nota di piano**: `UI.md` collocava questa animazione in Fase 7. È
+stata anticipata su richiesta esplicita di Michele, e `UI.md` è stato
+aggiornato di conseguenza — non è uno sconfinamento silenzioso.
+
+**2. Le icone nella card di stato.** Era solo testo. Ora ha quello che
+v1 mostrava a colpo d'occhio: ritratto-lupo tondo col bordo d'oro,
+medaglia dorata del grado Kai, spada per la Combattività, cuore per la
+Resistenza, monete per le Corone, più la riga delle discipline.
+
+**Un conflitto di specifica, fermato invece che interpretato**:
+`UI.md §Card di stato` diceva testualmente che le icone discipline
+vivono nella scheda *e non nella card*, mentre Michele le chiedeva nella
+card. Chiesto a lui: le vuole in entrambe (nella card sono solo icone,
+a colpo d'occhio mentre si sceglie; nella scheda restano con nome e
+descrizione). `UI.md` corretto con la nota del perché.
+
+Nessuna icona disegnata da zero: le discipline riusano
+`disciplineIcon()` della creazione — così il giocatore le riconosce da
+dove le ha scelte — `ic_sword` era già in uso, `ic_gold` e
+`lupo_solitario` arrivano da `origina_res`.
+
+La card è uscita da `AdventureScreen` e ha preso un file suo: lo schermo
+era ben oltre la soglia d'allarme delle ~200 righe. `kaiRankName` è
+passata da `private` a `internal` per non duplicare il grado localizzato.
+
+**Cosa NON è stato fatto, ed è il pezzo che chiude la Fase 4**: le
+misure. `adb devices` non vede il Razr, quindi né l'installazione né la
+giocata di prova. Restano da raccogliere primo token, token/s, token di
+prompt, il termico su 30-45' e le fixture da output reali di Gemma.
+**I due lavori di oggi non sono mai stati visti girare su un device**:
+compilano e la suite è verde, ma è tutto quello che si può dire.
+
+**Debito nuovo, piccolo**: `ic_gold.png` pesa 3,2 MB — stessa storia di
+`ic_axe` e `ic_map_icon`, tutti da convertire in WebP in Fase 7.
 
 ---
 
