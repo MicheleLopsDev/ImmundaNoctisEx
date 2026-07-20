@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 // deathSceneId e globalRules sono opzionali (REGOLE.md Blocco 2); la
 // morte built-in (Resistenza <= 0 fuori combattimento) usa deathSceneId,
 // la vittoria è una globalRule come le altre, nessun campo dedicato.
+// L'ESITO mostrato al giocatore è invece dichiarato sulla scena
+// (Scene.outcome, REGOLE.md §2.2-bis): la scena di finale è garantita
+// dal motore anche quando il pacchetto non ce l'ha.
 @Serializable
 data class Manifest(
     val id: String,

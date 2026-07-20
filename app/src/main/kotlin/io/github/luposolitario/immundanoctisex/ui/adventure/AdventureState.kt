@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.CombatOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
+import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.JourneyEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
@@ -19,6 +20,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
 import io.github.luposolitario.immundanoctisex.core.engine.combat.RoundResult
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
+import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
@@ -258,7 +260,13 @@ class AdventureState(
         combatSession = null
         // Lo specifico batte il globale: senza loseSceneId si degrada sul
         // deathSceneId del manifest (REGOLE.md §1.4).
-        val destination = session.destinationSceneId ?: manifest.deathSceneId ?: return
+        // Il `?: return` di prima lasciava il giocatore FERMO nella scena
+        // del combattimento perso, senza sbocchi: dopo
+        // withGuaranteedEnding il deathSceneId c'è sempre, quindi la
+        // sconfitta porta comunque a un finale.
+        val destination = session.destinationSceneId
+            ?: manifest.deathSceneId
+            ?: AdventureEnding.SYNTHETIC_DEFEAT_SCENE_ID
         moveTo(destination, Transition.CombatResolved(outcome))
     }
 
@@ -291,8 +299,19 @@ class AdventureState(
     fun loadCheckpoint(slot: Int): SessionData? =
         store.loadCheckpoint(manifest.id, slot)
 
+    // Come è andata a finire: la regola sta nell'engine (testata in JVM),
+    // qui si espone solo quello che la UI disegna.
+    val endingOutcome: EndingOutcome
+        get() = AdventureEnding.outcomeOf(manifest, currentScene)
+
     val isDeathEnding: Boolean
-        get() = isEnding && currentScene.id == manifest.deathSceneId
+        get() = isEnding && endingOutcome == EndingOutcome.DEFEAT
+
+    // Il finale FABBRICATO dal motore perché il pacchetto non ne aveva
+    // uno: nasce senza testo, e se il narratore non riesce a scriverlo la
+    // UI mette quello fisso di strings.xml.
+    val isSyntheticEnding: Boolean
+        get() = currentScene.id == AdventureEnding.SYNTHETIC_DEFEAT_SCENE_ID
 
     // Azioni della Scheda personaggio (UI.md §Inventario operativo): ogni
     // modifica passa dall'engine e viene auto-salvata.
@@ -364,8 +383,14 @@ class AdventureState(
         }
     }
 
+    // Non lancia MAI: un id che non esiste (grafo rotto, sessione salvata
+    // di un libro poi cambiato) chiudeva il gioco con un'eccezione. Ora si
+    // degrada sul finale garantito, che dopo withGuaranteedEnding esiste
+    // sempre: l'avventura si chiude dichiarando com'è andata invece di
+    // schiantarsi.
     private fun sceneById(id: String): Scene =
-        manifest.scenes.first { it.id == id }
+        manifest.scenes.firstOrNull { it.id == id }
+            ?: manifest.scenes.first { it.id == manifest.deathSceneId }
 
     private companion object {
         // Buffer dello streaming: la UI si aggiorna al massimo ogni tanto,

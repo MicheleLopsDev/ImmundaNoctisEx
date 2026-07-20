@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
+import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
 import io.github.luposolitario.immundanoctisex.inference.PromptBuilder
 import io.github.luposolitario.immundanoctisex.inference.PromptFragments
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
@@ -37,11 +38,17 @@ fun AdventureRoute(
             // già troncato per costruzione) e ricrea lo stato di gioco.
             var currentSession by remember { mutableStateOf(session) }
             val scope = rememberCoroutineScope()
-            val narrator = remember(loadResult.manifest) {
+            // Il grafo con la GARANZIA che una scena di morte esista: da qui
+            // in giù tutti lavorano sullo stesso manifest completato, così
+            // non esistono due verità sul finale.
+            val manifest = remember(loadResult.manifest) {
+                AdventureEnding.withGuaranteedEnding(loadResult.manifest)
+            }
+            val narrator = remember(manifest) {
                 SceneNarrator(
                     engine = container.inferenceEngine,
                     promptBuilder = PromptBuilder(promptFragments(context)),
-                    manifest = loadResult.manifest,
+                    manifest = manifest,
                 )
             }
             // Si sa subito se il modello è sul telefono: serve a non
@@ -51,7 +58,7 @@ fun AdventureRoute(
             }
             val state = remember(currentSession) {
                 AdventureState(
-                    manifest = loadResult.manifest,
+                    manifest = manifest,
                     session = currentSession,
                     dice = container.diceRoller,
                     store = container.sessionStore,

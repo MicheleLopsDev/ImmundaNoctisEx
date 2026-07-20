@@ -191,6 +191,7 @@
         {
             "id": "6",
             "sceneType": "ENDING",
+            "outcome": "VICTORY",
             "genre": "FANTASY",
             "toneHints": ["solemn", "rewarding"],
             "backgroundImage": "warehouse",
@@ -203,6 +204,7 @@
         {
             "id": "7",
             "sceneType": "ENDING",
+            "outcome": "DEFEAT",
             "genre": "FANTASY",
             "toneHints": ["grim"],
             "backgroundImage": "battle",

@@ -5,6 +5,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
+import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -66,6 +67,7 @@ class SceneNarrator(
                 genre = scene.genre.ifBlank { manifest.genre },
                 toneHints = scene.toneHints.ifEmpty { manifest.toneHints },
                 playerGender = playerGender,
+                isSyntheticEnding = scene.id == AdventureEnding.SYNTHETIC_DEFEAT_SCENE_ID,
             ),
         )
 

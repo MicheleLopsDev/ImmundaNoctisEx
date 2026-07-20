@@ -37,6 +37,16 @@
     <string name="kai_rank_grand_master">Gran Maestro Kai</string>
     <string name="kai_rank_supreme_grand_master">Gran Maestro Kai Supremo</string>
 
+    <!-- Esito dell'avventura: un finale dichiara SEMPRE com'è andata
+         (richiesta Michele 20/07/2026). Testi impalcati da Claude, la
+         rifinitura è di Michele. -->
+    <string name="ending_victory_title">Vittoria</string>
+    <string name="ending_defeat_title">Il viaggio finisce qui</string>
+    <string name="ending_neutral_title">Avventura conclusa</string>
+    <!-- Testo di riserva per il finale FABBRICATO quando il pacchetto non
+         ne ha uno e il narratore non è riuscito a scriverlo. -->
+    <string name="ending_synthetic_fallback">Qui la tua storia si interrompe. Il libro non racconta cosa accadde dopo.</string>
+
     <!-- Tipi d'arma (enum WeaponType) -->
     <string name="weapon_dagger">Pugnale</string>
     <string name="weapon_spear">Lancia</string>

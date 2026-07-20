@@ -20,6 +20,9 @@ data class PromptContext(
     val genre: String,
     val toneHints: List<String>,
     val playerGender: Gender,
+    // La scena è il finale fabbricato dal motore (AdventureEnding): non
+    // c'è testo sorgente, il narratore deve scrivere il finale.
+    val isSyntheticEnding: Boolean = false,
 )
 
 // Compone il prompt riempiendo i placeholder dei frammenti (v1:
@@ -33,12 +36,25 @@ class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEF
             // Le sezioni vuote NON si scrivono: un "[THE STORY SO FAR]"
             // seguito dal nulla confonde il modello e spreca contesto.
             if (!context.previousSceneText.isNullOrBlank()) add(fragments.previousSceneText)
-            add(fragments.sceneText)
+            // Un finale fabbricato non ha testo da arricchire: si chiede al
+            // narratore di SCRIVERLO. Senza questo, il prompt conterrebbe
+            // una scena vuota e il modello inventerebbe a caso.
+            if (context.isSyntheticEnding) {
+                add(fragments.syntheticEndingText)
+            } else {
+                add(fragments.sceneText)
+            }
             if (context.continuations.isNotEmpty()) add(fragments.continuationsText)
             if (context.choices.isNotEmpty() || context.disciplineChoices.isNotEmpty()) {
                 add(fragments.choicesText)
             }
-            add(fragments.constraintText)
+            add(
+                if (context.isSyntheticEnding) {
+                    fragments.syntheticEndingConstraintText
+                } else {
+                    fragments.constraintText
+                },
+            )
             add(outputFormat(context))
             add(fragments.closingText)
         }
