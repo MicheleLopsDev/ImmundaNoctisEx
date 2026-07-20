@@ -90,6 +90,9 @@ fun AdventureScreen(
             heroName = state.gameState.hero.name,
             heroGender = state.gameState.hero.gender,
             narratorSpeaking = state.isGenerating,
+            // L'alone pulsa solo finché non c'è nulla da leggere: appena
+            // arriva il primo pezzo di testo torna fermo.
+            narratorThinking = state.isGenerating && state.narrative.isBlank(),
         )
 
         Card(
@@ -98,14 +101,8 @@ fun AdventureScreen(
         ) {
             if (state.narrative.isBlank() && state.isGenerating) {
                 // Il narratore sta scrivendo: nessun testo originale da
-                // leggere, solo l'attesa dichiarata (UI.md §Flusso).
-                Text(
-                    text = "Il narratore scrive…",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontStyle = FontStyle.Italic,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(16.dp),
-                )
+                // leggere, solo l'attesa RACCONTATA (UI.md §Flusso).
+                NarratorThinking(loadingModel = state.isLoadingModel)
             } else {
                 Text(
                     text = state.narrative,
