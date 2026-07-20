@@ -1,0 +1,35 @@
+{
+    "id": "test-image-dead-placeholder",
+    "version": "1.0.0",
+    "title": "TEST: Placeholder morto",
+    "description": "backgroundImage dichiarato ma non presente nel catalogo (il bug di ieri): deve essere trattato come non valido, Gemma va comunque interpellata.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["mysterious"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["quiet", "warm"],
+            "backgroundImage": "tavern_old",
+            "narrativeText": "You push through the tavern door into noise and firelight. Patrons crowd the long tables, mugs thumping wood in time with a fiddler's tune, while the innkeeper shouts orders toward the kitchen.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Order a drink and listen for rumors",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "The rumors lead nowhere tonight. You finish your drink and call it an evening.",
+            "choices": []
+        }
+    ]
+}

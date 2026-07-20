@@ -1,0 +1,36 @@
+{
+    "id": "test-image-author-wins",
+    "version": "1.0.0",
+    "title": "TEST: L'autore vince sempre",
+    "description": "backgroundImage valido dichiarato dall'autore: Gemma non deve MAI essere interpellata sull'immagine.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["mysterious"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["dark", "cold"],
+            "backgroundImage": "loc_crypt",
+            "locationName": "The Sunken Crypt",
+            "narrativeText": "The crypt door hangs half open, runes and skulls carved into the stone archway around it. Cold air spills out, carrying the smell of old dust and older bones. You step inside, torch raised, and the darkness swallows the light a few paces ahead.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Press deeper into the crypt",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "Nothing more waits for you here tonight. You leave the crypt as you found it, the mystery unresolved.",
+            "choices": []
+        }
+    ]
+}
