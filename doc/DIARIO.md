@@ -484,9 +484,19 @@ prima di riconsiderarla.
   decodifica delle immagini di sfondo, non un malfunzionamento, da
   tenere d'occhio se la fluidità peggiora.
 
-**APERTO — in ordine deciso con Michele (20/07)**:
-1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
-   batteria, poi TTS e musica tornano in discussione.
+**RI-PRIORITIZZATO da Michele (21/07 sera)**: "finiamo prima le
+implementazioni, le prestazioni e le ottimizzazioni le portiamo dopo
+visto che non sono proprio pessime adesso". Cambio esplicito rispetto
+all'ordine del 20/07 sotto — segnalato prima di partire perché
+contraddiceva una sua decisione di ieri ("TTS rinviato, siamo ancora
+in Fase 4, non si anticipa"): confermato consapevolmente, non un
+cambio per inerzia. Drain batteria e termico esteso SCENDONO in
+priorità (restano da fare, ma dopo); **Preferences (Opzioni) + TTS
+SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
+
+**APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
+1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
+   batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
 2. **Agganciare le 52 immagini** del catalogo alle scene
    (`Scene.backgroundImage`) e ai personaggi: oggi sono nell'APK ma
    nessun codice le usa.
@@ -494,7 +504,8 @@ prima di riconsiderarla.
    esce in silenzio — serve decidere cosa devono fare. Scartare oggetti
    non esiste (l'engine ha `Inventory.removeItem`, manca solo la UI).
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
-   (tema, font, TTS, lingua) — è la n. 7 di `UI.md`, lavoro di Fase 5.
+   (tema, font, TTS, lingua) — è la n. 7 di `UI.md`. **IN CORSO da
+   ora**, anticipata da Fase 5 su richiesta di Michele (vedi sopra).
 5. Mancano ancora le **fixture** da output reali di Gemma.
 6. **RINVIATO CONSAPEVOLMENTE da Michele**: il leak di **140 MB per
    partita** (memoria nativa). Su 15,5 GB non si sente con 3 partite;
