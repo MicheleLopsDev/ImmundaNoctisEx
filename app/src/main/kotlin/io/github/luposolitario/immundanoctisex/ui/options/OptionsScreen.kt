@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.NarrativeTone
 import io.github.luposolitario.immundanoctisex.util.OutputLanguage
 import io.github.luposolitario.immundanoctisex.util.ReadingFont
@@ -39,6 +40,8 @@ import io.github.luposolitario.immundanoctisex.util.ReadingFont
 fun OptionsScreen(
     darkOverride: Boolean?,
     onThemeSelect: (Boolean?) -> Unit,
+    accentColor: AccentColor,
+    onAccentColorSelect: (AccentColor) -> Unit,
     readingFont: ReadingFont,
     onFontSelect: (ReadingFont) -> Unit,
     boldText: Boolean,
@@ -79,6 +82,7 @@ fun OptionsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             ThemeSection(darkOverride, onThemeSelect)
+            AccentColorSection(accentColor, onAccentColorSelect)
             LanguageSection(outputLanguage, onLanguageSelect)
             ToneSection(narrativeTone, onToneSelect)
             FontSection(readingFont, onFontSelect, boldText, onBoldTextChange)
@@ -154,6 +158,8 @@ private fun OptionsScreenPreview() {
         OptionsScreen(
             darkOverride = null,
             onThemeSelect = {},
+            accentColor = AccentColor.BLUE,
+            onAccentColorSelect = {},
             readingFont = ReadingFont.SERIF,
             onFontSelect = {},
             boldText = false,

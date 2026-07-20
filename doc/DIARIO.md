@@ -625,6 +625,38 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   1/1.25/1.5. Compilazione e suite verdi. **Mai visto girare sul
   device.**
 
+  **COLORE D'ACCENTO SELEZIONABILE, stesso giorno**: Michele ha
+  mandato lo screenshot della card di stato e chiesto "una selezione
+  dei colori per... cambiarla". Chiarito con una domanda diretta
+  (il tema generale dell'app o solo il dorato Kai della card?):
+  intendeva il **tema generale**. Nuovo `AccentColorPreferences.kt`:
+  enum `AccentColor` con 5 preset (Blu/default, Oro, Verde, Corallo,
+  Turchese), ciascuno con la coppia `primary`/`onPrimary`/
+  `primaryContainer`/`onPrimaryContainer` già bilanciata per
+  contrasto sia in scuro sia in chiaro — non un color picker RGB
+  libero, una rosa curata come per il font.
+
+  `Theme.kt`: `DarkColorScheme`/`LightColorScheme` (val fissi) sono
+  diventati `darkScheme(accent)`/`lightScheme(accent)` (funzioni):
+  solo l'accento cambia, il resto della palette (secondary, tertiary,
+  error, superfici) resta uguale per ogni scelta. `ImmundaNoctisTheme`
+  prende un nuovo parametro `accentColor` CON DEFAULT (`AccentColor
+  .BLUE`, il colore di sempre): tutte le decine di `@Preview` sparse
+  nel progetto continuano a compilare senza toccarle.
+
+  Stesso pattern del tema chiaro/scuro: lo stato vive in
+  `MainActivity` (nuovo `onAccentColorChange`), non solo nella
+  preference, perché deve applicarsi SUBITO senza riavviare l'app.
+  Nuova `ui/options/AccentColorSection.kt`: swatch cliccabili col
+  colore VERO (non un elenco di nomi) — si sceglie guardando. Il
+  colore mostrato negli swatch segue il tema di sistema attivo,
+  scuro o chiaro, per restare leggibile sul relativo sfondo.
+
+  Compilazione pulita al primo tentativo, suite verde. **Mai visto
+  girare sul device**: in particolare, non ho modo di giudicare da
+  qui se i 5 preset hanno davvero un buon contrasto — sono stime
+  ragionevoli, non misurate.
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.

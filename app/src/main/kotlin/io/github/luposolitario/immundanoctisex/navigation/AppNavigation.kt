@@ -21,6 +21,7 @@ import io.github.luposolitario.immundanoctisex.ui.home.HomeRoute
 import io.github.luposolitario.immundanoctisex.ui.models.ModelsRoute
 import io.github.luposolitario.immundanoctisex.ui.options.OptionsRoute
 import io.github.luposolitario.immundanoctisex.ui.setup.SetupRoute
+import io.github.luposolitario.immundanoctisex.util.AccentColor
 
 // Le destinazioni dell'app (le 7 schermate di UI.md). Solo routing qui
 // (ARCHITETTURA.md: ~100 righe max): niente logica, niente stato di gioco.
@@ -41,6 +42,7 @@ fun AppNavigation(
     isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
     onThemeOverrideChange: (Boolean?) -> Unit,
+    onAccentColorChange: (AccentColor) -> Unit,
 ) {
     var route by rememberSaveable { mutableStateOf(Route.HOME) }
     val backStack = remember { ArrayDeque<Route>() }
@@ -115,6 +117,7 @@ fun AppNavigation(
             container = container,
             darkOverride = container.themePreferences.darkOverride,
             onThemeOverrideChange = onThemeOverrideChange,
+            onAccentColorChange = onAccentColorChange,
             onModelsClick = { navigateTo(Route.MODELS) },
             onClose = { if (backStack.isNotEmpty()) route = backStack.removeLast() },
         )

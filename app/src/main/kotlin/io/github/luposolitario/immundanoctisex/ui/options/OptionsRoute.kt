@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.tts.TtsService
+import io.github.luposolitario.immundanoctisex.util.AccentColor
 
 // Raccordo delle Opzioni: legge le preferenze da AppContainer, le scrive
 // ad ogni cambio (stessa politica "commit al rilascio" di
@@ -21,12 +22,14 @@ fun OptionsRoute(
     container: AppContainer,
     darkOverride: Boolean?,
     onThemeOverrideChange: (Boolean?) -> Unit,
+    onAccentColorChange: (AccentColor) -> Unit,
     onModelsClick: () -> Unit,
     onClose: () -> Unit,
 ) {
     val context = LocalContext.current
 
     var themeOverride by remember { mutableStateOf(darkOverride) }
+    var accentColor by remember { mutableStateOf(container.accentColorPreferences.accentColor) }
     var font by remember { mutableStateOf(container.fontPreferences.readingFont) }
     var bold by remember { mutableStateOf(container.fontPreferences.boldText) }
     var language by remember { mutableStateOf(container.languagePreferences.outputLanguage) }
@@ -52,6 +55,11 @@ fun OptionsRoute(
         onThemeSelect = { override ->
             themeOverride = override
             onThemeOverrideChange(override)
+        },
+        accentColor = accentColor,
+        onAccentColorSelect = { selected ->
+            accentColor = selected
+            onAccentColorChange(selected)
         },
         readingFont = font,
         onFontSelect = { selected ->
