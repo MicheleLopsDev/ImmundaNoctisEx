@@ -255,9 +255,10 @@ class AdventureState(
         lastRound = null
     }
 
-    fun combatFightRound() {
+    fun combatFightRound(): RoundResult? {
         lastRound = combatSession?.fightRound()
         combatTick++
+        return lastRound
     }
 
     fun combatActivateMindblast() {
