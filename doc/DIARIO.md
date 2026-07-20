@@ -99,25 +99,29 @@ diario, checkpoint, auto-save atomico).
   device solo per l'ultimo dei quattro**; gli altri tre non ancora
   rivisti dopo il fix successivo.
 
+**CONFERMATO da Michele su device**: il testo con i puntini (attesa
+generazione/caricamento) **si vede e va bene**, nonostante il blocco di
+2,1s nei log — declassato, non è più un problema prioritario. Non
+confermato invece l'alone dorato pulsante nel banner (l'altra metà
+dell'animazione, attorno al ritratto): Michele non l'ha menzionato,
+verificare alla prossima prova.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
-1. **L'animazione si inchioda quando serve**: 187 frame saltati / 2,1 s
-   di UI congelata durante il caricamento del modello. Difetto del
-   lavoro del 20/07, non ancora toccato.
-2. **TTS da implementare** (richiesta Michele 20/07) e le rifiniture
+1. **TTS da implementare** (richiesta Michele 20/07) e le rifiniture
    grafiche.
-3. **Agganciare le 41 immagini** del catalogo alle scene
+2. **Agganciare le 41 immagini** del catalogo alle scene
    (`Scene.backgroundImage`) e ai personaggi: oggi sono nell'APK ma
    nessun codice le usa.
-4. **Inventario**: pasti (`Meal`) non hanno `effect`, `consumeItem`
+3. **Inventario**: pasti (`Meal`) non hanno `effect`, `consumeItem`
    esce in silenzio — serve decidere cosa devono fare. Scartare oggetti
    non esiste (l'engine ha `Inventory.removeItem`, manca solo la UI).
-5. **Preferences**: le classi ci sono, manca la schermata Opzioni
+4. **Preferences**: le classi ci sono, manca la schermata Opzioni
    (tema, font, TTS, lingua) — è la n. 7 di `UI.md`, lavoro di Fase 5.
-6. Mancano ancora le **fixture** da output reali di Gemma.
-7. **RINVIATO CONSAPEVOLMENTE da Michele**: il leak di **140 MB per
+5. Mancano ancora le **fixture** da output reali di Gemma.
+6. **RINVIATO CONSAPEVOLMENTE da Michele**: il leak di **140 MB per
    partita** (memoria nativa). Su 15,5 GB non si sente con 3 partite;
    l'ottimizzazione si fa alla fine. Non è una svista: è una scelta.
-8. La **grafica** rinviata consapevolmente: il banner è v0.1, manca il
+7. La **grafica** rinviata consapevolmente: il banner è v0.1, manca il
    `backgroundImage` PER SCENA (il sample dichiara
    inn/city/alley/battle/warehouse, gli asset non esistono — vanno
    prodotti, Fase 7) e manca il compagno di viaggio. I PNG da 3-4 MB
