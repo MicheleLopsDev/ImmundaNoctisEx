@@ -199,10 +199,14 @@ private fun SaveConfirmedRow(onExpired: () -> Unit) {
 private fun Header(state: AdventureState, onJournalClick: () -> Unit, onExitClick: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // PRIMA (20/07/2026): il titolo non aveva limite di larghezza. Con
+        // un titolo lungo ("The Warehouse Letter") spingeva Diario/Scena/
+        // Home fuori dallo schermo — non un tasto rotto, un tasto invisibile.
+        // Ora questo gruppo ha weight(1f): si restringe lui, il gruppo dei
+        // controlli a destra resta sempre intero e a portata di tocco.
+        Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
             // Semaforo di stato del motore (UI.md §Header): verde pronto,
             // giallo generazione, rosso contesto quasi pieno.
             val tokenInfo = state.tokenInfo
@@ -218,7 +222,14 @@ private fun Header(state: AdventureState, onJournalClick: () -> Unit, onExitClic
                 modifier = Modifier.size(12.dp),
             )
             Spacer(Modifier.width(6.dp))
-            Text(state.bookTitle, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                state.bookTitle,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f, fill = false),
+            )
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             androidx.compose.material3.TextButton(onClick = onJournalClick) {
