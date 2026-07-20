@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.ui.adventure
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.CombatOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
@@ -51,6 +52,31 @@ class AdventureState(
     private val expectsNarration: Boolean = false,
 ) {
     val gameState = GameState(session)
+
+    // COMPOSE NON VEDE GameState. `:core:engine` non dipende da Android
+    // (vincolo di progetto), quindi `gameState.session` è un var normale:
+    // modificarlo NON fa ridisegnare nulla. Prima di questo, piazzare un
+    // checkpoint scriveva il file ma il contatore restava fermo, e bere
+    // una pozione non cambiava la Resistenza a schermo finché non si
+    // cambiava scena — sembrava tutto rotto mentre funzionava.
+    //
+    // Qui si tiene una COPIA osservabile di ciò che la UI disegna,
+    // risincronizzata dopo ogni mutazione da `rinfresca()`.
+    var hero: Character by mutableStateOf(gameState.hero)
+        private set
+
+    var checkpointsRemaining: Int by mutableStateOf(0)
+        private set
+
+    private fun rinfresca() {
+        hero = gameState.hero
+        checkpointsRemaining =
+            (checkpointBudget - gameState.session.checkpointsUsed).coerceAtLeast(0)
+    }
+
+    init {
+        rinfresca()
+    }
     val bookTitle: String get() = manifest.title
     private val engine = TransitionEngine(manifest, MechanicsExecutor(dice))
 
@@ -279,9 +305,6 @@ class AdventureState(
             Difficulty.IRON -> 0
         }
 
-    val checkpointsRemaining: Int
-        get() = (checkpointBudget - gameState.session.checkpointsUsed).coerceAtLeast(0)
-
     fun placeCheckpoint(): Boolean {
         if (checkpointsRemaining <= 0) return false
         val slot = gameState.session.checkpointsUsed + 1
@@ -296,8 +319,15 @@ class AdventureState(
     fun placedCheckpoints(): List<Int> =
         (1..checkpointBudget).filter { store.loadCheckpoint(manifest.id, it) != null }
 
-    fun loadCheckpoint(slot: Int): SessionData? =
-        store.loadCheckpoint(manifest.id, slot)
+    // RICARICARE CONSUMA IL CHECKPOINT (decisione Michele 20/07/2026):
+    // prima si poteva tornare allo stesso punto all'infinito e due
+    // piazzamenti rendevano l'avventura innocua. Ora ogni ritorno brucia
+    // una vita, e quando finiscono la morte è definitiva.
+    fun loadCheckpoint(slot: Int): SessionData? {
+        val checkpoint = store.loadCheckpoint(manifest.id, slot) ?: return null
+        store.deleteCheckpoint(manifest.id, slot)
+        return checkpoint
+    }
 
     // Come è andata a finire: la regola sta nell'engine (testata in JVM),
     // qui si espone solo quello che la UI disegna.
@@ -368,16 +398,23 @@ class AdventureState(
         startNarration(previousSceneText = textJustRead)
     }
 
+    // Ogni mutazione dello stato di gioco passa di qui: è il punto giusto
+    // per risincronizzare la copia osservabile dalla UI.
     private fun autoSave() {
         store.saveSession(gameState.snapshot().copy(lastUpdate = System.currentTimeMillis()))
+        rinfresca()
     }
 
-    // Morte in IRON: la sessione si cancella, il libro riparte da capo
-    // (STATO.md Blocco 2). La schermata mostra comunque la scena di morte.
+    // MORTE DEFINITIVA (STATO.md Blocco 2, rivisto 20/07/2026): la
+    // sessione si cancella e il libro riparte da capo. Vale in IRON, che
+    // non ha checkpoint per definizione, e ora anche quando il giocatore
+    // ha esaurito le sue vite — cioè non ha più nessun checkpoint da
+    // ricaricare. La schermata mostra comunque la scena di morte.
     private fun handleIronDeath() {
         if (!isEnding) return
         val isDeathScene = currentScene.id == manifest.deathSceneId
-        if (isDeathScene && gameState.session.difficulty == Difficulty.IRON) {
+        val senzaPiuVite = placedCheckpoints().isEmpty()
+        if (isDeathScene && senzaPiuVite) {
             store.deleteAdventure(manifest.id)
             adventureDeleted = true
         }

@@ -51,7 +51,7 @@ fun AdventureScreen(
     var showJournal by remember { mutableStateOf(false) }
     if (showSheet) {
         io.github.luposolitario.immundanoctisex.ui.sheet.CharacterSheetScreen(
-            hero = state.gameState.hero,
+            hero = state.hero,
             onEquipWeapon = state::equipWeapon,
             onConsumeItem = state::consumeItem,
             onClose = { showSheet = false },
@@ -84,8 +84,8 @@ fun AdventureScreen(
         // Il palcoscenico: sfondo + ritratti, col cerchio d'oro su chi
         // "parla" (il narratore mentre scrive, altrimenti l'eroe).
         AdventureBanner(
-            heroName = state.gameState.hero.name,
-            heroGender = state.gameState.hero.gender,
+            heroName = state.hero.name,
+            heroGender = state.hero.gender,
             narratorSpeaking = state.isGenerating,
             // L'alone pulsa solo finché non c'è nulla da leggere: appena
             // arriva il primo pezzo di testo torna fermo.
@@ -113,7 +113,7 @@ fun AdventureScreen(
             }
         }
 
-        StatusCard(hero = state.gameState.hero, onClick = { showSheet = true })
+        StatusCard(hero = state.hero, onClick = { showSheet = true })
         Spacer(Modifier.height(8.dp))
 
         when {

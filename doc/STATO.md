@@ -75,11 +75,11 @@ un'inflazione di statistiche: stesso libro, stessi nemici, cambia
 quanto la storia perdona. Si sceglie a inizio avventura ed è
 **immutabile** per quella partita.
 
-| Difficoltà | Checkpoint | Alla morte |
+| Difficoltà | Vite (checkpoint) | Alla morte |
 |---|---|---|
-| NORMALE | 2 | offre il ricaricamento di un checkpoint |
-| DIFFICILE | 1 | offre il ricaricamento del checkpoint |
-| IRON | 0 | **sessione cancellata**, libro da capo |
+| NORMALE | 2 | ricarichi un checkpoint **e lo consumi**; finiti → **sessione cancellata** |
+| DIFFICILE | 1 | ricarichi il checkpoint **e lo consumi**; finito → **sessione cancellata** |
+| IRON | 0 | **sessione cancellata** subito, libro da capo |
 
 ### Regole dei checkpoint
 
@@ -89,10 +89,22 @@ quanto la storia perdona. Si sceglie a inizio avventura ed è
   quel momento, su file separato:
   `checkpoint_<packageId>_<n>.json`. (Solo l'ID non basta: si
   porterebbe indietro inventario e flag del futuro.)
-- **Scritto una volta, mai spostabile né sovrascrivibile.** Si può
-  ricaricare **illimitatamente**. La durezza non sta nel numero di
-  ricarichi ma nell'irrevocabilità del piazzamento: salvare in un
-  ramo che porta comunque alla morte = fregati con stile.
+- **Scritto una volta, mai spostabile né sovrascrivibile.**
+- **RICARICARLO LO CONSUMA** (rivisto 20/07/2026, decisione di Michele):
+  ogni ritorno a un checkpoint lo **brucia** — il file sparisce e quel
+  punto non è più raggiungibile. Su NORMALE hai 2 vite, su DIFFICILE 1,
+  su IRON nessuna.
+
+  > La versione precedente diceva "si può ricaricare illimitatamente" e
+  > affidava la durezza alla sola irrevocabilità del piazzamento. Alla
+  > prova dei fatti bastavano due checkpoint per rendere l'avventura
+  > innocua: si moriva quante volte si voleva tornando sempre allo
+  > stesso punto. Ora le vite sono davvero finite.
+
+- **Esaurite le vite, la morte è definitiva**: la sessione si cancella e
+  il libro riparte da capo, esattamente come in IRON. IRON resta il caso
+  limite della stessa regola (zero vite dall'inizio), non un'eccezione a
+  parte.
 - Il ricaricamento ripristina la fotografia e **tronca il diario** a
   quel punto (coerenza del percorso).
 - L'auto-save di ripresa (Blocco 1.3) esiste sempre, anche in IRON:
