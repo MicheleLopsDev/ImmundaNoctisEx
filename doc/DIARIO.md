@@ -269,6 +269,23 @@ prima di riconsiderarla.
   codice assegna ancora questi file a scene o personaggi specifici
   (punto 2 di APERTO, sotto — ora sono 52 immagini in attesa, non 41).
 
+- **SAMPLE BONIFICATO** (21/07, richiesta di Michele — "bonifichiamo il
+  file json... così possiamo provare la nuova versione"): i 5 vecchi
+  placeholder morti di `content/scenes.sample.json` ("inn", "city",
+  "alley"×2, "battle"×2) sostituiti guardando il contesto narrativo di
+  ogni scena, non a caso. Due avevano un match reale nel catalogo:
+  scena 1 (camera sopra una locanda) -> `loc_tavern`, scena 6 (interno
+  del vecchio magazzino) -> `loc_warehouse`. Le altre quattro (due
+  vicoli, due scene di combattimento generiche) non hanno nulla di
+  adatto nel catalogo attuale: il campo è stato tolto invece di
+  forzare un abbinamento debole — restano il caso di test per "Gemma
+  sceglie" (o omette, se nessuna delle 24 le convince). La copia
+  gemella in `core/data/src/jvmTest/resources/scenes.sample.json`
+  NON è stata toccata: è già divergente dall'originale (manca il
+  campo `outcome`), sembra un fixture di test isolato, non
+  sincronizzato di proposito — fuori scope. Compilazione e suite
+  `app` verdi. **Mai visto girare.**
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
