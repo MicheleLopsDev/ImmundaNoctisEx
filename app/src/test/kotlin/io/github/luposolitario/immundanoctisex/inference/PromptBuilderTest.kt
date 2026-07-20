@@ -14,13 +14,14 @@ import kotlin.test.assertTrue
 
 class PromptBuilderTest {
 
-    private fun scene(combat: Combat? = null) = Scene(
+    private fun scene(combat: Combat? = null, backgroundImage: String? = null) = Scene(
         id = "3",
         sceneType = SceneType.TRANSITION,
         genre = "FANTASY",
         toneHints = listOf("dark", "suspenseful"),
         narrativeText = "The alley narrows as the old quarter swallows the daylight.",
         combat = combat,
+        backgroundImage = backgroundImage,
     )
 
     private fun context(
@@ -241,5 +242,22 @@ class PromptBuilderTest {
         assertTrue(fragments.baseText.isNotBlank())
         assertContains(fragments.outputFormatText, "--- TAGS ---")
         assertContains(fragments.constraintText, "{user_language}")
+    }
+
+    // --- Sfondo di scena (vocabolario chiuso, esperimento 20/07/2026) ---
+
+    @Test
+    fun senzaSfondoDichiarato_siChiedeAGemmaDiSuggerirlo() {
+        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = null)))
+        assertContains(prompt, "IMAGE|location_id")
+        // Il vocabolario è CHIUSO: i nomi veri devono comparire per intero,
+        // non un placeholder generico.
+        assertContains(prompt, "loc_tavern")
+    }
+
+    @Test
+    fun conSfondoGiaDichiarato_nonSiSprecaContestoAChiederlo() {
+        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "loc_market")))
+        assertFalse(prompt.contains("IMAGE|location_id"))
     }
 }

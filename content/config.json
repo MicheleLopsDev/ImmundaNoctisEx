@@ -78,6 +78,10 @@
           "value": "ENEMY|translated enemy name"
         },
         {
+          "name": "imageFormatText",
+          "value": "IMAGE|location_id — OPTIONAL. Only if one of these locations is a strong, obvious match for this scene, add this line with its exact id. If none fits well, omit the line entirely — do not guess.\nAvailable locations: {available_locations}"
+        },
+        {
           "name": "closingText",
           "value": "NARRATOR (in {user_language}, tone: {tone_hints}):"
         }

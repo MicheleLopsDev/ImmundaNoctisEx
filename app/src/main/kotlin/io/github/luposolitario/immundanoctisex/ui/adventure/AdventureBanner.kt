@@ -51,12 +51,15 @@ fun AdventureBanner(
     // Il narratore sta pensando (carica il modello o genera la scena):
     // il suo alone d'oro pulsa finché non c'è qualcosa da leggere.
     narratorThinking: Boolean = false,
+    // Nome dal catalogo (SceneImageCatalog) o null: sceneBackgroundRes
+    // degrada sulla mappa di default per qualunque nome che non riconosce
+    // (esperimento 20/07/2026 — il pacchetto decide se dichiarato,
+    // altrimenti Gemma può suggerirlo con vocabolario chiuso).
+    backgroundImageName: String? = null,
 ) {
     Box(modifier = modifier.fillMaxWidth().height(150.dp)) {
-        // v0.1: sfondo unico (la mappa di Magnamund). Il backgroundImage
-        // per-scena arriva in Fase 7 con gli asset dedicati.
         Image(
-            painter = painterResource(id = R.drawable.map_dungeon),
+            painter = painterResource(id = sceneBackgroundRes(backgroundImageName)),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth().height(110.dp),

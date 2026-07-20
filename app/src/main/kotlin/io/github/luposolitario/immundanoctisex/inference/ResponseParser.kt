@@ -13,6 +13,10 @@ data class EnrichedScene(
     val choiceTexts: Map<String, String>,
     val disciplineChoiceTexts: Map<String, String>,
     val enemyName: String?,
+    // Nome dello sfondo scelto per la scena (SceneImageCatalog), non un
+    // drawable: la UI risolve il nome in risorsa, il parser non sa nulla
+    // di Android. Null = nessuna scelta valida, resta il default.
+    val backgroundImage: String? = null,
 )
 
 // Parsing dell'output di Gemma (ARCHITETTURA §inference, ANALISI-FLUSSO-
@@ -43,6 +47,10 @@ object ResponseParser {
             choiceTexts = resolveChoices(scene.choices, parsedChoices),
             disciplineChoiceTexts = resolveDisciplineChoices(scene.disciplineChoices, parsedDisciplines),
             enemyName = lines.firstNotNullOfOrNull(::parseEnemyLine) ?: scene.combat?.enemyName,
+            // Il pacchetto vince SEMPRE se l'autore ha già dichiarato uno
+            // sfondo: Gemma è un ripiego per le scene che ne sono prive,
+            // mai una sovrascrittura di una scelta dell'autore.
+            backgroundImage = scene.backgroundImage ?: lines.firstNotNullOfOrNull(::parseImageLine),
         )
     }
 
@@ -70,6 +78,15 @@ object ResponseParser {
     private fun parseEnemyLine(line: String): String? {
         if (!line.startsWith("ENEMY|")) return null
         return line.split("|", limit = 2).getOrNull(1)?.trim()?.takeIf { it.isNotEmpty() }
+    }
+
+    // IMAGE|nome — VOCABOLARIO CHIUSO: un nome che Gemma inventa (o
+    // storpia) viene scartato qui, non arriva mai alla UI. Nessun
+    // fallback rumoroso: il gioco resta sullo sfondo di default.
+    private fun parseImageLine(line: String): String? {
+        if (!line.startsWith("IMAGE|")) return null
+        val name = line.split("|", limit = 2).getOrNull(1)?.trim() ?: return null
+        return name.takeIf(SceneImageCatalog::isValid)
     }
 
     // Aggancio delle righe alle scelte vere. Prima per destinazione
