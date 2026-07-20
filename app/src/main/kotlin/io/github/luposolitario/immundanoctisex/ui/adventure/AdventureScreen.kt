@@ -87,6 +87,7 @@ fun AdventureScreen(
             hero = state.hero,
             onEquipWeapon = state::equipWeapon,
             onConsumeItem = state::consumeItem,
+            onDiscardItem = state::discardItem,
             onClose = { showSheet = false },
         )
         return

@@ -681,6 +681,39 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   alla soglia dei ~200 — da tenere d'occhio se arriva un altro picker.
   **Mai visto girare sul device.**
 
+- **ZAINO: scritte lunghe e scarto oggetti** (21/07, Michele dallo
+  screenshot della scheda: "alcune scritte sono troppo lunghe e manca
+  la possibilità di scartare una cosa tenendo premuto"). Due problemi
+  distinti nello stesso giro:
+  - **Testo lungo**: `BackpackCard`/`WeaponSlot` non avevano
+    `maxLines`/`overflow` — un nome come "Laumspur Potion" andava a
+    capo spezzando la PAROLA a metà nello slot quadrato. Aggiunto
+    `maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign =
+    Center` su entrambi.
+  - **Scarto con tocco lungo**: l'engine aveva già `Inventory
+    .removeItem` (segnalato nel diario da giorni, mancava solo il
+    gancio UI). Nuovo `AdventureState.discardItem(itemName)` (stesso
+    pattern di `consumeItem`, -1 unità, autosave). `BackpackCard` ora
+    usa `Modifier.combinedClickable(onClick, onLongClick)` al posto
+    del semplice `onClick` della Card — il tocco lungo apre un
+    `AlertDialog` di conferma prima di scartare davvero (un long-press
+    accidentale non deve far sparire un oggetto senza che il
+    giocatore possa fermarsi). Filo passato per tre file
+    (`EquipmentTab` → `CharacterSheetScreen` → `AdventureScreen`, fino
+    a `state::discardItem`).
+
+  Nuovo libro di test `content/test-books/test_items_and_weapons.json`
+  (richiesta di Michele, per verificare il meccanismo di scelta armi):
+  una scena con **3 armi** (solo 2 slot esistono, `Inventory
+  .MAX_WEAPONS` — la terza non deve entrare, verifica anche il
+  limite), pasti, una pozione curativa, un oggetto speciale col nome
+  VOLUTAMENTE lungo ("Tarnished Ring of the Old Kingdom", per
+  verificare anche il fix del testo troncato) e delle Corone.
+
+  Compilazione e suite verdi. **Mai visto girare sul device**: né il
+  fix del testo, né lo scarto, né se le 3 armi si comportano come
+  atteso (2 entrano, 1 no) — tutto da provare col side-load.
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
@@ -688,8 +721,8 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
    (`Scene.backgroundImage`) e ai personaggi: oggi sono nell'APK ma
    nessun codice le usa.
 3. **Inventario**: pasti (`Meal`) non hanno `effect`, `consumeItem`
-   esce in silenzio — serve decidere cosa devono fare. Scartare oggetti
-   non esiste (l'engine ha `Inventory.removeItem`, manca solo la UI).
+   esce in silenzio — serve decidere cosa devono fare. ~~Scartare
+   oggetti non esiste~~ — FATTO 21/07, tocco lungo con conferma.
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
    (tema, font, TTS, lingua) — è la n. 7 di `UI.md`. **IN CORSO da
    ora**, anticipata da Fase 5 su richiesta di Michele (vedi sopra).

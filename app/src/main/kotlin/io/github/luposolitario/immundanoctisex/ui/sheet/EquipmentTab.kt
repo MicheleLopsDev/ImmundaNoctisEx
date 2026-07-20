@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
@@ -40,10 +42,11 @@ fun EquipmentTab(
     hero: Character,
     onEquipWeapon: (String) -> Unit,
     onConsumeItem: (String) -> Unit,
+    onDiscardItem: (String) -> Unit,
 ) {
     StatsBreakdownCard(hero)
     WeaponsCard(hero, onEquipWeapon)
-    BackpackCard(hero, onConsumeItem)
+    BackpackCard(hero, onConsumeItem, onDiscardItem)
     SpecialItemsCard(hero)
 }
 
@@ -153,7 +156,13 @@ private fun WeaponSlot(slotNumber: Int, weapon: GameItem?, hero: Character, onEq
     ) {
         Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("$slotNumber", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Text(weapon?.name ?: "Vuoto", fontWeight = FontWeight.Bold)
+            Text(
+                weapon?.name ?: "Vuoto",
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
             if (equipped) {
                 val bonus = weaponskillBonus(hero)
                 Text(

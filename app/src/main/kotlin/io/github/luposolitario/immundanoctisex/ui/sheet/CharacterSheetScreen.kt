@@ -53,6 +53,7 @@ fun CharacterSheetScreen(
     hero: Character,
     onEquipWeapon: (String) -> Unit,
     onConsumeItem: (String) -> Unit,
+    onDiscardItem: (String) -> Unit,
     onClose: () -> Unit,
 ) {
     var tab by remember { mutableIntStateOf(0) }
@@ -67,7 +68,7 @@ fun CharacterSheetScreen(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (tab == 0) StatsTab(hero) else EquipmentTab(hero, onEquipWeapon, onConsumeItem)
+            if (tab == 0) StatsTab(hero) else EquipmentTab(hero, onEquipWeapon, onConsumeItem, onDiscardItem)
         }
         Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
             Text("Chiudi")
@@ -169,6 +170,7 @@ private fun CharacterSheetPreview() {
             ),
             onEquipWeapon = {},
             onConsumeItem = {},
+            onDiscardItem = {},
             onClose = {},
         )
     }
