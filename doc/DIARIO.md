@@ -590,6 +590,28 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   parametro `boldText`, niente stato locale da ciclare. Compilazione
   e suite verdi. **Mai visto girare sul device.**
 
+  **TONO DELLA NARRAZIONE, stesso giorno** (richiesta di Michele:
+  "aggiungi l'opzione per il tono" — chiarito con una domanda diretta,
+  dato che "Tono (pitch)" esiste già nella sezione TTS: intendeva il
+  tono NARRATIVO, non la voce). Prima di oggi il tono lo decideva SOLO
+  l'autore (`Scene.toneHints`, fallback su `Manifest.toneHints`) — il
+  giocatore non aveva voce in capitolo. Nuovo `NarrativeTonePreferences
+  .kt`: enum `NarrativeTone` con `AUTHOR` (default, `hints = null`,
+  comportamento invariato) più sei toni che SOSTITUISCONO quelli
+  dell'autore per l'intera sessione — Cupo, Avventuroso, Misterioso,
+  Eroico, Leggero, Duro e crudo. Deciso di FAR VINCERE il giocatore
+  quando sceglie qualcosa (non sommare ai toni dell'autore): un
+  "avventuroso" scelto sopra una scena scritta "grim" deve essere
+  inequivocabile, non un mix ambiguo.
+
+  `SceneNarrator` prende un nuovo parametro opzionale `toneOverride:
+  List<String>? = null` (stesso pattern di `userLanguage`), usato
+  al posto di `scene.toneHints.ifEmpty { manifest.toneHints }` quando
+  non è null. Nuova `ui/options/ToneSection.kt` (RadioButton, come
+  `LanguageSection`). Compilazione e suite verdi. **Mai visto girare
+  sul device**: né la scelta in sé, né l'effetto vero su cosa scrive
+  Gemma con un tono forzato.
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.

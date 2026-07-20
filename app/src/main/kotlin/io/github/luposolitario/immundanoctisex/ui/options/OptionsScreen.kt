@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.util.NarrativeTone
 import io.github.luposolitario.immundanoctisex.util.OutputLanguage
 import io.github.luposolitario.immundanoctisex.util.ReadingFont
 
@@ -44,6 +45,8 @@ fun OptionsScreen(
     onBoldTextChange: (Boolean) -> Unit,
     outputLanguage: OutputLanguage,
     onLanguageSelect: (OutputLanguage) -> Unit,
+    narrativeTone: NarrativeTone,
+    onToneSelect: (NarrativeTone) -> Unit,
     ttsUi: TtsUi,
     onAutoReadChange: (Boolean) -> Unit,
     onSpeechRateChange: (Float) -> Unit,
@@ -77,6 +80,7 @@ fun OptionsScreen(
         ) {
             ThemeSection(darkOverride, onThemeSelect)
             LanguageSection(outputLanguage, onLanguageSelect)
+            ToneSection(narrativeTone, onToneSelect)
             FontSection(readingFont, onFontSelect, boldText, onBoldTextChange)
             TtsSection(
                 ui = ttsUi,
@@ -156,6 +160,8 @@ private fun OptionsScreenPreview() {
             onBoldTextChange = {},
             outputLanguage = OutputLanguage.ITALIAN,
             onLanguageSelect = {},
+            narrativeTone = NarrativeTone.AUTHOR,
+            onToneSelect = {},
             ttsUi = TtsUi(
                 autoReadEnabled = false,
                 speechRate = 1f,

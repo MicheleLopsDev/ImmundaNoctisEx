@@ -52,6 +52,8 @@ fun AdventureRoute(
                     // Scelta in Opzioni (UI.md schermata 7); prima era
                     // "Italian" fisso nel default del costruttore.
                     userLanguage = container.languagePreferences.outputLanguage.promptValue,
+                    // AUTHOR (default) -> null, l'autore decide come sempre.
+                    toneOverride = container.narrativeTonePreferences.narrativeTone.hints,
                 )
             }
             // Si sa subito se il modello è sul telefono: serve a non
