@@ -98,10 +98,11 @@ data class PromptFragments(
             // parsimonioso di proposito: un tag sbagliato non rompe nulla
             // (vocabolario chiuso, il parser scarta ciò che non riconosce),
             // ma un tag forzato su ogni scena sarebbe rumore, non aiuto.
-            imageFormatText = "IMAGE|location_id — OPTIONAL. Only if one of these locations is a " +
-                "strong, obvious match for this scene, add this line with its exact id. If none " +
+            imageFormatText = "IMAGE|location_id — OPTIONAL. Below is a dictionary of available " +
+                "locations, each with a short description of what it depicts. If one of them is " +
+                "a strong, obvious match for THIS scene, add this line with its exact id. If none " +
                 "fits well, omit the line entirely — do not guess.\n" +
-                "Available locations: {available_locations}",
+                "{available_locations}",
             closingText = "NARRATOR (in {user_language}, tone: {tone_hints}):",
         )
 

@@ -255,6 +255,19 @@ class PromptBuilderTest {
         assertContains(prompt, "loc_tavern")
     }
 
+    // Richiesta di Michele 21/07/2026: "un dizionario delle scene
+    // spiegando ogni scena a cosa può corrispondere" — prima Gemma aveva
+    // solo i nomi nudi (es. "loc_black_gate" contro "loc_helgedad_gate",
+    // due portali di pietra quasi indistinguibili dal nome). Verifica che
+    // il DIZIONARIO, non solo l'elenco dei nomi, sia davvero nel prompt —
+    // altrimenti un futuro taglio della descrizione passerebbe inosservato.
+    @Test
+    fun ilVocabolarioPortaLaDescrizioneNonSoloIlNome() {
+        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = null)))
+        assertContains(prompt, "loc_tavern: the interior of a crowded tavern")
+        assertContains(prompt, "loc_black_gate: a dark stone gate")
+    }
+
     @Test
     fun conSfondoGiaDichiarato_nonSiSprecaContestoAChiederlo() {
         val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "loc_market")))

@@ -79,7 +79,7 @@
         },
         {
           "name": "imageFormatText",
-          "value": "IMAGE|location_id — OPTIONAL. Only if one of these locations is a strong, obvious match for this scene, add this line with its exact id. If none fits well, omit the line entirely — do not guess.\nAvailable locations: {available_locations}"
+          "value": "IMAGE|location_id — OPTIONAL. Below is a dictionary of available locations, each with a short description of what it depicts. If one of them is a strong, obvious match for THIS scene, add this line with its exact id. If none fits well, omit the line entirely — do not guess.\n{available_locations}"
         },
         {
           "name": "closingText",
