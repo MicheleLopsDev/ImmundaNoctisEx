@@ -7,7 +7,7 @@
 
 ---
 
-## STATO CORRENTE — aggiornato 20/07/2026
+## STATO CORRENTE — aggiornato 20/07/2026 (sera)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
 Razr senza IA (Home, creazione, scena, combat a due modalità, scheda,
@@ -91,29 +91,42 @@ diario, checkpoint, auto-save atomico).
   una velocità che si perde. Dettaglio sotto. **Ipotesi mia smentita dai
   dati.**
 
+- **QUATTRO FIX SERALI SUI SALVATAGGI** (20/07 sera, dettaglio sotto):
+  la UI non rifletteva `GameState` (era un `var` non osservabile),
+  mancava ogni riscontro/uscita, l'icona Home era invisibile per un
+  titolo lungo, i checkpoint di test bloccavano i piazzamenti nuovi
+  in silenzio. **"Il bug sembra risolto" — confermato da Michele su
+  device solo per l'ultimo dei quattro**; gli altri tre non ancora
+  rivisti dopo il fix successivo.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **L'animazione si inchioda quando serve**: 187 frame saltati / 2,1 s
    di UI congelata durante il caricamento del modello. Difetto del
-   lavoro del 20/07.
+   lavoro del 20/07, non ancora toccato.
 2. **TTS da implementare** (richiesta Michele 20/07) e le rifiniture
    grafiche.
 3. **Agganciare le 41 immagini** del catalogo alle scene
    (`Scene.backgroundImage`) e ai personaggi: oggi sono nell'APK ma
    nessun codice le usa.
-4. Mancano ancora le **fixture** da output reali di Gemma.
-5. **RINVIATO CONSAPEVOLMENTE da Michele**: il leak di **140 MB per
+4. **Inventario**: pasti (`Meal`) non hanno `effect`, `consumeItem`
+   esce in silenzio — serve decidere cosa devono fare. Scartare oggetti
+   non esiste (l'engine ha `Inventory.removeItem`, manca solo la UI).
+5. **Preferences**: le classi ci sono, manca la schermata Opzioni
+   (tema, font, TTS, lingua) — è la n. 7 di `UI.md`, lavoro di Fase 5.
+6. Mancano ancora le **fixture** da output reali di Gemma.
+7. **RINVIATO CONSAPEVOLMENTE da Michele**: il leak di **140 MB per
    partita** (memoria nativa). Su 15,5 GB non si sente con 3 partite;
    l'ottimizzazione si fa alla fine. Non è una svista: è una scelta.
+8. La **grafica** rinviata consapevolmente: il banner è v0.1, manca il
+   `backgroundImage` PER SCENA (il sample dichiara
+   inn/city/alley/battle/warehouse, gli asset non esistono — vanno
+   prodotti, Fase 7) e manca il compagno di viaggio. I PNG da 3-4 MB
+   (`ic_axe`, `ic_map_icon`, `ic_gold`) vanno in WebP.
 
 **Misure ancora mancanti**: il **termico** su 30-45' (il log più lungo
 copre 6'20") e il **drain della batteria** (osservazione di Michele
 20/07: su un gioco che tiene la GPU occupata conta più della memoria —
 va aggiunto alle misure di CRITICITA.md).
-5. La **grafica** rinviata consapevolmente: il banner è v0.1, manca il
-   `backgroundImage` PER SCENA (il sample dichiara
-   inn/city/alley/battle/warehouse, gli asset non esistono — vanno
-   prodotti, Fase 7) e manca il compagno di viaggio. I PNG da 3-4 MB
-   (`ic_axe`, `ic_map_icon`, `ic_gold`) vanno in WebP.
 
 **Come si raccolgono le misure**: il motore le logga da solo a ogni
 scena giocata. `adb logcat -s LiteRtLmEngine` stampa una riga
@@ -156,7 +169,97 @@ NON sono schedulate: non implementarle senza una decisione esplicita.
 
 ---
 
-## 20/07/2026
+## 20/07/2026 (sera)
+
+### Sessione — quattro bug sotto lo stesso sintomo "non funziona"
+
+Michele: *"lo premo ma sembra che non funzioni esattamente"* riferito ai
+salvataggi. Sono usciti QUATTRO problemi distinti, ognuno mascherato dal
+precedente — un buon promemoria che "non funziona" non è mai una
+diagnosi, è un punto di partenza.
+
+**1. La UI non vedeva `GameState` (`121e112`).** `GameState.session` è
+un `var` normale — e DEVE restarlo, `:core:engine` non dipende da
+Android — quindi Compose non lo osservava e nessuna mutazione faceva
+ridisegnare nulla. Piazzavi un checkpoint: il file si scriveva, il
+contatore restava fermo. Bevevi una pozione: la Resistenza non cambiava
+finché non si cambiava scena (lì `currentScene`, quello sì osservabile,
+forzava il ridisegno). Non una regressione: c'era dalla Fase 3.
+`AdventureState` ora tiene una copia osservabile (`hero`,
+`checkpointsRemaining`) risincronizzata da `rinfresca()` dentro
+`autoSave()`.
+
+**Nella stessa sessione, la regola dei checkpoint è cambiata** (decisione
+Michele): prima si ricaricava un checkpoint **illimitatamente** — due
+piazzamenti bastavano a rendere l'avventura innocua, si moriva quante
+volte si voleva tornando sempre allo stesso punto. Ora **ricaricare
+consuma il checkpoint** (nuovo `SessionStore.deleteCheckpoint`), e chi
+resta senza vite muore per davvero: sessione cancellata come in IRON,
+che diventa il caso limite della stessa regola invece di un'eccezione.
+`STATO.md` Blocco 2 aggiornato.
+
+**2. Non esisteva NESSUN riscontro né via d'uscita (`8ba5e75`).**
+Piazzare un checkpoint non dava nessun segnale (ora: spunta verde
+"Checkpoint salvato" per 1,5s). E non c'era alcun modo di tornare al
+menu dalla scena — `onExitToHome` era già un parametro ma usato solo a
+fine avventura. Aggiunta icona Home nell'header, con conferma (l'auto-
+save è sempre attivo, la conferma è solo contro il tocco accidentale).
+
+**3. L'icona Home era invisibile, non rotta (`c10e68a`).** Michele ha
+mandato uno screenshot: l'header finiva con "Scena 1 ·", un puntino
+tagliato al bordo destro. Il titolo del libro non aveva limite di
+larghezza; `Arrangement.SpaceBetween` non comprime i figli che eccedono
+lo spazio, semplicemente trabocca oltre il bordo. Con un titolo
+abbastanza lungo ("The Warehouse Letter"), Diario/Scena/Home uscivano
+letteralmente dallo schermo — non impremibili, invisibili. Fix: il
+gruppo di sinistra ha `weight(1f)` e il titolo tronca con ellipsis; il
+gruppo dei controlli mantiene sempre la sua dimensione ed è sempre
+intero.
+
+**4. I checkpoint di test bloccavano i piazzamenti nuovi, in silenzio
+(`b67b9fb`).** Dopo il fix 1, Michele: *"anche se fai click rimasti
+2"* — il contatore non scendeva MAI. Causa: `saveCheckpoint()` rifiuta
+di scrivere se lo slot esiste già (per design: scritto una volta, mai
+sovrascrivibile). Con decine di partite di test giocate oggi sullo
+stesso `packageId`, i file `checkpoint_sample_1.json` e `_2.json` erano
+già occupati da sessioni precedenti — nessuno li ripuliva mai quando si
+creava una nuova avventura. `SessionStore.deleteAdventure` esisteva
+apposta per questo (il suo commento lo dichiara: "i checkpoint di una
+partita finita non devono sopravvivere alla successiva"), semplicemente
+`CreationRoute` non lo chiamava. **Non sblocca la sessione già in corso**
+— "Continua" salta apposta `CreationRoute` — serve iniziare una nuova
+avventura.
+
+**Confermato da Michele su device solo il fix 4** ("questo bug sembra
+risolto"). I fix 1-3 sono stati scritti e testati (JVM + compilazione)
+ma non ancora rivisti sul Razr dopo l'ultimo aggiornamento — la sessione
+di test si è chiusa sul quarto problema, non è tornata indietro a
+confermare i primi tre.
+
+**Altro toccato nella stessa sessione, su richiesta di Michele:**
+- **Testo del finale**: conclusivo ma con "un filo aperto" — non
+  promette un seguito, non offre una scelta. Vincolo dedicato perché
+  quello normale ordina di "riscrivere la CURRENT SCENE", contraddittorio
+  per un finale da inventare (trovato dal test, non dalla lettura).
+- **Enfasi soprannaturale delle Discipline Kai** nel prompt
+  (`disciplineEmphasisText`), con il limite esplicito di non inventare
+  effetti oltre il testo sorgente.
+- **Descrizioni delle discipline nella scheda**: mostrava l'ID canonico
+  grezzo ("MINDBLAST") mentre nome e descrizione italiani erano in
+  `strings.xml` da sempre, mai collegati.
+- **Le tavole a china di Michele** per i due finali (scheletri/sole
+  nascente), sostituiscono i vettoriali di ripiego. Taglio a metà
+  misurato sulla densità di pixel scuri, non a occhio. WebP lossless
+  perché il lossy sporcava il tratteggio.
+- **41 immagini di locazioni/NPC/nemici** catalogate, rinominate in
+  inglese, testo italiano rimosso da 9 (dove stava dentro una targa —
+  gli archi con testo inciso sulla pietra non si sono potuti pulire).
+  In `drawable-nodpi`, non `drawable`: altrimenti Android le scala fino
+  a 4× su schermi xxxhdpi. **Ancora nessun codice le usa.**
+
+---
+
+## 20/07/2026 (pomeriggio)
 
 ### Sessione — l'attesa raccontata e la card che si legge a colpo d'occhio
 
