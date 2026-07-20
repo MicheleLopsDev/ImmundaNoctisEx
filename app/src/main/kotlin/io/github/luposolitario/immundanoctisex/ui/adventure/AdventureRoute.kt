@@ -95,6 +95,7 @@ fun AdventureRoute(
                 initialTextScale = container.fontPreferences.textScale,
                 onTextScaleChange = { container.fontPreferences.textScale = it },
                 boldText = container.fontPreferences.boldText,
+                statusCardColor = container.statusCardColorPreferences.statusCardColor,
             )
         }
 

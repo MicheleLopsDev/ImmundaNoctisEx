@@ -657,6 +657,30 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   qui se i 5 preset hanno davvero un buon contrasto — sono stime
   ragionevoli, non misurate.
 
+  **SFONDO DELLA CARD DI STATO, stesso giorno**: Michele ha chiesto
+  "un altro picker per la barra di sotto" — chiarito con una domanda
+  diretta (navigation bar di sistema o un elemento dell'app?), poi con
+  lo STESSO screenshot della card di stato già mandato prima: intendeva
+  proprio quella card, non la barra di sistema. Nuovo
+  `StatusCardColorPreferences.kt`: enum `StatusCardColor`, `DEFAULT`
+  (background/content entrambi null, la card resta quella di sempre)
+  più 5 pastelli chiari (Lavanda, Azzurro, Menta, Ambra, Rosa) con un
+  `content` (colore testo/icone) ESPLICITO e scuro abbinato a
+  ciascuno — necessario perché con tema scuro attivo il testo di
+  default sarebbe chiaro, illeggibile su uno sfondo pastello chiaro.
+
+  `StatusCard.kt` prende un nuovo parametro `cardColor`, applicato via
+  `CardDefaults.cardColors(containerColor, contentColor)` solo se
+  entrambi i valori del preset non sono null. **Estratta
+  `ColorSwatch` in un file condiviso** (`ui/options/ColorSwatch.kt`):
+  era identica, copiata di netto, tra `AccentColorSection` e questa
+  nuova sezione — stesso pattern chiesto due volte nello stesso
+  giorno, ha senso condividerlo invece di tenere due copie.
+
+  Compilazione e suite verdi. `OptionsScreen.kt` è a 197 righe, vicino
+  alla soglia dei ~200 — da tenere d'occhio se arriva un altro picker.
+  **Mai visto girare sul device.**
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.

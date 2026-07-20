@@ -11,6 +11,7 @@ import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.tts.TtsService
 import io.github.luposolitario.immundanoctisex.util.AccentColor
+import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 
 // Raccordo delle Opzioni: legge le preferenze da AppContainer, le scrive
 // ad ogni cambio (stessa politica "commit al rilascio" di
@@ -30,6 +31,7 @@ fun OptionsRoute(
 
     var themeOverride by remember { mutableStateOf(darkOverride) }
     var accentColor by remember { mutableStateOf(container.accentColorPreferences.accentColor) }
+    var statusCardColor by remember { mutableStateOf(container.statusCardColorPreferences.statusCardColor) }
     var font by remember { mutableStateOf(container.fontPreferences.readingFont) }
     var bold by remember { mutableStateOf(container.fontPreferences.boldText) }
     var language by remember { mutableStateOf(container.languagePreferences.outputLanguage) }
@@ -60,6 +62,11 @@ fun OptionsRoute(
         onAccentColorSelect = { selected ->
             accentColor = selected
             onAccentColorChange(selected)
+        },
+        statusCardColor = statusCardColor,
+        onStatusCardColorSelect = { selected ->
+            statusCardColor = selected
+            container.statusCardColorPreferences.statusCardColor = selected
         },
         readingFont = font,
         onFontSelect = { selected ->
