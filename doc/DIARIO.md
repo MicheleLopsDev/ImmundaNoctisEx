@@ -393,6 +393,26 @@ prima di riconsiderarla.
   Studio ha validato "l'imperativo funziona", non ancora "l'imperativo
   CHE OMETTE SE SERVE funziona altrettanto".
 
+  **QUARTA FORMULAZIONE, stesso giorno**: idea di Michele — "così
+  evitiamo che sbagli, per lui è più facile prendere sempre una
+  decisione, se poi troviamo xxx lo ignoriamo". "Ometti la riga se
+  nessuna calza" chiede al modello un giudizio IN PIÙ sopra quello
+  vero (quale location?): quanto sono sicuro di non essere sicuro?
+  Tolto quel giudizio: la riga si scrive SEMPRE, e quando nessuna
+  location è un buon match si scrive `IMAGE|xxx` invece di ometterla
+  o di inventare un id plausibile. Nessuna modifica al parser:
+  `SceneImageCatalog.isValid` scarta già in silenzio ogni id fuori
+  dal catalogo, `xxx` compreso — stesso esito finale dell'omissione
+  (`backgroundImage = null`, verificato leggendo di nuovo
+  `ResponseParser.parse`), compito più semplice per il modello.
+  Nella riscrittura il vincolo "MUST NOT invent" si era indebolito
+  per errore in "do not invent" (minuscolo): un test del 21/07
+  mattina lo controlla testualmente
+  (`ilVincoloSuiNomiEStringente`) ed è servito da rete — riportato a
+  "MUST NOT invent", non indebolito il test. Suite `app` verde (44
+  test, il rotto corretto). **Mai vista girare né su device né su LM
+  Studio**: prossimo test di Michele.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
