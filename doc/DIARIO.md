@@ -464,6 +464,18 @@ prima di riconsiderarla.
    sopra), se serve un tag diverso da IMAGE per non confondere i due
    vocabolari, e se il rischio di scelte bizzarre (un lupo come sfondo
    di un'intera scena) è accettabile o va limitato a casi precisi.
+9. **SEGNALATO da Michele (21/07), evoluzione del punto 8**: tag
+   DEDICATI — `ENEMY_IMAGE`/`BEAST_IMAGE`/`NPC_IMAGE` o simili — invece
+   di far pescare IMAGE da cataloghi diversi. Risponderebbe proprio
+   alla domanda "serve un tag diverso da IMAGE" lasciata aperta sopra:
+   un vocabolario per catalogo, ognuno scelto solo quando pertinente
+   (npc/nemico/bestia presente in scena), niente confusione tra
+   "sfondo del luogo" e "chi/cosa c'è nella scena". Dubbio esplicito
+   di Michele, non mio: "dobbiamo vedere se Gemma supporta una
+   maggiore complessità" — ogni tag nuovo è un altro dizionario nel
+   prompt (il solo IMAGE costa ~168 token), e il giorno prima Gemma ha
+   già dovuto imparare a "decidere sempre" per un vocabolario solo.
+   Prima di aggiungerne altri tre tutti insieme, va capito se regge.
 
 **Misure ancora mancanti**: il **termico** su 30-45' (il log più lungo
 copre 6'20") e il **drain della batteria** (osservazione di Michele
