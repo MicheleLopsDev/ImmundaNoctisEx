@@ -71,25 +71,40 @@ diario, checkpoint, auto-save atomico).
   bordo d'oro, medaglia dorata del grado Kai, spada/cuore/monete e la
   riga delle discipline possedute. La card è uscita da `AdventureScreen`
   in `StatusCard.kt` (lo schermo era oltre le ~200 righe).
-  `kaiRankName` è diventata `internal`. **Non ancora vista sul device.**
+  `kaiRankName` è diventata `internal`. Provata sul device: gira.
 
-**PROSSIMA SESSIONE — già deciso con Michele**:
-1. **PROVARE SUL RAZR** i due lavori del 20/07 (animazione e card):
-   scritti e con la suite verde, ma mai visti girare.
-2. **RACCOGLIERE LE MISURE**: è il pezzo che manca alla milestone di
-   Fase 4 (vedi punto 4 qui sotto). Non è partito perché il device non
-   era collegato.
-3. La **grafica** in generale, che Michele ha rinviato consapevolmente.
-   Il banner c'è ma è v0.1: manca il `backgroundImage` PER SCENA (il
-   sample dichiara inn/city/alley/battle/warehouse, gli asset non
-   esistono — vanno prodotti, Fase 7) e manca il compagno di viaggio.
-4. **Raccogliere le misure — ANCORA APERTO, è il blocco della
-   milestone di Fase 4** — il motore
-ora le logga da solo a ogni scena giocata: `adb logcat -s
-LiteRtLmEngine` stampa una riga `MISURA backend=… primoToken=… 
-tokenPrompt~… tokenGenerati~… velocita~… token/s`. Da giocare qualche
-scena e riportare i valori qui, più il comportamento termico su 30-45'.
-Poi salvare qualche output reale di Gemma come fixture di test.
+- **MILESTONE DI FASE 4 RAGGIUNTA** (20/07, misure reali dal Razr):
+  **primo token 1,43-1,88 s su GPU, sotto la soglia di 3 s** di
+  CRITICITA.md. Caricamento del modello ~9,0 s. Dettaglio e tabella
+  nella voce del 20/07.
+
+**APERTO — il primo controllo della prossima sessione**:
+1. **IL DECODE RALLENTA del 38% in tre scene** (19,9 -> 13,4 -> 12,3
+   tok/s) a **telefono freddo**, mentre il primo token resta stabile.
+   Rallenta solo il decode, non il prefill: punta a qualcosa che si
+   ACCUMULA tra le generazioni. Sospetto su
+   `LiteRtLmEngine.newSession()`, che scarta l'esito di
+   `conversation?.close()`. **Prova decisa con Michele: ~10 scene di
+   fila** — se si stabilizza è il contesto, se continua a scendere è un
+   bug e viene prima di tutto. La stessa giocata serve anche per il
+   TERMICO, che non è ancora misurato (il log copre 1'54", ne servono
+   30-45').
+2. **L'animazione si inchioda quando serve**: 187 frame saltati / 2,1 s
+   di UI congelata durante il caricamento del modello. Difetto del
+   lavoro del 20/07.
+3. **TTS da implementare** (richiesta Michele 20/07) e le rifiniture
+   grafiche, in quest'ordine dopo i punti 1-2.
+4. Mancano ancora le **fixture** da output reali di Gemma.
+5. La **grafica** rinviata consapevolmente: il banner è v0.1, manca il
+   `backgroundImage` PER SCENA (il sample dichiara
+   inn/city/alley/battle/warehouse, gli asset non esistono — vanno
+   prodotti, Fase 7) e manca il compagno di viaggio. I PNG da 3-4 MB
+   (`ic_axe`, `ic_map_icon`, `ic_gold`) vanno in WebP.
+
+**Come si raccolgono le misure**: il motore le logga da solo a ogni
+scena giocata. `adb logcat -s LiteRtLmEngine` stampa una riga
+`MISURA backend=… primoToken=… tokenPrompt~… tokenGenerati~…
+velocita~… token/s`. Basta giocare e leggere.
 
 **Fatti tecnici da non riscoprire** (verificati, non ipotizzati):
 - Il motore è **LiteRT-LM**, non MediaPipe di v1: i Gemma 4 escono solo
@@ -184,12 +199,68 @@ La card è uscita da `AdventureScreen` e ha preso un file suo: lo schermo
 era ben oltre la soglia d'allarme delle ~200 righe. `kaiRankName` è
 passata da `private` a `internal` per non duplicare il grado localizzato.
 
-**Cosa NON è stato fatto, ed è il pezzo che chiude la Fase 4**: le
-misure. `adb devices` non vede il Razr, quindi né l'installazione né la
-giocata di prova. Restano da raccogliere primo token, token/s, token di
-prompt, il termico su 30-45' e le fixture da output reali di Gemma.
-**I due lavori di oggi non sono mai stati visti girare su un device**:
-compilano e la suite è verde, ma è tutto quello che si può dire.
+### Le PRIME MISURE REALI (log di Michele, 20/07 ore 11:12-11:14)
+
+Michele ha installato e giocato tre scene, poi ha passato il logcat.
+**I due lavori di stamattina girano sul device.**
+
+| scena | primo token | totale | prompt | generati | decode |
+|-------|-------------|--------|--------|----------|--------|
+| 1     | 1,62 s      | 10,68 s| ~552   | ~180     | 19,9 tok/s |
+| 2     | 1,43 s      | 16,16 s| ~689   | ~197     | 13,4 tok/s |
+| 3     | 1,88 s      | 18,47 s| ~775   | ~204     | 12,3 tok/s |
+
+**Primo token 1,43-1,88 s su GPU: SOTTO la soglia di 3 s di
+CRITICITA.md.** È il numero che chiudeva la Fase 4, e passa con margine.
+Il backend confermato GPU in tutte e tre (`MainExecutorSettings:
+backend: GPU`, delegate LITERT_CL su tutti i 2712 nodi).
+
+**Caricamento del modello: ~9,0 s** (11:13:12,8 -> 11:13:21,8 "Modello
+caricato su GPU"). L'animazione fatta stamattina non era un vezzo:
+nove secondi con una scritta ferma sembrano un blocco.
+
+### Il sospetto sul decode — DA VERIFICARE, non è una diagnosi
+
+La velocità di decode **scende del 38% in tre scene** e l'attesa reale
+per scena sale da 10,7 a 18,5 s. Michele riferisce **telefono freddo**:
+non è throttling.
+
+Il dettaglio che rende poco convincente la spiegazione ovvia: il prompt
+cresce (552 -> 775, +40%) ma **il primo token NON peggiora** (1,62 /
+1,43 / 1,88 = rumore). Il prefill è la fase che dipende dalla lunghezza
+del prompt e sta benissimo; **rallenta solo il decode**. Se fosse
+"contesto più lungo" peggiorerebbero entrambi. Punta a qualcosa che si
+ACCUMULA tra una generazione e l'altra, a temperatura costante.
+
+Sospetto concreto in `LiteRtLmEngine.newSession()`: fa
+`runCatching { conversation?.close() }` e **scarta l'esito**. La
+Conversation nuova si crea comunque. Se `close()` fallisce, le
+conversazioni e la loro KV cache sulla GPU si accumulano in silenzio e
+noi non lo sapremmo: quell'errore non viene loggato da nessuna parte.
+
+**Tre campioni non bastano.** Prossimo passo deciso con Michele: ~10
+scene di fila. Se la velocità si stabilizza è il contesto; se continua
+a scendere si accumula qualcosa ed è un bug del motore, che viene
+prima di tutto il resto.
+
+### Altro emerso dai log (non toccato)
+
+- **Sampler OpenCL assente**: `libLiteRtTopKOpenClSampler.so` non
+  trovata, ripiego sull'API C statica. Il modello sta su GPU ma il
+  campionamento no — costo plausibile su ogni token generato.
+- **187 frame saltati, 2,1 s di UI congelata** (`Davey! duration=2116ms`)
+  durante il caricamento del modello: **l'animazione dei puntini si
+  inchioda proprio nei secondi in cui deve girare**. Difetto diretto
+  del lavoro di stamattina, da sistemare.
+- **NPU non configurata**: `DispatchLibraryDir` mancante, l'NPU non si
+  registra. Per l'SM8750 esiste una build dedicata: opportunità, non
+  problema.
+- "Image decoding logging dropped!" a raffica = i PNG da 3-4 MB.
+
+**Cosa NON sappiamo ancora**: il **termico**. Il log copre **1 minuto e
+54 secondi**; CRITICITA.md chiede 30-45'. "Telefono freddo" dopo due
+minuti è atteso, non è il dato. Mancano ancora le **fixture** da output
+reali di Gemma.
 
 **Debito nuovo, piccolo**: `ic_gold.png` pesa 3,2 MB — stessa storia di
 `ic_axe` e `ic_map_icon`, tutti da convertire in WebP in Fase 7.
