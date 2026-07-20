@@ -103,10 +103,22 @@ data class PromptFragments(
             // debole spreca comunque la "scelta" di Gemma su qualcosa che
             // verrà buttato via — meglio dirle chiaro che il dizionario è
             // chiuso e non deve inventare, prima ancora che scriva la riga.
+            //
+            // ESEMPIO CONCRETO (21/07/2026, primo test sul device: Gemma
+            // ignorava del tutto la riga IMAGE, blocco tag con la sola
+            // CHOICE — vedi DIARIO.md). CHOICE/DISCIPLINE arrivano al
+            // modello già in formato dimostrato (le scelte da tradurre
+            // sono nella stessa forma richiesta in output); IMAGE era
+            // solo descritta a parole. L'esempio usa un id vero del
+            // dizionario ma dice esplicitamente di non copiarlo: mostra
+            // la SINTASSI, non suggerisce la scelta.
             imageFormatText = "IMAGE|location_id — OPTIONAL. Below is a CLOSED dictionary of " +
                 "available locations, each with a short description of what it depicts. If one " +
                 "of them is a strong, obvious match for THIS scene, add this line using its id " +
                 "EXACTLY as written below — do not modify, abbreviate, translate or combine it. " +
+                "Example of the exact line to write (illustrating the syntax only — pick " +
+                "whichever id from the list below actually matches THIS scene, not necessarily " +
+                "this one): IMAGE|loc_tavern. " +
                 "You MUST NOT invent a new id that is not in this dictionary, even if you think " +
                 "it would fit better. If none of these locations fits well, omit the line " +
                 "entirely — do not guess and do not invent one.\n" +
