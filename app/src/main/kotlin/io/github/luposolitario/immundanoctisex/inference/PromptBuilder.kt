@@ -93,7 +93,7 @@ class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEF
             .replace("{genre}", context.genre)
             .replace("{tone_hints}", toneHints)
             .replace("{player_gender}", playerGender(context.playerGender))
-            .replace("{available_locations}", SceneImageCatalog.LOCATIONS.joinToString(", "))
+            .replace("{available_locations}", SceneImageCatalog.PROMPT_DICTIONARY)
     }
 
     // Le scelte si consegnano NELLA STESSA FORMA che il modello deve

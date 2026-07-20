@@ -160,9 +160,24 @@ prima di riconsiderarla.
   `SceneImageCatalog.isValid`, non la sola presenza. 2 test nuovi per
   file, con `"inn"` — il valore reale del sample, non uno inventato.
 
-  6 test sul parser, 3 sul prompt builder in totale. **Mai visto
-  girare**: è un esperimento, si giudica solo giocando e guardando se
-  Gemma sceglie bene o se ignora/inventa.
+  **21/07: dizionario descrittivo**, richiesta di Michele — "spiegando
+  ogni scena a cosa può corrispondere". Prima Gemma aveva solo i 21 nomi
+  nudi: `loc_black_gate` e `loc_helgedad_gate` sono due portali di
+  pietra quasi identici, indistinguibili dal solo nome del file.
+  `SceneImageCatalog` ora porta una descrizione per voce, **scritta
+  guardando le 21 immagini vere** (non a memoria del nome — un
+  dizionario sbagliato confonde più di nessun dizionario), e il prompt
+  mostra "nome: descrizione" riga per riga. **Costo**: ~740 token
+  stimati per il dizionario completo, si somma OGGI a ogni scena del
+  sample (nessuna ha ancora un `backgroundImage` valido). 1 test in
+  più che verifica esplicitamente la presenza della descrizione, non
+  solo del nome.
+
+  6 test sul parser, 4 sul prompt builder in totale (oggi solo il
+  prompt builder è cambiato: la descrizione vive nel dizionario che
+  costruisce il prompt, il parser continua a validare solo il nome).
+  **Mai visto girare**: è un esperimento, si giudica solo giocando e
+  guardando se Gemma sceglie bene o se ignora/inventa.
 
   Nota a margine: `AdventureState.kt` è a 450 righe, ben oltre la
   soglia dei ~200 — ma il debito è PREGRESSO (438 già prima di oggi),

@@ -134,6 +134,20 @@ Non ancora vista sul device: è un esperimento, si giudica da quanto
 spesso Gemma indovina un nome sensato invece di ometterlo o inventarne
 uno scartato.
 
+**Dizionario descrittivo, non solo nomi** (21/07/2026, richiesta di
+Michele): il vocabolario portava solo i 21 nomi nudi — "loc_black_gate"
+contro "loc_helgedad_gate" sono due portali di pietra quasi identici,
+indistinguibili dal solo nome del file. `SceneImageCatalog` ora porta
+anche una breve descrizione per voce (scritta guardando le 21 immagini
+vere, non a memoria del nome), e il prompt mostra "nome: descrizione"
+riga per riga. **Costo**: ~740 token stimati per il dizionario completo
+— non trascurabile, ma è Michele stesso ad aver osservato che Gemma 4
+regge più contesto di quanto il progetto ne passi oggi. Nel sample
+attuale il dizionario si aggiunge a OGNI scena, perché tutte e 7
+dichiarano ancora i vecchi placeholder mai risolti — situazione
+temporanea, finché quelle scene non avranno un `backgroundImage`
+valido (Fase 6/ETL) o il sample non verrà aggiornato.
+
 - **Il narratore è una presenza visiva, NON un Character nei dati**:
   puro elemento UI, come il sipario di un teatro.
 - **Cerchio d'oro su chi parla**: sul narratore mentre Gemma streama
