@@ -126,6 +126,18 @@ prima di riconsiderarla.
   riusabile per il resto dei tiri quando arriverà Fase 7).
   **Mai visto girare sul device.**
 
+- **LA SCHEDA SPIEGA I NUMERI, NON SOLO IL TOTALE** (20/07, richiesta
+  di Michele — mockup mostrato e approvato prima di scrivere codice):
+  Combattività e Resistenza nella tab Equipaggiamento ora mostrano
+  Base + ogni modificatore riga per riga (es. "+2 WEAPONSKILL
+  (Spada)"), non solo il numero finale. `weaponskillBonus` è passata
+  da `private` a pubblica in `EffectiveStats.kt` apposta: la UI legge
+  la stessa funzione che calcola il numero, non lo ricalcola. Gli slot
+  arma (**max 2, invariato**) mostrano "Impugnata · +2" quando la
+  specializzazione coincide. Nuovi file `EquipmentTab.kt` e
+  `InventoryCards.kt` (Zaino/Oggetti spostati lì, invariati, solo per
+  restare sotto la soglia delle 200 righe). **Mai vista sul device.**
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.

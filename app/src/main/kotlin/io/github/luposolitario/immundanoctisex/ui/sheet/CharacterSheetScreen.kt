@@ -4,22 +4,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
@@ -40,7 +36,6 @@ import io.github.luposolitario.immundanoctisex.core.data.model.CharacterRole
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
-import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.rank.KaiRank
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
@@ -134,100 +129,6 @@ private fun StatsTab(hero: Character) {
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun EquipmentTab(
-    hero: Character,
-    onEquipWeapon: (String) -> Unit,
-    onConsumeItem: (String) -> Unit,
-) {
-    // Armi: 2 slot, tocco = impugna (bordo evidenziato sull'impugnata).
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Armi", style = MaterialTheme.typography.titleLarge)
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val weapons = hero.inventory.filter { it.type == ItemType.WEAPON }
-                repeat(Inventory.MAX_WEAPONS) { index ->
-                    val weapon = weapons.getOrNull(index)
-                    val equipped = weapon != null && weapon.name.equals(hero.equippedWeapon, ignoreCase = true)
-                    OutlinedCard(
-                        onClick = { weapon?.let { onEquipWeapon(it.name) } },
-                        modifier = Modifier.weight(1f),
-                        colors = androidx.compose.material3.CardDefaults.outlinedCardColors(
-                            containerColor = if (equipped) {
-                                MaterialTheme.colorScheme.tertiaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            },
-                        ),
-                    ) {
-                        Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(weapon?.name ?: "Vuoto", fontWeight = FontWeight.Bold)
-                            if (equipped) Text("Impugnata", style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Zaino: gli 8 posti DISEGNATI anche vuoti (UI.md).
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp)) {
-            Text("Zaino", style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(8.dp))
-            val slots = buildList {
-                hero.inventory.filter { it.type == ItemType.BACKPACK_ITEM }
-                    .forEach { item -> repeat(item.quantity) { add(item) } }
-                while (size < Inventory.MAX_BACKPACK_SLOTS) add(null)
-            }
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(4),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().height(190.dp),
-            ) {
-                items(slots.size) { index ->
-                    val item = slots[index]
-                    OutlinedCard(
-                        onClick = { item?.let { onConsumeItem(it.name) } },
-                        modifier = Modifier.aspectRatio(1f),
-                    ) {
-                        Column(
-                            Modifier.fillMaxSize().padding(4.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            Text(
-                                item?.name ?: "Vuoto",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (item == null) {
-                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface
-                                },
-                            )
-                            if (item?.effect != null) {
-                                Text(item.effect!!, style = MaterialTheme.typography.labelSmall)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    // Oggetti speciali e Corone.
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Oggetti speciali e borsa", style = MaterialTheme.typography.titleLarge)
-            hero.inventory.filter { it.type == ItemType.SPECIAL_ITEM }.forEach {
-                Text("• ${it.name}${if (it.quantity > 1) " x${it.quantity}" else ""}")
-            }
-            Text("Corone d'oro: ${Inventory.countOf(hero, "Gold Crowns")} / ${Inventory.MAX_GOLD}")
         }
     }
 }

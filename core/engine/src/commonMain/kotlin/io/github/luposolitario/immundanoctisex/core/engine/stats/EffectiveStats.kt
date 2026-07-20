@@ -36,7 +36,11 @@ fun effectiveMaxEndurance(character: Character): Int =
 // WEAPONSKILL (REGOLE.md §4.2): +2 se la specializzazione coincide con il
 // tipo dell'arma impugnata; con specializzazione UNARMED, +2 se si combatte
 // SENZA arma. La specializzazione senza la disciplina non vale nulla.
-private fun weaponskillBonus(character: Character): Int {
+// Pubblica (non più privata, 20/07/2026): la Scheda deve poter SPIEGARE
+// il numero di effectiveCombatSkill scomponendolo — leggere questa unica
+// fonte di verità invece di duplicare l'if/else lato UI (l'errore di v1,
+// dove LoneWolfRules sommava i modificatori per conto suo).
+fun weaponskillBonus(character: Character): Int {
     val specialization = character.weaponSkillType ?: return 0
     if (!character.kaiDisciplines.contains("WEAPONSKILL")) return 0
 
