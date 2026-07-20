@@ -539,6 +539,24 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   dal motore TTS installato sul Razr, mai verificato quali lingue
   offre davvero).
 
+  **GRANDEZZA DEL TESTO, stesso giorno** (richiesta di Michele: "un
+  pulsante con una lente per cambiare la grandezza del font nella
+  parte alta dove c'è l'icona della casa"): nuovo `TextScale` in
+  `FontPreferences.kt` (piccolo/medio/grande, moltiplicatore sul
+  `bodyLarge` di Material, non una dimensione assoluta). Non una
+  schermata a parte: un `IconButton` con la lente
+  (`Icons.Default.ZoomIn`, già disponibile — il progetto ha
+  `material-icons-extended` in dipendenza) nell'header, subito prima
+  di Home, che cicla piccolo→medio→grande→piccolo a ogni tocco.
+  Stato tenuto dentro `AdventureScreen` (come `showSheet`/
+  `showJournal`, non in `AdventureState`): il pulsante che lo cambia
+  vive in questa schermata, non serve altrove. Compilazione e suite
+  verdi. **Debito di `AdventureScreen.kt` pregresso, non introdotto
+  oggi**: era già a 351 righe prima di questa modifica (soglia
+  ~200 superata da tempo, segnalato ma non ancora spezzato), le
+  modifiche di oggi ne hanno aggiunte 39. **Mai visto girare sul
+  device.**
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.

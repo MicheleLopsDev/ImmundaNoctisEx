@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -50,11 +51,20 @@ fun AdventureScreen(
     // centrale della scena, non il resto della UI. Default = Material
     // (quando la Route non lo passa, es. le @Preview).
     readingFont: androidx.compose.ui.text.font.FontFamily = androidx.compose.ui.text.font.FontFamily.Default,
+    // Grandezza del testo (Michele 21/07/2026: pulsante con una lente
+    // nell'header, accanto a Home — non una schermata a parte, un ciclo
+    // di tocchi). initial* dalla preference salvata, onChange la riscrive:
+    // stesso pattern del font, stato vero qui dentro perché il pulsante
+    // che lo cambia vive in questa schermata.
+    initialTextScale: io.github.luposolitario.immundanoctisex.util.TextScale =
+        io.github.luposolitario.immundanoctisex.util.TextScale.MEDIUM,
+    onTextScaleChange: (io.github.luposolitario.immundanoctisex.util.TextScale) -> Unit = {},
 ) {
     // Scheda e Diario come overlay dentro la route (stato condiviso;
     // diventeranno destinazioni proprie in Fase 5).
     var showSheet by remember { mutableStateOf(false) }
     var showJournal by remember { mutableStateOf(false) }
+    var textScale by remember { mutableStateOf(initialTextScale) }
     // Conferma prima di uscire (Michele 20/07/2026: mancava un modo per
     // tornare al menu dalla scena). L'auto-save è sempre attivo, quindi
     // non si perde nulla — la conferma serve solo contro il tocco
@@ -108,7 +118,17 @@ fun AdventureScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
-        Header(state, onJournalClick = { showJournal = true }, onExitClick = { showExitConfirm = true })
+        Header(
+            state,
+            onJournalClick = { showJournal = true },
+            onExitClick = { showExitConfirm = true },
+            textScale = textScale,
+            onTextScaleCycle = {
+                val next = textScale.next()
+                textScale = next
+                onTextScaleChange(next)
+            },
+        )
 
         // Il palcoscenico: sfondo + ritratti, col cerchio d'oro su chi
         // "parla" (il narratore mentre scrive, altrimenti l'eroe).
@@ -139,6 +159,7 @@ fun AdventureScreen(
                     text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
                     style = MaterialTheme.typography.bodyLarge,
                     fontFamily = readingFont,
+                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale.multiplier,
                     modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
                 )
             }
@@ -202,7 +223,13 @@ private fun SaveConfirmedRow(onExpired: () -> Unit) {
 }
 
 @Composable
-private fun Header(state: AdventureState, onJournalClick: () -> Unit, onExitClick: () -> Unit) {
+private fun Header(
+    state: AdventureState,
+    onJournalClick: () -> Unit,
+    onExitClick: () -> Unit,
+    textScale: io.github.luposolitario.immundanoctisex.util.TextScale,
+    onTextScaleCycle: () -> Unit,
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -247,6 +274,16 @@ private fun Header(state: AdventureState, onJournalClick: () -> Unit, onExitClic
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.width(4.dp))
+            // Grandezza del testo (Michele 21/07/2026): un tocco = un
+            // passo nel ciclo piccolo/medio/grande, niente menu a parte.
+            // L'etichetta ("A-"/"A"/"A+") nell'icona dice già a che punto
+            // del ciclo si è, senza bisogno di aprire nulla per saperlo.
+            androidx.compose.material3.IconButton(onClick = onTextScaleCycle) {
+                Icon(
+                    imageVector = Icons.Default.ZoomIn,
+                    contentDescription = "Cambia grandezza testo (${textScale.icon})",
+                )
+            }
             // Uscita al menu (Michele 20/07/2026: mancava del tutto). Con
             // conferma: un tocco qui non deve interrompere la lettura per
             // sbaglio, anche se l'auto-save rende l'uscita innocua.

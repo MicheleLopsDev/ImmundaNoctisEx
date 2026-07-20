@@ -16,6 +16,20 @@ enum class ReadingFont(val displayName: String, val family: FontFamily) {
     CURSIVE("Corsivo", FontFamily.Cursive),
 }
 
+// Grandezza del testo di lettura (richiesta Michele 21/07/2026: un
+// pulsante con una lente nell'header, accanto all'icona Home, che
+// cicla la taglia — non una schermata a parte). Moltiplicatore sul
+// bodyLarge di Material, non una dimensione assoluta: segue comunque
+// eventuali cambi di tema tipografico futuri.
+enum class TextScale(val multiplier: Float, val icon: String) {
+    SMALL(0.85f, "A-"),
+    MEDIUM(1f, "A"),
+    LARGE(1.2f, "A+"),
+    ;
+
+    fun next(): TextScale = entries[(ordinal + 1) % entries.size]
+}
+
 class FontPreferences(context: Context) {
 
     private val prefs: SharedPreferences =
@@ -27,8 +41,15 @@ class FontPreferences(context: Context) {
             ?: ReadingFont.SERIF
         set(value) = prefs.edit().putString(KEY_FONT, value.name).apply()
 
+    var textScale: TextScale
+        get() = prefs.getString(KEY_TEXT_SCALE, null)
+            ?.let { name -> runCatching { TextScale.valueOf(name) }.getOrNull() }
+            ?: TextScale.MEDIUM
+        set(value) = prefs.edit().putString(KEY_TEXT_SCALE, value.name).apply()
+
     private companion object {
         const val PREFS_NAME = "font_preferences"
         const val KEY_FONT = "reading_font"
+        const val KEY_TEXT_SCALE = "text_scale"
     }
 }
