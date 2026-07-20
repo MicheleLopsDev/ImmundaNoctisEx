@@ -49,15 +49,21 @@ object SceneImageCatalog {
         "loc_monastery_dawn" to "a sunrise over distant mountains with a castle silhouette on the " +
             "horizon, a hopeful dawn",
         "loc_mountain" to "a tall rocky mountain peak rising above clouds, pine trees at its base",
+        "loc_mountain_pass" to "a rocky mountain forest path, an armored knight on horseback " +
+            "leading soldiers with banners toward a distant castle on a cliff",
         "loc_smithy_exterior" to "the exterior of a blacksmith's shop on a town street at night",
         "loc_smithy_interior" to "the interior of a smithy, a blacksmith working at a glowing " +
             "forge, weapons on display",
         "loc_standing_stones" to "a circle of ancient standing stones in a moonlit forest " +
             "clearing, a robed figure approaching",
+        "loc_storm_tower" to "a lightning storm over an ancient rune-carved stone tower in open " +
+            "moorland, standing stones and a lone tree nearby, a dark spired castle in the distance",
         "loc_tavern" to "the interior of a crowded tavern, patrons drinking and talking by the fireplace",
         "loc_tomb_exterior" to "a tomb entrance decorated with a skull and hanging chains, " +
             "demonic guardian statues on each side",
         "loc_tomb_interior" to "inside a tomb, a stone sarcophagus with demonic guardians standing watch",
+        "loc_warehouse" to "the interior of a storeroom lined with shelves of crates, potions " +
+            "and scrolls, robed figures trading goods near a stone archway",
     )
 
     val LOCATIONS: List<String> = DESCRIPTIONS.keys.toList()

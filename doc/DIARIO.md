@@ -213,10 +213,66 @@ prima di riconsiderarla.
   `AppNavigation.kt` doveva restare puro routing), `UriPackageSource`
   in `AppContainer.kt`. **Mai visto girare.**
 
+- **11 NUOVE IMMAGINI CATALOGATE** (21/07, richiesta di Michele — "ho
+  aggiunto delle nuove immagini per gli animali... rinomina gli altri
+  come ti sembra giusto"): `enemy_wolves` rinominato in `beast_wolves`
+  (richiesto esplicitamente — i lupi non sono "nemici" in senso
+  stretto, sono bestie). Aggiunte, con nome scelto guardando ogni
+  immagine vera (non il nome del file caricato da Michele, spesso
+  fuorviante — vedi sotto): `beast_stallion` (richiesto esplicitamente),
+  `beast_anaconda`, `beast_cat`, `beast_familiar` (gatto nero con
+  collare a mezzaluna, il "famiglio" magico — entità diversa dal
+  semplice `beast_cat` pur essendo visivamente lo stesso gatto),
+  `beast_rats`, `npc_mage` (mago anziano nel suo studio), `npc_battlemage`
+  (mago diverso, in azione su una vetta di notte — nome distinto da
+  `npc_mage` apposta, stesso archetipo ma contesto opposto),
+  `loc_warehouse` (magazzino/dispensa — combacia esattamente con un
+  placeholder morto del sample, vedi nota sotto), `loc_mountain_pass`
+  (il file si chiamava "alley" ma il contenuto è un cavaliere con
+  soldati su un sentiero di montagna verso un castello — NON un vicolo:
+  ho scelto il nome dal contenuto, non dal file), `loc_storm_tower`
+  (il file si chiamava "lighting force": una torre runica sotto un
+  temporale con fulmini — location, non un effetto).
+
+  **Tre file avevano una banda decorativa runica in basso** (rune
+  fantasy + simbolo del sole), assente in tutte le altre immagini del
+  catalogo (bordo netto, nessuna cornice): `beast_familiar`,
+  `loc_storm_tower`, `beast_rats`. Tagliata via (bordo di separazione
+  trovato per riga di pixel, non a occhio) per restare coerenti con lo
+  stile "senza cornice" già in uso — stesso principio del testo
+  italiano ripulito ieri: un'incoerenza visiva nel catalogo confonde
+  quanto un errore. Altri tre file (`beast_anaconda`, `npc_battlemage`,
+  `loc_warehouse`) hanno solo un fregio celtico agli angoli, molto più
+  discreto: lasciato — segnalato qui, non deciso a tavolino.
+
+  **Un file lasciato FUORI dal vocabolario location**: "combat" (due
+  spade incrociate su una battaglia campale) — è una tavola simbolica,
+  non un luogo in cui una scena si svolge; inserirla tra le location
+  avrebbe rischiato che Gemma la scegliesse come sfondo per qualunque
+  scena di combattimento. Catalogata come asset (`misc_battle_clash`,
+  prima volta che si usa il prefisso `misc_`) ma NON aggiunta a
+  `SceneImageCatalog` — è una scelta di giudizio, da rivedere con
+  Michele se serve altrove.
+
+  **Nota per Michele, non agita autonomamente**: `loc_warehouse` e
+  `loc_mountain_pass` corrispondono per contenuto a due dei placeholder
+  morti dichiarati nel sample ("warehouse", "alley" — vedi la voce
+  del 20-21/07 sul dizionario). Aggiornare `scenes.sample.json` per
+  usarli tocca il contenuto narrativo del libro, non solo asset: non
+  l'ho fatto.
+
+  `SceneImageCatalog` passa da 21 a 24 location (+`loc_mountain_pass`,
+  `loc_storm_tower`, `loc_warehouse`, con descrizione scritta guardando
+  le immagini vere). `SceneImages.kt` aggiornato con i 3 nuovi case.
+  Compilazione e suite `PromptBuilderTest`/`SceneImage*` verdi. **Mai
+  visto girare sul device**: come per il resto del catalogo, nessun
+  codice assegna ancora questi file a scene o personaggi specifici
+  (punto 2 di APERTO, sotto — ora sono 52 immagini in attesa, non 41).
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
-2. **Agganciare le 41 immagini** del catalogo alle scene
+2. **Agganciare le 52 immagini** del catalogo alle scene
    (`Scene.backgroundImage`) e ai personaggi: oggi sono nell'APK ma
    nessun codice le usa.
 3. **Inventario**: pasti (`Meal`) non hanno `effect`, `consumeItem`
