@@ -17,7 +17,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.ui.adventure.AdventureRoute
 import io.github.luposolitario.immundanoctisex.ui.creation.CreationRoute
-import io.github.luposolitario.immundanoctisex.ui.home.HomeScreen
+import io.github.luposolitario.immundanoctisex.ui.home.HomeRoute
 import io.github.luposolitario.immundanoctisex.ui.models.ModelsRoute
 import io.github.luposolitario.immundanoctisex.ui.setup.SetupRoute
 
@@ -57,7 +57,8 @@ fun AppNavigation(
     }
 
     when (route) {
-        Route.HOME -> HomeScreen(
+        Route.HOME -> HomeRoute(
+            container = container,
             isDarkTheme = isDarkTheme,
             onThemeToggle = onThemeToggle,
             onAdventureClick = { navigateTo(Route.ADVENTURE_SETUP) },

@@ -26,6 +26,18 @@ schermata, file di navigazione solo routing (~100 righe max).
      continuare; altrimenti/in alternativa si parte con una nuova
      avventura (→ Setup avventura → Creazione personaggio → scena di
      gioco). Qui vive anche il side-load del libro (picker di sistema).
+
+     **FATTO 20/07/2026** (richiesta urgente di Michele, per i test —
+     "devo poter caricare vari file"): icona nella TopAppBar, apre il
+     picker SAF (`ActivityResultContracts.OpenDocument`), valida SUBITO
+     il file scelto e mostra l'esito (titolo caricato, o il primo
+     errore di validazione) — non aspetta che Creazione/Avventura lo
+     scoprano più avanti. Il titolo del libro attualmente caricato è
+     sempre visibile in Home. **"Continua" filtra le sessioni salvate
+     per il `packageId` del libro corrente**: prima, con un solo libro
+     possibile, non serviva; ora che se ne può caricare uno diverso,
+     senza filtro avrebbe potuto offrire la sessione di un altro
+     pacchetto.
    - **Modelli LLM**: download di Gemma e configurazione del motore
      di inferenza. È una sezione, non un mondo a parte (in v1
      ModelActivity era 824 righe).

@@ -1,6 +1,7 @@
 package io.github.luposolitario.immundanoctisex
 
 import android.content.Context
+import android.net.Uri
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageSource
 import io.github.luposolitario.immundanoctisex.core.data.session.FileSessionStore
@@ -48,11 +49,30 @@ class AppContainer(context: Context) {
     val diceRoller: DiceRoller = RandomDiceRoller()
 
     // Il libro incluso nell'APK: scenes.sample.json dagli asset (content/
-    // è montato come cartella asset dal build). Il side-load via picker
-    // arriva più avanti nella Fase 3/5.
-    val packageRepository = PackageRepository(
+    // è montato come cartella asset dal build). `var`, non `val`: il
+    // side-load (20/07/2026, richiesta urgente di Michele per i test —
+    // "devo poter caricare vari file") lo sostituisce a runtime, senza
+    // riavviare l'app.
+    var packageRepository = PackageRepository(
         AssetPackageSource(context, "scenes.sample.json"),
     )
+        private set
+
+    // Side-load da picker di sistema (SAF): PackageSource lo prevedeva
+    // già nel suo stesso commento come terza implementazione, oltre
+    // all'asset e al file temporaneo dei test. Il permesso persistente
+    // non è strettamente necessario per l'uso immediato (si sceglie e si
+    // usa nella sessione corrente), ma costa una riga e rende l'URI
+    // ancora leggibile se l'app viene riavviata con lo stesso file.
+    fun loadSideloadedPackage(context: Context, uri: Uri) {
+        runCatching {
+            context.contentResolver.takePersistableUriPermission(
+                uri,
+                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION,
+            )
+        }
+        packageRepository = PackageRepository(UriPackageSource(context, uri))
+    }
 }
 
 // Implementazione Android di PackageSource: apre un asset dell'APK.
@@ -61,4 +81,16 @@ class AssetPackageSource(
     private val assetName: String,
 ) : PackageSource {
     override fun open(): InputStream = context.assets.open(assetName)
+}
+
+// Implementazione Android di PackageSource: apre un file scelto dal
+// picker di sistema. Nessun path da gestire a mano — l'Uri, coi suoi
+// permessi, è tutto ciò che serve per riaprirlo.
+class UriPackageSource(
+    private val context: Context,
+    private val uri: Uri,
+) : PackageSource {
+    override fun open(): InputStream =
+        context.contentResolver.openInputStream(uri)
+            ?: throw java.io.FileNotFoundException("Impossibile aprire il file scelto: $uri")
 }

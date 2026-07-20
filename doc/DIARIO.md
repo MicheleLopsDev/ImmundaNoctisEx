@@ -156,6 +156,25 @@ prima di riconsiderarla.
   non introdotto da questo lavoro (+12 righe). Andrà spezzato, ma non
   in questa sessione: fuori scope per la richiesta di oggi.
 
+- **SIDE-LOAD DEL LIBRO** (20/07, richiesta URGENTE — "devo poter
+  caricare vari file, serve per i test"): `PackageSource` prevedeva
+  già tre implementazioni nel suo stesso commento (asset, side-load
+  SAF, file di test) — solo l'asset esisteva. Ora l'icona in Home apre
+  il picker di sistema, valida SUBITO il file (non aspetta che
+  Creazione/Avventura lo scoprano), mostra titolo o primo errore.
+  `AppContainer.packageRepository` è passato da `val` a `var` per
+  poter cambiare libro senza riavviare l'app.
+
+  **Un rischio trovato e chiuso nello stesso giro**: `SetupRoute`
+  mostrava TUTTE le sessioni salvate in "Continua", di qualunque
+  libro — innocuo finché esisteva un solo libro possibile, ma con più
+  libri avrebbe potuto offrire la sessione di un pacchetto diverso da
+  quello appena caricato. Filtrata per `packageId` del libro corrente.
+
+  Nuovi file: `HomeRoute.kt` (il pattern Route/Screen esistente,
+  `AppNavigation.kt` doveva restare puro routing), `UriPackageSource`
+  in `AppContainer.kt`. **Mai visto girare.**
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.

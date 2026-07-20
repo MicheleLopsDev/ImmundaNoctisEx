@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.Settings
@@ -45,12 +46,26 @@ fun HomeScreen(
     onAdventureClick: () -> Unit,
     onModelsClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    // Side-load (20/07/2026, richiesta urgente di Michele per i test —
+    // "devo poter caricare vari file"): il titolo del libro ATTUALMENTE
+    // caricato, cosi' si sa sempre cosa si sta testando, + l'esito
+    // dell'ultimo caricamento (successo o errore, null = nessuno ancora).
+    currentBookTitle: String,
+    onLoadBookClick: () -> Unit,
+    loadFeedback: String? = null,
+    loadFeedbackIsError: Boolean = false,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Immunda Noctis Ex") },
                 actions = {
+                    IconButton(onClick = onLoadBookClick) {
+                        Icon(
+                            imageVector = Icons.Default.FolderOpen,
+                            contentDescription = "Carica libro",
+                        )
+                    }
                     IconButton(onClick = onThemeToggle) {
                         Icon(
                             imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
@@ -69,6 +84,23 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            Text(
+                "Libro: $currentBookTitle",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (loadFeedback != null) {
+                Text(
+                    loadFeedback,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (loadFeedbackIsError) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.tertiary
+                    },
+                )
+            }
+            Spacer(modifier = Modifier.height(24.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceAround,
@@ -133,6 +165,27 @@ private fun HomeScreenDarkPreview() {
             onAdventureClick = {},
             onModelsClick = {},
             onSettingsClick = {},
+            currentBookTitle = "The Warehouse Letter",
+            onLoadBookClick = {},
+            loadFeedback = "Libro caricato: Il vecchio magazzino",
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Home — errore caricamento")
+@Composable
+private fun HomeScreenLoadErrorPreview() {
+    ImmundaNoctisTheme(darkTheme = true) {
+        HomeScreen(
+            isDarkTheme = true,
+            onThemeToggle = {},
+            onAdventureClick = {},
+            onModelsClick = {},
+            onSettingsClick = {},
+            currentBookTitle = "The Warehouse Letter",
+            onLoadBookClick = {},
+            loadFeedback = "JSON malformato: riga 12",
+            loadFeedbackIsError = true,
         )
     }
 }
@@ -145,6 +198,8 @@ private fun HomeScreenLightPreview() {
             isDarkTheme = false,
             onThemeToggle = {},
             onAdventureClick = {},
+            currentBookTitle = "The Warehouse Letter",
+            onLoadBookClick = {},
             onModelsClick = {},
             onSettingsClick = {},
         )
