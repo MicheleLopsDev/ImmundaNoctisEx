@@ -12,7 +12,10 @@ import io.github.luposolitario.immundanoctisex.inference.InferenceEngine
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
+import io.github.luposolitario.immundanoctisex.util.FontPreferences
+import io.github.luposolitario.immundanoctisex.util.LanguagePreferences
 import io.github.luposolitario.immundanoctisex.util.ThemePreferences
+import io.github.luposolitario.immundanoctisex.util.TtsPreferences
 import java.io.File
 import java.io.InputStream
 
@@ -26,6 +29,14 @@ class AppContainer(context: Context) {
     val modelPreferences = ModelPreferences(context)
 
     val inferencePreferences = InferencePreferences(context)
+
+    // Opzioni (UI.md schermata 7): font di lettura, lingua della
+    // narrazione, TTS. Il tema resta sopra: c'era già prima di questo giro.
+    val fontPreferences = FontPreferences(context)
+
+    val languagePreferences = LanguagePreferences(context)
+
+    val ttsPreferences = TtsPreferences(context)
 
     // Istanza unica a scope applicazione (ARCHITETTURA §istanze): il
     // modello costa GB e secondi di caricamento, si carica una volta.

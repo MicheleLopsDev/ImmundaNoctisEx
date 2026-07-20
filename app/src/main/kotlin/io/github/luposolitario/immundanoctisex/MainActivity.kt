@@ -38,6 +38,13 @@ class MainActivity : ComponentActivity() {
                             darkTheme = !darkTheme
                             container.themePreferences.darkOverride = darkTheme
                         },
+                        // Le Opzioni offrono un terzo stato ("segui il
+                        // sistema", override = null) che il toggle rapido
+                        // di Home non ha bisogno di esprimere.
+                        onThemeOverrideChange = { override ->
+                            darkTheme = override ?: systemDark
+                            container.themePreferences.darkOverride = override
+                        },
                     )
                 }
             }

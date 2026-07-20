@@ -19,6 +19,7 @@ import io.github.luposolitario.immundanoctisex.ui.adventure.AdventureRoute
 import io.github.luposolitario.immundanoctisex.ui.creation.CreationRoute
 import io.github.luposolitario.immundanoctisex.ui.home.HomeRoute
 import io.github.luposolitario.immundanoctisex.ui.models.ModelsRoute
+import io.github.luposolitario.immundanoctisex.ui.options.OptionsRoute
 import io.github.luposolitario.immundanoctisex.ui.setup.SetupRoute
 
 // Le destinazioni dell'app (le 7 schermate di UI.md). Solo routing qui
@@ -39,6 +40,7 @@ fun AppNavigation(
     container: AppContainer,
     isDarkTheme: Boolean,
     onThemeToggle: () -> Unit,
+    onThemeOverrideChange: (Boolean?) -> Unit,
 ) {
     var route by rememberSaveable { mutableStateOf(Route.HOME) }
     val backStack = remember { ArrayDeque<Route>() }
@@ -106,6 +108,14 @@ fun AppNavigation(
 
         Route.MODELS -> ModelsRoute(
             container = container,
+            onClose = { if (backStack.isNotEmpty()) route = backStack.removeLast() },
+        )
+
+        Route.OPTIONS -> OptionsRoute(
+            container = container,
+            darkOverride = container.themePreferences.darkOverride,
+            onThemeOverrideChange = onThemeOverrideChange,
+            onModelsClick = { navigateTo(Route.MODELS) },
             onClose = { if (backStack.isNotEmpty()) route = backStack.removeLast() },
         )
 
