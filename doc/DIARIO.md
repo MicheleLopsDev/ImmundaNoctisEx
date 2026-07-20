@@ -173,11 +173,21 @@ prima di riconsiderarla.
   più che verifica esplicitamente la presenza della descrizione, non
   solo del nome.
 
-  6 test sul parser, 4 sul prompt builder in totale (oggi solo il
-  prompt builder è cambiato: la descrizione vive nel dizionario che
-  costruisce il prompt, il parser continua a validare solo il nome).
-  **Mai visto girare**: è un esperimento, si giudica solo giocando e
-  guardando se Gemma sceglie bene o se ignora/inventa.
+  **21/07 (stesso giorno): vincolo stringente**, richiesta di Michele —
+  "deve essere fatto stringente, non deve inventarne di nuovi". Il
+  parser scartava già in silenzio un id inventato, ma un'istruzione
+  debole spreca comunque la scelta di Gemma su qualcosa che verrebbe
+  buttato via. Il testo ora dice esplicitamente "CLOSED dictionary",
+  "MUST NOT invent", "EXACTLY as written — do not modify, abbreviate,
+  translate or combine it". Costo del blocco IMAGE: da ~740 a **~830
+  token stimati**. 1 test dedicato sul vincolo.
+
+  6 test sul parser, 5 sul prompt builder in totale (oggi solo il
+  prompt builder è cambiato: descrizione e vincolo vivono nel
+  dizionario/frammento che costruisce il prompt, il parser continua a
+  validare solo il nome). **Mai visto girare**: è un esperimento, si
+  giudica solo giocando e guardando se Gemma sceglie bene, ignora, o
+  prova comunque a inventare nonostante l'istruzione.
 
   Nota a margine: `AdventureState.kt` è a 450 righe, ben oltre la
   soglia dei ~200 — ma il debito è PREGRESSO (438 già prima di oggi),

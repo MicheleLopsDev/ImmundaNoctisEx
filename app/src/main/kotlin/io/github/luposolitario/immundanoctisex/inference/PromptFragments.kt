@@ -93,15 +93,23 @@ data class PromptFragments(
             // Aggiunta solo quando la scena ha un combattimento
             // (REGOLE.md §1.5: enemyName tradotto nel giro normale).
             enemyFormatText = "ENEMY|translated enemy name",
-            // Aggiunta solo quando la scena non ha già uno sfondo
+            // Aggiunta solo quando la scena non ha già uno sfondo VALIDO
             // dichiarato dal pacchetto (PromptBuilder). OPTIONAL e
             // parsimonioso di proposito: un tag sbagliato non rompe nulla
             // (vocabolario chiuso, il parser scarta ciò che non riconosce),
             // ma un tag forzato su ogni scena sarebbe rumore, non aiuto.
-            imageFormatText = "IMAGE|location_id — OPTIONAL. Below is a dictionary of available " +
-                "locations, each with a short description of what it depicts. If one of them is " +
-                "a strong, obvious match for THIS scene, add this line with its exact id. If none " +
-                "fits well, omit the line entirely — do not guess.\n" +
+            // Vincolo STRINGENTE (21/07/2026, richiesta Michele): il parser
+            // già scarta un id inventato in silenzio, ma un'istruzione
+            // debole spreca comunque la "scelta" di Gemma su qualcosa che
+            // verrà buttato via — meglio dirle chiaro che il dizionario è
+            // chiuso e non deve inventare, prima ancora che scriva la riga.
+            imageFormatText = "IMAGE|location_id — OPTIONAL. Below is a CLOSED dictionary of " +
+                "available locations, each with a short description of what it depicts. If one " +
+                "of them is a strong, obvious match for THIS scene, add this line using its id " +
+                "EXACTLY as written below — do not modify, abbreviate, translate or combine it. " +
+                "You MUST NOT invent a new id that is not in this dictionary, even if you think " +
+                "it would fit better. If none of these locations fits well, omit the line " +
+                "entirely — do not guess and do not invent one.\n" +
                 "{available_locations}",
             closingText = "NARRATOR (in {user_language}, tone: {tone_hints}):",
         )
