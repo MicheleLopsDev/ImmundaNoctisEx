@@ -148,6 +148,17 @@ dichiarano ancora i vecchi placeholder mai risolti — situazione
 temporanea, finché quelle scene non avranno un `backgroundImage`
 valido (Fase 6/ETL) o il sample non verrà aggiornato.
 
+**Vincolo STRINGENTE** (21/07/2026, richiesta di Michele: "deve essere
+stringente, non deve inventarne di nuovi"): il parser scartava già in
+silenzio un id inventato, ma un'istruzione debole spreca comunque la
+"scelta" di Gemma su qualcosa che verrebbe buttato via — meglio dirlo
+chiaro PRIMA che scriva la riga. Il frammento ora dice esplicitamente
+"CLOSED dictionary", "MUST NOT invent", "EXACTLY as written — do not
+modify, abbreviate, translate or combine it". Porta il costo del
+blocco IMAGE (istruzione + dizionario) da ~740 a **~830 token
+stimati**. 1 test dedicato che verifica il vincolo sia davvero nel
+prompt.
+
 - **Il narratore è una presenza visiva, NON un Character nei dati**:
   puro elemento UI, come il sipario di un teatro.
 - **Cerchio d'oro su chi parla**: sul narratore mentre Gemma streama

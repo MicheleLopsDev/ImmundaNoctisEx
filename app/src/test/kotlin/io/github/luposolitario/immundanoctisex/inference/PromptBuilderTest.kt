@@ -274,6 +274,19 @@ class PromptBuilderTest {
         assertFalse(prompt.contains("IMAGE|location_id"))
     }
 
+    // Richiesta di Michele 21/07/2026: "deve essere stringente, non deve
+    // inventarne di nuovi". Il parser già scarta un id inventato in
+    // silenzio (vocabolario chiuso), ma questo verifica il VINCOLO NEL
+    // TESTO stesso — un'istruzione debole spreca la scelta di Gemma su
+    // qualcosa che verrà comunque buttato via.
+    @Test
+    fun ilVincoloSuiNomiEStringente() {
+        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = null)))
+        assertContains(prompt, "MUST NOT invent")
+        assertContains(prompt, "CLOSED dictionary")
+        assertContains(prompt, "EXACTLY as written")
+    }
+
     // BUG del 20/07/2026, trovato da Michele giocando: il sample dichiara
     // backgroundImage su TUTTE le scene con placeholder storici mai
     // risolti in un file ("inn", "city"...). La condizione era solo
