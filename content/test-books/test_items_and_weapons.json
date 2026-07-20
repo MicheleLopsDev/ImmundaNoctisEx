@@ -1,0 +1,69 @@
+{
+    "id": "test-items-and-weapons",
+    "version": "1.0.0",
+    "title": "TEST: Oggetti e armi",
+    "description": "Scena con 3 armi (per testare la scelta tra i 2 soli slot — la terza non deve entrare), oggetti zaino e uno speciale, per verificare equipaggiamento/consumo/scarto e i limiti dell'inventario.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["calm"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["calm", "curious"],
+            "narrativeText": "The old storeroom is thick with dust, but its shelves are far from empty. A broadsword leans against the wall beside a well-kept mace, and further along a simple dagger rests atop a folded cloak. Two sacks nearby hold provisions and a small clay flask, and a tarnished ring catches the last of the light.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Take what you can carry and move on",
+                    "nextSceneId": "2"
+                }
+            ],
+            "gameMechanics": [
+                {
+                    "command": "addItem",
+                    "params": { "itemName": "Broadsword", "itemType": "WEAPON", "weaponType": "BROADSWORD" }
+                },
+                {
+                    "command": "addItem",
+                    "params": { "itemName": "Mace", "itemType": "WEAPON", "weaponType": "MACE" }
+                },
+                {
+                    "command": "addItem",
+                    "params": { "itemName": "Dagger", "itemType": "WEAPON", "weaponType": "DAGGER" }
+                },
+                {
+                    "command": "addItem",
+                    "params": { "itemName": "Meal", "itemType": "BACKPACK_ITEM", "quantity": 3 }
+                },
+                {
+                    "command": "addItem",
+                    "params": {
+                        "itemName": "Laumspur Potion",
+                        "itemType": "BACKPACK_ITEM",
+                        "effect": "HEAL:4",
+                        "combatUsable": "true"
+                    }
+                },
+                {
+                    "command": "addItem",
+                    "params": { "itemName": "Tarnished Ring of the Old Kingdom", "itemType": "SPECIAL_ITEM" }
+                },
+                {
+                    "command": "addItem",
+                    "params": { "itemName": "Gold Crowns", "itemType": "GOLD", "quantity": 15 }
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "You leave the storeroom behind, your pack heavier and your choices made. Whatever comes next, you are better equipped to face it.",
+            "choices": []
+        }
+    ]
+}

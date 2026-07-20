@@ -1,5 +1,7 @@
 package io.github.luposolitario.immundanoctisex.ui.sheet
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,21 +12,49 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
+import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 
-// Zaino: gli 8 posti DISEGNATI anche vuoti (UI.md).
+// Zaino: gli 8 posti DISEGNATI anche vuoti (UI.md). Tocco = consuma
+// (se ha un effetto), tocco lungo = scarta con conferma (Michele
+// 21/07/2026: "manca la possibilità di scartare tenendo premuto" —
+// l'engine aveva già Inventory.removeItem, mancava solo il gancio UI).
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BackpackCard(hero: Character, onConsumeItem: (String) -> Unit) {
+fun BackpackCard(hero: Character, onConsumeItem: (String) -> Unit, onDiscardItem: (String) -> Unit) {
+    var pendingDiscard by remember { mutableStateOf<GameItem?>(null) }
+    pendingDiscard?.let { item ->
+        AlertDialog(
+            onDismissRequest = { pendingDiscard = null },
+            title = { Text("Scartare ${item.name}?") },
+            text = { Text("Non potrai più usarlo, a meno di trovarlo di nuovo.") },
+            confirmButton = {
+                TextButton(onClick = { onDiscardItem(item.name); pendingDiscard = null }) { Text("Scarta") }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDiscard = null }) { Text("Annulla") }
+            },
+        )
+    }
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text("Zaino", style = MaterialTheme.typography.titleLarge)
@@ -43,8 +73,10 @@ fun BackpackCard(hero: Character, onConsumeItem: (String) -> Unit) {
                 items(slots.size) { index ->
                     val item = slots[index]
                     OutlinedCard(
-                        onClick = { item?.let { onConsumeItem(it.name) } },
-                        modifier = Modifier.aspectRatio(1f),
+                        modifier = Modifier.aspectRatio(1f).combinedClickable(
+                            onClick = { item?.let { onConsumeItem(it.name) } },
+                            onLongClick = { item?.let { pendingDiscard = it } },
+                        ),
                     ) {
                         Column(
                             Modifier.fillMaxSize().padding(4.dp),
@@ -54,6 +86,9 @@ fun BackpackCard(hero: Character, onConsumeItem: (String) -> Unit) {
                             Text(
                                 item?.name ?: "Vuoto",
                                 style = MaterialTheme.typography.bodySmall,
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
                                 color = if (item == null) {
                                     MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                                 } else {
@@ -61,7 +96,12 @@ fun BackpackCard(hero: Character, onConsumeItem: (String) -> Unit) {
                                 },
                             )
                             if (item?.effect != null) {
-                                Text(item.effect!!, style = MaterialTheme.typography.labelSmall)
+                                Text(
+                                    item.effect!!,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
                             }
                         }
                     }

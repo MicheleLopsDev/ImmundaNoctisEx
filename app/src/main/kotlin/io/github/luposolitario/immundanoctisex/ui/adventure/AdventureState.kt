@@ -368,6 +368,16 @@ class AdventureState(
         autoSave()
     }
 
+    // Scarta un oggetto dallo zaino (Michele 21/07/2026: "manca la
+    // possibilità di scartare tenendo premuto sull'oggetto" — la UI
+    // chiede conferma prima di chiamare questa funzione, qui si esegue
+    // e basta). Una unità alla volta: ogni slot disegnato nello zaino
+    // È un'unità (BackpackCard), scartare uno slot = -1 quantità.
+    fun discardItem(itemName: String) {
+        gameState.updateHero { Inventory.removeItem(it, itemName, 1) }
+        autoSave()
+    }
+
     // Consuma un oggetto con effetto dichiarato (v0.1: solo HEAL:n).
     fun consumeItem(itemName: String) {
         val item = gameState.hero.inventory.firstOrNull {
