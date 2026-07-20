@@ -28,6 +28,16 @@ fun CreationRoute(
             state = state,
             onCreate = {
                 val startSceneId = container.packageRepository.startScene()?.id ?: return@CharacterCreationScreen
+                // Una nuova avventura riparte SEMPRE pulita: senza questo, i
+                // checkpoint di una partita precedente per lo stesso libro
+                // restavano sul device (scritti-una-volta, mai sovrascritti)
+                // e bloccavano ogni piazzamento della partita nuova, in
+                // silenzio — placeCheckpoint() falliva senza dirlo a nessuno
+                // (Michele 20/07/2026: "rimasti: 2" che non scendeva mai).
+                // SessionStore.deleteAdventure esisteva già per questo (il
+                // suo stesso commento lo dichiara), semplicemente non veniva
+                // chiamato qui.
+                container.sessionStore.deleteAdventure(loadResult.manifest.id)
                 val session = state.buildSession(loadResult.manifest, difficulty, startSceneId)
                 container.sessionStore.saveSession(session)
                 onSessionCreated(session)
