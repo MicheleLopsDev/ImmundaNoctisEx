@@ -79,6 +79,13 @@ class AdventureState(
     var isGenerating: Boolean by mutableStateOf(expectsNarration)
         private set
 
+    // Distingue i DUE momenti di attesa, che durano molto diversamente: il
+    // caricamento del modello (una volta sola, secondi) e la generazione
+    // della singola scena. La UI ci dice sopra due frasi diverse, cosi'
+    // l'attesa lunga della prima volta non sembra un blocco.
+    var isLoadingModel: Boolean by mutableStateOf(expectsNarration)
+        private set
+
     // Testi delle scelte tradotti (id -> testo). Vuoto = si usa
     // l'originale del pacchetto.
     private var translatedChoices: Map<String, String> by mutableStateOf(emptyMap())
@@ -113,6 +120,9 @@ class AdventureState(
         // ferma mai davanti a una schermata vuota.
         narrative = if (expectsNarration || narrator.isReady) "" else currentScene.narrativeText
         isGenerating = true
+        // Se si arriva qui il modello e' caricato: da qui in poi l'attesa
+        // e' quella (breve) della generazione.
+        isLoadingModel = false
 
         narrationJob = scope.launch {
             var lastUpdate = 0L
@@ -148,6 +158,7 @@ class AdventureState(
     // "il narratore scrive" per sempre.
     fun narrationUnavailable() {
         isGenerating = false
+        isLoadingModel = false
         if (narrative.isBlank()) narrative = currentScene.narrativeText
     }
 

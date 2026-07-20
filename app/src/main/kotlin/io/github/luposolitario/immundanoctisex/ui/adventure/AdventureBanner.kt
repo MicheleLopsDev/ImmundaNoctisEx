@@ -1,5 +1,11 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +20,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +48,9 @@ fun AdventureBanner(
     heroGender: Gender,
     narratorSpeaking: Boolean,
     modifier: Modifier = Modifier,
+    // Il narratore sta pensando (carica il modello o genera la scena):
+    // il suo alone d'oro pulsa finché non c'è qualcosa da leggere.
+    narratorThinking: Boolean = false,
 ) {
     Box(modifier = modifier.fillMaxWidth().height(150.dp)) {
         // v0.1: sfondo unico (la mappa di Magnamund). Il backgroundImage
@@ -60,6 +70,7 @@ fun AdventureBanner(
                 imageRes = R.drawable.portrait_dm,
                 label = "Narratore",
                 speaking = narratorSpeaking,
+                thinking = narratorThinking,
             )
             PortraitBadge(
                 imageRes = if (heroGender == Gender.MALE) {
@@ -75,10 +86,34 @@ fun AdventureBanner(
 }
 
 @Composable
-private fun PortraitBadge(imageRes: Int, label: String, speaking: Boolean) {
+private fun PortraitBadge(
+    imageRes: Int,
+    label: String,
+    speaking: Boolean,
+    // Il narratore che PENSA: l'oro non è fermo, respira. È la metà
+    // visiva dell'attesa raccontata (l'altra è NarratorThinking).
+    thinking: Boolean = false,
+) {
     // Oro su chi parla, grigio sugli altri: la stessa convenzione usata
     // per l'arma impugnata e i ritratti della creazione.
     val borderColor = if (speaking) Color(0xFFFFD700) else Color.DarkGray
+    // Fuori dall'attesa il valore resta fisso: nessuna animazione accesa
+    // a vuoto per tutta la scena.
+    val transition = rememberInfiniteTransition(label = "alone")
+    val pulse by transition.animateFloat(
+        initialValue = 1f,
+        targetValue = 4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "spessore",
+    )
+    val borderWidth = when {
+        thinking -> pulse.dp
+        speaking -> 3.dp
+        else -> 2.dp
+    }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Image(
             painter = painterResource(id = imageRes),
@@ -87,7 +122,7 @@ private fun PortraitBadge(imageRes: Int, label: String, speaking: Boolean) {
             modifier = Modifier
                 .size(64.dp)
                 .clip(CircleShape)
-                .border(if (speaking) 3.dp else 2.dp, borderColor, CircleShape),
+                .border(borderWidth, borderColor, CircleShape),
         )
         Text(
             text = label,
@@ -104,6 +139,19 @@ private fun PortraitBadge(imageRes: Int, label: String, speaking: Boolean) {
 private fun BannerNarratorPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
         AdventureBanner(heroName = "Lupo Solitario", heroGender = Gender.MALE, narratorSpeaking = true)
+    }
+}
+
+@Preview(showBackground = true, name = "Banner — il narratore pensa")
+@Composable
+private fun BannerThinkingPreview() {
+    ImmundaNoctisTheme(darkTheme = true) {
+        AdventureBanner(
+            heroName = "Lupo Solitario",
+            heroGender = Gender.MALE,
+            narratorSpeaking = true,
+            narratorThinking = true,
+        )
     }
 }
 

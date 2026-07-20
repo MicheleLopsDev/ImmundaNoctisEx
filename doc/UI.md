@@ -120,14 +120,22 @@ Il testo scorre come pagina di libro (serif, continuo), NON come chat:
 - **Le decisioni del giocatore entrano nel flusso** come righe
   distinte (corsivo, rientrate, con icona della scelta): il flusso è
   la vista live del diario-grafo — stessa struttura dati.
-- Durante la generazione: indicatore "il narratore scrive…". v0.1 è
-  testo semplice; **in Fase 7 diventa un'ANIMAZIONE del narratore che
-  pensa** (richiesta Michele 19/07/2026, idea sua e molto apprezzata):
-  è il momento in cui il giocatore aspetta davvero qualche secondo, e
-  un'attesa raccontata vale più di una scritta. Vale sia per il
-  caricamento del modello (la prima volta, più lungo) sia per la
-  generazione di ogni scena. Asset da produrre: si sposa con il
-  ritratto del narratore già previsto nel banner.
+- Durante la generazione: **ANIMAZIONE del narratore che pensa**
+  (richiesta Michele 19/07/2026, anticipata da Fase 7 e realizzata il
+  20/07/2026): è il momento in cui il giocatore aspetta davvero qualche
+  secondo, e un'attesa raccontata vale più di una scritta ferma.
+  Due metà che si accendono insieme:
+  - nel **banner**, l'alone d'oro attorno al ritratto del narratore
+    PULSA invece di restare fisso (`AdventureBanner`, `narratorThinking`);
+  - nel **blocco testo**, tre puntini che si accendono in sequenza sotto
+    la frase d'attesa (`NarratorThinking`).
+
+  Copre i due momenti, che durano molto diversamente, e li **distingue
+  a parole**: "Il narratore apre il libro…" durante il CARICAMENTO del
+  modello (una volta per partita, secondi), "Il narratore scrive…"
+  durante la generazione della scena. Lo stato è
+  `AdventureState.isLoadingModel`. Nessun asset nuovo: si riusa
+  `portrait_dm` già nel banner.
 
 ### Card di stato (in basso, sopra le scelte)
 Ritratto, nome, grado Kai (dorato), CS / Resistenza / Corone con
