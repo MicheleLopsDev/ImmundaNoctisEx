@@ -557,6 +557,28 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   modifiche di oggi ne hanno aggiunte 39. **Mai visto girare sul
   device.**
 
+  **BUG: i quattro font erano tutti identici** (21/07, Michele su
+  device): la prima versione usava le famiglie generiche di sistema
+  (`FontFamily.Serif`/`SansSerif`/`Monospace`/`Cursive`) per zero
+  asset — assunzione sbagliata, quelle famiglie NON garantiscono un
+  typeface distinto su ogni produttore Android, sul Razr di Michele
+  finivano tutte sullo stesso font. Verificato `v1` (`ui/theme/
+  Type.kt`): usava solo `FontFamily.Default`, nessuna scelta di font
+  — niente da riusare per questo problema specifico.
+
+  **Corretto con 4 font veri**, scaricati da Google Fonts (repo
+  ufficiale `github.com/google/fonts`, licenza OFL) con permesso
+  esplicito di Michele: Lora (serif, default), Inter (sans serif),
+  Roboto Mono (monospace), Caveat (corsivo) — verificati come
+  TrueType validi prima di usarli, ~1,7 MB totali in
+  `res/font/`. `ReadingFont` ora costruisce `FontFamily(Font(R.font
+  .xxx))` invece delle famiglie generiche. `FontSection.kt` mostra
+  anche il nome del font sopra l'anteprima (prima solo la forma, non
+  il nome — poco utile con nomi generici tipo "Serif", più utile ora
+  che sono nomi propri). Compilazione e suite verdi. **Mai visto
+  girare sul device**: da riconfermare che ORA siano davvero
+  distinguibili.
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.

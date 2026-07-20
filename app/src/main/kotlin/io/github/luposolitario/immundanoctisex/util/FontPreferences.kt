@@ -2,18 +2,28 @@ package io.github.luposolitario.immundanoctisex.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import io.github.luposolitario.immundanoctisex.R
 
 // Font del testo di lettura (UI.md schermata 7, richiesta Michele
 // 17/07/2026: "una rosa di font — la serif di default della pagina di
-// libro più alternative"). Solo famiglie di sistema (Serif/SansSerif/
-// Monospace/Cursive): zero asset da scaricare, disponibili su ogni
-// device. Un font custom si aggiunge qui il giorno che serve davvero.
+// libro più alternative").
+//
+// PRIMA VERSIONE (21/07/2026) usava le famiglie generiche di sistema
+// (FontFamily.Serif/SansSerif/Monospace/Cursive) per zero asset — bug
+// trovato da Michele giocando: sul suo device le quattro apparivano
+// TUTTE IDENTICHE. Le famiglie generiche non garantiscono un typeface
+// distinto su ogni produttore Android, si è rivelata un'assunzione
+// sbagliata. Sostituite con 4 font veri (Google Fonts, licenza OFL,
+// scaricati da github.com/google/fonts) impacchettati in res/font/:
+// stesso rendering garantito ovunque, offline, senza dipendere da cosa
+// il telefono ha installato.
 enum class ReadingFont(val displayName: String, val family: FontFamily) {
-    SERIF("Serif (default)", FontFamily.Serif),
-    SANS_SERIF("Sans serif", FontFamily.SansSerif),
-    MONOSPACE("Monospace", FontFamily.Monospace),
-    CURSIVE("Corsivo", FontFamily.Cursive),
+    SERIF("Serif (default) — Lora", FontFamily(Font(R.font.lora))),
+    SANS_SERIF("Sans serif — Inter", FontFamily(Font(R.font.inter))),
+    MONOSPACE("Monospace — Roboto Mono", FontFamily(Font(R.font.roboto_mono))),
+    CURSIVE("Corsivo — Caveat", FontFamily(Font(R.font.caveat))),
 }
 
 // Grandezza del testo di lettura (richiesta Michele 21/07/2026: un
