@@ -36,12 +36,18 @@ fun FontSection(selected: ReadingFont, onSelect: (ReadingFont) -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButton(selected = font == selected, onClick = { onSelect(font) })
-                    Text(
-                        "Il narratore racconta la storia",
-                        fontFamily = font.family,
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(start = 4.dp),
-                    )
+                    Column(modifier = Modifier.padding(start = 4.dp)) {
+                        Text(
+                            font.displayName,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            "Il narratore racconta la storia",
+                            fontFamily = font.family,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
                 }
             }
         }
