@@ -331,6 +331,23 @@ prima di riconsiderarla.
   verdi (4 test rotti dal primo tentativo senza `runCatching`, poi
   risistemati).
 
+  **DIAGNOSTICATO, stesso giorno**: il blocco tag ricevuto era
+  `CHOICE|2|1|Ordinare una bevanda e ascoltare i pettegolezzi` — SOLO
+  la riga CHOICE, nessuna riga IMAGE. Non è un bug di parsing (la
+  CHOICE è letta correttamente, il parser funziona), non è un bug di
+  `PromptBuilder` (riverificato: `imageFormatText` viene iniettato per
+  questa scena, la condizione è corretta). **Gemma ha semplicemente
+  ignorato l'istruzione OPTIONAL**, con soli 120 token generati in
+  tutto (si è fermata da sola, non per limite di `maxTokens`=10240).
+  Ipotesi per cui l'istruzione viene ignorata (da verificare, non
+  ancora testate): è l'ULTIMA istruzione del prompt, preceduta dal
+  dizionario di 24 righe che potrebbe "diluirla"; dice esplicitamente
+  "OPTIONAL" e un modello 4B potrebbe leggerlo come "posso sempre
+  ometterla"; a differenza di CHOICE/DISCIPLINE (che hanno un formato
+  già dimostrato nel blocco scelte da tradurre), IMAGE è solo descritta
+  a parole, senza un esempio concreto da imitare. Discusso con Michele,
+  non ancora deciso quale intervento provare per primo.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
