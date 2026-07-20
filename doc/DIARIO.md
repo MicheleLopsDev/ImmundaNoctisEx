@@ -348,6 +348,21 @@ prima di riconsiderarla.
   a parole, senza un esempio concreto da imitare. Discusso con Michele,
   non ancora deciso quale intervento provare per primo.
 
+  **PRIMO TENTATIVO, stesso giorno**: Michele ha scelto "aggiungere un
+  esempio concreto" tra le tre ipotesi. `imageFormatText` ora include
+  una riga di esempio col formato esatto, usando un id VERO del
+  dizionario (`loc_tavern`) ma con un chiarimento esplicito — "solo la
+  sintassi, scegli quello che combacia con QUESTA scena, non
+  necessariamente questo" — per non trasformare l'esempio in un
+  suggerimento di scelta involontario. Aggiornati **entrambi** i posti:
+  `PromptFragments.kt` (DEFAULTS) e `content/config.json` (sono a
+  specchio, il secondo vince se presente — un test già esistente
+  confronta i due leggendo `content/config.json` dal classpath, niente
+  di nuovo da sincronizzare a mano). Costo: +44 token stimati sul
+  blocco IMAGE (da ~123 a ~168). Suite `app` verde. **Mai visto
+  girare**: prossimo passo di Michele è riprovare
+  `test_image_gemma_picks.json` con questa build.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
 1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
    batteria, poi TTS e musica tornano in discussione.
