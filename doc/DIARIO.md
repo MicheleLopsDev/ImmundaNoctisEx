@@ -714,6 +714,35 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   fix del testo, né lo scarto, né se le 3 armi si comportano come
   atteso (2 entrano, 1 no) — tutto da provare col side-load.
 
+  **BUG REALE DEL MOTORE trovato dal test, stesso giorno**: Michele
+  ha provato `test_items_and_weapons.json` — "non mi ha aggiunto
+  nulla all'inventario". Non era il file di test: **nessun libro,
+  mai, poteva dare oggetti (o applicare regole) tramite
+  `gameMechanics` sulla propria scena START**. Causa: `TransitionEngine
+  .transitionTo` è l'UNICO punto che esegue `gameMechanics`/HEALING
+  passivo/morte built-in/globalRules (REGOLE.md §2.3) — ma
+  `CreationState.buildSession` costruiva la `SessionData` con
+  `currentSceneId = startSceneId` DIRETTAMENTE, senza mai passare da
+  lì. La primissima scena della partita nasceva "dentro" se stessa,
+  saltando l'unica pipeline che avrebbe eseguito i suoi comandi.
+
+  Corretto in `buildSession`: dopo aver costruito la sessione grezza,
+  gira `TransitionEngine(manifest, MechanicsExecutor(dice))
+  .transitionTo(gameState, startSceneId)` UNA VOLTA, alla nascita
+  della sessione — non in `AdventureState` (che gira anche alla
+  ripresa di un checkpoint già esistente, dove ri-eseguire i
+  `gameMechanics` darebbe gli oggetti una seconda volta). Se la
+  scena START ha una `globalRule` che scatta subito, ora può anche
+  saltare altrove alla creazione — comportamento nuovo ma coerente:
+  è la stessa pipeline di ogni altra transizione, non doveva essere
+  un caso speciale.
+
+  Nessun test esistente copriva `buildSession` (l'assenza stessa ha
+  lasciato il bug invisibile finché un libro non ha davvero provato a
+  usare la scena START in questo modo). Compilazione e suite di
+  `:app` e `:core:engine` verdi. **Mai visto girare sul device**: da
+  riprovare con lo stesso `test_items_and_weapons.json`.
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
