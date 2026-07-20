@@ -104,9 +104,19 @@ puntini e l'alone dorato pulsante nel banner. Nonostante il blocco di
 2,1s nei log — declassato, non è più un problema prioritario.
 L'animazione del narratore è CHIUSA.
 
+**Musica e TTS discussi, ENTRAMBI RINVIATI** (Michele 20/07): siamo
+ancora in Fase 4, non si anticipa. Per il TTS il design è già completo
+(`UI.md`) e v1 ha i pezzi pronti da riusare quasi invariati
+(`TtsService.kt`, `TtsPreferences.kt` — `ANALISI-RIUSO-V1.md`); manca
+solo un `UtteranceProgressListener` che v1 non aveva. Per la musica,
+Michele stesso aveva posto la condizione "prima misura Gemma sul
+device" (`UPGRADE.md §1`): primo token e velocità sono misurati, **manca
+ancora termico e batteria** — Michele ha scelto di aspettare quei due
+prima di riconsiderarla.
+
 **APERTO — in ordine deciso con Michele (20/07)**:
-1. **TTS da implementare** (richiesta Michele 20/07) e le rifiniture
-   grafiche.
+1. **Chiudere la milestone di Fase 4**: termico su 30-45' e drain
+   batteria, poi TTS e musica tornano in discussione.
 2. **Agganciare le 41 immagini** del catalogo alle scene
    (`Scene.backgroundImage`) e ai personaggi: oggi sono nell'APK ma
    nessun codice le usa.

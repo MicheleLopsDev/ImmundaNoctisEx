@@ -74,6 +74,13 @@ aver misurato**: la milestone della Fase 4 produce i numeri (primo
 token, token/s, prompt token, termico). Con quelli in mano si sa quanto
 output extra ci si può permettere; senza, è una scommessa.
 
+**Aggiornamento 20/07/2026**: primo token (1,43-1,88 s su GPU) e
+velocità (12,1 token/s stabile) sono misurati — vedi DIARIO.md. Restano
+**termico su 30-45'** e **drain della batteria**: Michele ha scelto
+esplicitamente di aspettare quei due prima di riconsiderare la musica
+("meglio saperlo prima di investirci lavoro"). La condizione del rinvio
+resta quindi ANCORA APERTA, solo più vicina alla chiusura.
+
 ### Costo stimato se approvata (tracciato sul codice reale)
 Additivo quasi ovunque: frammento in `config.json` + `PromptFragments` +
 sezione in `PromptBuilder` (~15 righe totali, stesso schema di
