@@ -22,6 +22,12 @@ interface SessionStore {
 
     fun loadCheckpoint(packageId: String, slot: Int): SessionData?
 
+    // Un checkpoint SI CONSUMA quando lo si usa (decisione Michele
+    // 20/07/2026): ricaricarlo lo brucia, così le vite sono davvero
+    // finite. Prima era ricaricabile all'infinito e bastavano due
+    // piazzamenti per rendere l'avventura innocua.
+    fun deleteCheckpoint(packageId: String, slot: Int)
+
     // Cancella sessione E checkpoint del pacchetto: morte in IRON, oppure
     // "nuova avventura" che riparte da capo (i checkpoint di una partita
     // finita non devono sopravvivere alla successiva).

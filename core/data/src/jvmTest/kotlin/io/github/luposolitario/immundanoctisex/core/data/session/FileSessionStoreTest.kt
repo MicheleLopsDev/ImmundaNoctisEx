@@ -94,13 +94,44 @@ class FileSessionStoreTest {
         assertEquals("3", store.loadCheckpoint("sample", 1)?.currentSceneId)
     }
 
+    // Lo store resta una porta NEUTRA: rileggere non consuma. Il consumo
+    // (una vita per ricaricamento, deciso il 20/07/2026) e' una regola di
+    // gioco e vive in AdventureState, che chiama deleteCheckpoint.
     @Test
-    fun checkpointRicaricabileIllimitatamente() {
+    fun rileggereUnCheckpointNonLoConsuma() {
         store.saveCheckpoint(session(), slot = 1)
 
         repeat(3) {
             assertEquals(session(), store.loadCheckpoint("sample", 1))
         }
+    }
+
+    @Test
+    fun deleteCheckpointBruciaSoloQuelloSlot() {
+        store.saveCheckpoint(session(), slot = 1)
+        store.saveCheckpoint(session(), slot = 2)
+
+        store.deleteCheckpoint("sample", 1)
+
+        assertNull(store.loadCheckpoint("sample", 1), "lo slot usato sparisce")
+        assertEquals(session(), store.loadCheckpoint("sample", 2), "gli altri restano")
+    }
+
+    @Test
+    fun deleteCheckpointDiUnoSlotVuotoNonEsplode() {
+        store.deleteCheckpoint("sample", 1)
+        assertNull(store.loadCheckpoint("sample", 1))
+    }
+
+    // Bruciato lo slot, quel numero NON si riusa per un piazzamento
+    // nuovo: il budget lo conta la sessione (checkpointsUsed), non la
+    // presenza del file. Altrimenti si rigenererebbero vite all'infinito.
+    @Test
+    fun unoSlotBruciatoTornaScrivibile() {
+        store.saveCheckpoint(session(), slot = 1)
+        store.deleteCheckpoint("sample", 1)
+
+        assertTrue(store.saveCheckpoint(session(lastUpdate = 99L), slot = 1))
     }
 
     @Test

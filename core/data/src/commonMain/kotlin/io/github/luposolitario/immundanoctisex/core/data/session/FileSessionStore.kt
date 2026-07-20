@@ -44,6 +44,12 @@ class FileSessionStore(private val directory: File) : SessionStore {
     override fun loadCheckpoint(packageId: String, slot: Int): SessionData? =
         readOrNull(checkpointFile(packageId, slot))
 
+    // Il checkpoint si CONSUMA all'uso: sparisce il file, così non è più
+    // né ricaricabile né elencabile.
+    override fun deleteCheckpoint(packageId: String, slot: Int) {
+        checkpointFile(packageId, slot).delete()
+    }
+
     override fun deleteAdventure(packageId: String) {
         sessionFile(packageId).delete()
         directory.listFiles { file ->
