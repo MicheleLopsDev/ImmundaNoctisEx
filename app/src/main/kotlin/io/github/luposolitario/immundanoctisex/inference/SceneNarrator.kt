@@ -72,6 +72,13 @@ class SceneNarrator(
             ),
         )
 
+        // Diagnostica (21/07/2026, richiesta Michele: "voglio provare il
+        // prompt su Gemma in locale sul PC"): il prompt intero, per
+        // copiarlo fuori dal device. logChunked perché logcat tronca in
+        // silenzio oltre ~4000 caratteri per riga, e il prompt (col
+        // dizionario delle 24 location) li supera.
+        logChunked(TAG, "PROMPT completo", prompt)
+
         // Sessione NUOVA per ogni scena: inferenza senza memoria.
         engine.newSession()
 
@@ -100,16 +107,11 @@ class SceneNarrator(
         // da "l'ha scritta in un formato che il parser scarta" — i due
         // casi degradano allo stesso modo (sfondo di default) e da fuori
         // sembrano identici. adb logcat -s SceneNarrator.
-        // runCatching: android.util.Log non è mockato nei test JVM del
-        // modulo (nessun Robolectric, per scelta — vedi CLAUDE.md), un
-        // log non deve mai far fallire un test.
-        runCatching {
-            Log.i(
-                TAG,
-                "IMAGE risolto=${parsed.backgroundImage} — blocco tag:\n" +
-                    rawText.substringAfter(ResponseParser.SEPARATOR, missingDelimiterValue = "(separatore assente)").trim(),
-            )
-        }
+        logChunked(
+            TAG,
+            "IMAGE risolto=${parsed.backgroundImage} — blocco tag",
+            rawText.substringAfter(ResponseParser.SEPARATOR, missingDelimiterValue = "(separatore assente)").trim(),
+        )
         emit(NarrationEvent.Completed(parsed))
     }
 
@@ -145,5 +147,21 @@ class SceneNarrator(
 
     private companion object {
         const val TAG = "SceneNarrator"
+    }
+}
+
+// logcat tronca in silenzio oltre ~4000 caratteri per riga: un prompt con
+// il dizionario delle location li supera abbondantemente. Si spezza in
+// pezzi numerati così si ricostruiscono copiandoli in ordine.
+// runCatching: android.util.Log non è mockato nei test JVM del modulo
+// (nessun Robolectric, per scelta — vedi CLAUDE.md), un log non deve mai
+// far fallire un test.
+private fun logChunked(tag: String, label: String, text: String) {
+    val chunkSize = 3500
+    val chunks = text.chunked(chunkSize)
+    runCatching {
+        chunks.forEachIndexed { index, chunk ->
+            Log.i(tag, "$label [${index + 1}/${chunks.size}]\n$chunk")
+        }
     }
 }
