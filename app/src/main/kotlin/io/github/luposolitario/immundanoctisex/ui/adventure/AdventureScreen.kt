@@ -46,6 +46,10 @@ fun AdventureScreen(
     state: AdventureState,
     onExitToHome: () -> Unit,
     onReloadCheckpoint: (Int) -> Unit,
+    // Scelto in Opzioni (UI.md schermata 7, FontPreferences): il flusso
+    // centrale della scena, non il resto della UI. Default = Material
+    // (quando la Route non lo passa, es. le @Preview).
+    readingFont: androidx.compose.ui.text.font.FontFamily = androidx.compose.ui.text.font.FontFamily.Default,
 ) {
     // Scheda e Diario come overlay dentro la route (stato condiviso;
     // diventeranno destinazioni proprie in Fase 5).
@@ -134,6 +138,7 @@ fun AdventureScreen(
                     // una schermata vuota non è un finale.
                     text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
                     style = MaterialTheme.typography.bodyLarge,
+                    fontFamily = readingFont,
                     modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
                 )
             }

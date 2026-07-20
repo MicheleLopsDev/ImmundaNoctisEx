@@ -49,6 +49,9 @@ fun AdventureRoute(
                     engine = container.inferenceEngine,
                     promptBuilder = PromptBuilder(promptFragments(context)),
                     manifest = manifest,
+                    // Scelta in Opzioni (UI.md schermata 7); prima era
+                    // "Italian" fisso nel default del costruttore.
+                    userLanguage = container.languagePreferences.outputLanguage.promptValue,
                 )
             }
             // Si sa subito se il modello è sul telefono: serve a non
@@ -86,6 +89,7 @@ fun AdventureRoute(
                         currentSession = checkpoint
                     }
                 },
+                readingFont = container.fontPreferences.readingFont.family,
             )
         }
 

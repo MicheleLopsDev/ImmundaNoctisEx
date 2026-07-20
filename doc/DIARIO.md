@@ -494,6 +494,51 @@ cambio per inerzia. Drain batteria e termico esteso SCENDONO in
 priorità (restano da fare, ma dopo); **Preferences (Opzioni) + TTS
 SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
 
+- **OPZIONI (schermata 7) + font, IMPLEMENTATE** (21/07 sera): tema
+  (già c'era), font di lettura, lingua della narrazione, TTS —
+  Michele ha confermato di voler anticipare anche il font, che
+  `Theme.kt` dichiarava esplicitamente "fino alla Fase 7".
+
+  **3 nuove preferenze** (`util/`): `FontPreferences` (enum
+  `ReadingFont` — solo famiglie di sistema Serif/SansSerif/Monospace/
+  Cursive, zero asset da scaricare), `LanguagePreferences` (enum
+  `OutputLanguage`, 5 lingue, con `locale` per il TTS oltre al
+  `promptValue` inglese per Gemma), `TtsPreferences` (riuso quasi
+  invariato di v1, `Gender` enum di Ex al posto della stringa libera
+  di v1).
+
+  **`tts/TtsService.kt`**: riuso di v1 con due differenze — `Gender`
+  invece di stringa, e un `UtteranceProgressListener` che v1 NON
+  aveva (`onSpeakingStarted`/`onSpeakingFinished`, richiesto da
+  `UI.md` §Stato del narratore unificato per lo stato SPEAKING).
+  I callback sono predisposti ma **inerti**: nessuno li aggancia
+  ancora, arriva con la Tappa 2 (integrazione nel flusso scena).
+
+  **UI** (`ui/options/`): `OptionsRoute` + `OptionsScreen` (tema,
+  lingua inline; font e TTS in `FontSection.kt`/`TtsSection.kt`
+  separati per restare sotto soglia — il file più lungo è
+  `OptionsScreen.kt` a 175 righe). Il tema ha una particolarità: vive
+  SIA nella preference SIA nello stato di `MainActivity` (nuovo
+  `onThemeOverrideChange: (Boolean?) -> Unit`, accanto al vecchio
+  `onThemeToggle` del toggle rapido di Home) — deve applicarsi SUBITO
+  senza riavviare l'app, la sola preference salvata non basta.
+  Collegata da Home: `onSettingsClick` portava già a `Route.OPTIONS`
+  (era nell'enum, cadeva sul `PlaceholderScreen` — nessuna modifica a
+  `HomeScreen`/`HomeRoute` necessaria).
+
+  **Font e lingua APPLICATI davvero**, non solo salvati: il font
+  scelto arriva a `AdventureScreen` (`readingFont: FontFamily`, letto
+  da `AdventureRoute`) e si vede nel testo della scena; la lingua
+  scelta sostituisce l'`"Italian"` che prima era fisso nel default di
+  `SceneNarrator`. Il TTS invece resta SOLO configurabile per ora
+  (nessuno lo richiama per leggere davvero) — è la Tappa 2.
+
+  Compilazione pulita al primo tentativo, suite `app` verde. **Mai
+  visto girare sul device**: da provare, in particolare il cambio
+  tema/font a caldo e l'elenco delle voci TTS disponibili (dipende
+  dal motore TTS installato sul Razr, mai verificato quali lingue
+  offre davvero).
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
