@@ -31,8 +31,21 @@ object ResponseParser {
 
     // La sola parte da mostrare in streaming: tutto ciò che precede il
     // separatore (se il modello non lo scrive mai, è tutto narrativa).
+    // Lo streaming arriva un token alla volta (Michele 22/07/2026: "devo
+    // vedere per forza --TAGS?"): finché il separatore non è scritto per
+    // intero, un suo pezzo iniziale in coda al testo sembra narrativa a
+    // tutti gli effetti e finiva a schermo. Si taglia anche quello.
     fun narrativeOf(raw: String): String =
-        raw.split(SEPARATOR, limit = 2).first().trim()
+        trimTrailingPartialSeparator(raw.split(SEPARATOR, limit = 2).first()).trim()
+
+    private fun trimTrailingPartialSeparator(text: String): String {
+        for (len in minOf(SEPARATOR.length - 1, text.length) downTo 1) {
+            if (SEPARATOR.startsWith(text.substring(text.length - len))) {
+                return text.substring(0, text.length - len)
+            }
+        }
+        return text
+    }
 
     fun parse(raw: String, scene: Scene): EnrichedScene {
         val narrative = narrativeOf(raw).ifBlank { scene.narrativeText }
