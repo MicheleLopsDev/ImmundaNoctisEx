@@ -27,6 +27,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.ItemOffers
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.MealRules
 import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
 import io.github.luposolitario.immundanoctisex.core.engine.transition.TransitionEngine
 import io.github.luposolitario.immundanoctisex.inference.NarrationEvent
@@ -474,7 +475,7 @@ class AdventureState(
             ?: return
         gameState.updateHero { hero ->
             Inventory.removeItem(hero, item.name, 1).let {
-                it.copy(currentEndurance = (it.currentEndurance + heal).coerceIn(0, it.maxEndurance))
+                it.copy(currentEndurance = (it.currentEndurance + heal).coerceIn(0, effectiveMaxEndurance(it)))
             }
         }
         // Suono diverso per cosa si consuma davvero (Michele 22/07/2026:
