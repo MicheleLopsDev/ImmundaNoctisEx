@@ -1,0 +1,84 @@
+{
+    "id": "test-eat-meal-sound",
+    "version": "1.0.0",
+    "title": "TEST: Suono pasto obbligatorio",
+    "description": "Prova il suono SoundEffect.EAT sul consumo OBBLIGATORIO di un pasto (requireAction EAT_MEAL dichiarato nel JSON, non generato da Gemma). ATTENZIONE in creazione: il picker delle 5 discipline usa SEMPRE il catalogo canonico fisso dell'app (KAI_DISCIPLINES_UI), non questo campo disciplineChoices (qui vuoto solo per pulizia del file, NON impedisce nulla) - se scegli HUNTING, il pasto si auto-soddisfa PRIMA di toccare l'inventario e non sentirai ne' suono ne' cura: NON scegliere HUNTING per questo test. Scena 1: -5 Resistenza voluta (cosi la cura di scena 2 si vede per davvero, niente cap al massimo). Scena 2: 1 Meal in tasca -> si sente EAT, +1 Resistenza, l'oggetto sparisce dallo zaino. Scena 3: nessun Meal rimasto -> NESSUN suono, -3 Resistenza di penalita' (22/07/2026).",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["calm"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "You check your pack before setting out. A single wrapped Meal sits at the bottom, enough for one stop on the road ahead. The night before was rough, and you are not at your full strength.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Set out on the road",
+                    "nextSceneId": "2"
+                }
+            ],
+            "gameMechanics": [
+                {
+                    "command": "addItem",
+                    "params": { "itemName": "Meal", "itemType": "BACKPACK_ITEM", "quantity": 1 }
+                },
+                {
+                    "command": "applyStatModifier",
+                    "params": { "statName": "ENDURANCE", "amount": "-5" }
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "Midday finds you by a quiet stream. This is as good a place as any to stop and eat before the light fails.",
+            "choices": [
+                {
+                    "id": "choice_2_1",
+                    "choiceText": "Push on toward the ridge",
+                    "nextSceneId": "3"
+                }
+            ],
+            "gameMechanics": [
+                {
+                    "command": "requireAction",
+                    "params": { "action": "EAT_MEAL", "penaltyStat": "ENDURANCE", "penaltyValue": "-3" }
+                }
+            ]
+        },
+        {
+            "id": "3",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["grim"],
+            "narrativeText": "Evening falls on the ridge, and your stomach reminds you that your pack is empty. There is nothing left to eat.",
+            "choices": [
+                {
+                    "id": "choice_3_1",
+                    "choiceText": "Make camp for the night",
+                    "nextSceneId": "4"
+                }
+            ],
+            "gameMechanics": [
+                {
+                    "command": "requireAction",
+                    "params": { "action": "EAT_MEAL", "penaltyStat": "ENDURANCE", "penaltyValue": "-3" }
+                }
+            ]
+        },
+        {
+            "id": "4",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "The test ends here. Check your Endurance and inventory against what the two stops on the road should have cost or given you.",
+            "choices": []
+        }
+    ]
+}
