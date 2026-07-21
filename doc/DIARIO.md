@@ -1369,6 +1369,24 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   era la causa di quanto osservato stavolta (nessun bonus equipaggiato
   nel test).
 
+- **BUG trovato durante lo stesso giro, separatore dei tag a schermo**
+  (22/07, Michele: "funziona tutto ma devo vedere per forza --TAGS?"):
+  `ResponseParser.narrativeOf` nascondeva il blocco tag solo quando il
+  separatore `--- TAGS ---` era scritto PER INTERO nel testo
+  accumulato. Lo streaming arriva un token alla volta: per la
+  frazione di secondo in cui Gemma lo sta ancora scrivendo (es.
+  `--- TAG`), quel pezzo non combacia col separatore completo e
+  passava per narrativa vera, comparendo a schermo. Corretto con
+  `trimTrailingPartialSeparator`: oltre al separatore completo, si
+  taglia anche un suo prefisso ancora incompleto in coda al testo
+  mostrato — si auto-corregge da solo al token successivo se il
+  confronto smette di combaciare (es. un trattino di punteggiatura
+  legittimo sparisce per una frazione di secondo, poi ricompare).
+  Due nuovi test JVM (`ResponseParserTest`) sui tre stadi del
+  separatore a metà (`--`, `--- TAG`, `--- TAGS -`).
+  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+  sul device in questa forma.**
+
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
    (tema, font, TTS, lingua) — è la n. 7 di `UI.md`. **IN CORSO da
