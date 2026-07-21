@@ -67,6 +67,18 @@ class ModelDownloadWorker(context: Context, params: WorkerParameters) :
                 connection.disconnect()
                 return@withContext failure("Il server ha risposto $code")
             }
+            // Un link alla PAGINA del repo (non al file, niente
+            // "…resolve/main/…") risponde 200 con una paginetta HTML: senza
+            // questo controllo veniva scaricata e promossa a "modello" in
+            // meno di un secondo (bug 22/07, segnalato da Michele — "dice
+            // già scaricato" dopo un download impossibilmente veloce).
+            if (connection.contentType?.startsWith("text/html", ignoreCase = true) == true) {
+                connection.disconnect()
+                return@withContext failure(
+                    "Il link punta a una pagina web, non al file del modello. Serve il link " +
+                        "DIRETTO (pagina del repo → file → \"…resolve/main/…\").",
+                )
+            }
 
             // Se il server ignora la richiesta di ripresa (200 invece di
             // 206) si riparte da zero: meglio che scrivere in coda a un
@@ -115,6 +127,18 @@ class ModelDownloadWorker(context: Context, params: WorkerParameters) :
             if (totalSize > 0L && partFile.length() != totalSize) {
                 return@withContext failure(
                     "Download incompleto (${partFile.length()} di $totalSize byte). Riprova per riprenderlo.",
+                )
+            }
+            // Dimensione ignota (modelli personalizzati: sizeBytes=0 finché
+            // non si scarica) -> il controllo sopra non scatta mai. Un vero
+            // modello LLM pesa comunque centinaia di MB: qualunque cosa
+            // sotto questa soglia è quasi certamente un errore scaricato
+            // per sbaglio (pagina d'errore, redirect non seguito, ecc.),
+            // non il file giusto.
+            if (totalSize <= 0L && partFile.length() < MIN_PLAUSIBLE_MODEL_BYTES) {
+                return@withContext failure(
+                    "Il file scaricato è troppo piccolo (${partFile.length()} byte) per essere " +
+                        "un modello: probabilmente il link non è quello giusto.",
                 )
             }
 
@@ -193,5 +217,6 @@ class ModelDownloadWorker(context: Context, params: WorkerParameters) :
         private const val PROGRESS_STEP = 2L * 1024 * 1024
         private const val TIMEOUT_MS = 30_000
         private const val SPACE_MARGIN = 200L * 1024 * 1024
+        private const val MIN_PLAUSIBLE_MODEL_BYTES = 10L * 1024 * 1024
     }
 }

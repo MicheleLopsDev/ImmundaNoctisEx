@@ -20,6 +20,8 @@ enum class NarrativeTone(val displayName: String, val hints: List<String>?) {
     HEROIC("Eroico", listOf("heroic", "epic")),
     LIGHT("Leggero", listOf("light-hearted", "playful")),
     GRITTY("Duro e crudo", listOf("gritty", "violent")),
+    EROTIC("Erotico", listOf("erotic","sexy", "explict")),
+    BRUTAL("Brutale", listOf("brutal", "graphic", "unflinching"))
 }
 
 class NarrativeTonePreferences(context: Context) {

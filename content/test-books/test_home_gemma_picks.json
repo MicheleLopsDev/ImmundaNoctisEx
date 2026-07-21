@@ -1,0 +1,34 @@
+{
+    "id": "test-image-gemma-picks",
+    "version": "1.0.0",
+    "title": "TEST: Gemma sceglie bene",
+    "description": "backgroundImage assente, il testo punta chiaramente a una location del catalogo (una locanda affollata): Gemma dovrebbe scegliere loc_tavern.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["lively"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["erotic"],
+            "narrativeText": "You are in your room; you have just finished resting. You undress and start taking a shower, then calmly sit by the window, watching the city wake up.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Order a drink and listen for rumors",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "The rumors lead nowhere tonight. You finish your drink and call it an evening.",
+            "choices": []
+        }
+    ]
+}

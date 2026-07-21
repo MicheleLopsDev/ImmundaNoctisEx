@@ -1,7 +1,12 @@
 package io.github.luposolitario.immundanoctisex.model
 
+import kotlinx.serialization.Serializable
+
 // Un modello scaricabile (erede di Downloadable di v1, con in più la
 // dimensione attesa e il flag "serve un token").
+// @Serializable: i modelli aggiunti da Michele con un link Hugging Face
+// (ModelPreferences.customModels) si salvano come JSON nelle preferenze.
+@Serializable
 data class DownloadableModel(
     val id: String,
     val displayName: String,
@@ -10,6 +15,7 @@ data class DownloadableModel(
     val sizeBytes: Long,
     val requiresToken: Boolean,
     val note: String,
+    val custom: Boolean = false,
 ) {
     val sizeGigabytes: Double get() = sizeBytes / 1_000_000_000.0
 }
