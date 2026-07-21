@@ -19,9 +19,13 @@ data class AutoJumpHop(
     val reason: AutoJumpReason,
 )
 
+// mealEaten (22/07/2026): risale dal gameMechanics requireAction EAT_MEAL
+// fino a :app, per il suono del pasto obbligatorio — dichiarato
+// dall'autore nel JSON, mai generato da Gemma.
 data class TransitionResult(
     val sceneId: String,
     val autoJumps: List<AutoJumpHop> = emptyList(),
+    val mealEaten: Boolean = false,
 )
 
 // La pipeline di transizione (REGOLE.md §2.3): arrivo in scena -> HEALING
@@ -41,24 +45,29 @@ class TransitionEngine(
     fun transitionTo(state: GameState, targetSceneId: String): TransitionResult {
         val hops = mutableListOf<AutoJumpHop>()
         var currentTarget = targetSceneId
+        // Accumulato su TUTTI gli hop del giro (non solo l'ultimo): un
+        // salto d'ufficio può attraversare più scene prima di fermarsi,
+        // e il pasto può essere stato mangiato in una qualunque di esse.
+        var mealEaten = false
 
         repeat(maxHops) {
             val scene = manifest.scenes.firstOrNull { it.id == currentTarget }
-                ?: return TransitionResult(state.currentSceneId, hops) // grafo rotto: si resta dov'eravamo
+                ?: return TransitionResult(state.currentSceneId, hops, mealEaten) // grafo rotto: si resta dov'eravamo
             state.moveTo(scene.id)
 
             applyPassiveHealing(state, scene)
             val mechanicsOutcome = executor.execute(state, scene.gameMechanics)
+            if (mechanicsOutcome.mealEaten) mealEaten = true
 
             val nextJump = builtInDeath(state, scene)
                 ?: mechanicsOutcome.jumpTo?.let { AutoJumpHop(scene.id, it, mechanicsOutcome.jumpReason!!) }
                 ?: firstMatchingGlobalRule(state, scene)
 
-            if (nextJump == null) return TransitionResult(scene.id, hops)
+            if (nextJump == null) return TransitionResult(scene.id, hops, mealEaten)
             hops += nextJump
             currentTarget = nextJump.toSceneId
         }
-        return TransitionResult(state.currentSceneId, hops)
+        return TransitionResult(state.currentSceneId, hops, mealEaten)
     }
 
     // HEALING (REGOLE.md §4.3): +1 Resistenza a ogni transizione verso una
