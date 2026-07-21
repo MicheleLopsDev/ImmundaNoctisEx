@@ -13,6 +13,7 @@ import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import io.github.luposolitario.immundanoctisex.util.AccentColorPreferences
+import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 import io.github.luposolitario.immundanoctisex.util.FontPreferences
 import io.github.luposolitario.immundanoctisex.util.LanguagePreferences
 import io.github.luposolitario.immundanoctisex.util.MusicPreferences
@@ -45,6 +46,8 @@ class AppContainer(context: Context) {
     val narrativeTonePreferences = NarrativeTonePreferences(context)
 
     val musicPreferences = MusicPreferences(context)
+
+    val audioPreferences = AudioPreferences(context)
 
     val accentColorPreferences = AccentColorPreferences(context)
 

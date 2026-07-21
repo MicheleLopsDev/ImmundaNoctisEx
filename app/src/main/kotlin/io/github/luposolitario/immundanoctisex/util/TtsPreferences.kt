@@ -28,6 +28,14 @@ class TtsPreferences(context: Context) {
         get() = prefs.getFloat(KEY_PITCH, 1.0f)
         set(value) = prefs.edit().putFloat(KEY_PITCH, value).apply()
 
+    // Volume della voce (22/07/2026, richiesta Michele: tre barre in
+    // Opzioni - TTS, musica, generale). Applicato come KEY_PARAM_VOLUME
+    // sull'utterance: non c'e' un equivalente di setSpeechRate/setPitch
+    // sull'oggetto TextToSpeech per il volume.
+    var volume: Float
+        get() = prefs.getFloat(KEY_VOLUME, DEFAULT_VOLUME)
+        set(value) = prefs.edit().putFloat(KEY_VOLUME, value).apply()
+
     // null = nessuna preferenza esplicita, TtsService prova a indovinare
     // dal nome della voce (stesso fallback di v1).
     fun voiceFor(gender: Gender): String? =
@@ -51,5 +59,7 @@ class TtsPreferences(context: Context) {
         const val KEY_PITCH = "pitch"
         const val KEY_VOICE_MALE = "selected_voice_male"
         const val KEY_VOICE_FEMALE = "selected_voice_female"
+        const val KEY_VOLUME = "volume"
+        const val DEFAULT_VOLUME = 0.75f
     }
 }
