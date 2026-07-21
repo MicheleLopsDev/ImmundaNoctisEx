@@ -208,6 +208,16 @@ class ResponseParserTest {
         assertEquals("Prima parte della prosa", ResponseParser.narrativeOf(streaming))
     }
 
+    // Streaming token per token (Michele 22/07/2026: "devo vedere per
+    // forza --TAGS?"): finché il separatore non è scritto per intero, un
+    // suo pezzo iniziale in coda al testo non deve comparire a schermo.
+    @Test
+    fun narrativeOf_nascondeUnSeparatoreAncoraAMeta() {
+        assertEquals("Prima parte della prosa", ResponseParser.narrativeOf("Prima parte della prosa\n--"))
+        assertEquals("Prima parte della prosa", ResponseParser.narrativeOf("Prima parte della prosa\n--- TAG"))
+        assertEquals("Prima parte della prosa", ResponseParser.narrativeOf("Prima parte della prosa\n--- TAGS -"))
+    }
+
     // --- Sfondo di scena (vocabolario chiuso, esperimento 20/07/2026) ---
 
     @Test
