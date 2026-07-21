@@ -1428,10 +1428,10 @@ sopra: ora fa suono anche lui, con un canale diverso (il fatto
 `mealEaten` che risale da `:core:engine`), non con un tag testuale da
 riconoscere nell'output di Gemma.
 
-**Misure ancora mancanti**: il **termico** su 30-45' (il log più lungo
-copre ora ~12', vedi sotto) e il **drain della batteria** (osservazione
-di Michele 20/07: su un gioco che tiene la GPU occupata conta più della
-memoria — va aggiunto alle misure di CRITICITA.md).
+**Misure ancora mancanti**: ~~il **termico** su 30-45'~~ — **FATTA
+22/07**, vedi sotto (run di ~33'): degradazione confermata, sopra la
+soglia d'allarme di CRITICITA.md C3. ~~il **drain della batteria**~~ —
+**FATTA nello stesso run**.
 
 **Batteria e temperatura AGGIUNTE alla riga MISURA** (22/07, Michele:
 "per controllare anche il drain cosa dobbiamo fare?"): `LiteRtLmEngine`
@@ -1443,6 +1443,35 @@ temperatura — non serve più incrociare a mano uno screenshot dello
 stato con l'orario del log.
 Compilazione e suite riverificate verdi. **Mai vista/sentita girare
 sul device.**
+
+**RUN DA ~33' — MISURA TERMICA E DRAIN CHIUSE, ALLARME CONFERMATO**
+(22/07, Michele: "mezz'ora di gioco più o meno"): 55 generazioni,
+22:38:40 → 23:11:22, nessun crash/eccezione/ANR in tutto il log.
+- **Batteria**: 96% → 81%, **-15 punti in 33'** (~27,5%/h — una carica
+  piena durerebbe ~2h10' di gioco continuo come questo). Primo numero
+  vero sul drain, richiesto da Michele il 20/07.
+- **Temperatura**: 32,0°C → 37,0°C (+5°C), sale con continuità e si
+  stabilizza sui 36-37°C nella seconda metà del run.
+- **Velocità: DEGRADAZIONE CONFERMATA, sopra la soglia d'allarme di
+  CRITICITA.md C3** ("> 30% a fine sessione"). A parità di dimensione
+  del prompt (~549 token, il caso più frequente nel run) si passa da
+  18,2 token/s alla prima generazione a un regime stabile di 10-12 dopo
+  il riscaldamento iniziale, fino a un pavimento di 7,2-8,0 token/s
+  nell'ultimo terzo del run — una caduta del **~55-60%** dal picco. Non
+  è un artefatto del prompt più lungo (quello incide sul primoToken,
+  non sul token/s a parità di lunghezza): è il primo segnale REALE di
+  throttling cumulativo che il run da 12' del giorno prima aveva solo
+  fatto sospettare (allora fermo a 9,7 token/s sull'ultima
+  generazione).
+- **Memoria nativa**: 1082MB → 2152MB nel run, con cali parziali tra
+  una partita e l'altra (pattern già noto, coerente col leak da
+  ~140MB/partita rimandato consapevolmente — nessuna novità).
+  Compilazione e suite riverificate verdi. **CONFERMATO sul device.**
+  **Decisione aperta per Michele**: CRITICITA.md C3 aveva già in mente
+  due mitigazioni per quando l'allarme fosse scattato — "taglia modello
+  inferiore" o "pausa termica" — nessuna delle due è stata implementata
+  ancora, in attesa di una decisione esplicita (non schedulata di
+  default).
 
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
