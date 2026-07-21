@@ -1358,8 +1358,8 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   `NarrationEvent.Completed` (testo tradotto completo, stesso istante
   in cui compaiono scelte e nemico) e su `narrationUnavailable()` per
   il caso degradato.
-  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
-  sul device in questa forma.**
+  Compilazione e suite riverificate verdi. **CONFERMATO sul device
+  (Michele 22/07/2026: "tutti i test ok") — chiuso.**
 
   **Nota a parte, non toccata da questo giro ma trovata durante
   l'indagine**: `consumeItem` (consumo manuale dallo zaino) limitava
@@ -1384,8 +1384,8 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   legittimo sparisce per una frazione di secondo, poi ricompare).
   Due nuovi test JVM (`ResponseParserTest`) sui tre stadi del
   separatore a metà (`--`, `--- TAG`, `--- TAGS -`).
-  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
-  sul device in questa forma.**
+  Compilazione e suite riverificate verdi. **CONFERMATO sul device
+  (Michele 22/07/2026: "tutti i test ok") — chiuso.**
 
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
