@@ -1485,6 +1485,16 @@ sul device.**
   candidati (i test con alternative erano già in corso dal mattino del
   22/07, vedi sopra).
 
+  **PROSSIMO PASSO (Michele, fine sessione 22/07)**: sta per scaricare
+  un paio di **Gemma 4 2B abliterated** trovati in giro per provarli al
+  posto del modello attuale (Gemma 4B) — un modello più piccolo per
+  davvero, coerente con l'esplorazione appena aperta sopra (si ferma
+  qui per la sera, si riprende domani notte). La riga MISURA con
+  batteria/temperatura appena aggiunta serve esattamente a questo
+  confronto: stessi numeri, modello diverso — e resta il vincolo di
+  Michele, "non vorrei compromettere il testo": la prova non è solo
+  velocità/batteria, è anche leggere se la prosa regge.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
