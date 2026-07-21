@@ -1,6 +1,5 @@
 package io.github.luposolitario.immundanoctisex.ui.options
 
-import android.media.MediaPlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -13,7 +12,6 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.tts.TtsService
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.BundledMusicCatalog
-import io.github.luposolitario.immundanoctisex.util.BundledTrack
 import io.github.luposolitario.immundanoctisex.util.OutputLanguage
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 import java.util.Locale
@@ -58,29 +56,13 @@ fun OptionsRoute(
     var musicVolume by remember { mutableStateOf(container.musicPreferences.volume) }
     var generalVolume by remember { mutableStateOf(container.audioPreferences.generalVolume) }
 
-    // Anteprima locale a questa schermata (Michele 22/07/2026: seleziona
-    // una combo e parte per provarla) - un MediaPlayer separato dalla
-    // riproduzione vera in partita (non ancora collegata), vive e muore
-    // con Opzioni: non deve continuare a suonare una volta usciti da
-    // qui. Il volume riflette musica * generale, non solo musica: il
-    // generale deve sentirsi anche qui, non solo in partita.
-    val previewPlayer = remember { MediaPlayer() }
-    DisposableEffect(Unit) {
-        onDispose { previewPlayer.release() }
-    }
-    fun previewVolume(): Float = (musicVolume * generalVolume).coerceIn(0f, 1f)
-    fun playPreview(track: BundledTrack) {
-        runCatching {
-            previewPlayer.reset()
-            context.assets.openFd(track.assetPath).use { afd ->
-                previewPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-            }
-            previewPlayer.isLooping = true
-            previewPlayer.setVolume(previewVolume(), previewVolume())
-            previewPlayer.setOnPreparedListener { it.start() }
-            previewPlayer.prepareAsync()
-        }
-    }
+    // Player a scope APPLICAZIONE (container.musicPlayer, non piu locale
+    // a questa Route): Michele 22/07/2026, "quando esco dalle opzioni
+    // smette di suonare" - un MediaPlayer dentro OptionsRoute moriva col
+    // DisposableEffect appena si usciva. Qui si legge/scrive solo lo
+    // stato, il player vero vive nel container e sopravvive alla
+    // navigazione.
+    fun effectiveMusicVolume(): Float = (musicVolume * generalVolume).coerceIn(0f, 1f)
 
     // Le voci disponibili si sanno solo dopo l inizializzazione del
     // motore TTS: prima di allora la lista resta vuota, non bloccante.
@@ -168,12 +150,28 @@ fun OptionsRoute(
         onMusicEnabledChange = { enabled ->
             musicEnabled = enabled
             container.musicPreferences.musicEnabled = enabled
-            if (!enabled) runCatching { previewPlayer.pause() }
+            // BUG (Michele 22/07/2026, "quando abilito non parte a meno
+            // che non cambio canzone"): mancava di avviare la traccia
+            // gia selezionata, si limitava a mettere in pausa quando si
+            // spegneva - non faceva mai partire nulla quando si accendeva.
+            if (enabled) {
+                container.musicPlayer.play(BundledMusicCatalog.byId(selectedTrackId), effectiveMusicVolume())
+            } else {
+                container.musicPlayer.pause()
+            }
         },
         onTrackSelect = { id ->
             selectedTrackId = id
             container.musicPreferences.selectedTrackId = id
-            playPreview(BundledMusicCatalog.byId(id))
+            container.musicPlayer.play(BundledMusicCatalog.byId(id), effectiveMusicVolume())
+            // Scegliere una traccia vuol dire volerla sentire (Michele:
+            // "seleziono una combo e questa parte per provarla") - se lo
+            // switch era spento si accende da solo, cosi lo stato visibile
+            // non mente su cosa sta suonando davvero.
+            if (!musicEnabled) {
+                musicEnabled = true
+                container.musicPreferences.musicEnabled = true
+            }
         },
         volumeUi = VolumeUi(
             ttsVolume = ttsVolume,
@@ -184,14 +182,14 @@ fun OptionsRoute(
         onTtsVolumeCommit = { container.ttsPreferences.volume = ttsVolume },
         onMusicVolumeChange = { newVolume ->
             musicVolume = newVolume
-            // L anteprima riflette subito il volume mentre si trascina lo
-            // slider, non solo al rilascio: sentire il cambio e il punto.
-            runCatching { previewPlayer.setVolume(previewVolume(), previewVolume()) }
+            // Il volume cambia subito mentre si trascina lo slider, non
+            // solo al rilascio: sentire il cambio e il punto.
+            container.musicPlayer.setVolume(effectiveMusicVolume())
         },
         onMusicVolumeCommit = { container.musicPreferences.volume = musicVolume },
         onGeneralVolumeChange = { newVolume ->
             generalVolume = newVolume
-            runCatching { previewPlayer.setVolume(previewVolume(), previewVolume()) }
+            container.musicPlayer.setVolume(effectiveMusicVolume())
         },
         onGeneralVolumeCommit = { container.audioPreferences.generalVolume = generalVolume },
         onModelsClick = onModelsClick,
