@@ -1283,9 +1283,27 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
    Prima di aggiungerne altri tre tutti insieme, va capito se regge.
 
 **Misure ancora mancanti**: il **termico** su 30-45' (il log più lungo
-copre 6'20") e il **drain della batteria** (osservazione di Michele
-20/07: su un gioco che tiene la GPU occupata conta più della memoria —
-va aggiunto alle misure di CRITICITA.md).
+copre ora ~12', vedi sotto) e il **drain della batteria** (osservazione
+di Michele 20/07: su un gioco che tiene la GPU occupata conta più della
+memoria — va aggiunto alle misure di CRITICITA.md).
+
+**RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
+volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
+cel scalda un po' ma il mio è un foldable quindi è normale"): 16
+generazioni in ~12' (3 partite complete), nessun errore/crash nel log —
+conferma che il fix del player musicale a scope applicazione regge
+senza side-effect. Due dati:
+- **Memoria nativa**: 1084MB -> 1506MB in 12' — coerente col leak da
+  ~140MB/partita già noto e rimandato consapevolmente, nessuna novità.
+- **Velocità**: alterna ~19 token/s (boost del SoC dopo una pausa) e
+  ~12-13 token/s (regime normale), stesso pattern già documentato il
+  20/07. Ma l'ULTIMA generazione della sessione segna **9,7 token/s**,
+  il valore più basso mai registrato finora — con TTS+musica attivi
+  insieme a Gemma per 12' continui (carico CPU aggiuntivo oltre alla
+  GPU), potrebbe essere il primo segno di throttling termico
+  cumulativo. Non ancora confermato: serve un run ancora più lungo
+  (30-45') per dire se è un trend reale o rumore di una singola
+  misura.
 
 **Come si raccolgono le misure**: il motore le logga da solo a ogni
 scena giocata. `adb logcat -s LiteRtLmEngine` stampa una riga
