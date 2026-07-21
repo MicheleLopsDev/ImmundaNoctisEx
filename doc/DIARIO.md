@@ -1281,10 +1281,28 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   servira'.
   Compilazione e suite riverificate verdi. **Mai vista/sentita girare
   sul device.**
-  **NOTA**: Michele ha aggiunto anche `origina_res/nahtt-eat-323883.mp3`
-  nello stesso momento — non menzionato nella richiesta, non ancora
-  usato da nessuna parte. Da chiedere a cosa serve (suono del mangiare?)
-  prima di agganciarlo.
+
+  **Confermato subito dopo, stesso giro** (Michele: "ho aggiunto altri
+  2 suoni, uno bere freesound_community-quick-pour-86306, mangiare
+  nahtt-eat-323883, ovviamente se le associ alle azioni specifiche
+  andrebbe bene"): `SoundEffectPlayer` riscritto attorno a un enum
+  `SoundEffect` (`DICE_ROLL`/`EAT`/`DRINK`) invece di un metodo per
+  suono — un solo punto di caricamento/riproduzione, scalabile per i
+  prossimi. File copiati in `assets/sfx/eat.mp3` e `assets/sfx/drink.mp3`.
+  `AdventureState.consumeItem` (il consumo MANUALE dalla scheda) fa
+  partire `EAT` per il Pasto e `DRINK` per tutto il resto con effetto
+  HEAL (pozioni) — distinzione per nome (`MealRules.ITEM_NAME`), non
+  per un campo dedicato sull'oggetto.
+  **NON collegato**: il consumo OBBLIGATORIO del pasto (`requireAction
+  EAT_MEAL`, `StatMechanics` in `:core:engine`) non ha nessun suono —
+  quel modulo non ha dipendenze Android per vincolo di progetto, quindi
+  non può usare `SoundEffectPlayer` direttamente, e comunque lì non
+  c'è un tocco esplicito a cui agganciare il suono (scatta da solo
+  entrando in scena). Da valutare se serve comunque, con un canale
+  diverso (es. un evento che `AdventureState` intercetta dopo
+  `moveTo`).
+  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+  sul device.**
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
    (tema, font, TTS, lingua) — è la n. 7 di `UI.md`. **IN CORSO da
