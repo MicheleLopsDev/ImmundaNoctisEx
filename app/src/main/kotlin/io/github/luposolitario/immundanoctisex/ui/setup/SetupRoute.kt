@@ -1,7 +1,10 @@
 package io.github.luposolitario.immundanoctisex.ui.setup
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
@@ -26,12 +29,16 @@ fun SetupRoute(
     val currentPackageId = remember {
         (container.packageRepository.load() as? PackageLoadResult.Success)?.manifest?.id
     }
-    val sessions = remember {
-        container.sessionStore.listSessions().filter { it.packageId == currentPackageId }
+    var sessions by remember {
+        mutableStateOf(container.sessionStore.listSessions().filter { it.packageId == currentPackageId })
     }
     AdventureSetupScreen(
         savedSessions = sessions,
         onContinueSession = onContinueSession,
         onNewAdventure = onNewAdventure,
+        onDeleteSession = { session ->
+            container.sessionStore.deleteAdventure(session.packageId)
+            sessions = sessions - session
+        },
     )
 }
