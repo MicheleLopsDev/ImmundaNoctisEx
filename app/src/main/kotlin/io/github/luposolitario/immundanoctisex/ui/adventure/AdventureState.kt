@@ -219,12 +219,23 @@ class AdventureState(
 
     private var narrationJob: Job? = null
 
+    // Suono del pasto in sospeso (22/07/2026): messo da moveTo, consumato
+    // qui appena la narrazione ha davvero del testo da mostrare, invece
+    // di partire nell'istante del tocco — molto prima che Gemma finisca.
+    private var pendingMealSound = false
+
+    private fun playPendingMealSoundIfAny() {
+        if (!pendingMealSound) return
+        pendingMealSound = false
+        soundEffectPlayer?.play(SoundEffect.EAT)
+    }
+
     // Avvia (o riavvia) la narrazione della scena corrente. Lo streaming
     // è BUFFERIZZATO: si aggiorna la UI al massimo ogni ~90ms, altrimenti
     // ogni token farebbe ricomporre l'intera schermata (CRITICITA.md).
     fun startNarration(previousSceneText: String?) {
-        val narrator = this.narrator ?: return
-        val scope = this.scope ?: return
+        val narrator = this.narrator ?: run { playPendingMealSoundIfAny(); return }
+        val scope = this.scope ?: run { playPendingMealSoundIfAny(); return }
         narrationJob?.cancel()
         translatedChoices = emptyMap()
         translatedEnemyName = null
@@ -256,6 +267,9 @@ class AdventureState(
                             lastUpdate = now
                             narrative = event.textSoFar
                         }
+                        // Primo pezzo di testo vero: e' il momento giusto per
+                        // il suono in sospeso, non l'istante del tocco.
+                        if (event.textSoFar.isNotBlank()) playPendingMealSoundIfAny()
                     }
                     is NarrationEvent.Completed -> {
                         narrative = event.scene.narrative
@@ -263,6 +277,10 @@ class AdventureState(
                         translatedEnemyName = event.scene.enemyName
                         sceneBackgroundImage = event.scene.backgroundImage
                         isGenerating = false
+                        // Rete di sicurezza: se non c'e' mai stato uno
+                        // Streaming con testo (degradato dritto al finale,
+                        // es. modello assente), il suono parte comunque qui.
+                        playPendingMealSoundIfAny()
                         // Auto-lettura (UI.md, Tappa 2): solo qui, a testo
                         // finito — leggere durante lo streaming rincorrerebbe
                         // un testo che cambia sotto la voce.
@@ -281,6 +299,7 @@ class AdventureState(
         isGenerating = false
         isLoadingModel = false
         if (narrative.isBlank()) narrative = currentScene.narrativeText
+        playPendingMealSoundIfAny()
     }
 
     val isEnding: Boolean get() = currentScene.sceneType == SceneType.ENDING
@@ -504,8 +523,11 @@ class AdventureState(
         // Pasto mangiato durante la transizione (Michele 22/07/2026:
         // "EAT_MEAL lo possiamo mettere nel JSON" — requireAction EAT_MEAL
         // è già dichiarato dall'autore, non generato da Gemma): stesso
-        // suono del consumo manuale dalla scheda.
-        if (result.mealEaten) soundEffectPlayer?.play(SoundEffect.EAT)
+        // suono del consumo manuale dalla scheda. NON parte subito qui
+        // (Michele 22/07/2026, dopo averlo sentito arrivare secondi
+        // prima del testo): resta in sospeso finché la narrazione ha
+        // davvero qualcosa da mostrare — lo consuma startNarration.
+        pendingMealSound = result.mealEaten
         // Anche i salti d'ufficio sono porte del diario-grafo (col luogo
         // risolto della scena da cui si salta).
         result.autoJumps.forEach { hop ->
