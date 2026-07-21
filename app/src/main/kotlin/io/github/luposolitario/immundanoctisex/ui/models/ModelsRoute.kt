@@ -60,6 +60,12 @@ fun ModelsRoute(
     }
     var addModelError by remember { mutableStateOf<String?>(null) }
     var isImportingFromStorage by remember { mutableStateOf(false) }
+    // Quale modello e' DAVVERO nel motore ora (non solo selezionato):
+    // null finche' non si e' ancora giocata/attivata una scena in questa
+    // esecuzione dell'app.
+    var activeModelId by remember { mutableStateOf(container.loadedModelId) }
+    var isActivating by remember { mutableStateOf(false) }
+    var activateError by remember { mutableStateOf<String?>(null) }
     // Il nome digitato prima di aprire il selettore file: il risultato
     // arriva in una callback separata, che non ha più accesso al form.
     var pendingImportName by remember { mutableStateOf("") }
@@ -130,6 +136,23 @@ fun ModelsRoute(
         onSelectModel = { model ->
             selectedModelId = model.id
             preferences.selectedModelId = model.id
+        },
+        activeModelId = activeModelId,
+        isActivating = isActivating,
+        activateError = activateError,
+        onActivate = { model ->
+            isActivating = true
+            activateError = null
+            scope.launch {
+                val result = container.activateModel(model)
+                isActivating = false
+                result.onSuccess {
+                    selectedModelId = model.id
+                    activeModelId = model.id
+                }.onFailure { error ->
+                    activateError = error.message ?: "Attivazione non riuscita."
+                }
+            }
         },
         onTokenChange = { newToken ->
             token = newToken
