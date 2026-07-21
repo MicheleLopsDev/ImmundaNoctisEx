@@ -1170,6 +1170,44 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   Compilazione e suite riverificate verdi. **Mai vista girare sul
   device.**
 
+- **NOMI ESTESI, TRE VOLUMI, TEST TTS** (22/07, stesso giro, Michele:
+  "fai apparire il nome per esteso dei file mp3", poi "serve una parte
+  nel menu opzioni dove metti 3 barre volume [...] aggiungi un test
+  per il tts"):
+  - **Nomi estesi**: `BundledMusicCatalog` ora mostra categoria +
+    titolo originale ("Esplorazione — Where the Statues Kneel" invece
+    di solo "Esplorazione").
+  - **Tre volumi raccolti in una card sola** (`VolumeSection`, nuova):
+    voce/TTS (default 75%), musica (default 15%, invariato), generale
+    (default 80%) — quest'ultimo MOLTIPLICA gli altri due, non li
+    sostituisce. `TtsPreferences.volume` (nuovo) e `AudioPreferences`
+    (nuovo file, `generalVolume`) sono preferenze separate: il volume
+    non appartiene né al TTS né alla musica in modo esclusivo.
+    `TtsService.speak()` applica `ttsVolume * generalVolume` via
+    `KEY_PARAM_VOLUME` sull'utterance — non esiste un `setVolume()`
+    sul `TextToSpeech` come per rate/pitch. Lo slider Volume è uscito
+    da `MusicSection` (ora solo switch + combo tracce); l'anteprima
+    della musica in Opzioni riflette anch'essa `musicVolume *
+    generalVolume`, così il generale si sente subito anche lì.
+  - **Test TTS**: un tasto "Prova" (icona play) accanto a ciascun
+    selettore voce (maschile/femminile) legge una frase fissa —
+    "Ciao, sono il TTS di Android." se la lingua di output è italiano,
+    altrimenti "Hello, I am Android TTS." per qualunque altra lingua
+    configurata (non tradotta lingua per lingua: una sola frase inglese
+    di riserva). La locale della lettura segue il TESTO, non la lingua
+    di output scelta — leggere inglese con voce/locale tedesca
+    suonerebbe male.
+  - **Bug di percorso**: nel primo tentativo di aggiungere
+    `AudioPreferences` a `AppContainer.kt` un `Edit` con match parziale
+    ha troncato l'import di `AccentColorPreferences` in `AccentColor`,
+    producendo anche il typo "AudioPreferencesPreferences" corretto
+    (nel modo sbagliato) subito dopo. Scoperto solo alla ricompilazione
+    finale (`Unresolved reference`), risolto ripristinando l'import
+    corretto. Nessun impatto sul codice già committato.
+  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+  sul device**: verificare i due tasti "Prova" e che muovere il volume
+  generale si senta davvero su entrambi i canali.
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
