@@ -1,6 +1,9 @@
 package io.github.luposolitario.immundanoctisex.inference
 
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.util.Log
 import com.google.ai.edge.litertlm.Backend
 import com.google.ai.edge.litertlm.Content
@@ -193,8 +196,33 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                 "velocita~${"%.1f".format(tokensPerSecond)} token/s (stima) " +
                 "conversazioni: create=$conversazioniCreate chiuse=$conversazioniChiuse " +
                 "vive=$vive chiusureFallite=$chiusureFallite " +
-                "heap=${usedHeapMb()}MB nativa=${nativeHeapMb()}MB",
+                "heap=${usedHeapMb()}MB nativa=${nativeHeapMb()}MB " +
+                "batteria=${batteryPercent()}% temp=${"%.1f".format(batteryTempCelsius())}°C",
         )
+    }
+
+    // Percentuale e temperatura vengono dallo sticky broadcast di sistema
+    // (nessun permesso richiesto): stessa riga MISURA di sempre, così un
+    // run lungo copre in un colpo solo sia il termico (velocità/temp) sia
+    // il drain di batteria (CRITICITA.md C3, osservazione di Michele
+    // 20/07/2026: "su un gioco che tiene la GPU occupata conta più della
+    // memoria" — 22/07/2026, "per controllare anche il drain cosa
+    // dobbiamo fare?").
+    private fun batteryIntent(): Intent? =
+        context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+
+    private fun batteryPercent(): Int {
+        val intent = batteryIntent() ?: return -1
+        val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+        val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+        return if (level >= 0 && scale > 0) level * 100 / scale else -1
+    }
+
+    // EXTRA_TEMPERATURE è in decimi di grado Celsius (STATO.md: si
+    // serializzano i fatti, qui si converte solo per leggibilità nel log).
+    private fun batteryTempCelsius(): Double {
+        val tenths = batteryIntent()?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, -1) ?: -1
+        return if (tenths >= 0) tenths / 10.0 else -1.0
     }
 
     override suspend fun unload() = withContext(Dispatchers.IO) {
