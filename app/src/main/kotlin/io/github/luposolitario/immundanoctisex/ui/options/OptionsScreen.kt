@@ -61,6 +61,11 @@ fun OptionsScreen(
     onPitchCommit: () -> Unit,
     onMaleVoiceSelect: (String?) -> Unit,
     onFemaleVoiceSelect: (String?) -> Unit,
+    musicUi: MusicUi,
+    onMusicEnabledChange: (Boolean) -> Unit,
+    onPickTrack: () -> Unit,
+    onVolumeChange: (Float) -> Unit,
+    onVolumeCommit: () -> Unit,
     onModelsClick: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -99,6 +104,13 @@ fun OptionsScreen(
                 onPitchCommit = onPitchCommit,
                 onMaleVoiceSelect = onMaleVoiceSelect,
                 onFemaleVoiceSelect = onFemaleVoiceSelect,
+            )
+            MusicSection(
+                ui = musicUi,
+                onMusicEnabledChange = onMusicEnabledChange,
+                onPickTrack = onPickTrack,
+                onVolumeChange = onVolumeChange,
+                onVolumeCommit = onVolumeCommit,
             )
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp)) {
@@ -190,6 +202,11 @@ private fun OptionsScreenPreview() {
             onPitchCommit = {},
             onMaleVoiceSelect = {},
             onFemaleVoiceSelect = {},
+            musicUi = MusicUi(musicEnabled = false, trackName = null, volume = 0.5f),
+            onMusicEnabledChange = {},
+            onPickTrack = {},
+            onVolumeChange = {},
+            onVolumeCommit = {},
             onModelsClick = {},
             onClose = {},
         )
