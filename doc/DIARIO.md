@@ -796,6 +796,18 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   ancora spezzato — continua a crescere). **Mai visto girare sul
   device.**
 
+  **CONFERMATO da Michele su device (22/07)**: "le modifiche
+  all'interfaccia, la scelta delle armi e lo scarto degli oggetti"
+  funzionano. Copre: la schermata Opzioni intera (tema, colore
+  d'accento, font veri, grassetto, tono narrativo, dimensioni testo,
+  sfondo della card di stato), il pick esplicito degli oggetti
+  (`offerItem`/`PickupZone`, coi limiti 2 armi/8 zaino/50 corone), lo
+  scarto col tocco lungo. **Conferma indiretta anche il fix del bug
+  sulla scena START**: senza quello non ci sarebbe stato nulla da
+  scegliere o scartare — le 3 armi/oggetti del test non sarebbero mai
+  arrivati in inventario. Prima buona giornata di verifiche sul
+  device per tutto il lavoro del 21/07.
+
   **SEGNALATO da Michele per il futuro validatore**: "quando
   implementiamo il software per scrivere/validare il JSON dobbiamo
   tenere presente tutte queste regole". Verificato: i validatori
