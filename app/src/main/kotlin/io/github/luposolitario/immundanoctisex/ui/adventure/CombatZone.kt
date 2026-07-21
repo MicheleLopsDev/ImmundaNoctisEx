@@ -1,15 +1,21 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +32,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
 fun CombatEntryZone(state: AdventureState) {
     val combat = requireNotNull(state.currentScene.combat)
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        EnemyPortrait(combat.enemyImage)
         Text(
             "${state.enemyName ?: combat.enemyName} — CS ${combat.enemyCombatSkill}, RES ${combat.enemyEndurance}",
             fontWeight = FontWeight.Bold,
@@ -52,6 +59,7 @@ fun CombatEntryZone(state: AdventureState) {
 @Composable
 fun CombatActiveZone(state: AdventureState) {
     val session = requireNotNull(state.combatSession)
+    val combat = requireNotNull(state.currentScene.combat)
 
     // BUG (Michele 21/07/2026, "click su MINDBLAST/sul dado e i RES non
     // cambiano"): CombatSession è una classe pura dell'engine (niente
@@ -64,11 +72,36 @@ fun CombatActiveZone(state: AdventureState) {
     // completa del blocco ad ogni azione di combattimento.
     key(state.combatTick) {
         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            // Resta visibile per tutto lo scontro (Michele 22/07/2026:
+            // "quando combatte puoi lasciare sotto l'immagine del
+            // nemico?") — prima spariva non appena si sceglieva Rapido/
+            // Completo, perché la mostrava solo CombatEntryZone.
+            EnemyPortrait(combat.enemyImage)
             CombatDiaryPanel(state, session)
             if (session.status == CombatStatus.ONGOING) {
                 TacticalMenu(state, session)
             }
         }
+    }
+}
+
+// Dichiarato dall'autore (Combat.enemyImage): stessa illustrazione a piena
+// larghezza usata per Scene.npcImage — un ritratto piccolo "si perdeva"
+// (Michele 22/07/2026). Se assente o non riconosciuto, niente immagine.
+@Composable
+private fun EnemyPortrait(enemyImage: String?) {
+    enemyImageRes(enemyImage)?.let { res ->
+        Image(
+            painter = painterResource(id = res),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            // 120dp, stessa misura di Scene.npcImage (Michele 22/07/2026:
+            // 100 -> 110 -> 120, "un altro 10% e ci siamo").
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .clip(RoundedCornerShape(8.dp)),
+        )
     }
 }
 

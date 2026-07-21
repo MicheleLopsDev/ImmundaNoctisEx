@@ -9,6 +9,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Combat(
     val enemyName: String,
+    // ID canonico dal catalogo immagini (EnemyImageCatalog), dichiarato
+    // dall'autore come backgroundImage per le location: niente tag Gemma,
+    // niente costo nel prompt (decisione Michele 22/07/2026). Null o non
+    // valido = nessun ritratto, solo il nome in testo come prima.
+    val enemyImage: String? = null,
     val enemyCombatSkill: Int,
     val enemyEndurance: Int,
     val immuneToMindblast: Boolean = false,

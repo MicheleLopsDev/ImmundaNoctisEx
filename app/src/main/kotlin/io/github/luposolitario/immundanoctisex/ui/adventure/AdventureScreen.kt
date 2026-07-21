@@ -1,5 +1,6 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -31,6 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -173,6 +178,26 @@ fun AdventureScreen(
                     modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
                 )
             }
+        }
+
+        // Un incontro pacifico nella storia (Michele 22/07/2026: "npc o
+        // beast se sono amichevoli vanno sotto il testo"), non un
+        // avversario — quello ha il suo posto in CombatEntryZone. Solo
+        // quando l'autore l'ha dichiarato (Scene.npcImage); altrimenti
+        // niente, come prima di questa funzione.
+        npcImageRes(state.currentScene.npcImage)?.let { res ->
+            Image(
+                painter = painterResource(id = res),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                // 120dp (Michele 22/07/2026: 100 -> 110 -> "un altro 10% in
+                // più e ci siamo" — arrotondato da 121 per un numero pulito).
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+            )
+            Spacer(Modifier.height(8.dp))
         }
 
         StatusCard(hero = state.hero, onClick = { showSheet = true }, cardColor = statusCardColor)
