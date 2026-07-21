@@ -50,12 +50,22 @@ internal object StatMechanics {
     // requireAction EAT_MEAL (STATO.md §4.4): HUNTING auto-soddisfa a costo
     // zero; altrimenti si consuma un Pasto; senza Pasto scatta la penalità
     // dichiarata dall'autore. Altre azioni: non gestite, degradano.
+    //
+    // Mangiare cura +1 Resistenza (Michele 22/07/2026): bilancia i pasti
+    // trovati in più rispetto alle richieste EAT_MEAL del libro — se non
+    // servono a evitare la penalità, almeno curano un poco. HUNTING non
+    // consuma un pasto vero (auto-soddisfa a costo zero) e infatti esce
+    // PRIMA di questo blocco: caccia gratis, non guadagna la cura.
     fun requireAction(state: GameState, params: JsonObject) {
         if (params.stringParam("action") != "EAT_MEAL") return
         val hero = state.hero
         if (hero.kaiDisciplines.contains("HUNTING")) return
         if (Inventory.countOf(hero, MEAL_ITEM_NAME) > 0) {
-            state.updateHero { Inventory.removeItem(it, MEAL_ITEM_NAME, 1) }
+            state.updateHero { h ->
+                val afterMeal = Inventory.removeItem(h, MEAL_ITEM_NAME, 1)
+                val cap = effectiveMaxEndurance(afterMeal)
+                afterMeal.copy(currentEndurance = (afterMeal.currentEndurance + 1).coerceIn(0, cap))
+            }
             return
         }
         val penaltyStat = params["penaltyStat"] ?: return
