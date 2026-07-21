@@ -8,10 +8,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -45,7 +49,8 @@ data class TtsUi(
 // Preferenze TTS (UI.md schermata 7): auto-lettura, velocità, pitch,
 // voce per genere. Il servizio che legge ad alta voce vive nel flusso
 // della scena (AdventureState/AdventureRoute, Tappa 2 fatta il
-// 22/07/2026) — qui si configura solo come dovrà suonare.
+// 22/07/2026) — qui si configura solo come dovrà suonare. Il volume
+// vive in VolumeSection, non qui (raccolto insieme a musica e generale).
 @Composable
 fun TtsSection(
     ui: TtsUi,
@@ -56,6 +61,11 @@ fun TtsSection(
     onPitchCommit: () -> Unit,
     onMaleVoiceSelect: (String?) -> Unit,
     onFemaleVoiceSelect: (String?) -> Unit,
+    // Test rapido (22/07/2026, richiesta Michele): una frase fissa detta
+    // con la voce configurata per quel genere, per sentire subito
+    // l'effetto dei cursori sopra senza dover entrare in partita.
+    onTestMaleVoice: () -> Unit = {},
+    onTestFemaleVoice: () -> Unit = {},
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -91,9 +101,9 @@ fun TtsSection(
             }
 
             HorizontalDivider()
-            VoicePicker("Voce maschile", ui.maleVoices, ui.selectedMaleVoice, onMaleVoiceSelect)
+            VoicePicker("Voce maschile", ui.maleVoices, ui.selectedMaleVoice, onMaleVoiceSelect, onTestMaleVoice)
             Spacer(Modifier.height(4.dp))
-            VoicePicker("Voce femminile", ui.femaleVoices, ui.selectedFemaleVoice, onFemaleVoiceSelect)
+            VoicePicker("Voce femminile", ui.femaleVoices, ui.selectedFemaleVoice, onFemaleVoiceSelect, onTestFemaleVoice)
         }
     }
 }
@@ -102,19 +112,30 @@ fun TtsSection(
 // lingua scelta, la lista è vuota e si degrada sulla voce di default
 // del motore (TtsService.speak) — nessun blocco, solo meno scelta.
 @Composable
-private fun VoicePicker(label: String, voices: List<String>, selected: String?, onSelect: (String?) -> Unit) {
+private fun VoicePicker(
+    label: String,
+    voices: List<String>,
+    selected: String?,
+    onSelect: (String?) -> Unit,
+    onTest: () -> Unit,
+) {
     var expanded by remember { mutableStateOf(false) }
     Column {
         Text(label, style = MaterialTheme.typography.bodyMedium)
-        Box {
-            TextButton(onClick = { expanded = voices.isNotEmpty() }) {
-                Text(selected ?: if (voices.isEmpty()) "Nessuna voce disponibile" else "Automatica")
-            }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(text = { Text("Automatica") }, onClick = { onSelect(null); expanded = false })
-                voices.forEach { voice ->
-                    DropdownMenuItem(text = { Text(voice) }, onClick = { onSelect(voice); expanded = false })
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box {
+                TextButton(onClick = { expanded = voices.isNotEmpty() }) {
+                    Text(selected ?: if (voices.isEmpty()) "Nessuna voce disponibile" else "Automatica")
                 }
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    DropdownMenuItem(text = { Text("Automatica") }, onClick = { onSelect(null); expanded = false })
+                    voices.forEach { voice ->
+                        DropdownMenuItem(text = { Text(voice) }, onClick = { onSelect(voice); expanded = false })
+                    }
+                }
+            }
+            IconButton(onClick = onTest) {
+                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Prova voce")
             }
         }
     }
@@ -141,6 +162,8 @@ private fun TtsSectionPreview() {
             onPitchCommit = {},
             onMaleVoiceSelect = {},
             onFemaleVoiceSelect = {},
+            onTestMaleVoice = {},
+            onTestFemaleVoice = {},
         )
     }
 }

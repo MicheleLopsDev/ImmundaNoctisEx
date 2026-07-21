@@ -10,7 +10,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,26 +27,26 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.BundledTrack
 
 // Quel che serve alla card per disegnarsi (stato sollevato, come TtsUi).
+// Il volume NON vive più qui: raccolto in VolumeSection insieme a TTS e
+// generale (22/07/2026, richiesta Michele: "una parte nel menu opzioni
+// dove metti 3 barre volume").
 data class MusicUi(
     val musicEnabled: Boolean,
     val tracks: List<BundledTrack>,
     val selectedTrackId: String,
-    val volume: Float,
 )
 
 // Musica di sottofondo (UI.md schermata 7): quale delle tracce incluse è
-// attiva e a che volume. Menu a tendina, non un selettore di file
-// (Michele 22/07/2026: "una combo con le canzoni che ho fatto, non un
-// picker") — selezionare una traccia la fa partire subito per
-// un'anteprima (gestita da OptionsRoute, qui solo l'evento in uscita).
-// Il collegamento vero durante la partita arriva in un passo separato.
+// attiva. Menu a tendina, non un selettore di file (Michele 22/07/2026:
+// "una combo con le canzoni che ho fatto, non un picker") — selezionare
+// una traccia la fa partire subito per un'anteprima (gestita da
+// OptionsRoute, qui solo l'evento in uscita). Il collegamento vero
+// durante la partita arriva in un passo separato.
 @Composable
 fun MusicSection(
     ui: MusicUi,
     onMusicEnabledChange: (Boolean) -> Unit,
     onTrackSelect: (String) -> Unit,
-    onVolumeChange: (Float) -> Unit,
-    onVolumeCommit: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -63,16 +62,6 @@ fun MusicSection(
             }
 
             TrackPicker(tracks = ui.tracks, selectedId = ui.selectedTrackId, onSelect = onTrackSelect)
-
-            Column {
-                Text("Volume", style = MaterialTheme.typography.bodyMedium)
-                Slider(
-                    value = ui.volume,
-                    onValueChange = onVolumeChange,
-                    onValueChangeFinished = onVolumeCommit,
-                    valueRange = 0f..1f,
-                )
-            }
         }
     }
 }
@@ -107,16 +96,13 @@ private fun MusicSectionPreview() {
             ui = MusicUi(
                 musicEnabled = true,
                 tracks = listOf(
-                    BundledTrack("esplorazione", "Esplorazione", "music/esplorazione.mp3"),
-                    BundledTrack("combattimento", "Combattimento", "music/combattimento.mp3"),
+                    BundledTrack("esplorazione", "Esplorazione — Where the Statues Kneel", "music/esplorazione.mp3"),
+                    BundledTrack("combattimento", "Combattimento — The Iron Vow", "music/combattimento.mp3"),
                 ),
                 selectedTrackId = "esplorazione",
-                volume = 0.15f,
             ),
             onMusicEnabledChange = {},
             onTrackSelect = {},
-            onVolumeChange = {},
-            onVolumeCommit = {},
         )
     }
 }

@@ -1,11 +1,13 @@
 package io.github.luposolitario.immundanoctisex.tts
 
 import android.content.Context
+import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.speech.tts.Voice
 import android.util.Log
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
+import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 import io.github.luposolitario.immundanoctisex.util.TtsPreferences
 import java.util.Locale
 
@@ -27,6 +29,7 @@ class TtsService(
     private var isReady = false
     private var onReadyCallback: (() -> Unit)? = onReady
     private val preferences = TtsPreferences(context)
+    private val audioPreferences = AudioPreferences(context)
 
     var onSpeakingStarted: (() -> Unit)? = null
     var onSpeakingFinished: (() -> Unit)? = null
@@ -77,7 +80,13 @@ class TtsService(
         } else {
             engine.language = locale
         }
-        engine.speak(text, TextToSpeech.QUEUE_FLUSH, null, UTTERANCE_ID)
+        // Volume TTS moltiplicato per il generale (22/07/2026, tre barre
+        // in Opzioni): KEY_PARAM_VOLUME e' l'unico modo di controllare il
+        // volume per singola utterance, non esiste un setVolume() sul
+        // TextToSpeech come per rate/pitch.
+        val effectiveVolume = (preferences.volume * audioPreferences.generalVolume).coerceIn(0f, 1f)
+        val params = Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, effectiveVolume) }
+        engine.speak(text, TextToSpeech.QUEUE_FLUSH, params, UTTERANCE_ID)
     }
 
     fun stop() {

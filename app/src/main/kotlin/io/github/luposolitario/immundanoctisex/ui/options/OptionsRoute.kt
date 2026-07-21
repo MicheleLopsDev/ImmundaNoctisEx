@@ -14,13 +14,15 @@ import io.github.luposolitario.immundanoctisex.tts.TtsService
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.BundledMusicCatalog
 import io.github.luposolitario.immundanoctisex.util.BundledTrack
+import io.github.luposolitario.immundanoctisex.util.OutputLanguage
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
+import java.util.Locale
 
 // Raccordo delle Opzioni: legge le preferenze da AppContainer, le scrive
-// ad ogni cambio (stessa politica "commit al rilascio" di
-// AdvancedSettingsCard per gli slider — non ad ogni frame di trascinamento).
-// Il tema è un caso a parte: vive nello stato di MainActivity, non solo
-// nella preference, perché deve applicarsi SUBITO senza riavviare l'app.
+// ad ogni cambio (stessa politica commit-al-rilascio di
+// AdvancedSettingsCard per gli slider, non ad ogni frame di trascinamento).
+// Il tema e un caso a parte: vive nello stato di MainActivity, non solo
+// nella preference, perche deve applicarsi SUBITO senza riavviare l app.
 @Composable
 fun OptionsRoute(
     container: AppContainer,
@@ -48,17 +50,25 @@ fun OptionsRoute(
 
     var musicEnabled by remember { mutableStateOf(container.musicPreferences.musicEnabled) }
     var selectedTrackId by remember { mutableStateOf(container.musicPreferences.effectiveTrack.id) }
-    var volume by remember { mutableStateOf(container.musicPreferences.volume) }
 
-    // Anteprima locale a questa schermata (Michele 22/07/2026: "quando
-    // seleziono una combo questa parte per provarla") — un MediaPlayer
-    // separato dalla riproduzione vera in partita (non ancora collegata),
-    // vive e muore con Opzioni: non deve continuare a suonare una volta
-    // usciti da qui.
+    // I tre volumi (22/07/2026, richiesta Michele): TTS e musica hanno
+    // ciascuno il proprio, il generale moltiplica entrambi - vive in
+    // AudioPreferences perche non appartiene ne all uno ne all altra.
+    var ttsVolume by remember { mutableStateOf(container.ttsPreferences.volume) }
+    var musicVolume by remember { mutableStateOf(container.musicPreferences.volume) }
+    var generalVolume by remember { mutableStateOf(container.audioPreferences.generalVolume) }
+
+    // Anteprima locale a questa schermata (Michele 22/07/2026: seleziona
+    // una combo e parte per provarla) - un MediaPlayer separato dalla
+    // riproduzione vera in partita (non ancora collegata), vive e muore
+    // con Opzioni: non deve continuare a suonare una volta usciti da
+    // qui. Il volume riflette musica * generale, non solo musica: il
+    // generale deve sentirsi anche qui, non solo in partita.
     val previewPlayer = remember { MediaPlayer() }
     DisposableEffect(Unit) {
         onDispose { previewPlayer.release() }
     }
+    fun previewVolume(): Float = (musicVolume * generalVolume).coerceIn(0f, 1f)
     fun playPreview(track: BundledTrack) {
         runCatching {
             previewPlayer.reset()
@@ -66,13 +76,13 @@ fun OptionsRoute(
                 previewPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
             }
             previewPlayer.isLooping = true
-            previewPlayer.setVolume(volume, volume)
+            previewPlayer.setVolume(previewVolume(), previewVolume())
             previewPlayer.setOnPreparedListener { it.start() }
             previewPlayer.prepareAsync()
         }
     }
 
-    // Le voci disponibili si sanno solo dopo l'inizializzazione del
+    // Le voci disponibili si sanno solo dopo l inizializzazione del
     // motore TTS: prima di allora la lista resta vuota, non bloccante.
     var ttsReady by remember { mutableStateOf(false) }
     val ttsService = remember { TtsService(context) { ttsReady = true } }
@@ -142,11 +152,18 @@ fun OptionsRoute(
             femaleVoice = voice
             container.ttsPreferences.setVoiceFor(Gender.FEMALE, voice)
         },
+        onTestMaleVoice = {
+            val (phrase, locale) = ttsTestPhrase(language)
+            ttsService.speak(phrase, Gender.MALE, locale)
+        },
+        onTestFemaleVoice = {
+            val (phrase, locale) = ttsTestPhrase(language)
+            ttsService.speak(phrase, Gender.FEMALE, locale)
+        },
         musicUi = MusicUi(
             musicEnabled = musicEnabled,
             tracks = BundledMusicCatalog.TRACKS,
             selectedTrackId = selectedTrackId,
-            volume = volume,
         ),
         onMusicEnabledChange = { enabled ->
             musicEnabled = enabled
@@ -158,14 +175,38 @@ fun OptionsRoute(
             container.musicPreferences.selectedTrackId = id
             playPreview(BundledMusicCatalog.byId(id))
         },
-        onVolumeChange = { newVolume ->
-            volume = newVolume
-            // L'anteprima riflette subito il volume mentre si trascina lo
-            // slider, non solo al rilascio: sentire il cambio è il punto.
-            runCatching { previewPlayer.setVolume(volume, volume) }
+        volumeUi = VolumeUi(
+            ttsVolume = ttsVolume,
+            musicVolume = musicVolume,
+            generalVolume = generalVolume,
+        ),
+        onTtsVolumeChange = { ttsVolume = it },
+        onTtsVolumeCommit = { container.ttsPreferences.volume = ttsVolume },
+        onMusicVolumeChange = { newVolume ->
+            musicVolume = newVolume
+            // L anteprima riflette subito il volume mentre si trascina lo
+            // slider, non solo al rilascio: sentire il cambio e il punto.
+            runCatching { previewPlayer.setVolume(previewVolume(), previewVolume()) }
         },
-        onVolumeCommit = { container.musicPreferences.volume = volume },
+        onMusicVolumeCommit = { container.musicPreferences.volume = musicVolume },
+        onGeneralVolumeChange = { newVolume ->
+            generalVolume = newVolume
+            runCatching { previewPlayer.setVolume(previewVolume(), previewVolume()) }
+        },
+        onGeneralVolumeCommit = { container.audioPreferences.generalVolume = generalVolume },
         onModelsClick = onModelsClick,
         onClose = onClose,
     )
 }
+
+// Frase di test del TTS (22/07/2026, richiesta Michele): in italiano se
+// l output e italiano, altrimenti in inglese per tutte le altre lingue -
+// una sola frase di prova, non tradotta lingua per lingua. La locale
+// segue il TESTO che verra letto, non la lingua di output configurata:
+// leggere una frase inglese con voce/locale tedesca suonerebbe male.
+private fun ttsTestPhrase(language: OutputLanguage): Pair<String, Locale> =
+    if (language == OutputLanguage.ITALIAN) {
+        "Ciao, sono il TTS di Android." to Locale.ITALIAN
+    } else {
+        "Hello, I am Android TTS." to Locale.ENGLISH
+    }
