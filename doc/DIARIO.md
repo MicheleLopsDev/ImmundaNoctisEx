@@ -1347,6 +1347,20 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   device (screenshot); il riallineamento col testo NON ancora
   riprovato sul device.**
 
+  **Terzo giro, stesso 22/07** (Michele, dopo aver riprovato: "ci
+  siamo quasi, l'unico problema è che il suono di EAT parte prima che
+  il testo venga finito di scrivere, la cosa migliore sarebbe che il
+  suono venga riprodotto dopo che finisce lo streaming del testo"):
+  agganciare il suono al primo pezzo di `NarrationEvent.Streaming` non
+  bastava — quel primo pezzo arriva comunque a metà generazione, non a
+  streaming concluso (log: suono alle 22:08:49, generazione finita
+  alle 22:08:52). Tolto il trigger dallo `Streaming`, resta solo su
+  `NarrationEvent.Completed` (testo tradotto completo, stesso istante
+  in cui compaiono scelte e nemico) e su `narrationUnavailable()` per
+  il caso degradato.
+  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+  sul device in questa forma.**
+
   **Nota a parte, non toccata da questo giro ma trovata durante
   l'indagine**: `consumeItem` (consumo manuale dallo zaino) limitava
   la cura al `maxEndurance` grezzo del personaggio invece che a
