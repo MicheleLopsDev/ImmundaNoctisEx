@@ -15,6 +15,7 @@ import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import io.github.luposolitario.immundanoctisex.util.AccentColorPreferences
 import io.github.luposolitario.immundanoctisex.util.FontPreferences
 import io.github.luposolitario.immundanoctisex.util.LanguagePreferences
+import io.github.luposolitario.immundanoctisex.util.MusicPreferences
 import io.github.luposolitario.immundanoctisex.util.NarrativeTonePreferences
 import io.github.luposolitario.immundanoctisex.util.StatusCardColorPreferences
 import io.github.luposolitario.immundanoctisex.util.ThemePreferences
@@ -42,6 +43,8 @@ class AppContainer(context: Context) {
     val ttsPreferences = TtsPreferences(context)
 
     val narrativeTonePreferences = NarrativeTonePreferences(context)
+
+    val musicPreferences = MusicPreferences(context)
 
     val accentColorPreferences = AccentColorPreferences(context)
 
