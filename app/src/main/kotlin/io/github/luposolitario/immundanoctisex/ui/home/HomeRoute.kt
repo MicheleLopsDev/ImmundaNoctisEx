@@ -40,6 +40,16 @@ fun HomeRoute(
         container.loadSideloadedPackage(context, uri)
         when (val result = container.packageRepository.load()) {
             is PackageLoadResult.Success -> {
+                // Un salvataggio vecchio con lo stesso packageId (Michele
+                // 22/07/2026: "se carico un file json cancella il
+                // salvataggio corrente se c'è, non ha senso") non deve
+                // sopravvivere al side-load: senza questo, SetupRoute lo
+                // trova ancora (filtra solo per packageId, non sa che il
+                // CONTENUTO del file è cambiato) e offre "Continua" su
+                // scene che magari non esistono più nella versione appena
+                // caricata. Stesso deleteAdventure già usato da
+                // CreationRoute per "nuova avventura".
+                container.sessionStore.deleteAdventure(result.manifest.id)
                 currentTitle = result.manifest.title
                 feedback = "Libro caricato: ${result.manifest.title}"
                 feedbackIsError = false

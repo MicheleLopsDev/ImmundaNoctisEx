@@ -7,15 +7,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -39,7 +47,33 @@ fun AdventureSetupScreen(
     savedSessions: List<SessionData>,
     onContinueSession: (SessionData) -> Unit,
     onNewAdventure: (Difficulty) -> Unit,
+    // Prima l'unico modo di liberarsi di un salvataggio era side-load un
+    // file diverso (Michele 22/07/2026, dopo che quello smise di essere
+    // un effetto collaterale: "adesso come cancello la sessione, mi ci
+    // vuole un tasto?") — sì, un tasto esplicito, qui.
+    onDeleteSession: (SessionData) -> Unit = {},
 ) {
+    // Conferma prima di eliminare per davvero: è un'azione irreversibile,
+    // stesso trattamento già dato all'uscita dalla scena (showExitConfirm
+    // in AdventureScreen).
+    var sessionPendingDelete by remember { mutableStateOf<SessionData?>(null) }
+    sessionPendingDelete?.let { session ->
+        AlertDialog(
+            onDismissRequest = { sessionPendingDelete = null },
+            title = { Text("Eliminare il salvataggio?") },
+            text = { Text("\"${session.packageId}\" — scena ${session.currentSceneId}. Non si può recuperare.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteSession(session)
+                    sessionPendingDelete = null
+                }) { Text("Elimina") }
+            },
+            dismissButton = {
+                TextButton(onClick = { sessionPendingDelete = null }) { Text("Annulla") }
+            },
+        )
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -51,7 +85,11 @@ fun AdventureSetupScreen(
         if (savedSessions.isNotEmpty()) {
             Text(stringResource(R.string.setup_continue_title), style = MaterialTheme.typography.headlineMedium)
             savedSessions.forEach { session ->
-                SavedSessionCard(session = session, onContinue = { onContinueSession(session) })
+                SavedSessionCard(
+                    session = session,
+                    onContinue = { onContinueSession(session) },
+                    onDelete = { sessionPendingDelete = session },
+                )
             }
             Spacer(Modifier.height(8.dp))
         }
@@ -79,7 +117,7 @@ fun AdventureSetupScreen(
 }
 
 @Composable
-private fun SavedSessionCard(session: SessionData, onContinue: () -> Unit) {
+private fun SavedSessionCard(session: SessionData, onContinue: () -> Unit, onDelete: () -> Unit) {
     val formattedDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.getDefault())
         .format(Date(session.lastUpdate))
 
@@ -96,8 +134,17 @@ private fun SavedSessionCard(session: SessionData, onContinue: () -> Unit) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            Button(onClick = onContinue, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.setup_continue_session))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = onContinue, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.setup_continue_session))
+                }
+                OutlinedButton(
+                    onClick = onDelete,
+                    modifier = Modifier.weight(1f),
+                    colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) { Text("Elimina") }
             }
         }
     }
