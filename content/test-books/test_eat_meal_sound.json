@@ -2,7 +2,7 @@
     "id": "test-eat-meal-sound",
     "version": "1.0.0",
     "title": "TEST: Suono pasto obbligatorio",
-    "description": "Prova il suono SoundEffect.EAT sul consumo OBBLIGATORIO di un pasto (requireAction EAT_MEAL dichiarato nel JSON, non generato da Gemma). ATTENZIONE in creazione: il picker delle 5 discipline usa SEMPRE il catalogo canonico fisso dell'app (KAI_DISCIPLINES_UI), non questo campo disciplineChoices (qui vuoto solo per pulizia del file, NON impedisce nulla) - se scegli HUNTING, il pasto si auto-soddisfa PRIMA di toccare l'inventario e non sentirai ne' suono ne' cura: NON scegliere HUNTING per questo test. Scena 1: -5 Resistenza voluta (cosi la cura di scena 2 si vede per davvero, niente cap al massimo). Scena 2: 1 Meal in tasca -> si sente EAT, +1 Resistenza, l'oggetto sparisce dallo zaino. Scena 3: nessun Meal rimasto -> NESSUN suono, -3 Resistenza di penalita' (22/07/2026).",
+    "description": "Prova il suono SoundEffect.EAT sul consumo OBBLIGATORIO di un pasto (requireAction EAT_MEAL dichiarato nel JSON, non generato da Gemma). ATTENZIONE in creazione: il picker delle 5 discipline usa SEMPRE il catalogo canonico fisso dell'app (KAI_DISCIPLINES_UI), non questo campo disciplineChoices (qui vuoto solo per pulizia del file, NON impedisce nulla) - se scegli HUNTING, il pasto si auto-soddisfa PRIMA di toccare l'inventario e non sentirai ne' suono ne' cura: NON scegliere HUNTING per questo test. Nessun addItem in scena 1: ogni eroe parte GIA' con 2 Meal di serie (INITIAL_COMMON_ITEMS) - qui bastano quelli, senza aggiungerne altri, per esaurirli in due tappe ed arrivare davvero al ramo senza pasto. Scena 1: -5 Resistenza voluta (cosi la cura si vede per davvero, niente cap al massimo). Scena 2: consuma il 1o Meal -> EAT, +1 Resistenza. Scena 3: consuma il 2o e ultimo Meal -> EAT, +1 Resistenza. Scena 4: zaino vuoto -> NESSUN suono, -3 Resistenza di penalita' (23/07/2026, corretta dopo il primo giro: il vecchio file dava un Meal extra e non arrivava mai a esaurirli).",
     "language": "en",
     "genre": "FANTASY",
     "toneHints": ["calm"],
@@ -12,7 +12,7 @@
             "sceneType": "START",
             "genre": "FANTASY",
             "toneHints": ["calm"],
-            "narrativeText": "You check your pack before setting out. A single wrapped Meal sits at the bottom, enough for one stop on the road ahead. The night before was rough, and you are not at your full strength.",
+            "narrativeText": "You check your pack before setting out: two wrapped Meals, enough for two stops on the road ahead. The night before was rough, and you are not at your full strength.",
             "choices": [
                 {
                     "id": "choice_1_1",
@@ -21,10 +21,6 @@
                 }
             ],
             "gameMechanics": [
-                {
-                    "command": "addItem",
-                    "params": { "itemName": "Meal", "itemType": "BACKPACK_ITEM", "quantity": 1 }
-                },
                 {
                     "command": "applyStatModifier",
                     "params": { "statName": "ENDURANCE", "amount": "-5" }
@@ -55,12 +51,12 @@
             "id": "3",
             "sceneType": "TRANSITION",
             "genre": "FANTASY",
-            "toneHints": ["grim"],
-            "narrativeText": "Evening falls on the ridge, and your stomach reminds you that your pack is empty. There is nothing left to eat.",
+            "toneHints": ["calm"],
+            "narrativeText": "Evening finds you on a high ridge, and hunger returns. This is your last Meal.",
             "choices": [
                 {
                     "id": "choice_3_1",
-                    "choiceText": "Make camp for the night",
+                    "choiceText": "Press on into the night",
                     "nextSceneId": "4"
                 }
             ],
@@ -73,11 +69,31 @@
         },
         {
             "id": "4",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["grim"],
+            "narrativeText": "Deep night on the moor, and your stomach reminds you that your pack is empty. There is nothing left to eat.",
+            "choices": [
+                {
+                    "id": "choice_4_1",
+                    "choiceText": "Make camp for the night",
+                    "nextSceneId": "5"
+                }
+            ],
+            "gameMechanics": [
+                {
+                    "command": "requireAction",
+                    "params": { "action": "EAT_MEAL", "penaltyStat": "ENDURANCE", "penaltyValue": "-3" }
+                }
+            ]
+        },
+        {
+            "id": "5",
             "sceneType": "ENDING",
             "outcome": "NEUTRAL",
             "genre": "FANTASY",
             "toneHints": ["calm"],
-            "narrativeText": "The test ends here. Check your Endurance and inventory against what the two stops on the road should have cost or given you.",
+            "narrativeText": "The test ends here. Check your Endurance and inventory against the three stops on the road: two fed you, the third did not.",
             "choices": []
         }
     ]
