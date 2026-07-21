@@ -1495,6 +1495,32 @@ sul device.**
   Michele, "non vorrei compromettere il testo": la prova non è solo
   velocità/batteria, è anche leggere se la prosa regge.
 
+- **BOTTONE "ATTIVA" per cambiare motore a caldo** (22/07, Michele,
+  subito dopo: "potresti implementare al volo un tasto per rendere
+  attivo uno dei motori che scarico, così posso scaricarne più di uno
+  e provare?"): **bug reale trovato nel farlo** — selezionare un
+  modello nella schermata Modelli (tocco sulla card) cambiava SOLO
+  `ModelPreferences.selectedModelId`, mai il motore davvero caricato.
+  `AppContainer.ensureModelLoaded()` esce subito se
+  `inferenceEngine.isLoaded` è già vero, senza mai controllare se il
+  modello caricato è quello selezionato: cambiare selezione con un
+  modello già in memoria non avrebbe avuto ALCUN effetto fino al
+  riavvio dell'app (processo nuovo, `isLoaded` riparte da falso). Con
+  un solo modello scaricato per volta il bug non si vedeva mai — con
+  più modelli scaricati (esattamente quello che Michele vuole fare)
+  sarebbe sembrato "ho attivato il modello B ma gira ancora l'A".
+  Aggiunto `AppContainer.loadedModelId` (quale modello è DAVVERO nel
+  motore, distinto dalla sola preferenza) e `AppContainer.activateModel()`
+  (chiama `InferenceEngine.load()` col nuovo file — che già fa
+  l'unload del precedente da sé, in `LiteRtLmEngine`) — cambio motore
+  SICURO anche a partita in corso: ogni scena apre una sessione nuova
+  e senza memoria, quindi non c'è contesto da perdere nel cambio. In
+  `ModelsScreen`: bottone "Attiva" su ogni modello scaricato
+  (disabilitato se già attivo o durante l'attivazione), etichetta
+  "In uso ora" sulla card del motore davvero caricato.
+  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+  sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
