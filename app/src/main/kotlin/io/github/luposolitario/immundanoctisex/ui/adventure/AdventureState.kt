@@ -267,9 +267,6 @@ class AdventureState(
                             lastUpdate = now
                             narrative = event.textSoFar
                         }
-                        // Primo pezzo di testo vero: e' il momento giusto per
-                        // il suono in sospeso, non l'istante del tocco.
-                        if (event.textSoFar.isNotBlank()) playPendingMealSoundIfAny()
                     }
                     is NarrationEvent.Completed -> {
                         narrative = event.scene.narrative
@@ -277,9 +274,11 @@ class AdventureState(
                         translatedEnemyName = event.scene.enemyName
                         sceneBackgroundImage = event.scene.backgroundImage
                         isGenerating = false
-                        // Rete di sicurezza: se non c'e' mai stato uno
-                        // Streaming con testo (degradato dritto al finale,
-                        // es. modello assente), il suono parte comunque qui.
+                        // Suono in sospeso (22/07/2026, Michele: partiva
+                        // ancora mentre lo streaming era a metà — "meglio
+                        // che parta dopo che finisce lo streaming del
+                        // testo"): qui il testo tradotto è completo, non al
+                        // primo pezzo che arriva.
                         playPendingMealSoundIfAny()
                         // Auto-lettura (UI.md, Tappa 2): solo qui, a testo
                         // finito — leggere durante lo streaming rincorrerebbe
