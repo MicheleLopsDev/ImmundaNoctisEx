@@ -15,9 +15,9 @@ import java.util.Locale
 // stringa; e c'è un UtteranceProgressListener (v1 non lo aveva — UI.md
 // §Stato del narratore unificato: senza di lui non esiste modo di sapere
 // quando il TTS ha FINITO di parlare, quindi lo stato SPEAKING del
-// narratore non potrebbe mai tornare a IDLE da solo). Il listener è
-// predisposto qui ma i suoi callback restano inerti finché la Tappa 2
-// (integrazione nel flusso scena) non li aggancia allo stato.
+// narratore non potrebbe mai tornare a IDLE da solo). Tappa 2 (22/07/2026,
+// integrazione nel flusso scena) FATTA: AdventureState collega
+// onSpeakingStarted/onSpeakingFinished al proprio isSpeaking.
 class TtsService(
     private val context: Context,
     onReady: () -> Unit,

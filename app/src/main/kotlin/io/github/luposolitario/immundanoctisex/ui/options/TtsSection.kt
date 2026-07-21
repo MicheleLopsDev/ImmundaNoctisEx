@@ -43,9 +43,9 @@ data class TtsUi(
 )
 
 // Preferenze TTS (UI.md schermata 7): auto-lettura, velocità, pitch,
-// voce per genere. Il servizio vero che legge ad alta voce arriva nel
-// flusso della scena (Tappa 2) — qui si configura solo come dovrà
-// suonare quando ci arriverà.
+// voce per genere. Il servizio che legge ad alta voce vive nel flusso
+// della scena (AdventureState/AdventureRoute, Tappa 2 fatta il
+// 22/07/2026) — qui si configura solo come dovrà suonare.
 @Composable
 fun TtsSection(
     ui: TtsUi,

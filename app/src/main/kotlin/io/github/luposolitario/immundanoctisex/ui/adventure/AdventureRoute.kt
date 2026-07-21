@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -20,6 +21,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEndin
 import io.github.luposolitario.immundanoctisex.inference.PromptBuilder
 import io.github.luposolitario.immundanoctisex.inference.PromptFragments
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
+import io.github.luposolitario.immundanoctisex.tts.TtsService
 
 // Raccordo dell'Avventura: carica il pacchetto, costruisce lo stato di
 // gioco dalla sessione (nuova o ripresa dall'auto-save) e monta la scena.
@@ -70,6 +72,14 @@ fun AdventureRoute(
             val modelPresent = remember {
                 container.modelPreferences.isDownloaded(container.modelPreferences.selectedModel)
             }
+            // TTS (Tappa 2, 22/07/2026): connesso una volta sola per tutta
+            // la vita della route, indipendentemente da manifest/tono —
+            // a differenza del narratore non ha bisogno di ricrearsi
+            // quando cambiano le preferenze di narrazione.
+            val ttsService = remember { TtsService(context) {} }
+            DisposableEffect(Unit) {
+                onDispose { ttsService.shutdown() }
+            }
             val state = remember(currentSession) {
                 AdventureState(
                     manifest = manifest,
@@ -79,6 +89,9 @@ fun AdventureRoute(
                     narrator = narrator,
                     scope = scope,
                     expectsNarration = modelPresent,
+                    ttsService = ttsService,
+                    autoReadEnabled = container.ttsPreferences.autoReadEnabled,
+                    userLocale = container.languagePreferences.outputLanguage.locale,
                 )
             }
 
@@ -105,6 +118,8 @@ fun AdventureRoute(
                 onTextScaleChange = { container.fontPreferences.textScale = it },
                 boldText = container.fontPreferences.boldText,
                 statusCardColor = container.statusCardColorPreferences.statusCardColor,
+                autoReadEnabled = container.ttsPreferences.autoReadEnabled,
+                onReadAloud = state::readAloud,
             )
         }
 
