@@ -21,8 +21,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -72,6 +74,10 @@ fun AdventureScreen(
     // semplice parametro, nessun controllo diretto nella scena.
     statusCardColor: io.github.luposolitario.immundanoctisex.util.StatusCardColor =
         io.github.luposolitario.immundanoctisex.util.StatusCardColor.DEFAULT,
+    // TTS (UI.md, Tappa 2): l'icona "leggi" è cliccabile solo se
+    // l'auto-lettura è spenta in Opzioni — accesa, legge già da sé.
+    autoReadEnabled: Boolean = false,
+    onReadAloud: () -> Unit = {},
 ) {
     // Scheda e Diario come overlay dentro la route (stato condiviso;
     // diventeranno destinazioni proprie in Fase 5).
@@ -149,7 +155,9 @@ fun AdventureScreen(
         AdventureBanner(
             heroName = state.hero.name,
             heroGender = state.hero.gender,
-            narratorSpeaking = state.isGenerating,
+            // Stato del narratore unificato (UI.md): il cerchio d'oro resta
+            // acceso sia mentre Gemma scrive sia mentre il TTS legge.
+            narratorSpeaking = state.isGenerating || state.isSpeaking,
             // L'alone pulsa solo finché non c'è nulla da leggere: appena
             // arriva il primo pezzo di testo torna fermo.
             narratorThinking = state.isGenerating && state.narrative.isBlank(),
@@ -165,18 +173,31 @@ fun AdventureScreen(
                 // leggere, solo l'attesa RACCONTATA (UI.md §Flusso).
                 NarratorThinking(loadingModel = state.isLoadingModel)
             } else {
-                Text(
-                    // Il finale fabbricato dal motore nasce senza testo: lo
-                    // scrive il narratore. Se non ha potuto (modello assente
-                    // o generazione fallita) si mette quello fisso, perché
-                    // una schermata vuota non è un finale.
-                    text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontFamily = readingFont,
-                    fontWeight = if (boldText) FontWeight.Bold else FontWeight.Normal,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale.multiplier,
-                    modifier = Modifier.padding(16.dp).verticalScroll(rememberScrollState()),
-                )
+                Column {
+                    // Icona "leggi" (UI.md §Flusso centrale): grigia/
+                    // disattivata se l'auto-lettura è già accesa in
+                    // Opzioni, altrimenti un tocco fa leggere la scena.
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        IconButton(onClick = onReadAloud, enabled = !autoReadEnabled) {
+                            Icon(
+                                imageVector = Icons.Default.VolumeUp,
+                                contentDescription = "Leggi ad alta voce",
+                            )
+                        }
+                    }
+                    Text(
+                        // Il finale fabbricato dal motore nasce senza testo: lo
+                        // scrive il narratore. Se non ha potuto (modello assente
+                        // o generazione fallita) si mette quello fisso, perché
+                        // una schermata vuota non è un finale.
+                        text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = readingFont,
+                        fontWeight = if (boldText) FontWeight.Bold else FontWeight.Normal,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale.multiplier,
+                        modifier = Modifier.padding(horizontal = 16.dp).verticalScroll(rememberScrollState()),
+                    )
+                }
             }
         }
 

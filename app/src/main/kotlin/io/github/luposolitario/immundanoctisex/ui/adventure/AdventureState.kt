@@ -31,9 +31,11 @@ import io.github.luposolitario.immundanoctisex.core.engine.transition.Transition
 import io.github.luposolitario.immundanoctisex.inference.NarrationEvent
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
 import io.github.luposolitario.immundanoctisex.inference.TokenInfo
+import io.github.luposolitario.immundanoctisex.tts.TtsService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 // Stato della schermata Avventura (v0.1 senza Gemma): cabla GameState,
 // TransitionEngine e CombatSession; ogni transizione registra la voce del
@@ -52,6 +54,12 @@ class AdventureState(
     // caricarlo richiede secondi: senza questo si vedrebbe il testo
     // inglese per tutta la durata del caricamento.
     private val expectsNarration: Boolean = false,
+    // TTS opzionale (Tappa 2, 22/07/2026): se manca (motore non pronto)
+    // il gioco resta esattamente come senza — solo testo, nessuna voce,
+    // stesso trattamento già dato al narratore assente.
+    private val ttsService: TtsService? = null,
+    private val autoReadEnabled: Boolean = false,
+    private val userLocale: Locale = Locale.getDefault(),
 ) {
     val gameState = GameState(session)
 
@@ -150,6 +158,25 @@ class AdventureState(
     var isLoadingModel: Boolean by mutableStateOf(expectsNarration)
         private set
 
+    // Terzo valore dello stato del narratore unificato (UI.md: IDLE /
+    // GENERATING / SPEAKING) — il cerchio d'oro nel banner si accende
+    // anche qui, non solo mentre Gemma scrive.
+    var isSpeaking: Boolean by mutableStateOf(false)
+        private set
+
+    init {
+        ttsService?.onSpeakingStarted = { isSpeaking = true }
+        ttsService?.onSpeakingFinished = { isSpeaking = false }
+    }
+
+    // Icona "leggi" manuale (UI.md: attiva solo se l'auto-lettura è
+    // spenta) e trigger dell'auto-lettura stessa. Se il TTS non è pronto
+    // TtsService.speak degrada da sé (log, nessun effetto) — qui non
+    // serve un'altra guardia.
+    fun readAloud() {
+        ttsService?.speak(narrative, hero.gender, userLocale)
+    }
+
     // Testi delle scelte tradotti (id -> testo). Vuoto = si usa
     // l'originale del pacchetto.
     private var translatedChoices: Map<String, String> by mutableStateOf(emptyMap())
@@ -222,6 +249,10 @@ class AdventureState(
                         translatedEnemyName = event.scene.enemyName
                         sceneBackgroundImage = event.scene.backgroundImage
                         isGenerating = false
+                        // Auto-lettura (UI.md, Tappa 2): solo qui, a testo
+                        // finito — leggere durante lo streaming rincorrerebbe
+                        // un testo che cambia sotto la voce.
+                        if (autoReadEnabled) readAloud()
                     }
                 }
             }
@@ -430,6 +461,9 @@ class AdventureState(
     }
 
     private fun moveTo(targetSceneId: String, transition: Transition) {
+        // La voce della scena che si lascia non deve continuare a leggere
+        // sopra quella nuova che sta per generarsi.
+        ttsService?.stop()
         lastChoiceRoll = null // ogni scena nuova riarma il dado (reset di v1)
         // Nel diario finisce il testo che il giocatore HA LETTO (quello
         // arricchito, se c'era): si salva e non si rigenera mai
