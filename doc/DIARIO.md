@@ -1314,43 +1314,23 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
 7. La **grafica** rinviata consapevolmente: il banner è v0.1, manca il
    compagno di viaggio. I PNG da 3-4 MB (`ic_axe`, `ic_map_icon`,
    `ic_gold`) vanno in WebP.
-8. **SEGNALATO da Michele (21/07), non ancora strutturato — "la
-   strutturiamo meglio dopo"**: se manca una location adatta nel
-   catalogo, Gemma potrebbe pescare da un ALTRO catalogo tematico
-   invece di omettere il tag — es. una scena di battaglia senza
-   `loc_*` adatto potrebbe usare `misc_battle_clash`, un incontro con
-   un lupo potrebbe usare `beast_wolves` come sfondo/illustrazione.
-   Da decidere quando arriva il turno: come distinguere "sfondo di
-   scena" da "illustrazione di un evento/creatura" nella UI (sono
-   concettualmente cose diverse, vedi la nota su `misc_battle_clash`
-   sopra), se serve un tag diverso da IMAGE per non confondere i due
-   vocabolari, e se il rischio di scelte bizzarre (un lupo come sfondo
-   di un'intera scena) è accettabile o va limitato a casi precisi.
-9. **SEGNALATO da Michele (21/07), evoluzione del punto 8**: tag
-   DEDICATI — `ENEMY_IMAGE`/`BEAST_IMAGE`/`NPC_IMAGE` o simili — invece
-   di far pescare IMAGE da cataloghi diversi. Risponderebbe proprio
-   alla domanda "serve un tag diverso da IMAGE" lasciata aperta sopra:
-   un vocabolario per catalogo, ognuno scelto solo quando pertinente
-   (npc/nemico/bestia presente in scena), niente confusione tra
-   "sfondo del luogo" e "chi/cosa c'è nella scena". Dubbio esplicito
-   di Michele, non mio: "dobbiamo vedere se Gemma supporta una
-   maggiore complessità" — ogni tag nuovo è un altro dizionario nel
-   prompt (il solo IMAGE costa ~168 token), e il giorno prima Gemma ha
-   già dovuto imparare a "decidere sempre" per un vocabolario solo.
-   Prima di aggiungerne altri tre tutti insieme, va capito se regge.
-10. **SEGNALATO da Michele (22/07), stessa famiglia dei punti 8-9,
-    esplicitamente RINVIATO da lui — "lo farei dopo"**: un tag tipo
-    `EAT_MEAL` scritto da Gemma nel testo quando la NARRAZIONE fa
-    mangiare il personaggio (non il `requireAction EAT_MEAL` del
-    libro, un evento diverso — l'idea è farlo scattare quando è la
-    STORIA a raccontare che si mangia, non il libro a richiederlo
-    meccanicamente), intercettato dal motore per far partire il suono
-    "mangiare" (`SoundEffect.EAT`, 22/07/2026) in sincrono con la
-    narrazione. Stesso pattern esatto dei punti 8-9 (Gemma scrive un
-    tag quando riconosce un evento, il motore lo intercetta e reagisce)
-    — Michele li accosta lui stesso: quando si affronta uno, ha senso
-    rivedere anche gli altri insieme (stesso dubbio sul carico di
-    vocabolari nel prompt). Nessun codice scritto, solo l'idea segnata.
+8. ~~Fallback tematico quando manca una location adatta (Gemma pesca
+   da un altro catalogo, es. `misc_battle_clash`/`beast_wolves` come
+   sfondo)~~ — **SCARTATO 22/07**, vedi punto 9.
+9. ~~Tag DEDICATI `ENEMY_IMAGE`/`BEAST_IMAGE`/`NPC_IMAGE`~~ —
+   **SCARTATO 22/07** (Michele, dopo essersi chiesto se servisse anche
+   un TagParser dedicato per gestirli — risposta: no, sarebbe bastato
+   estendere `ResponseParser` esistente: "quello non si fa, Gemma non
+   è adatta a creare una logica così complessa, almeno la versione
+   4B"). Non un "forse dopo": una decisione presa, motivata dal
+   modello in uso oggi — se in futuro si cambia modello (i test con
+   quelli alternativi sono già in corso, vedi 22/07 mattina) la
+   domanda potrebbe riaprirsi, ma non è schedulata.
+10. ~~`EAT_MEAL` scritto da Gemma nella narrazione per sincronizzare il
+    suono del mangiare~~ — **SCARTATO 22/07**, stessa motivazione del
+    punto 9: è la stessa famiglia (un tag in più = un altro
+    vocabolario nel prompt), e Michele l'ha chiusa insieme agli altri
+    due, non separatamente.
 
 Per ora: **suoni legati SOLO ad azioni MANUALI** (Michele 22/07/2026:
 "evitiamo in quel caso [il consumo obbligatorio], per adesso i suoni
