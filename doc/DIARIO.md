@@ -968,12 +968,166 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   implementare finché Michele non lo richiede: per ora tiene un solo
   modello scaricato per volta, il flusso attuale gli basta.
 
+- **RITRATTO DEL NEMICO IN COMBATTIMENTO** (22/07, punto 2 della lista
+  aperta — "agganciare le 52 immagini"): verificato che le sole
+  LOCATION (24 `loc_*`) erano già agganciate (`SceneImageCatalog`, tag
+  `IMAGE`, banner scena, esperimento del 21/07) — mancavano le altre 28
+  (`enemy_*`, `beast_*`, `npc_*`, `hero_*`, `misc_*`), quelle "di chi/
+  cosa c'è in scena" già discusse e rimandate. Due decisioni prese con
+  Michele prima di scrivere codice:
+  - **L'ID lo dichiara l'autore nel JSON**, non un tag Gemma: stesso
+    pattern di `backgroundImage`, zero costo nel prompt. Risponde da
+    solo al dubbio già sollevato ("Gemma regge con più vocabolari?") —
+    con questo approccio non si pone nemmeno.
+  - **Il ritratto va accanto al nome nemico** in `CombatEntryZone`
+    (`CombatZone.kt`), il posto dove oggi c'era solo testo.
+  Fatto: `Combat.enemyImage: String?` (nuovo campo, null = nessun
+  ritratto, comportamento invariato), `EnemyImageCatalog` (14 ID:
+  `enemy_*`+`beast_*`, verificato — sono avversari di combattimento
+  indipendentemente dal nome proprio o meno) con test, `enemyImageRes()`
+  in `ui/adventure/EnemyImages.kt`, ritratto circolare 48dp mostrato in
+  `CombatEntryZone` quando dichiarato.
+  **Aggancio NPC completato subito dopo** (stesso giorno, Michele:
+  "npc o beast se sono amichevoli vanno sotto il testo nella parte di
+  storia"): `Scene.npcImage` si mostra ora sotto la card del testo
+  narrato in `AdventureScreen.kt`, prima della `StatusCard` — un
+  incontro pacifico nella narrazione, non un avversario (quello resta
+  in `CombatEntryZone`). `NpcImageCatalog` è salito a 20 ID: alle 14 di
+  npc/hero/misc si sono aggiunte le 6 `beast_*`, PRESENTI ANCHE in
+  `EnemyImageCatalog` — la stessa immagine (un lupo, un cavallo) può
+  essere un nemico in una scena e un incontro pacifico in un'altra: è
+  l'autore a scegliere il campo giusto (`Combat.enemyImage` se ostile,
+  `Scene.npcImage` se no), non l'immagine a deciderlo da sola.
+  Compilazione e suite riverificate verdi su `:core:data`, `:core:engine`,
+  `:app`. **Mai visto girare sul device.**
+
+  **BUG SUL DEVICE: le immagini non si vedono** (22/07, Michele con
+  screenshot + log): provato con `test_image_enemy_npc.json`, scena 1
+  (stallion, `npcImage`) — il banner mostra la location scelta da Gemma
+  (`loc_forest_prey`, corretto, comportamento preesistente), ma nessuna
+  immagine tra il testo e la `StatusCard`. Verificata l'intera catena
+  riga per riga senza trovare il difetto: deserializzazione JSON (test
+  JVM diretto, conferma `npcImage=beast_stallion` letto bene),
+  `PackageRepository`/`PackageValidator` (non trasformano il manifest),
+  `sceneById` (legge diretto da `manifest.scenes`), posizione del
+  codice in `AdventureScreen.kt` (corretta, tra la card di testo e
+  `StatusCard`), `NpcImageCatalog`/`npcImageRes` (mapping presente e
+  corretto per `beast_stallion`). **Nessuna eccezione nel log.**
+  Aggiunto un `Log.d("AdventureState", ...)` DIAGNOSTICO TEMPORANEO in
+  `AdventureState.kt` (`logSceneImages`, chiamato a ogni cambio scena
+  e all'avvio) che stampa `npcImage`/`combat.enemyImage` della scena
+  corrente: il prossimo log dirà con certezza se il dato arriva null
+  (bug a monte, nei dati — es. file vecchio caricato sul device) o
+  arriva valorizzato (bug nel rendering Compose, non ancora trovato).
+  Da togliere una volta chiarita la causa. Compilazione e suite
+  riverificate verdi.
+
+  **CAUSA REALE: build non aggiornata, non un bug** — Michele aveva
+  ricopiato l'ultimo JSON ma non aveva installato l'ultima build con
+  tutto il codice del giorno; ricompilando per il log diagnostico ha
+  installato la build giusta, e le immagini sono comparse subito.
+  Confermato su device: cavallo (scena 1) e viandante (scena 2)
+  mostrati sotto il testo, entrambi giudicati "molto belli". Rimosso
+  il log diagnostico (`logSceneImages`), non serviva più.
+
+  **RIFINITURA IMMEDIATA** (stesso test, Michele: "nel combat non mi
+  piace molto perché l'immagine è troppo piccola e si perde il senso"):
+  il ritratto tondo 48dp accanto al nome nemico in `CombatEntryZone`
+  non reggeva il confronto con l'illustrazione grande di `npcImage`.
+  Uniformato allo stesso trattamento: illustrazione a piena larghezza,
+  100dp, angoli arrotondati, sopra il nome invece che di fianco in
+  miniatura. Compilazione e suite riverificate verdi.
+
+  **Altezza ritoccata due volte di seguito** (stesso giorno, Michele
+  soddisfatto del risultato: "sono molto belle, un 10% in più" e poi
+  "un altro 10% e ci siamo"): 100dp -> 110dp -> 120dp, stessa misura
+  per `npcImage` (`AdventureScreen.kt`) ed `enemyImage`
+  (`CombatEntryZone`). Compilazione riverificata verde a ogni passo.
+
+  **Il ritratto nemico spariva a combattimento iniziato** (stesso
+  giorno, Michele: "quando combatte puoi lasciare sotto l'immagine del
+  nemico?"): lo mostrava solo `CombatEntryZone` (prima di scegliere
+  Rapido/Completo) — appena partiva lo scontro, `CombatActiveZone`
+  prendeva il suo posto e l'immagine spariva. Estratta in un
+  `EnemyPortrait` condiviso, ora resta visibile per tutta la durata
+  dello scontro, in cima al Diario di Combattimento. Compilazione e
+  suite riverificate verdi.
+
+- **MUSICA DI SOTTOFONDO, SOLO CONFIGURAZIONE** (22/07, richiesta di
+  Michele — "ho creato delle musiche mp3, mettiamo in preference la
+  selezione del mp3 e il volume?"): promemoria dato PRIMA di
+  implementare — il 20/07 la musica era stata rinviata apposta, in
+  attesa delle misure di batteria/termico con Gemma attivo (non ancora
+  fatte, `UPGRADE.md §1`), perché il dubbio era il carico COMBINATO
+  GPU+audio continuo. La richiesta di oggi è scoped alla sola
+  configurazione (selezione file + volume), a costo zero — nessuna
+  riproduzione parte davvero. Stesso trattamento già dato al TTS prima
+  della Tappa 2: si predispone, si collega dopo.
+  - `MusicPreferences` (nuova, `util/`): `musicEnabled`,
+    `selectedTrackUri` (Uri content:// persistito con
+    `takePersistableUriPermission`, NON copiato in storage — a
+    differenza dei modelli LiteRT-LM, `MediaPlayer` legge un Uri
+    direttamente, non serve un `File` vero), `selectedTrackName` (per
+    l'etichetta in UI, l'Uri non è leggibile), `volume` (default 0.5).
+  - `MusicSection.kt` (nuova, `ui/options/`): stesso stampo di
+    `TtsSection` — switch attiva/spegni, pulsante "Scegli file MP3"
+    (selettore di sistema, `ActivityResultContracts.OpenDocument`,
+    filtro `audio/*`), slider volume con commit al rilascio.
+  - Wiring in `OptionsRoute`/`OptionsScreen`/`AppContainer`.
+  Compilazione e suite riverificate verdi. **Riproduzione vera NON
+  collegata**: nessun `MediaPlayer` istanziato, nessun audio parte
+  durante la partita — resta un passo separato, da riconsiderare
+  insieme al TTS (Tappa 2) quando le misure di batteria arriveranno o
+  Michele deciderà di procedere comunque. **Mai vista girare sul
+  device.**
+
+  **Traccia di default e volume corretti, stesso giorno** (Michele:
+  "gli mp3 li trovi qui, puoi selezionare una di queste, ovviamente
+  vanno in loop, per default il volume è molto basso al 15%"): le 4
+  tracce composte da Michele (`origina_res/`, temi combattimento/
+  esplorazione/mercato/romantico) copiate in `assets/music/` — restano
+  tutte disponibili, non solo quella scelta. Selezionata "esplorazione"
+  come default: è il momento più frequente di gioco, l'unico sottofondo
+  che deve reggere ovunque senza essere legato a un contesto specifico.
+  `MusicPreferences.effectiveTrackName` mostra quella inclusa finché
+  l'utente non ne sceglie una sua da file; `DEFAULT_VOLUME` sceso da
+  0.5 a 0.15. **Il loop non è un'opzione**: è già annotato nel codice
+  come requisito per quando arriverà il `MediaPlayer` vero
+  (`isLooping = true`), non c'è nulla da configurare oggi. Compilazione
+  e suite riverificate verdi.
+
+- **SALVATAGGIO VECCHIO NON CANCELLATO AL SIDE-LOAD** (22/07, Michele:
+  "se carico un file json delle scene cancella il salvataggio corrente
+  se c'è, non ha senso"): `SetupRoute` filtra i salvataggi per
+  `packageId`, non per contenuto — se si ricarica (side-load) un file
+  con lo stesso `id` di un giro precedente (tipico nei test: si
+  modifica il JSON, si ricarica, l'`id` resta uguale), il salvataggio
+  vecchio sopravvive e viene offerto come "Continua", su scene che nel
+  file appena caricato possono essere cambiate o non esistere più.
+  Stesso `SessionStore.deleteAdventure` già usato da
+  `CreationRoute.onCreate` per "nuova avventura", chiamato ora anche in
+  `HomeRoute.pickBook` subito dopo un caricamento riuscito. Compilazione
+  e suite riverificate verdi.
+
+  **Serviva comunque un modo esplicito** (stesso giorno, Michele:
+  "così avevo la possibilità di cancellare la sessione, adesso come
+  cancello la sessione, mi ci vuole un tasto?"): prima del fix sopra,
+  il side-load era un modo INDIRETTO di liberarsi di un salvataggio —
+  tolto quello, non restava più nessun modo di eliminarne uno a
+  piacere (es. per ricominciare la stessa avventura da capo senza
+  toccare il file). Aggiunto un pulsante "Elimina" esplicito su ogni
+  `SavedSessionCard` (`AdventureSetupScreen.kt`), con conferma
+  (`AlertDialog`, azione irreversibile — stesso trattamento già dato
+  all'uscita dalla scena) prima di cancellare per davvero. Compilazione
+  e suite riverificate verdi. **Mai vista girare sul device.**
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
-2. **Agganciare le 52 immagini** del catalogo alle scene
-   (`Scene.backgroundImage`) e ai personaggi: oggi sono nell'APK ma
-   nessun codice le usa.
+2. ~~Agganciare le 52 immagini del catalogo alle scene~~ — FATTO 22/07:
+   location (24) nel banner, nemico (14) in `CombatEntryZone`, NPC/
+   incontri pacifici (20, comprese le `beast_*` condivise col nemico)
+   sotto il testo narrato.
 3. **Inventario**: pasti (`Meal`) non hanno `effect`, `consumeItem`
    esce in silenzio — serve decidere cosa devono fare. ~~Scartare
    oggetti non esiste~~ — FATTO 21/07, tocco lungo con conferma.
