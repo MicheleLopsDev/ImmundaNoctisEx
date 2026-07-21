@@ -1293,14 +1293,25 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   partire `EAT` per il Pasto e `DRINK` per tutto il resto con effetto
   HEAL (pozioni) — distinzione per nome (`MealRules.ITEM_NAME`), non
   per un campo dedicato sull'oggetto.
-  **NON collegato**: il consumo OBBLIGATORIO del pasto (`requireAction
-  EAT_MEAL`, `StatMechanics` in `:core:engine`) non ha nessun suono —
-  quel modulo non ha dipendenze Android per vincolo di progetto, quindi
-  non può usare `SoundEffectPlayer` direttamente, e comunque lì non
-  c'è un tocco esplicito a cui agganciare il suono (scatta da solo
-  entrando in scena). Da valutare se serve comunque, con un canale
-  diverso (es. un evento che `AdventureState` intercetta dopo
-  `moveTo`).
+  **Poi collegato anche il consumo OBBLIGATORIO** (22/07, stesso
+  giorno, Michele dopo aver scartato l'idea del tag generato da Gemma:
+  "però EAT_MEAL lo possiamo mettere nel JSON" — cioè: `requireAction
+  action="EAT_MEAL"` è già scritto dall'autore nel libro, non generato
+  a runtime, quindi il fatto "si è mangiato" è affidabile senza
+  bisogno di istruire Gemma). `:core:engine` resta senza dipendenze
+  Android (vincolo di progetto): non riproduce il suono lui, ma
+  restituisce un fatto booleano che risale fino a `:app` dove vive
+  `SoundEffectPlayer`. Percorso: `StatMechanics.requireAction` ora
+  ritorna `Boolean` (pasto consumato per davvero, non la sola penalità)
+  -> `MechanicsOutcome.mealEaten` (accumulato su tutti i gameMechanics
+  della scena) -> `TransitionResult.mealEaten` (accumulato su TUTTI gli
+  hop di un salto d'ufficio a catena, non solo l'ultimo) ->
+  `AdventureState.moveTo` fa partire `SoundEffect.EAT` se il fatto è
+  vero. Stesso principio di sempre (REGOLE.md: si serializzano i
+  fatti, non si ricalcola nulla a valle). Tre nuovi test JVM
+  (`MechanicsExecutorTest`) blindano i tre casi: pasto consumato,
+  nessun pasto disponibile, HUNTING (che non consuma un pasto vero e
+  quindi non deve far partire il suono).
   Compilazione e suite riverificate verdi. **Mai vista/sentita girare
   sul device.**
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
@@ -1332,12 +1343,14 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
     vocabolario nel prompt), e Michele l'ha chiusa insieme agli altri
     due, non separatamente.
 
-Per ora: **suoni legati SOLO ad azioni MANUALI** (Michele 22/07/2026:
-"evitiamo in quel caso [il consumo obbligatorio], per adesso i suoni
-li leghiamo ad azioni manuali") — `EAT`/`DRINK` restano collegati al
-tocco sullo zaino (`AdventureState.consumeItem`), non al
-`requireAction EAT_MEAL` automatico. Decisione esplicita, non un
-limite tecnico dimenticato.
+**Aggiornamento 22/07, stesso giorno**: la regola "solo azioni MANUALI"
+sopra riguardava SOLO l'idea del tag generato da Gemma (punto 10,
+scartata). Il consumo obbligatorio del pasto resta un caso a parte
+perché è dichiarato dall'autore nel JSON, non generato dal modello —
+vedi il paragrafo "Poi collegato anche il consumo OBBLIGATORIO" più
+sopra: ora fa suono anche lui, con un canale diverso (il fatto
+`mealEaten` che risale da `:core:engine`), non con un tag testuale da
+riconoscere nell'output di Gemma.
 
 **Misure ancora mancanti**: il **termico** su 30-45' (il log più lungo
 copre ora ~12', vedi sotto) e il **drain della batteria** (osservazione
