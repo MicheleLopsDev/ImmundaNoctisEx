@@ -11,6 +11,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.dice.RandomDiceRoller
 import io.github.luposolitario.immundanoctisex.inference.InferenceEngine
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
+import io.github.luposolitario.immundanoctisex.model.DownloadableModel
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import io.github.luposolitario.immundanoctisex.music.MusicPlayer
 import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
@@ -65,6 +66,13 @@ class AppContainer(context: Context) {
     // modello costa GB e secondi di caricamento, si carica una volta.
     val inferenceEngine: InferenceEngine = LiteRtLmEngine(context)
 
+    // Quale modello e' DAVVERO caricato nel motore in questo momento —
+    // diverso da modelPreferences.selectedModelId, che e' solo la scelta
+    // salvata (STATO.md: si serializzano i fatti). Serve alla schermata
+    // Modelli per sapere quale card e' "in uso ora" davvero.
+    var loadedModelId: String? = null
+        private set
+
     // Carica il modello selezionato se è già sul telefono. Restituisce
     // false senza rumore se non c'è: il gioco parte comunque, col testo
     // originale del pacchetto.
@@ -75,7 +83,22 @@ class AppContainer(context: Context) {
         return inferenceEngine
             .load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
             .isSuccess
+            .also { if (it) loadedModelId = model.id }
     }
+
+    // Cambio motore a caldo (Michele 22/07/2026: "un tasto per rendere
+    // attivo uno dei motori che scarico, così posso scaricarne più di
+    // uno e provare"): load() fa già l'unload del precedente da sé
+    // (LiteRtLmEngine), quindi si può cambiare modello anche a partita
+    // in corso — ogni scena apre comunque una sessione nuova, senza
+    // memoria, quindi non c'è contesto da perdere nel cambio.
+    suspend fun activateModel(model: DownloadableModel): Result<Unit> =
+        inferenceEngine
+            .load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
+            .onSuccess {
+                modelPreferences.selectedModelId = model.id
+                loadedModelId = model.id
+            }
 
     val sessionStore: SessionStore =
         FileSessionStore(File(context.filesDir, "saves"))

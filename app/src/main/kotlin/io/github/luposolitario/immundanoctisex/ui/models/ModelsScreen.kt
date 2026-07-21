@@ -58,6 +58,14 @@ fun ModelsScreen(
     storageInfo: String?,
     advancedSettings: AdvancedSettingsUi,
     onSelectModel: (DownloadableModel) -> Unit,
+    // Quale modello e' DAVVERO in uso nel motore ora (Michele 22/07/2026:
+    // "un tasto per rendere attivo uno dei motori che scarico"), distinto
+    // dalla sola selezione salvata: puo' scaricarne piu' di uno e passare
+    // dall'uno all'altro con un tocco, anche a partita in corso.
+    activeModelId: String?,
+    isActivating: Boolean,
+    activateError: String?,
+    onActivate: (DownloadableModel) -> Unit,
     onTokenChange: (String) -> Unit,
     onDownload: (DownloadableModel) -> Unit,
     onCancel: () -> Unit,
@@ -88,14 +96,21 @@ fun ModelsScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
+        activateError?.let {
+            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+
         Text("Consigliati", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
         models.forEach { model ->
             ModelCard(
                 model = model,
                 selected = model.id == selectedModelId,
+                active = model.id == activeModelId,
                 downloaded = model.id in downloadedIds,
+                isActivating = isActivating,
                 downloadState = downloadState.takeIf { model.id == selectedModelId } ?: DownloadUiState.Idle,
                 onSelect = { onSelectModel(model) },
+                onActivate = { onActivate(model) },
                 onDownload = { onDownload(model) },
                 onCancel = onCancel,
                 onDelete = { onDelete(model) },
@@ -109,9 +124,12 @@ fun ModelsScreen(
                 ModelCard(
                     model = model,
                     selected = model.id == selectedModelId,
+                    active = model.id == activeModelId,
                     downloaded = model.id in downloadedIds,
+                    isActivating = isActivating,
                     downloadState = downloadState.takeIf { model.id == selectedModelId } ?: DownloadUiState.Idle,
                     onSelect = { onSelectModel(model) },
+                    onActivate = { onActivate(model) },
                     onDownload = { onDownload(model) },
                     onCancel = onCancel,
                     onDelete = { onDelete(model) },
@@ -158,9 +176,12 @@ fun ModelsScreen(
 private fun ModelCard(
     model: DownloadableModel,
     selected: Boolean,
+    active: Boolean,
     downloaded: Boolean,
+    isActivating: Boolean,
     downloadState: DownloadUiState,
     onSelect: () -> Unit,
+    onActivate: () -> Unit,
     onDownload: () -> Unit,
     onCancel: () -> Unit,
     onDelete: () -> Unit,
@@ -189,6 +210,14 @@ private fun ModelCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (active) {
+                Text(
+                    "In uso ora",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
 
             when (downloadState) {
                 is DownloadUiState.Running -> {
@@ -219,12 +248,18 @@ private fun ModelCard(
                     if (!downloaded) {
                         Button(onClick = onDownload) { Text("Scarica") }
                     } else {
-                        OutlinedButton(onClick = onDelete) { Text("Elimina") }
+                        // Cambia il motore a caldo (Michele 22/07/2026):
+                        // scaricati più modelli, si passa dall'uno
+                        // all'altro con un tocco, anche a partita in corso.
+                        Button(onClick = onActivate, enabled = !active && !isActivating) {
+                            Text(if (isActivating) "Attivazione…" else "Attiva")
+                        }
+                        OutlinedButton(onClick = onDelete, enabled = !isActivating) { Text("Elimina") }
                     }
                     // Solo i modelli aggiunti da un link: i "Consigliati"
                     // restano sempre nella lista.
                     if (onRemove != null) {
-                        TextButton(onClick = onRemove) { Text("Rimuovi dalla lista") }
+                        TextButton(onClick = onRemove, enabled = !isActivating) { Text("Rimuovi dalla lista") }
                     }
                 }
             }
@@ -343,6 +378,10 @@ private fun ModelsScreenPreview() {
                 topP = 0.9f,
             ),
             onSelectModel = {},
+            activeModelId = null,
+            isActivating = false,
+            activateError = null,
+            onActivate = {},
             onTokenChange = {},
             onDownload = {},
             onCancel = {},
