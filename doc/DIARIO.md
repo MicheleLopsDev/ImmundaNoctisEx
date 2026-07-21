@@ -1467,11 +1467,23 @@ sul device.**
   una partita e l'altra (pattern già noto, coerente col leak da
   ~140MB/partita rimandato consapevolmente — nessuna novità).
   Compilazione e suite riverificate verdi. **CONFERMATO sul device.**
-  **Decisione aperta per Michele**: CRITICITA.md C3 aveva già in mente
-  due mitigazioni per quando l'allarme fosse scattato — "taglia modello
-  inferiore" o "pausa termica" — nessuna delle due è stata implementata
-  ancora, in attesa di una decisione esplicita (non schedulata di
-  default).
+
+  **DECISIONE DI MICHELE (22/07, stesso giorno)**: allarme
+  ACCETTATO così com'è, non è un blocco. "È un GDR cartaceo, la
+  velocità non è un problema purché non vada in freeze — e per adesso
+  non ne ho avute. Avendo poi tutto abilitato, dal TTS alla musica, un
+  compromesso è accettabile." Nessuna mitigazione da implementare ora
+  (né taglio del modello né pausa termica): il turno per turno di un
+  librogioco tollera 7-19 token/s meglio di un'app in tempo reale, e
+  finché non si arriva a un freeze vero non c'è azione da prendere.
+  **Aperta però un'esplorazione, non una scelta già presa**: "potremmo
+  provare con un modello più piccolo ma la narrativa è buona, non
+  vorrei compromettere il testo — si potrebbero provare più scelte"
+  — cioè confrontare alternative più leggere SENZA sacrificare la
+  qualità della prosa, non sostituire Gemma 3 4B a prescindere. Non
+  schedulata: si riprende quando Michele vuole confrontare modelli
+  candidati (i test con alternative erano già in corso dal mattino del
+  22/07, vedi sopra).
 
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
