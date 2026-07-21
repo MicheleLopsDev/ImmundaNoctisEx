@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.core.engine.mechanics
 import io.github.luposolitario.immundanoctisex.core.data.model.StatModifier
 import io.github.luposolitario.immundanoctisex.core.data.model.StatType
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
+import io.github.luposolitario.immundanoctisex.core.engine.inventory.MealRules
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
@@ -14,8 +15,6 @@ import kotlinx.serialization.json.JsonObject
 // (danno/cura sono fatti), le variazioni di COMBAT_SKILL diventano
 // StatModifier narrativi che la funzione di stat effettive somma.
 internal object StatMechanics {
-
-    const val MEAL_ITEM_NAME = "Meal"
 
     // ID canonici delle statistiche nei dati (CLAUDE.md): niente alias.
     private const val STAT_ENDURANCE = "ENDURANCE"
@@ -60,11 +59,11 @@ internal object StatMechanics {
         if (params.stringParam("action") != "EAT_MEAL") return
         val hero = state.hero
         if (hero.kaiDisciplines.contains("HUNTING")) return
-        if (Inventory.countOf(hero, MEAL_ITEM_NAME) > 0) {
+        if (Inventory.countOf(hero, MealRules.ITEM_NAME) > 0) {
             state.updateHero { h ->
-                val afterMeal = Inventory.removeItem(h, MEAL_ITEM_NAME, 1)
+                val afterMeal = Inventory.removeItem(h, MealRules.ITEM_NAME, 1)
                 val cap = effectiveMaxEndurance(afterMeal)
-                afterMeal.copy(currentEndurance = (afterMeal.currentEndurance + 1).coerceIn(0, cap))
+                afterMeal.copy(currentEndurance = (afterMeal.currentEndurance + MealRules.HEAL_AMOUNT).coerceIn(0, cap))
             }
             return
         }

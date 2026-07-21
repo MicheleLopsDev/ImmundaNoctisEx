@@ -108,7 +108,10 @@ private fun CenterColumn(state: AdventureState, session: CombatSession) {
             // stato al TOCCO invece che a fine animazione, RES e CS
             // cambierebbero mentre il dado sta ancora girando. TenSidedDie
             // chiama onRoll solo a fine giro apposta per questo.
-            TenSidedDie(onRoll = { state.combatFightRound()?.roll })
+            TenSidedDie(
+                onRoll = { state.combatFightRound()?.roll },
+                onTap = { state.playDiceRollSound() },
+            )
         }
     }
 }

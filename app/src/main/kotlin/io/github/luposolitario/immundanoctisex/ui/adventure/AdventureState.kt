@@ -25,12 +25,14 @@ import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.ItemOffers
+import io.github.luposolitario.immundanoctisex.core.engine.inventory.MealRules
 import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
 import io.github.luposolitario.immundanoctisex.core.engine.transition.TransitionEngine
 import io.github.luposolitario.immundanoctisex.inference.NarrationEvent
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
 import io.github.luposolitario.immundanoctisex.inference.TokenInfo
+import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
 import io.github.luposolitario.immundanoctisex.tts.TtsService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -60,6 +62,10 @@ class AdventureState(
     private val ttsService: TtsService? = null,
     private val autoReadEnabled: Boolean = false,
     private val userLocale: Locale = Locale.getDefault(),
+    // Effetto sonoro del tiro (22/07/2026, richiesta Michele): opzionale
+    // come narratore e TTS, stesso trattamento — se manca, il gioco resta
+    // silenzioso invece di rompersi.
+    private val soundEffectPlayer: SoundEffectPlayer? = null,
 ) {
     val gameState = GameState(session)
 
@@ -175,6 +181,12 @@ class AdventureState(
     // serve un'altra guardia.
     fun readAloud() {
         ttsService?.speak(narrative, hero.gender, userLocale)
+    }
+
+    // Il tocco sul dado del destino in combattimento (Michele 22/07/2026:
+    // "quando premi il dado si sente questo suono").
+    fun playDiceRollSound() {
+        soundEffectPlayer?.playDiceRoll()
     }
 
     // Testi delle scelte tradotti (id -> testo). Vuoto = si usa
@@ -445,13 +457,20 @@ class AdventureState(
         autoSave()
     }
 
-    // Consuma un oggetto con effetto dichiarato (v0.1: solo HEAL:n).
+    // Consuma un oggetto con effetto dichiarato (v0.1: solo HEAL:n). Un
+    // Pasto senza `effect` esplicito cura comunque MealRules.HEAL_AMOUNT
+    // (Michele 22/07/2026: "anche fuori puoi consumarli con questo
+    // effetto" — stesso valore del consumo obbligatorio in requireAction,
+    // così il giocatore può mangiare a piacere dalla scheda, non solo
+    // quando il libro lo richiede).
     fun consumeItem(itemName: String) {
         val item = gameState.hero.inventory.firstOrNull {
             it.name.equals(itemName, ignoreCase = true) && it.quantity > 0
         } ?: return
         val heal = item.effect?.takeIf { it.startsWith("HEAL:") }
-            ?.substringAfter("HEAL:")?.toIntOrNull() ?: return
+            ?.substringAfter("HEAL:")?.toIntOrNull()
+            ?: MealRules.HEAL_AMOUNT.takeIf { item.name.equals(MealRules.ITEM_NAME, ignoreCase = true) }
+            ?: return
         gameState.updateHero { hero ->
             Inventory.removeItem(hero, item.name, 1).let {
                 it.copy(currentEndurance = (it.currentEndurance + heal).coerceIn(0, it.maxEndurance))
