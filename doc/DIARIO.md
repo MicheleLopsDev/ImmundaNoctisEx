@@ -1244,22 +1244,48 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
    location (24) nel banner, nemico (14) in `CombatEntryZone`, NPC/
    incontri pacifici (20, comprese le `beast_*` condivise col nemico)
    sotto il testo narrato.
-3. **Inventario**: pasti (`Meal`) non hanno `effect`, `consumeItem`
-   esce in silenzio — serve decidere cosa devono fare. ~~Scartare
-   oggetti non esiste~~ — FATTO 21/07, tocco lungo con conferma.
-   ~~Il pasto OBBLIGATORIO (requireAction EAT_MEAL) non curava~~ —
-   FATTO 22/07 (Michele: "se i pasti oltre ad essere obbligatori fanno
-   guadagnare 1 heal direi che abbiamo mantenuto il bilanciamento cosi
-   che se ne trovo troppe almeno mi curo"): mangiare un Pasto quando
-   disponibile ora cura +1 Resistenza oltre a evitare la penalita
-   (`StatMechanics.requireAction`, capped a `effectiveMaxEndurance`).
-   HUNTING non consuma un pasto vero (auto-soddisfa a costo zero) e
-   percio' non guadagna la cura — verificato con test dedicato.
-   **RESTA APERTO**: i pasti non hanno ancora un `effect` proprio, quindi
-   `consumeItem` (il consumo MANUALE dalla scheda, fuori da un
-   requireAction del libro) continua a uscire in silenzio per un Meal —
-   la richiesta di oggi copriva solo il consumo obbligatorio, non se il
-   giocatore debba poter mangiare a piacere dalla scheda.
+3. ~~Inventario: pasti senza effetto~~ — FATTO 22/07 (in due passi).
+   ~~Scartare oggetti non esiste~~ — FATTO 21/07, tocco lungo con
+   conferma. ~~Il pasto OBBLIGATORIO (requireAction EAT_MEAL) non
+   curava~~ — FATTO 22/07 (Michele: "se i pasti oltre ad essere
+   obbligatori fanno guadagnare 1 heal direi che abbiamo mantenuto il
+   bilanciamento cosi che se ne trovo troppe almeno mi curo"): mangiare
+   un Pasto quando disponibile ora cura +1 Resistenza oltre a evitare
+   la penalita, capped a `effectiveMaxEndurance`. HUNTING non consuma
+   un pasto vero (auto-soddisfa a costo zero) e percio' non guadagna la
+   cura — verificato con test dedicato.
+   ~~Il consumo MANUALE dalla scheda restava in silenzio per un Meal~~
+   — FATTO 22/07, stesso turno (Michele: "si anche fuori puoi
+   consumarli con questo effetto"): nuovo `MealRules`
+   (`core/engine/inventory`, pubblico apposta) con nome canonico "Meal"
+   e quantita di cura, condiviso tra `StatMechanics.requireAction` (il
+   consumo obbligatorio, gia' esistente) e `AdventureState.consumeItem`
+   in `:app` (il tocco sullo zaino, che gia' chiamava sempre
+   `onConsumeItem` per qualunque oggetto — non serviva toccare la UI,
+   solo la logica che decide se succede qualcosa). Un solo posto da
+   cambiare se in futuro cambia quanto cura un pasto.
+
+- **SUONO AL TIRO DEL DADO** (22/07, stesso messaggio di Michele:
+  "ho aggiunto dragon-studio-sword-clashhit-393837.mp3, vorrei che
+  quando premi il dado del destino nel combat si sente questo suono"):
+  nuovo `SoundEffectPlayer` (`app/.../sfx/`, `SoundPool` non
+  `MediaPlayer` — un colpo secco deve partire SUBITO al tocco, non
+  dopo la latenza di preparazione di un player pensato per file lunghi
+  in loop, quello resta a `MusicPlayer`). Volume legato al generale
+  (`AudioPreferences`), stesso principio gia' in uso per TTS e musica.
+  File copiato in `assets/sfx/dice_roll.mp3`. `TenSidedDie` ha un nuovo
+  `onTap` chiamato al tocco (prima dell'animazione di rotazione, non a
+  fine giro): il suono deve accompagnare il gesto di lanciare, non il
+  risultato. Componente gia' pensato per essere riusato altrove (Fase
+  7, Dado del Destino generale) — l'`onTap` e' li' pronto per quando
+  servira'.
+  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+  sul device.**
+  **NOTA**: Michele ha aggiunto anche `origina_res/nahtt-eat-323883.mp3`
+  nello stesso momento — non menzionato nella richiesta, non ancora
+  usato da nessuna parte. Da chiedere a cosa serve (suono del mangiare?)
+  prima di agganciarlo.
+4. **Preferences**: le classi ci sono, manca la schermata Opzioni
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
    (tema, font, TTS, lingua) — è la n. 7 di `UI.md`. **IN CORSO da
    ora**, anticipata da Fase 5 su richiesta di Michele (vedi sopra).
