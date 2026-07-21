@@ -1,8 +1,6 @@
 package io.github.luposolitario.immundanoctisex.ui.options
 
-import android.provider.OpenableColumns
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.media.MediaPlayer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -14,6 +12,8 @@ import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.tts.TtsService
 import io.github.luposolitario.immundanoctisex.util.AccentColor
+import io.github.luposolitario.immundanoctisex.util.BundledMusicCatalog
+import io.github.luposolitario.immundanoctisex.util.BundledTrack
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 
 // Raccordo delle Opzioni: legge le preferenze da AppContainer, le scrive
@@ -47,28 +47,29 @@ fun OptionsRoute(
     var femaleVoice by remember { mutableStateOf(container.ttsPreferences.voiceFor(Gender.FEMALE)) }
 
     var musicEnabled by remember { mutableStateOf(container.musicPreferences.musicEnabled) }
-    // trackName parte già valorizzato con la traccia inclusa se l'utente
-    // non ne ha ancora scelta una sua (MusicPreferences.effectiveTrackName).
-    var trackName by remember { mutableStateOf(container.musicPreferences.effectiveTrackName) }
+    var selectedTrackId by remember { mutableStateOf(container.musicPreferences.effectiveTrack.id) }
     var volume by remember { mutableStateOf(container.musicPreferences.volume) }
-    val trackPickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
+
+    // Anteprima locale a questa schermata (Michele 22/07/2026: "quando
+    // seleziono una combo questa parte per provarla") — un MediaPlayer
+    // separato dalla riproduzione vera in partita (non ancora collegata),
+    // vive e muore con Opzioni: non deve continuare a suonare una volta
+    // usciti da qui.
+    val previewPlayer = remember { MediaPlayer() }
+    DisposableEffect(Unit) {
+        onDispose { previewPlayer.release() }
+    }
+    fun playPreview(track: BundledTrack) {
         runCatching {
-            context.contentResolver.takePersistableUriPermission(
-                uri,
-                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION,
-            )
+            previewPlayer.reset()
+            context.assets.openFd(track.assetPath).use { afd ->
+                previewPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+            }
+            previewPlayer.isLooping = true
+            previewPlayer.setVolume(volume, volume)
+            previewPlayer.setOnPreparedListener { it.start() }
+            previewPlayer.prepareAsync()
         }
-        val name = context.contentResolver
-            .query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
-            ?.use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
-            ?: uri.lastPathSegment
-            ?: "Traccia selezionata"
-        trackName = name
-        container.musicPreferences.selectedTrackUri = uri.toString()
-        container.musicPreferences.selectedTrackName = name
     }
 
     // Le voci disponibili si sanno solo dopo l'inizializzazione del
@@ -143,15 +144,26 @@ fun OptionsRoute(
         },
         musicUi = MusicUi(
             musicEnabled = musicEnabled,
-            trackName = trackName,
+            tracks = BundledMusicCatalog.TRACKS,
+            selectedTrackId = selectedTrackId,
             volume = volume,
         ),
         onMusicEnabledChange = { enabled ->
             musicEnabled = enabled
             container.musicPreferences.musicEnabled = enabled
+            if (!enabled) runCatching { previewPlayer.pause() }
         },
-        onPickTrack = { trackPickerLauncher.launch(arrayOf("audio/*")) },
-        onVolumeChange = { volume = it },
+        onTrackSelect = { id ->
+            selectedTrackId = id
+            container.musicPreferences.selectedTrackId = id
+            playPreview(BundledMusicCatalog.byId(id))
+        },
+        onVolumeChange = { newVolume ->
+            volume = newVolume
+            // L'anteprima riflette subito il volume mentre si trascina lo
+            // slider, non solo al rilascio: sentire il cambio è il punto.
+            runCatching { previewPlayer.setVolume(volume, volume) }
+        },
         onVolumeCommit = { container.musicPreferences.volume = volume },
         onModelsClick = onModelsClick,
         onClose = onClose,
