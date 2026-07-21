@@ -55,21 +55,28 @@ internal object StatMechanics {
     // servono a evitare la penalità, almeno curano un poco. HUNTING non
     // consuma un pasto vero (auto-soddisfa a costo zero) e infatti esce
     // PRIMA di questo blocco: caccia gratis, non guadagna la cura.
-    fun requireAction(state: GameState, params: JsonObject) {
-        if (params.stringParam("action") != "EAT_MEAL") return
+    //
+    // Ritorna true se ha consumato un pasto per davvero (Michele, stesso
+    // giorno: "EAT_MEAL lo possiamo mettere nel JSON" — è già lì, scritto
+    // dall'autore, non generato da Gemma: il fatto "si è mangiato" può
+    // risalire fino a :app per far partire il suono, senza serializzare
+    // altro che un booleano — REGOLE.md, si serializzano i fatti).
+    fun requireAction(state: GameState, params: JsonObject): Boolean {
+        if (params.stringParam("action") != "EAT_MEAL") return false
         val hero = state.hero
-        if (hero.kaiDisciplines.contains("HUNTING")) return
+        if (hero.kaiDisciplines.contains("HUNTING")) return false
         if (Inventory.countOf(hero, MealRules.ITEM_NAME) > 0) {
             state.updateHero { h ->
                 val afterMeal = Inventory.removeItem(h, MealRules.ITEM_NAME, 1)
                 val cap = effectiveMaxEndurance(afterMeal)
                 afterMeal.copy(currentEndurance = (afterMeal.currentEndurance + MealRules.HEAL_AMOUNT).coerceIn(0, cap))
             }
-            return
+            return true
         }
-        val penaltyStat = params["penaltyStat"] ?: return
-        val penaltyAmount = params["penaltyValue"] ?: return
+        val penaltyStat = params["penaltyStat"] ?: return false
+        val penaltyAmount = params["penaltyValue"] ?: return false
         applyStatModifier(state, JsonObject(mapOf("statName" to penaltyStat, "amount" to penaltyAmount)))
+        return false
     }
 
     // ifStat (REGOLE.md §5.2): statName canonico oppure nome di variabile di

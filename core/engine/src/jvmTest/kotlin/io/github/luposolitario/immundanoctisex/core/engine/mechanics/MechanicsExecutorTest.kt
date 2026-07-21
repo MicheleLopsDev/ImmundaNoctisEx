@@ -19,7 +19,9 @@ import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class MechanicsExecutorTest {
 
@@ -158,11 +160,39 @@ class MechanicsExecutorTest {
             put("action", "EAT_MEAL"); put("penaltyStat", "ENDURANCE"); put("penaltyValue", "-3")
         }
 
-        executor().execute(state, listOf(mechanic("requireAction", params)))
+        val outcome = executor().execute(state, listOf(mechanic("requireAction", params)))
 
         assertEquals(1, Inventory.countOf(state.hero, "Meal"))
         // Già a 20/20: verifica anche che +1 dal pasto non sfori il massimo.
         assertEquals(20, state.hero.currentEndurance)
+        // mealEaten (22/07/2026): il fatto risale fino a :app per il suono
+        // del pasto obbligatorio, dichiarato nel JSON e mai da Gemma.
+        assertTrue(outcome.mealEaten)
+    }
+
+    @Test
+    fun requireActionSenzaPastoNonSegnalaMealEaten() {
+        val state = state(endurance = 10)
+        val params = buildJsonObject {
+            put("action", "EAT_MEAL"); put("penaltyStat", "ENDURANCE"); put("penaltyValue", "-3")
+        }
+
+        val outcome = executor().execute(state, listOf(mechanic("requireAction", params)))
+
+        assertFalse(outcome.mealEaten)
+    }
+
+    @Test
+    fun requireActionConHuntingNonSegnalaMealEaten() {
+        // HUNTING non consuma un pasto vero: niente suono, come niente cura.
+        val state = state(disciplines = listOf("HUNTING"))
+        val params = buildJsonObject {
+            put("action", "EAT_MEAL"); put("penaltyStat", "ENDURANCE"); put("penaltyValue", "-3")
+        }
+
+        val outcome = executor().execute(state, listOf(mechanic("requireAction", params)))
+
+        assertFalse(outcome.mealEaten)
     }
 
     @Test

@@ -9,10 +9,14 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 
 // Esito dell'esecuzione dei gameMechanics di una scena: se un comando di
-// salto è scattato, la pipeline di transizione deve andare lì.
+// salto è scattato, la pipeline di transizione deve andare lì. mealEaten
+// (22/07/2026): un fatto in più da riportare a :app, non solo il salto —
+// serve al suono del pasto obbligatorio, dichiarato dall'autore nel JSON
+// (requireAction EAT_MEAL), mai generato da Gemma.
 data class MechanicsOutcome(
     val jumpTo: String? = null,
     val jumpReason: AutoJumpReason? = null,
+    val mealEaten: Boolean = false,
 )
 
 // Esegue i comandi di scena in ordine di scrittura (REGOLE.md §5.2). Il
@@ -22,11 +26,13 @@ data class MechanicsOutcome(
 class MechanicsExecutor(private val dice: DiceRoller) {
 
     fun execute(state: GameState, mechanics: List<GameMechanic>): MechanicsOutcome {
+        var mealEaten = false
         mechanics.forEach { mechanic ->
             val outcome = executeSingle(state, mechanic)
-            if (outcome.jumpTo != null) return outcome
+            if (outcome.mealEaten) mealEaten = true
+            if (outcome.jumpTo != null) return outcome.copy(mealEaten = mealEaten)
         }
-        return MechanicsOutcome()
+        return MechanicsOutcome(mealEaten = mealEaten)
     }
 
     private fun executeSingle(state: GameState, mechanic: GameMechanic): MechanicsOutcome {
@@ -39,7 +45,7 @@ class MechanicsExecutor(private val dice: DiceRoller) {
             "rollOnItemTable" -> ItemMechanics.rollOnItemTable(state, params, dice)
             "healStat" -> StatMechanics.healStat(state, params)
             "applyStatModifier" -> StatMechanics.applyStatModifier(state, params)
-            "requireAction" -> StatMechanics.requireAction(state, params)
+            "requireAction" -> return MechanicsOutcome(mealEaten = StatMechanics.requireAction(state, params))
             "setFlag" -> setFlag(state, params)
             "setGlobalVar" -> setGlobalVar(state, params)
             "updateGlobalVar" -> updateGlobalVar(state, params)

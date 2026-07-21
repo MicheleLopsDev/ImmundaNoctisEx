@@ -500,6 +500,11 @@ class AdventureState(
             JourneyEntry(currentScene.id, textJustRead, transition, currentLocation),
         )
         val result = engine.transitionTo(gameState, targetSceneId)
+        // Pasto mangiato durante la transizione (Michele 22/07/2026:
+        // "EAT_MEAL lo possiamo mettere nel JSON" — requireAction EAT_MEAL
+        // è già dichiarato dall'autore, non generato da Gemma): stesso
+        // suono del consumo manuale dalla scheda.
+        if (result.mealEaten) soundEffectPlayer?.play(SoundEffect.EAT)
         // Anche i salti d'ufficio sono porte del diario-grafo (col luogo
         // risolto della scena da cui si salta).
         result.autoJumps.forEach { hop ->
