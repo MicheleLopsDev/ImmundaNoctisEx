@@ -1338,6 +1338,26 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
    prompt (il solo IMAGE costa ~168 token), e il giorno prima Gemma ha
    già dovuto imparare a "decidere sempre" per un vocabolario solo.
    Prima di aggiungerne altri tre tutti insieme, va capito se regge.
+10. **SEGNALATO da Michele (22/07), stessa famiglia dei punti 8-9,
+    esplicitamente RINVIATO da lui — "lo farei dopo"**: un tag tipo
+    `EAT_MEAL` scritto da Gemma nel testo quando la NARRAZIONE fa
+    mangiare il personaggio (non il `requireAction EAT_MEAL` del
+    libro, un evento diverso — l'idea è farlo scattare quando è la
+    STORIA a raccontare che si mangia, non il libro a richiederlo
+    meccanicamente), intercettato dal motore per far partire il suono
+    "mangiare" (`SoundEffect.EAT`, 22/07/2026) in sincrono con la
+    narrazione. Stesso pattern esatto dei punti 8-9 (Gemma scrive un
+    tag quando riconosce un evento, il motore lo intercetta e reagisce)
+    — Michele li accosta lui stesso: quando si affronta uno, ha senso
+    rivedere anche gli altri insieme (stesso dubbio sul carico di
+    vocabolari nel prompt). Nessun codice scritto, solo l'idea segnata.
+
+Per ora: **suoni legati SOLO ad azioni MANUALI** (Michele 22/07/2026:
+"evitiamo in quel caso [il consumo obbligatorio], per adesso i suoni
+li leghiamo ad azioni manuali") — `EAT`/`DRINK` restano collegati al
+tocco sullo zaino (`AdventureState.consumeItem`), non al
+`requireAction EAT_MEAL` automatico. Decisione esplicita, non un
+limite tecnico dimenticato.
 
 **Misure ancora mancanti**: il **termico** su 30-45' (il log più lungo
 copre ora ~12', vedi sotto) e il **drain della batteria** (osservazione
