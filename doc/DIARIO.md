@@ -1387,10 +1387,13 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   Compilazione e suite riverificate verdi. **CONFERMATO sul device
   (Michele 22/07/2026: "tutti i test ok") — chiuso.**
 
-4. **Preferences**: le classi ci sono, manca la schermata Opzioni
-4. **Preferences**: le classi ci sono, manca la schermata Opzioni
-   (tema, font, TTS, lingua) — è la n. 7 di `UI.md`. **IN CORSO da
-   ora**, anticipata da Fase 5 su richiesta di Michele (vedi sopra).
+4. ~~**Preferences**: le classi ci sono, manca la schermata Opzioni~~ —
+   **FATTO**, pulita la riga doppia (refuso di trascrizione). La
+   schermata Opzioni (n. 7 di `UI.md`) è stata costruita e confermata
+   sul device più volte in questi giorni: tema, colore d'accento, font
+   veri, grassetto, tono narrativo, dimensioni testo, sfondo della
+   card di stato (22/07), poi TTS con tre volumi e test voce, musica a
+   combo con anteprima (22/07).
 5. Mancano ancora le **fixture** da output reali di Gemma.
 6. **RINVIATO CONSAPEVOLMENTE da Michele**: il leak di **140 MB per
    partita** (memoria nativa). Su 15,5 GB non si sente con 3 partite;
