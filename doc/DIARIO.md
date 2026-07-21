@@ -1314,6 +1314,47 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   quindi non deve far partire il suono).
   Compilazione e suite riverificate verdi. **Mai vista/sentita girare
   sul device.**
+
+  **CONFERMATO sul device, poi corretto due volte, stesso 22/07**:
+  primo giro con [test_eat_meal_sound.json](../content/test-books/test_eat_meal_sound.json)
+  (nuovo libro campione dedicato, cartella `content/test-books/`, "crea
+  sempre file json per fare i test quando aggiungiamo feature" —
+  Michele) — i numeri sullo schermo (screenshot: Resistenza 26→21 in
+  scena 1, poi 21→22 in scena 2 con i Meal scesi da 3 a 2) hanno
+  confermato che consumo, cura e suono FUNZIONANO. Due correzioni
+  emerse dal giro reale, non dalla logica di gioco:
+  - Il file di test dava un Meal extra in scena 1 senza contare i 2
+    Meal di serie che ogni eroe ha già da `INITIAL_COMMON_ITEMS`: 3
+    pasti per 2 sole tappe di `requireAction` non arrivavano mai allo
+    zaino vuoto, quindi il ramo "niente suono, solo penalità" non si
+    vedeva mai. Corretto: niente `addItem` extra, quattro tappe totali
+    così i 2 Meal di serie si esauriscono davvero all'ultima.
+  - **Il suono partiva nell'istante del tocco sulla scelta, molti
+    secondi prima che Gemma finisse di scrivere** (log: suono alle
+    21:50:35, narrazione pronta alle 21:50:41 — 6 secondi dopo, prima
+    ancora di essere mostrata). Michele: "molto prima che il testo
+    venga scritto". Corretto spostando il trigger da `moveTo` (subito)
+    a `startNarration`: un `pendingMealSound` messo da `moveTo` e
+    consumato al primo pezzo di testo che arriva davvero (primo evento
+    `NarrationEvent.Streaming` non vuoto), con reti di sicurezza su
+    `NarrationEvent.Completed` e `narrationUnavailable()` per i casi
+    degradati (niente streaming, si salta dritti al finale). Stesso
+    principio già in uso per scelte/nemico (nascosti finché la
+    generazione non finisce): un effetto legato alla narrazione deve
+    aspettare che ci sia narrazione da vedere, non scattare sul fatto
+    meccanico crudo.
+  Compilazione e suite riverificate verdi. **Numeri confermati sul
+  device (screenshot); il riallineamento col testo NON ancora
+  riprovato sul device.**
+
+  **Nota a parte, non toccata da questo giro ma trovata durante
+  l'indagine**: `consumeItem` (consumo manuale dallo zaino) limitava
+  la cura al `maxEndurance` grezzo del personaggio invece che a
+  `effectiveMaxEndurance` (che include i bonus da oggetto, es. Elmo/
+  Gilet) — incoerente col resto del motore. Corretto per coerenza, non
+  era la causa di quanto osservato stavolta (nessun bonus equipaggiato
+  nel test).
+
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
    (tema, font, TTS, lingua) — è la n. 7 di `UI.md`. **IN CORSO da
