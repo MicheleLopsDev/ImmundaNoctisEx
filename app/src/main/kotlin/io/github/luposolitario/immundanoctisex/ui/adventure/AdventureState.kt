@@ -32,6 +32,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.transition.Transition
 import io.github.luposolitario.immundanoctisex.inference.NarrationEvent
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
 import io.github.luposolitario.immundanoctisex.inference.TokenInfo
+import io.github.luposolitario.immundanoctisex.sfx.SoundEffect
 import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
 import io.github.luposolitario.immundanoctisex.tts.TtsService
 import kotlinx.coroutines.CoroutineScope
@@ -186,7 +187,7 @@ class AdventureState(
     // Il tocco sul dado del destino in combattimento (Michele 22/07/2026:
     // "quando premi il dado si sente questo suono").
     fun playDiceRollSound() {
-        soundEffectPlayer?.playDiceRoll()
+        soundEffectPlayer?.play(SoundEffect.DICE_ROLL)
     }
 
     // Testi delle scelte tradotti (id -> testo). Vuoto = si usa
@@ -476,6 +477,13 @@ class AdventureState(
                 it.copy(currentEndurance = (it.currentEndurance + heal).coerceIn(0, it.maxEndurance))
             }
         }
+        // Suono diverso per cosa si consuma davvero (Michele 22/07/2026:
+        // "ho aggiunto altri 2 suoni... se le associ alle azioni
+        // specifiche andrebbe bene") — il Pasto si mangia, tutto il
+        // resto con effetto HEAL (pozioni) si beve.
+        soundEffectPlayer?.play(
+            if (item.name.equals(MealRules.ITEM_NAME, ignoreCase = true)) SoundEffect.EAT else SoundEffect.DRINK,
+        )
         autoSave()
     }
 
