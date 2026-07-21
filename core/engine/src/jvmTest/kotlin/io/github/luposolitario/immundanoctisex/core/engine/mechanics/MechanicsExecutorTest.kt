@@ -161,7 +161,35 @@ class MechanicsExecutorTest {
         executor().execute(state, listOf(mechanic("requireAction", params)))
 
         assertEquals(1, Inventory.countOf(state.hero, "Meal"))
+        // Già a 20/20: verifica anche che +1 dal pasto non sfori il massimo.
         assertEquals(20, state.hero.currentEndurance)
+    }
+
+    @Test
+    fun requireActionMangiareCuraUnPuntoSottoIlMassimo() {
+        val state = state(endurance = 15, items = listOf(GameItem(name = "Meal", type = ItemType.BACKPACK_ITEM, quantity = 1)))
+        val params = buildJsonObject {
+            put("action", "EAT_MEAL"); put("penaltyStat", "ENDURANCE"); put("penaltyValue", "-3")
+        }
+
+        executor().execute(state, listOf(mechanic("requireAction", params)))
+
+        assertEquals(0, Inventory.countOf(state.hero, "Meal"))
+        assertEquals(16, state.hero.currentEndurance)
+    }
+
+    @Test
+    fun requireActionConHuntingNonCura() {
+        // HUNTING auto-soddisfa a costo zero: non consuma un pasto vero,
+        // quindi non deve guadagnare la cura che spetta solo a chi mangia.
+        val state = state(disciplines = listOf("HUNTING"), endurance = 15)
+        val params = buildJsonObject {
+            put("action", "EAT_MEAL"); put("penaltyStat", "ENDURANCE"); put("penaltyValue", "-3")
+        }
+
+        executor().execute(state, listOf(mechanic("requireAction", params)))
+
+        assertEquals(15, state.hero.currentEndurance)
     }
 
     @Test
