@@ -1247,6 +1247,19 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
 3. **Inventario**: pasti (`Meal`) non hanno `effect`, `consumeItem`
    esce in silenzio — serve decidere cosa devono fare. ~~Scartare
    oggetti non esiste~~ — FATTO 21/07, tocco lungo con conferma.
+   ~~Il pasto OBBLIGATORIO (requireAction EAT_MEAL) non curava~~ —
+   FATTO 22/07 (Michele: "se i pasti oltre ad essere obbligatori fanno
+   guadagnare 1 heal direi che abbiamo mantenuto il bilanciamento cosi
+   che se ne trovo troppe almeno mi curo"): mangiare un Pasto quando
+   disponibile ora cura +1 Resistenza oltre a evitare la penalita
+   (`StatMechanics.requireAction`, capped a `effectiveMaxEndurance`).
+   HUNTING non consuma un pasto vero (auto-soddisfa a costo zero) e
+   percio' non guadagna la cura — verificato con test dedicato.
+   **RESTA APERTO**: i pasti non hanno ancora un `effect` proprio, quindi
+   `consumeItem` (il consumo MANUALE dalla scheda, fuori da un
+   requireAction del libro) continua a uscire in silenzio per un Meal —
+   la richiesta di oggi copriva solo il consumo obbligatorio, non se il
+   giocatore debba poter mangiare a piacere dalla scheda.
 4. **Preferences**: le classi ci sono, manca la schermata Opzioni
    (tema, font, TTS, lingua) — è la n. 7 di `UI.md`. **IN CORSO da
    ora**, anticipata da Fase 5 su richiesta di Michele (vedi sopra).
