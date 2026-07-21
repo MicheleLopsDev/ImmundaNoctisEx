@@ -3,6 +3,9 @@ package io.github.luposolitario.immundanoctisex.model
 import android.content.Context
 import android.content.SharedPreferences
 import java.io.File
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 // Quale modello si usa, dove sta il file, e il token Hugging Face per i
 // repo riservati (in v1 il token viveva dentro ThemePreferences: un
@@ -17,8 +20,15 @@ class ModelPreferences(private val context: Context) {
         get() = prefs.getString(KEY_SELECTED_MODEL, null) ?: ModelCatalog.default.id
         set(value) = prefs.edit().putString(KEY_SELECTED_MODEL, value).apply()
 
+    // BUG (22/07/2026, Michele: "scarica il modello personalizzato ma non
+    // lo usa"): cercava SOLO nel catalogo fisso. Un modello personalizzato
+    // selezionato non ci sta mai dentro -> ModelCatalog.byId() tornava
+    // null -> si ricadeva silenziosamente su ModelCatalog.default (sempre
+    // Gemma 4 E4B ufficiale), qualunque cosa l'utente avesse scelto.
     val selectedModel: DownloadableModel
-        get() = ModelCatalog.byId(selectedModelId) ?: ModelCatalog.default
+        get() = customModels.firstOrNull { it.id == selectedModelId }
+            ?: ModelCatalog.byId(selectedModelId)
+            ?: ModelCatalog.default
 
     // Token personale dell'utente: si salva solo se lo inserisce lui.
     var huggingFaceToken: String?
@@ -44,9 +54,28 @@ class ModelPreferences(private val context: Context) {
 
     fun deleteModel(model: DownloadableModel): Boolean = fileFor(model).delete()
 
+    // I "preferiti" (ModelCatalog.all) restano fissi e decisi in fase di
+    // sviluppo; questi sono i modelli che Michele aggiunge da sé incollando
+    // un link Hugging Face, per provare alternative a Gemma 4 senza
+    // toccare il catalogo. Salvati come lista JSON nelle preferenze.
+    var customModels: List<DownloadableModel>
+        get() = prefs.getString(KEY_CUSTOM_MODELS, null)
+            ?.let { runCatching { Json.decodeFromString<List<DownloadableModel>>(it) }.getOrNull() }
+            ?: emptyList()
+        set(value) = prefs.edit().putString(KEY_CUSTOM_MODELS, Json.encodeToString(value)).apply()
+
+    fun addCustomModel(model: DownloadableModel) {
+        customModels = customModels.filterNot { it.id == model.id } + model
+    }
+
+    fun removeCustomModel(id: String) {
+        customModels = customModels.filterNot { it.id == id }
+    }
+
     private companion object {
         const val PREFS_NAME = "model_preferences"
         const val KEY_SELECTED_MODEL = "selected_model_id"
         const val KEY_HF_TOKEN = "hugging_face_token"
+        const val KEY_CUSTOM_MODELS = "custom_models"
     }
 }

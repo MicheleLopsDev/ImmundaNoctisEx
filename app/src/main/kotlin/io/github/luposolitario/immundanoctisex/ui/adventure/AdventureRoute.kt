@@ -44,16 +44,25 @@ fun AdventureRoute(
             val manifest = remember(loadResult.manifest) {
                 AdventureEnding.withGuaranteedEnding(loadResult.manifest)
             }
-            val narrator = remember(manifest) {
+            // BUG (22/07/2026, Michele: "cambiando il tono non succede
+            // nulla"): remember(manifest) da solo non bastava — lingua e
+            // tono venivano letti UNA VOLTA alla creazione del narratore,
+            // e manifest non cambia mai durante la sessione. Se le Opzioni
+            // cambiavano senza uno smontaggio/rimontaggio completo di
+            // questa route, il narratore restava quello vecchio. Ora sono
+            // chiavi esplicite del remember: quando cambiano, il
+            // narratore si ricrea, qualunque sia il percorso di
+            // navigazione che ha portato al cambio.
+            val userLanguage = container.languagePreferences.outputLanguage.promptValue
+            val toneOverride = container.narrativeTonePreferences.narrativeTone.hints
+            val narrator = remember(manifest, userLanguage, toneOverride) {
                 SceneNarrator(
                     engine = container.inferenceEngine,
                     promptBuilder = PromptBuilder(promptFragments(context)),
                     manifest = manifest,
-                    // Scelta in Opzioni (UI.md schermata 7); prima era
-                    // "Italian" fisso nel default del costruttore.
-                    userLanguage = container.languagePreferences.outputLanguage.promptValue,
+                    userLanguage = userLanguage,
                     // AUTHOR (default) -> null, l'autore decide come sempre.
-                    toneOverride = container.narrativeTonePreferences.narrativeTone.hints,
+                    toneOverride = toneOverride,
                 )
             }
             // Si sa subito se il modello è sul telefono: serve a non

@@ -18,9 +18,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -44,6 +50,7 @@ sealed interface DownloadUiState {
 @Composable
 fun ModelsScreen(
     models: List<DownloadableModel>,
+    customModels: List<DownloadableModel>,
     selectedModelId: String,
     downloadedIds: Set<String>,
     token: String,
@@ -55,6 +62,11 @@ fun ModelsScreen(
     onDownload: (DownloadableModel) -> Unit,
     onCancel: () -> Unit,
     onDelete: (DownloadableModel) -> Unit,
+    onAddCustomModel: (url: String, name: String, requiresToken: Boolean) -> Unit,
+    onRemoveCustomModel: (DownloadableModel) -> Unit,
+    addModelError: String?,
+    isImportingFromStorage: Boolean,
+    onPickFromStorage: (name: String) -> Unit,
     onMaxTokensChange: (String) -> Unit,
     onTemperatureChange: (Float) -> Unit,
     onTemperatureCommit: () -> Unit,
@@ -76,6 +88,7 @@ fun ModelsScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
 
+        Text("Consigliati", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
         models.forEach { model ->
             ModelCard(
                 model = model,
@@ -86,8 +99,33 @@ fun ModelsScreen(
                 onDownload = { onDownload(model) },
                 onCancel = onCancel,
                 onDelete = { onDelete(model) },
+                onRemove = null,
             )
         }
+
+        if (customModels.isNotEmpty()) {
+            Text("I tuoi modelli", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            customModels.forEach { model ->
+                ModelCard(
+                    model = model,
+                    selected = model.id == selectedModelId,
+                    downloaded = model.id in downloadedIds,
+                    downloadState = downloadState.takeIf { model.id == selectedModelId } ?: DownloadUiState.Idle,
+                    onSelect = { onSelectModel(model) },
+                    onDownload = { onDownload(model) },
+                    onCancel = onCancel,
+                    onDelete = { onDelete(model) },
+                    onRemove = { onRemoveCustomModel(model) },
+                )
+            }
+        }
+
+        AddCustomModelCard(
+            error = addModelError,
+            isImporting = isImportingFromStorage,
+            onAdd = onAddCustomModel,
+            onPickFromStorage = onPickFromStorage,
+        )
 
         // Con file da GB, sapere quanto stai occupando è informazione
         // dovuta (in v1 il percorso si vedeva solo per le scene).
@@ -126,6 +164,7 @@ private fun ModelCard(
     onDownload: () -> Unit,
     onCancel: () -> Unit,
     onDelete: () -> Unit,
+    onRemove: (() -> Unit)?,
 ) {
     OutlinedCard(
         onClick = onSelect,
@@ -182,7 +221,80 @@ private fun ModelCard(
                     } else {
                         OutlinedButton(onClick = onDelete) { Text("Elimina") }
                     }
+                    // Solo i modelli aggiunti da un link: i "Consigliati"
+                    // restano sempre nella lista.
+                    if (onRemove != null) {
+                        TextButton(onClick = onRemove) { Text("Rimuovi dalla lista") }
+                    }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddCustomModelCard(
+    error: String?,
+    isImporting: Boolean,
+    onAdd: (url: String, name: String, requiresToken: Boolean) -> Unit,
+    onPickFromStorage: (name: String) -> Unit,
+) {
+    var url by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var requiresToken by remember { mutableStateOf(false) }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Aggiungi un modello", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "Solo formato LiteRT-LM (estensione .litertlm): è l'unico che questo motore " +
+                    "sa caricare. Altri formati (es. .task di MediaPipe) vengono rifiutati.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                label = { Text("Nome (opzionale)") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Text("Da un link Hugging Face", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            OutlinedTextField(
+                value = url,
+                onValueChange = { url = it },
+                label = { Text("Link diretto (…resolve/main/…)") },
+                singleLine = true,
+                enabled = !isImporting,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Switch(checked = requiresToken, onCheckedChange = { requiresToken = it }, enabled = !isImporting)
+                Text("Repository riservato (richiede token)", style = MaterialTheme.typography.bodySmall)
+            }
+            Button(
+                onClick = {
+                    onAdd(url.trim(), name.trim(), requiresToken)
+                    url = ""
+                    requiresToken = false
+                },
+                enabled = url.isNotBlank() && !isImporting,
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text("Aggiungi e scarica") }
+
+            Text("Da un file già sul telefono", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            OutlinedButton(
+                onClick = { onPickFromStorage(name.trim()) },
+                enabled = !isImporting,
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text(if (isImporting) "Importazione…" else "Scegli file .litertlm") }
+
+            error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
         }
     }
@@ -218,6 +330,7 @@ private fun ModelsScreenPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
         ModelsScreen(
             models = ModelCatalog.all,
+            customModels = emptyList(),
             selectedModelId = ModelCatalog.default.id,
             downloadedIds = emptySet(),
             token = "",
@@ -234,6 +347,11 @@ private fun ModelsScreenPreview() {
             onDownload = {},
             onCancel = {},
             onDelete = {},
+            onAddCustomModel = { _, _, _ -> },
+            onRemoveCustomModel = {},
+            addModelError = null,
+            isImportingFromStorage = false,
+            onPickFromStorage = {},
             onMaxTokensChange = {},
             onTemperatureChange = {},
             onTemperatureCommit = {},

@@ -1,9 +1,15 @@
 package io.github.luposolitario.immundanoctisex.ui.models
 
+import android.content.Context
+import android.net.Uri
+import android.provider.OpenableColumns
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
@@ -19,6 +25,16 @@ import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.model.DownloadableModel
 import io.github.luposolitario.immundanoctisex.model.ModelCatalog
 import io.github.luposolitario.immundanoctisex.model.ModelDownloadWorker
+import io.github.luposolitario.immundanoctisex.model.ModelPreferences
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+// L'unico formato che LiteRtLmEngine sa caricare (REGOLE tecniche in
+// DIARIO.md): un modello .task di MediaPipe o qualunque altra cosa
+// compilerebbe ma fallirebbe al primo caricamento, silenziosamente sul
+// device di Michele. Meglio rifiutarlo subito, con un messaggio chiaro.
+private const val LITERTLM_EXTENSION = ".litertlm"
 
 // Raccordo della schermata Modelli: avvia il worker, osserva il progresso
 // e tiene aggiornata la lista dei modelli già scaricati.
@@ -30,13 +46,43 @@ fun ModelsRoute(
     val context = LocalContext.current
     val preferences = container.modelPreferences
     val workManager = remember { WorkManager.getInstance(context) }
+    val scope = rememberCoroutineScope()
 
     val inferencePreferences = container.inferencePreferences
 
     var selectedModelId by remember { mutableStateOf(preferences.selectedModelId) }
     var token by remember { mutableStateOf(preferences.huggingFaceToken.orEmpty()) }
+    var customModels by remember { mutableStateOf(preferences.customModels) }
     var downloadedIds by remember {
-        mutableStateOf(ModelCatalog.all.filter { preferences.isDownloaded(it) }.map { it.id }.toSet())
+        mutableStateOf(
+            (ModelCatalog.all + customModels).filter { preferences.isDownloaded(it) }.map { it.id }.toSet(),
+        )
+    }
+    var addModelError by remember { mutableStateOf<String?>(null) }
+    var isImportingFromStorage by remember { mutableStateOf(false) }
+    // Il nome digitato prima di aprire il selettore file: il risultato
+    // arriva in una callback separata, che non ha più accesso al form.
+    var pendingImportName by remember { mutableStateOf("") }
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        isImportingFromStorage = true
+        addModelError = null
+        scope.launch {
+            val result = importModelFromUri(context, preferences, uri, pendingImportName)
+            isImportingFromStorage = false
+            result.onSuccess { model ->
+                preferences.addCustomModel(model)
+                customModels = preferences.customModels
+                selectedModelId = model.id
+                preferences.selectedModelId = model.id
+                downloadedIds = downloadedIds + model.id
+            }.onFailure { error ->
+                addModelError = error.message ?: "Importazione non riuscita."
+            }
+        }
     }
     var advanced by remember {
         mutableStateOf(
@@ -56,12 +102,27 @@ fun ModelsRoute(
     val downloadState = workInfos.firstOrNull().toUiState()
 
     // A download finito la lista si aggiorna: il bottone diventa "Elimina".
+    // I modelli personalizzati partono con sizeBytes=0 (ignota finché non
+    // si scarica): appena il file esiste, isDownloaded() lo considera
+    // valido a prescindere dalla dimensione vera. Fissarla qui col valore
+    // reale rende i controlli successivi significativi, non sempre "vero"
+    // (bug 22/07: senza questo un download troncato/sbagliato restava
+    // segnato "già scaricato" per sempre).
     if (downloadState is DownloadUiState.Done) {
-        downloadedIds = ModelCatalog.all.filter { preferences.isDownloaded(it) }.map { it.id }.toSet()
+        val justDownloaded = (ModelCatalog.all + customModels).firstOrNull { it.id == selectedModelId }
+        if (justDownloaded != null && justDownloaded.custom && justDownloaded.sizeBytes <= 0L) {
+            val realSize = preferences.fileFor(justDownloaded).length()
+            if (realSize > 0L) {
+                preferences.addCustomModel(justDownloaded.copy(sizeBytes = realSize))
+                customModels = preferences.customModels
+            }
+        }
+        downloadedIds = (ModelCatalog.all + customModels).filter { preferences.isDownloaded(it) }.map { it.id }.toSet()
     }
 
     ModelsScreen(
         models = ModelCatalog.all,
+        customModels = customModels,
         selectedModelId = selectedModelId,
         downloadedIds = downloadedIds,
         token = token,
@@ -80,7 +141,37 @@ fun ModelsRoute(
             preferences.deleteModel(model)
             downloadedIds = downloadedIds - model.id
         },
-        storageInfo = storageInfo(downloadedIds.size, occupiedBytes(container)),
+        onAddCustomModel = { url, name, requiresToken ->
+            if (url.isNotBlank()) {
+                val fileName = url.substringBefore('?').substringAfterLast('/').ifBlank { "modello_custom" }
+                val error = validateLitertlm(fileName)
+                if (error != null) {
+                    addModelError = error
+                } else {
+                    addModelError = null
+                    val model = buildCustomModel(url, fileName, name, requiresToken)
+                    preferences.addCustomModel(model)
+                    customModels = preferences.customModels
+                    selectedModelId = model.id
+                    preferences.selectedModelId = model.id
+                    startDownload(workManager, container, model)
+                }
+            }
+        },
+        onRemoveCustomModel = { model ->
+            preferences.deleteModel(model)
+            preferences.removeCustomModel(model.id)
+            customModels = preferences.customModels
+            downloadedIds = downloadedIds - model.id
+        },
+        addModelError = addModelError,
+        isImportingFromStorage = isImportingFromStorage,
+        onPickFromStorage = { name ->
+            pendingImportName = name
+            addModelError = null
+            filePickerLauncher.launch(arrayOf("*/*"))
+        },
+        storageInfo = storageInfo(downloadedIds.size, occupiedBytes(container, customModels)),
         advancedSettings = advanced,
         // I campi numerici accettano solo cifre e si salvano solo quando
         // il valore è sensato: un campo vuoto durante la digitazione non
@@ -115,11 +206,78 @@ fun ModelsRoute(
     )
 }
 
-private fun occupiedBytes(container: AppContainer): Long =
-    ModelCatalog.all
+private fun occupiedBytes(container: AppContainer, customModels: List<DownloadableModel>): Long =
+    (ModelCatalog.all + customModels)
         .map { container.modelPreferences.fileFor(it) }
         .filter { it.exists() }
         .sumOf { it.length() }
+
+private fun validateLitertlm(fileName: String): String? =
+    if (!fileName.endsWith(LITERTLM_EXTENSION, ignoreCase = true)) {
+        "\"$fileName\" non è un modello LiteRT-LM: serve un file con estensione " +
+            "$LITERTLM_EXTENSION, l'unico formato che questo motore sa caricare."
+    } else {
+        null
+    }
+
+private fun slugFor(fileName: String): String =
+    fileName.substringBeforeLast('.').lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
+
+// Dal link incollato costruisce un modello "su misura": il nome del file
+// è l'ultimo pezzo del percorso (come fa Hugging Face per il download
+// diretto), la dimensione resta ignota finché il download non la scopre
+// da sé (stesso trattamento già in uso per GEMMA_3N_E4B_GATED).
+private fun buildCustomModel(url: String, fileName: String, name: String, requiresToken: Boolean): DownloadableModel =
+    DownloadableModel(
+        id = "custom-${slugFor(fileName)}",
+        displayName = name.ifBlank { fileName },
+        url = url,
+        fileName = fileName,
+        sizeBytes = 0L,
+        requiresToken = requiresToken,
+        note = "Modello personalizzato, aggiunto da un link Hugging Face.",
+        custom = true,
+    )
+
+private fun queryDisplayName(context: Context, uri: Uri): String? =
+    context.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) cursor.getString(0) else null
+    }
+
+// Il motore vuole un java.io.File reale (LiteRtLmEngine.load usa
+// modelFile.absolutePath): un Uri content:// del selettore file non
+// basta, va copiato per intero nella cartella modelli dell'app. Sono
+// GB: gira su Dispatchers.IO, mai sul thread di UI.
+private suspend fun importModelFromUri(
+    context: Context,
+    preferences: ModelPreferences,
+    uri: Uri,
+    name: String,
+): Result<DownloadableModel> = withContext(Dispatchers.IO) {
+    runCatching {
+        val originalName = queryDisplayName(context, uri) ?: uri.lastPathSegment ?: "modello_custom.litertlm"
+        validateLitertlm(originalName)?.let { throw IllegalArgumentException(it) }
+
+        val model = DownloadableModel(
+            id = "custom-${slugFor(originalName)}",
+            displayName = name.ifBlank { originalName },
+            url = "",
+            fileName = originalName,
+            sizeBytes = 0L,
+            requiresToken = false,
+            note = "Modello personalizzato, importato da un file sul telefono.",
+            custom = true,
+        )
+        val destination = preferences.fileFor(model)
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            destination.outputStream().use { output -> input.copyTo(output) }
+        } ?: throw IllegalStateException("Impossibile leggere il file scelto.")
+
+        // Ora la dimensione è nota per davvero: è quella copiata, non
+        // una stima. isDownloaded() la userà per il controllo integrità.
+        model.copy(sizeBytes = destination.length())
+    }
+}
 
 private fun storageInfo(count: Int, bytes: Long): String? {
     if (count == 0 || bytes <= 0L) return null

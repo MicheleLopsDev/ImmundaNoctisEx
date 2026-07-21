@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Serve al @Serializable di DownloadableModel (ModelPreferences.customModels):
+    // solo la libreria runtime non basta, senza il plugin il serializer non
+    // viene generato e Json.encodeToString fallisce a runtime (crash 22/07).
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {

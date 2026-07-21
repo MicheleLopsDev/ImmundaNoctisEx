@@ -7,7 +7,7 @@
 
 ---
 
-## STATO CORRENTE — aggiornato 20/07/2026 (sera)
+## STATO CORRENTE — aggiornato 21/07/2026
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
 Razr senza IA (Home, creazione, scena, combat a due modalità, scheda,
@@ -829,6 +829,144 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   - Un `addItem` che offre PIÙ ARMI di quante ne stiano dovrebbe
     probabilmente essere un WARNING ("forse volevi `offerItem`?"), non
     un errore bloccante — coerente con "il gioco non si blocca mai".
+
+- **BUG SEGNALATO: "il tono narrativo cambiandolo non succede nulla"**
+  (21/07, Michele dal device, dopo aver confermato che il resto della
+  schermata Opzioni funziona). Causa plausibile individuata in
+  `AdventureRoute.kt`: `remember(manifest)` costruiva `SceneNarrator`
+  UNA VOLTA sola — `manifest` non cambia mai durante la sessione, quindi
+  se le Opzioni cambiavano lingua/tono senza uno smontaggio completo
+  della route, il narratore restava quello vecchio. Fix: `userLanguage`
+  e `toneOverride` sono ora chiavi esplicite del `remember`. Compila,
+  suite verde. **NON CONFERMATO come causa reale** — richiesta a Michele
+  una verifica con `adb logcat -s SceneNarrator` per vedere se il tono
+  arriva davvero al prompt ora, oppure se Gemma lo riceve e lo ignora
+  (stesso pattern già visto col tag IMAGE e la dicitura "OPTIONAL").
+  Rimasta in sospeso: Michele ha preferito la nuova funzione sotto.
+
+- **MODELLI PERSONALIZZATI DA LINK HUGGING FACE** (21/07, richiesta di
+  Michele — "gli do il link huggingface e lui mi scarica il modello che
+  voglio, fermo restando che i preferiti sono quelli che abbiamo
+  deciso"): nuova sezione "Aggiungi un modello" nella schermata Modelli,
+  per provare altri modelli LiteRT-LM (Qwen, Phi-4-mini, DeepSeek-R1-
+  Distill, …) oltre ai tre del catalogo fisso, che restano invariati.
+  - `DownloadableModel` è ora `@Serializable` e ha un campo `custom`
+    (`false` per il catalogo, `true` per quelli aggiunti da Michele) —
+    solo per distinguerli nella UI (pulsante "Rimuovi dalla lista"),
+    non cambia il download, che era già generico.
+  - `ModelPreferences.customModels`: lista salvata come JSON nelle
+    SharedPreferences (`addCustomModel`/`removeCustomModel`, dedup per
+    id). Stesso pattern delle altre `*Preferences`, niente di nuovo.
+  - Dal link incollato si ricava `fileName` (ultimo pezzo del percorso,
+    come fa Hugging Face per il download diretto) e un `id` slug; la
+    `sizeBytes` resta 0 (ignota) finché il download non la scopre da
+    sé — stesso trattamento già in uso per `GEMMA_3N_E4B_GATED`. Uno
+    switch "repository riservato" nel form imposta `requiresToken`
+    (usa lo stesso campo Token già presente più sotto nella schermata).
+  - "Aggiungi e scarica" fa tutto in un gesto: costruisce il modello,
+    lo salva, lo seleziona, avvia subito il download (stesso worker
+    riprendibile di sempre). "Rimuovi dalla lista" cancella anche il
+    file scaricato, non solo la voce.
+
+  **Estensione, stesso giorno** (Michele: "il modello si può scaricare
+  da huggingface oppure caricare da SD, però dobbiamo chiarire che il
+  modello deve essere di tipo litert-lm"):
+  - **Import da file locale**: pulsante "Scegli file .litertlm" nella
+    stessa card, apre il selettore di sistema (`ActivityResultContracts
+    .OpenDocument`). `LiteRtLmEngine.load` vuole un `java.io.File` vero
+    (`modelFile.absolutePath`), non un `Uri` — verificato nel codice
+    prima di scegliere l'approccio: un `content://` non basta, il file
+    va COPIATO per intero in `modelsDirectory()`. Copia su
+    `Dispatchers.IO` (sono GB, mai sul thread di UI), con lo stato
+    "Importazione…" a schermo.
+  - **Validazione bloccante sull'estensione**: `.litertlm` è l'unico
+    formato che `LiteRtLmEngine` sa caricare (`.task` di MediaPipe,
+    ancora nel catalogo per `GEMMA_3N_E4B_GATED`, NON è intercambiabile
+    — vedi "Fatti tecnici" più sotto). Sia il link sia il file scelto
+    da SD passano da `validateLitertlm()`: se l'estensione non torna,
+    errore bloccante a schermo, niente download/copia. Meglio un
+    rifiuto immediato e chiaro che un caricamento silenziosamente
+    fallito sul device.
+  - Compilazione verificata (`:app:compileDebugKotlin`), **mai provato
+    sul device**: manca ancora la prova con un modello vero diverso da
+    Gemma (link o file, download/copia completa, caricamento reale in
+    `LiteRtLmEngine`) e la prova pratica del selettore file su Android
+    (permessi, provider di file del Razr).
+
+  **BUG SUL DEVICE: crash aggiungendo un modello** (22/07, dal log di
+  Michele): `kotlinx.serialization.SerializationException: Serializer
+  for class 'DownloadableModel' is not found`, in
+  `ModelPreferences.setCustomModels` (`Json.encodeToString`). Causa:
+  `:app/build.gradle.kts` ha solo la libreria runtime
+  (`kotlinx.serialization.json`), non il **plugin del compilatore**
+  (`alias(libs.plugins.kotlin.serialization)`) che genera il
+  `serializer()` per le classi `@Serializable` — `:core:data` ce l'ha,
+  `:app` non ne aveva mai avuto bisogno finché `DownloadableModel` non
+  è diventato `@Serializable` oggi stesso. La classe compila lo stesso
+  (l'annotazione esiste nella libreria runtime), ma a runtime il
+  serializer non esiste: crash silenzioso solo al primo uso. Fix: una
+  riga nel blocco `plugins {}` di `app/build.gradle.kts`. Ricompilato e
+  suite riverificata verde. **Non ancora riprovato sul device da
+  Michele.**
+
+  **BUG SUL DEVICE: "dice già scaricato" senza aver scaricato nulla**
+  (22/07, dal log di Michele): il worker parte e chiude con SUCCESS in
+  ~450ms — impossibile per un file da GB. Causa in due punti, entrambi
+  legati a `sizeBytes=0` (dimensione ignota, la norma per OGNI modello
+  personalizzato, non l'eccezione com'era per `GEMMA_3N_E4B_GATED`):
+  - `ModelDownloadWorker`: la verifica di integrità finale
+    (`totalSize > 0L && partFile.length() != totalSize`) non scatta MAI
+    con dimensione ignota — un file troncato, una pagina d'errore, o
+    (sospetto più probabile: Michele ha incollato il link alla PAGINA
+    del repo invece che al file diretto "…resolve/main/…") una
+    paginetta HTML da poche decine di KB passavano per "download
+    riuscito" senza alcun controllo.
+  - `ModelPreferences.isDownloaded()`: con `sizeBytes<=0` considera
+    scaricato qualsiasi file esista a quel percorso, qualunque sia la
+    sua dimensione reale.
+  Fix, tre parti:
+  1. Nel worker, controllo del `Content-Type` della risposta: se è
+     `text/html`, fallisce subito con messaggio esplicito ("il link
+     punta a una pagina web, non al file — serve …resolve/main/…").
+  2. Nel worker, rete di sicurezza quando la dimensione resta ignota
+     anche a valle: sotto `MIN_PLAUSIBLE_MODEL_BYTES` (10 MB — nessun
+     modello LLM reale è più piccolo) il download fallisce invece di
+     essere promosso.
+  3. In `ModelsRoute`, a download riuscito la `sizeBytes` del modello
+     personalizzato viene fissata alla dimensione REALE del file
+     scaricato (stesso trattamento già in uso per l'import da file
+     locale): i controlli di integrità successivi diventano
+     significativi, non sempre veri per costruzione.
+  Compilazione e suite riverificate verdi. **CONFERMATO da Michele**:
+  la causa era proprio il link — quello alla pagina del repo invece che
+  al file diretto. Col link giusto
+  (`…/resolve/main/nomefile.litertlm?download=true`) il download del
+  modello personalizzato (Gemma 4 E4B abliterato, 3,66 GB) è riuscito.
+
+  **BUG SUBITO DOPO: "scarica il modello personalizzato ma non lo usa"**
+  (22/07, Michele): il download funzionava, il modello risultava
+  selezionato in UI (card evidenziata), ma la partita continuava a
+  usare Gemma 4 E4B ufficiale. Causa in `ModelPreferences.selectedModel`
+  ([ModelPreferences.kt](../app/src/main/kotlin/io/github/luposolitario/immundanoctisex/model/ModelPreferences.kt)):
+  cercava SOLO in `ModelCatalog.byId()` (il catalogo fisso) — un
+  modello personalizzato non ci sta mai dentro, quindi tornava `null` e
+  si ricadeva SILENZIOSAMENTE su `ModelCatalog.default`, qualunque cosa
+  l'utente avesse scelto. `AppContainer.ensureModelLoaded()` legge
+  proprio `selectedModel` per decidere quale file caricare in
+  `LiteRtLmEngine` — da lì il modello sbagliato arrivava fino alla
+  partita. Fix: cerca prima in `customModels`, poi nel catalogo fisso,
+  poi il default. Compilazione e suite riverificate verdi. **Non ancora
+  riprovato sul device.**
+
+  **SEGNALATO da Michele (22/07), RINVIATO ESPLICITAMENTE** — "serve un
+  tasto per far load/unload del modello se ne scarichi più di uno, ma
+  lo facciamo dopo, per adesso scarico solo un modello per volta": oggi
+  il cambio modello richiede riavviare l'app (o rientrare in
+  un'avventura) perché `LiteRtLmEngine` carica il modello una volta e
+  lo tiene; con più modelli scaricati in parallelo servirebbe un modo
+  per scaricare quello attivo e caricarne un altro senza uscire. Non
+  implementare finché Michele non lo richiede: per ora tiene un solo
+  modello scaricato per volta, il flusso attuale gli basta.
 
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
