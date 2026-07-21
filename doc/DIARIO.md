@@ -1433,6 +1433,17 @@ copre ora ~12', vedi sotto) e il **drain della batteria** (osservazione
 di Michele 20/07: su un gioco che tiene la GPU occupata conta più della
 memoria — va aggiunto alle misure di CRITICITA.md).
 
+**Batteria e temperatura AGGIUNTE alla riga MISURA** (22/07, Michele:
+"per controllare anche il drain cosa dobbiamo fare?"): `LiteRtLmEngine`
+ora legge percentuale e temperatura dallo sticky broadcast di sistema
+`ACTION_BATTERY_CHANGED` (nessun permesso richiesto) e le scrive in
+coda alla stessa riga di sempre (`batteria=NN% temp=NN.N°C`). Un solo
+run lungo copre ora insieme velocità/token, memoria, batteria e
+temperatura — non serve più incrociare a mano uno screenshot dello
+stato con l'orario del log.
+Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
