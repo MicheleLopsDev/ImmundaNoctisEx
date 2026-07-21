@@ -1152,6 +1152,24 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   la voce parta davvero, che si fermi al cambio scena e che l'icona si
   disabiliti con l'auto-lettura accesa.
 
+- **MUSICA: COMBO invece del picker, con anteprima** (22/07, dal
+  device — Michele: "vorrei una combo con le canzoni che ho fatto, non
+  un picker, e quando seleziono una combo questa parte per provarla").
+  Il file picker di sistema (SAF) per un file esterno è sparito:
+  sostituito da un vero menu a tendina sulle 4 tracce incluse
+  (`BundledMusicCatalog`, nuovo — `esplorazione`/`combattimento`/
+  `mercato`/`romantico`). `MusicPreferences.selectedTrackUri`/
+  `selectedTrackName` (pensati per un file esterno) sostituiti da
+  `selectedTrackId` + `effectiveTrack`.
+  Selezionare una voce dal menu la fa partire SUBITO in un
+  `MediaPlayer` di anteprima locale a `OptionsRoute` (letto da
+  `assets/` via `AssetFileDescriptor`, `isLooping = true`, volume
+  allineato allo slider anche mentre lo si trascina) — vive e muore con
+  la schermata Opzioni (`DisposableEffect`), non è la riproduzione
+  vera in partita: quella resta un passo separato, non ancora fatto.
+  Compilazione e suite riverificate verdi. **Mai vista girare sul
+  device.**
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
