@@ -33,6 +33,11 @@ data class Scene(
     val genre: String,
     val toneHints: List<String> = emptyList(),
     val backgroundImage: String? = null,
+    // ID canonico dal catalogo NPC (NpcImageCatalog), stesso pattern di
+    // backgroundImage: dichiarato dall'autore, mai da Gemma. Dato pronto
+    // all'uso (22/07/2026); l'aggancio UI (dove mostrarlo) resta da
+    // decidere — vedi DIARIO.md.
+    val npcImage: String? = null,
     val locationName: String? = null,
     val narrativeText: String,
     val choices: List<Choice> = emptyList(),

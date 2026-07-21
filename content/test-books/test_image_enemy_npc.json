@@ -1,0 +1,109 @@
+{
+    "id": "test-image-enemy-npc",
+    "version": "1.0.0",
+    "title": "TEST: ritratti nemico e NPC",
+    "description": "Verifica i ritratti aggiunti il 22/07/2026: Combat.enemyImage accanto al nome in CombatEntryZone, Scene.npcImage sotto il testo narrato. La stessa immagine (beast_wolves) compare prima come incontro pacifico (scena 1, npcImage) e poi come nemico vero (scena 4, enemyImage) per dimostrare che è l'autore a scegliere il campo, non l'immagine. La scena 7 ha combat SENZA enemyImage: deve restare solo testo, come prima di questa funzione (fallback).",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["adventurous"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["calm", "curious"],
+            "npcImage": "beast_stallion",
+            "narrativeText": "A wild stallion grazes at the edge of the meadow, ears flicking toward you but showing no fear. It watches with calm, intelligent eyes as you approach, in no hurry to run.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Leave the horse in peace and follow the trail",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["mysterious"],
+            "npcImage": "npc_traveler",
+            "narrativeText": "A hooded traveler sits at the crossroads, a small fire burning low beside them. They look up as you draw near, neither friend nor threat yet decided in their eyes. Somewhere beyond the trees, a low howling drifts on the wind.",
+            "choices": [
+                {
+                    "id": "choice_2_1",
+                    "choiceText": "Sit and talk with the traveler",
+                    "nextSceneId": "3"
+                },
+                {
+                    "id": "choice_2_2",
+                    "choiceText": "Ignore them — the howling means wolves are near",
+                    "nextSceneId": "4"
+                },
+                {
+                    "id": "choice_2_3",
+                    "choiceText": "Take the forest shortcut instead",
+                    "nextSceneId": "7"
+                }
+            ]
+        },
+        {
+            "id": "3",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "The traveler shares what little they know of the road ahead, and you part ways as the fire dies down. No triumph, no danger — just a quiet crossing of two paths.",
+            "choices": []
+        },
+        {
+            "id": "4",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["dark", "dangerous"],
+            "narrativeText": "The pack breaks from the treeline together, lean shapes low to the ground, eyes fixed on you. There is no more time to wonder if they mean to attack — they already have.",
+            "choices": [],
+            "combat": {
+                "enemyName": "Wolf Pack",
+                "enemyImage": "beast_wolves",
+                "enemyCombatSkill": 15,
+                "enemyEndurance": 20,
+                "winSceneId": "5",
+                "loseSceneId": "6"
+            }
+        },
+        {
+            "id": "5",
+            "sceneType": "ENDING",
+            "outcome": "VICTORY",
+            "genre": "FANTASY",
+            "toneHints": ["relieved"],
+            "narrativeText": "The last wolf retreats into the trees, and silence returns to the crossroads. You catch your breath, unharmed but shaken.",
+            "choices": []
+        },
+        {
+            "id": "6",
+            "sceneType": "ENDING",
+            "outcome": "DEFEAT",
+            "genre": "FANTASY",
+            "toneHints": ["grim"],
+            "narrativeText": "The pack is too many, too fast. Your journey ends here, at the crossroads in the failing light.",
+            "choices": []
+        },
+        {
+            "id": "7",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["tense"],
+            "narrativeText": "The shortcut is not as empty as it looked. Two figures step out from behind the treeline, blades already drawn — this is no accident. Note: this combat has NO enemyImage on purpose, to verify the fallback stays text-only.",
+            "choices": [],
+            "combat": {
+                "enemyName": "Forest Bandits",
+                "enemyCombatSkill": 13,
+                "enemyEndurance": 16,
+                "winSceneId": "5",
+                "loseSceneId": "6"
+            }
+        }
+    ]
+}
