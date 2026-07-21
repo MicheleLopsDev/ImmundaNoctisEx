@@ -92,6 +92,7 @@ fun AdventureRoute(
                     ttsService = ttsService,
                     autoReadEnabled = container.ttsPreferences.autoReadEnabled,
                     userLocale = container.languagePreferences.outputLanguage.locale,
+                    soundEffectPlayer = container.soundEffectPlayer,
                 )
             }
 

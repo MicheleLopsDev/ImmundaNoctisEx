@@ -13,6 +13,7 @@ import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import io.github.luposolitario.immundanoctisex.music.MusicPlayer
+import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
 import io.github.luposolitario.immundanoctisex.util.AccentColorPreferences
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 import io.github.luposolitario.immundanoctisex.util.FontPreferences
@@ -51,6 +52,8 @@ class AppContainer(context: Context) {
     // Scope applicazione apposta (Michele 22/07/2026): deve sopravvivere
     // alla navigazione tra schermate, non solo vivere dentro Opzioni.
     val musicPlayer = MusicPlayer(context)
+
+    val soundEffectPlayer = SoundEffectPlayer(context)
 
     val audioPreferences = AudioPreferences(context)
 

@@ -43,7 +43,7 @@ import kotlin.random.Random
 // dado ha smesso di girare — altrimenti i valori a schermo cambiano
 // mentre il dado sta ancora "decidendo", rovinando l'effetto.
 @Composable
-fun TenSidedDie(onRoll: () -> Int?) {
+fun TenSidedDie(onRoll: () -> Int?, onTap: () -> Unit = {}) {
     var rolling by remember { mutableStateOf(false) }
     var face by remember { mutableStateOf<Int?>(null) }
     var spin by remember { mutableStateOf(0f) }
@@ -57,6 +57,7 @@ fun TenSidedDie(onRoll: () -> Int?) {
             .background(MaterialTheme.colorScheme.surfaceVariant)
             .border(2.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
             .clickable(enabled = !rolling) {
+                onTap()
                 scope.launch {
                     rolling = true
                     repeat(ROLL_STEPS) {
