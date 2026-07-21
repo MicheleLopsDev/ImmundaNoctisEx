@@ -1121,6 +1121,37 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   all'uscita dalla scena) prima di cancellare per davvero. Compilazione
   e suite riverificate verdi. **Mai vista girare sul device.**
 
+- **TTS TAPPA 2: agganciato nel flusso della scena** (22/07, Michele:
+  "prima del push voglio chiudere tutti gli sviluppi base, manca
+  l'implementazione del TTS"): `TtsService`/`TtsPreferences` esistevano
+  già (configurazione, voci per genere, `UtteranceProgressListener`),
+  ma non erano mai collegati a una lettura vera — restava tutto inerte,
+  come i due file stessi dichiaravano in commento ("Tappa 2" non fatta).
+  Seguito `UI.md` §Stato del narratore unificato e §Flusso centrale,
+  non reinventato:
+  - `AdventureState`: nuovo `isSpeaking` (terzo valore dello stato
+    unificato IDLE/GENERATING/SPEAKING), `readAloud()` che chiama
+    `TtsService.speak(narrative, hero.gender, userLocale)`,
+    `onSpeakingStarted`/`onSpeakingFinished` collegati a `isSpeaking`
+    in un `init`. Auto-lettura solo a `NarrationEvent.Completed` (testo
+    finito, non durante lo streaming — leggere un testo che cambia
+    sotto la voce non avrebbe senso) quando `autoReadEnabled`.
+    `ttsService.stop()` a ogni `moveTo`: la voce della scena lasciata
+    non deve continuare sopra quella nuova.
+  - `AdventureRoute`: `TtsService` connesso una volta sola per tutta la
+    vita della route (a differenza del narratore non serve ricrearlo
+    quando cambiano lingua/tono), smontato con `DisposableEffect`.
+  - `AdventureScreen`: il cerchio d'oro del banner resta acceso anche
+    in SPEAKING, non solo in GENERATING. Icona "leggi" (`VolumeUp`)
+    sopra il testo narrato — grigia/disattivata se l'auto-lettura è
+    già accesa in Opzioni, come da UI.md.
+  Le altre due icone del "blocco del narratore" previste da UI.md
+  (copia, toggle originale/tradotto) restano FUORI da questo giro: non
+  erano nella richiesta di oggi. Compilazione e suite riverificate
+  verdi. **Mai vista girare sul device**, né sentita: verificare che
+  la voce parta davvero, che si fermi al cambio scena e che l'icona si
+  disabiliti con l'auto-lettura accesa.
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
