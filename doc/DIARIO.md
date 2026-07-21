@@ -1208,6 +1208,35 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
   sul device**: verificare i due tasti "Prova" e che muovere il volume
   generale si senta davvero su entrambi i canali.
 
+- **MUSICA: non partiva accendendo lo switch, si fermava uscendo da
+  Opzioni** (22/07, dal device — Michele: "quando abilito non parte a
+  meno che non cambio canzone e poi quando esco dalle opzioni smette
+  di suonare"). Nel log: `error (-38, 0)`, il classico segnale di un
+  metodo chiamato su un `MediaPlayer` gia' rilasciato — confermava la
+  causa: il player viveva dentro `OptionsRoute`
+  (`DisposableEffect { onDispose { previewPlayer.release() } }`) e
+  moriva appena si usciva dalla schermata.
+  - **Bug 1**: `onMusicEnabledChange` metteva in pausa quando si
+    spegneva lo switch, ma non avviava mai nulla quando si accendeva —
+    partiva solo indirettamente se poi si cambiava canzone (che aveva
+    la sua chiamata a play separata).
+  - **Fix strutturale**: nuovo `MusicPlayer` (`app/.../music/`), un
+    `MediaPlayer` gestito a scope **APPLICAZIONE** (`AppContainer`),
+    non piu' locale alla Route — sopravvive alla navigazione tra
+    schermate. Conseguenza esplicita, non un effetto collaterale
+    nascosto: la musica ora continua a suonare ANCHE durante
+    l'Avventura, con Gemma attivo — la condizione posta da Michele il
+    20/07 ("prima le misure di batteria") torna rilevante, ma e' lui
+    stesso ad aver chiesto ora che non si fermi piu' uscendo da una
+    schermata. Segnalato esplicitamente in chat, non implementato di
+    nascosto.
+  - Accendere lo switch avvia subito la traccia gia' selezionata;
+    scegliere una traccia dal menu accende anche lo switch da solo se
+    era spento (lo stato visibile non deve mentire su cosa sta
+    suonando davvero).
+  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+  sul device.**
+
 **APERTO — ordine del 20/07, ora aggiornato dalla nota sopra**:
 1. ~~Chiudere la milestone di Fase 4: termico su 30-45' e drain
    batteria~~ — rimandato, vedi nota di ri-priorizzazione sopra.
