@@ -111,6 +111,7 @@ private fun CenterColumn(state: AdventureState, session: CombatSession) {
             TenSidedDie(
                 onRoll = { state.combatFightRound()?.roll },
                 onTap = { state.playDiceRollSound() },
+                initialFace = state.lastRound?.roll,
             )
         }
     }
