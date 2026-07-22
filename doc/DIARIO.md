@@ -1631,6 +1631,28 @@ sul device.**
   Compilazione e suite riverificate verdi (fix 1 e 2). **Mai visti
   girare sul device.**
 
+- **BUG: il numero del dado sparisce dopo il tiro nel combattimento**
+  (22/07, Michele: "dopo che premo il pulsante il numero che ha dato
+  il dado scompare, sarebbe più bello che restasse così so cosa è
+  uscito"). Causa: `TenSidedDie` tiene `face` in memoria LOCALE
+  (`remember`), ma vive dentro `CombatActiveZone`'s `key(combatTick)`
+  (fix del 21/07 per "RES non cambiano dopo MINDBLAST/il dado" —
+  `CombatSession` non è osservata da Compose, serve la ricreazione
+  forzata per far leggere di nuovo RES/CS). Ogni round `combatTick`
+  cambia -> `key()` ricrea l'INTERO sottoalbero -> `face` torna a
+  `null` -> il numero appena uscito sparisce, sostituito da "?".
+  Corretto senza toccare `key(combatTick)` (servirebbe di nuovo per
+  RES/CS): nuovo parametro `TenSidedDie(initialFace: Int?)`, seminato
+  da `AdventureState.lastRound?.roll` — quel valore vive FUORI dal
+  sottoalbero ricreato (in `AdventureState`, già impostato PRIMA che
+  `combatTick` cambi in `combatFightRound()`), quindi sopravvive alla
+  ricreazione: il dado nuovo nasce già mostrando l'ultimo tiro vero,
+  invece di azzerarsi. `TenSidedDie` resta un componente autonomo
+  (candidato al Dado del Destino generale di Fase 7): il parametro è
+  opzionale, default `null`, non lega il componente al combattimento.
+  Compilazione e suite riverificate verdi. **Mai vista girare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
