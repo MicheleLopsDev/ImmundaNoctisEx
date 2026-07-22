@@ -1606,11 +1606,28 @@ sul device.**
      compare in OGNI log finora, sempre ignorato perché finora si è
      sempre usata la variante generica). Un file compilato per
      l'Hexagon NPU probabilmente fallisce o degrada sul percorso
-     GPU/CPU generico. **Non è schedulato**: servirebbe integrare il
-     delegate NPU (SDK/librerie di dispatch specifiche del vendor, non
-     banale), non è un fix al volo. Per ora: usare sempre la variante
-     SENZA suffisso vendor (es. `gemma-4-E2B-it.litertlm`, quella già
-     usata con successo ieri notte).
+     GPU/CPU generico. Per ora: usare sempre la variante SENZA
+     suffisso vendor (es. `gemma-4-E2B-it.litertlm`, quella già usata
+     con successo ieri notte).
+
+     **Approfondito e SCARTATO, stessa giornata**: Michele ha fatto
+     notare di aver già bundlato le librerie QNN vere (`libQnnHtp.so`
+     + varianti V69/V73/V75 con Skel/Stub) in v1 (progetto `stdf`,
+     generazione immagini con Stable Diffusion) — quindi ottenere e
+     ridistribuire le librerie Qualcomm sul suo device è fattibile,
+     dimostrato. Ma quel bridge era C++/JNI scritto a mano, parlava
+     con l'SDK QNN direttamente; LiteRT-LM invece vuole uno specifico
+     collante di Google (`libLiteRtDispatch_Qualcomm.so`) che l'AAR
+     Android non include (issue aperta su google-ai-edge/LiteRT) — si
+     otterrebbe solo compilandolo da sorgente con Bazel, un toolchain
+     nuovo fuori dal progetto Gradle/Kotlin attuale. Michele: "concordo
+     che non voglio reintrodurre C++ in questa versione... non stiamo
+     generando immagini ma testo, e se devo aspettare un po' va bene
+     così" — **decisione presa, non un rinvio**: niente NPU in Ex, il
+     motivo non è la difficoltà tecnica ma una scelta di architettura
+     (niente C++/toolchain nativo in questa riscrittura) unita al
+     fatto che per il testo (non immagini) la velocità attuale basta.
+     Non riaprire senza una ragione nuova ed esplicita.
   Compilazione e suite riverificate verdi (fix 1 e 2). **Mai visti
   girare sul device.**
 
