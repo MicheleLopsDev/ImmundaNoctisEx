@@ -1699,6 +1699,26 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai viste girare sul
   device.**
 
+- **Suono dei passi nelle transizioni + dado sostituito** (22/07,
+  Michele: "aggiungo un suono per il roll del dado e uno di passi da
+  usare nelle transizioni, che dici?"). Discusso prima di scrivere
+  codice: le transizioni scattano anche nei salti d'ufficio a catena e
+  in contesti dove "camminare" non c'entra (ingresso in combattimento,
+  morte, finale) — passi su OGNI cambio scena sarebbero stati
+  ripetitivi o stonati. Michele ha confermato lo scope proposto.
+  - `assets/sfx/dice_roll.mp3` sostituito (`roll_dice.mp3`, un suono
+    di dado vero al posto del provvisorio scontro di spade).
+  - Nuovo `SoundEffect.FOOTSTEPS` (`bubu07audio-running-on-sand-
+    357373.mp3`). Parte in `AdventureState.moveTo` solo se la scena di
+    arrivo è `sceneType == TRANSITION` E non ha combattimento (una
+    TRANSITION può essere anche una scena di scontro, es.
+    sample-adventure scena "4" — lì i passi stonerebbero). Parte
+    SUBITO, non in sospeso come il suono del pasto: accompagna il
+    gesto di scegliere una strada, non un fatto da confermare col
+    testo di Gemma.
+  Compilazione e suite riverificate verdi. **Mai sentiti girare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
