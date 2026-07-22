@@ -1577,6 +1577,43 @@ sul device.**
   potrebbero provare più scelte"). Nessuna azione di codice presa: è
   un giudizio sul modello, non un bug da correggere.
 
+- **Tre segnalazioni sul motore dei modelli, dopo il giro di prove col
+  2B** (22/07, Michele, in un colpo solo):
+  1. **Download bloccato anche col 5G**: "non mi fa scaricare anche
+     con il 5G, io ho la connessione flat per cui non mi importa".
+     `startDownload` vincolava il worker a `NetworkType.UNMETERED`
+     (solo Wi-Fi) — una decisione lasciata esplicitamente "in attesa
+     di Michele" da giorni (vedi sopra, sessione 20/07). **Presa ora**:
+     basta `NetworkType.CONNECTED`, qualunque rete va bene. Questo
+     probabilmente spiega anche il punto 3 sotto.
+  2. **BUG: cancellare un modello attivo non lo segna più tale**:
+     "anche se ho cancellato un modello questo risulta attivo,
+     controlla". `onDelete` in `ModelsRoute` cancellava il file ma non
+     toccava mai `activeModelId`: la card continuava a mostrare "In
+     uso ora" per un modello che non esisteva più sul telefono.
+     Corretto: cancellare il modello attivo azzera `activeModelId`.
+  3. **`gemma-4-E2B-it_qualcomm_sm8750.litertlm` non parte**: NON è un
+     bug nostro, è un limite del motore attuale. Quel file (e i
+     fratelli `_intel_LNL`/`_intel_PTL`/`_Google_Tensor_G5`/
+     `_qualcomm_qcs8275` sullo stesso repo Hugging Face) sono varianti
+     compilate apposta per il delegate NPU del chip indicato nel nome
+     — `sm8750` è il nome interno Qualcomm dello Snapdragon 8 Elite del
+     Razr di Michele, quindi sulla carta sarebbe la variante giusta.
+     Ma `LiteRtLmEngine.load()` prova solo `Backend.GPU()` e
+     `Backend.CPU()`, mai NPU, e non imposta mai
+     `litert_dispatch_lib_dir` (il warning
+     "You should provide the `DispatchLibraryDir` option to use NPU"
+     compare in OGNI log finora, sempre ignorato perché finora si è
+     sempre usata la variante generica). Un file compilato per
+     l'Hexagon NPU probabilmente fallisce o degrada sul percorso
+     GPU/CPU generico. **Non è schedulato**: servirebbe integrare il
+     delegate NPU (SDK/librerie di dispatch specifiche del vendor, non
+     banale), non è un fix al volo. Per ora: usare sempre la variante
+     SENZA suffisso vendor (es. `gemma-4-E2B-it.litertlm`, quella già
+     usata con successo ieri notte).
+  Compilazione e suite riverificate verdi (fix 1 e 2). **Mai visti
+  girare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
