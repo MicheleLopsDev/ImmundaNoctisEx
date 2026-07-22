@@ -20,13 +20,17 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 data class VolumeUi(
     val ttsVolume: Float,
     val musicVolume: Float,
+    val effectsVolume: Float,
     val generalVolume: Float,
 )
 
-// Tre volumi indipendenti raccolti in un solo posto (22/07/2026,
-// richiesta Michele: "una parte nel menu opzioni dove metti 3 barre
-// volume"): voce (TTS), musica, generale — quest'ultimo moltiplica gli
-// altri due (TtsService.speak, la riproduzione musica), non li sostituisce.
+// Quattro volumi indipendenti raccolti in un solo posto (22/07/2026,
+// richiesta Michele: prima "3 barre volume" — voce/musica/generale — poi
+// "la barra con il volume dei suoni deve essere una barra a parte": gli
+// effetti sonori (dado, passi, mangiare/bere...) usavano solo il generale,
+// senza un proprio controllo). Il generale moltiplica gli altri tre
+// (TtsService.speak, la riproduzione musica, SoundEffectPlayer), non li
+// sostituisce.
 @Composable
 fun VolumeSection(
     ui: VolumeUi,
@@ -34,6 +38,8 @@ fun VolumeSection(
     onTtsVolumeCommit: () -> Unit,
     onMusicVolumeChange: (Float) -> Unit,
     onMusicVolumeCommit: () -> Unit,
+    onEffectsVolumeChange: (Float) -> Unit,
+    onEffectsVolumeCommit: () -> Unit,
     onGeneralVolumeChange: (Float) -> Unit,
     onGeneralVolumeCommit: () -> Unit,
 ) {
@@ -42,6 +48,7 @@ fun VolumeSection(
             Text("Volumi", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             VolumeSlider("Voce (TTS)", ui.ttsVolume, onTtsVolumeChange, onTtsVolumeCommit)
             VolumeSlider("Musica", ui.musicVolume, onMusicVolumeChange, onMusicVolumeCommit)
+            VolumeSlider("Effetti sonori", ui.effectsVolume, onEffectsVolumeChange, onEffectsVolumeCommit)
             VolumeSlider("Generale", ui.generalVolume, onGeneralVolumeChange, onGeneralVolumeCommit)
         }
     }
@@ -60,11 +67,13 @@ private fun VolumeSlider(label: String, value: Float, onChange: (Float) -> Unit,
 private fun VolumeSectionPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
         VolumeSection(
-            ui = VolumeUi(ttsVolume = 0.75f, musicVolume = 0.15f, generalVolume = 0.8f),
+            ui = VolumeUi(ttsVolume = 0.75f, musicVolume = 0.15f, effectsVolume = 0.7f, generalVolume = 0.8f),
             onTtsVolumeChange = {},
             onTtsVolumeCommit = {},
             onMusicVolumeChange = {},
             onMusicVolumeCommit = {},
+            onEffectsVolumeChange = {},
+            onEffectsVolumeCommit = {},
             onGeneralVolumeChange = {},
             onGeneralVolumeCommit = {},
         )

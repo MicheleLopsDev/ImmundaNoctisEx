@@ -49,11 +49,14 @@ fun OptionsRoute(
     var musicEnabled by remember { mutableStateOf(container.musicPreferences.musicEnabled) }
     var selectedTrackId by remember { mutableStateOf(container.musicPreferences.effectiveTrack.id) }
 
-    // I tre volumi (22/07/2026, richiesta Michele): TTS e musica hanno
-    // ciascuno il proprio, il generale moltiplica entrambi - vive in
-    // AudioPreferences perche non appartiene ne all uno ne all altra.
+    // I quattro volumi (22/07/2026, richiesta Michele): TTS, musica ed
+    // effetti hanno ciascuno il proprio, il generale moltiplica tutti e
+    // tre - vive in AudioPreferences perche non appartiene a nessuno dei
+    // tre. Gli effetti sono arrivati dopo ("la barra con il volume dei
+    // suoni deve essere una barra a parte").
     var ttsVolume by remember { mutableStateOf(container.ttsPreferences.volume) }
     var musicVolume by remember { mutableStateOf(container.musicPreferences.volume) }
+    var effectsVolume by remember { mutableStateOf(container.soundEffectPreferences.volume) }
     var generalVolume by remember { mutableStateOf(container.audioPreferences.generalVolume) }
 
     // Player a scope APPLICAZIONE (container.musicPlayer, non piu locale
@@ -176,6 +179,7 @@ fun OptionsRoute(
         volumeUi = VolumeUi(
             ttsVolume = ttsVolume,
             musicVolume = musicVolume,
+            effectsVolume = effectsVolume,
             generalVolume = generalVolume,
         ),
         onTtsVolumeChange = { ttsVolume = it },
@@ -187,6 +191,8 @@ fun OptionsRoute(
             container.musicPlayer.setVolume(effectiveMusicVolume())
         },
         onMusicVolumeCommit = { container.musicPreferences.volume = musicVolume },
+        onEffectsVolumeChange = { effectsVolume = it },
+        onEffectsVolumeCommit = { container.soundEffectPreferences.volume = effectsVolume },
         onGeneralVolumeChange = { newVolume ->
             generalVolume = newVolume
             container.musicPlayer.setVolume(effectiveMusicVolume())
