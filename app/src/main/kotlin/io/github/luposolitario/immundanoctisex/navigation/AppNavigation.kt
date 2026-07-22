@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,22 @@ fun AppNavigation(
     // la logica vive nelle route delle schermate).
     var newDifficulty by remember { mutableStateOf(Difficulty.NORMAL) }
     var activeSession by remember { mutableStateOf<SessionData?>(null) }
+
+    // Riprende la musica all'apertura dell'app (Michele 22/07/2026: "appena
+    // apro l'applicazione anche se la musica è selezionata come attiva non
+    // suona"): musicPlayer.play/pause partono SOLO da un tocco dentro
+    // OptionsRoute, mai da soli. Su un processo nuovo il player è appena
+    // creato (silenzioso) e nessuno leggeva mai la preferenza salvata: la
+    // musica restava spenta finché non si rientrava in Opzioni e si
+    // ritoccava lo switch. Una volta sola per processo, qui, non dentro
+    // OptionsRoute (che si monta/smonta a ogni navigazione).
+    LaunchedEffect(Unit) {
+        if (container.musicPreferences.musicEnabled) {
+            val volume = (container.musicPreferences.volume * container.audioPreferences.generalVolume)
+                .coerceIn(0f, 1f)
+            container.musicPlayer.play(container.musicPreferences.effectiveTrack, volume)
+        }
+    }
 
     fun navigateTo(destination: Route) {
         backStack.addLast(route)
