@@ -163,6 +163,11 @@ fun ModelsRoute(
         onDelete = { model ->
             preferences.deleteModel(model)
             downloadedIds = downloadedIds - model.id
+            // BUG (22/07/2026, Michele: "anche se ho cancellato un modello
+            // questo risulta attivo"): il file spariva ma activeModelId
+            // restava quello, e la card continuava a mostrare "In uso ora"
+            // per un modello che non esiste più sul telefono.
+            if (activeModelId == model.id) activeModelId = null
         },
         onAddCustomModel = { url, name, requiresToken ->
             if (url.isNotBlank()) {
@@ -322,10 +327,14 @@ private fun startDownload(
                 ModelDownloadWorker.KEY_TOKEN to preferences.huggingFaceToken,
             ),
         )
-        // Sono GB: solo su rete non a consumo, salvo diversa scelta futura.
+        // Erano GB solo su rete non a consumo, ma Michele (22/07/2026:
+        // "non mi fa scaricare anche con il 5G, io ho la connessione flat
+        // per cui non mi importa") ha un piano dati flat e vuole scaricare
+        // anche via cellulare — la scelta era "in attesa" da giorni
+        // (CRITICITA.md), ora è presa: basta una rete qualunque.
         .setConstraints(
             Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.UNMETERED)
+                .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build(),
         )
         .build()
