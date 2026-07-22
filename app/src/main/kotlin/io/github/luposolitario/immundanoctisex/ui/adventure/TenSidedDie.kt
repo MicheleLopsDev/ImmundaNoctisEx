@@ -42,10 +42,19 @@ import kotlin.random.Random
 // combattimento, sincrono), quella mutazione deve arrivare dopo che il
 // dado ha smesso di girare — altrimenti i valori a schermo cambiano
 // mentre il dado sta ancora "decidendo", rovinando l'effetto.
+//
+// `initialFace` (Michele 22/07/2026: "dopo che premo il pulsante il
+// numero scompare"): nel combattimento questo componente vive dentro
+// un `key(combatTick)` che lo ricrea da zero ad ogni round (serve per
+// far aggiornare RES/CS, letti da una CombatSession non osservata da
+// Compose) — la ricreazione azzerava anche `face`, che è memoria
+// LOCALE di questo composable. Seminare `face` dall'ultimo tiro noto
+// (tenuto invece in AdventureState.lastRound, che sopravvive alla
+// ricreazione) fa sì che il numero resti a schermo invece di sparire.
 @Composable
-fun TenSidedDie(onRoll: () -> Int?, onTap: () -> Unit = {}) {
+fun TenSidedDie(onRoll: () -> Int?, onTap: () -> Unit = {}, initialFace: Int? = null) {
     var rolling by remember { mutableStateOf(false) }
-    var face by remember { mutableStateOf<Int?>(null) }
+    var face by remember { mutableStateOf(initialFace) }
     var spin by remember { mutableStateOf(0f) }
     val scope = rememberCoroutineScope()
 
