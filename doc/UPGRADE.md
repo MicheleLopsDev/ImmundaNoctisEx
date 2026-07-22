@@ -91,7 +91,82 @@ audio e un player (roba di Fase 7).
 
 ---
 
-## 2. Motore alternativo: una libreria Kotlin per modelli GGUF
+## 2. Reskin grafico ispirato al registro cartaceo di Lupo Solitario
+
+**Origine**: Michele (22/07/2026) ha mandato le foto delle 4 pagine del
+registro ufficiale (Diario di Combattimento, Zaino/Borsa/Pasti/Oggetti
+Speciali, Combattività/Resistenza/Armamento, Registro di Guerra) e
+vuole farle procurare dalla figlia, grafica di professione.
+
+**Cosa**: pergamena invecchiata, bordi a carta strappata, font
+gotico/medievale, icone a china per le armi — lo stile del registro
+cartaceo, applicato ai pannelli che oggi sono Material3 piatto (scheda
+personaggio, Diario di Combattimento, zaino). **Non è una copia**: le
+illustrazioni e il logo "LONE WOLF" del registro sono di Mongoose/Joe
+Dever, protetti — si prende lo STILE (pergamena, china, bordi
+strappati), non il contenuto esatto.
+
+**Due modifiche più economiche già fatte SENZA asset nuovi** (22/07):
+`CombatDiaryPanel` mostra il paragrafo/scena in testa e il Rapporto di
+Forza in un riquadro bordato; la scheda personaggio scompone
+Combattività/Resistenza in Base + Modificatori. Questa voce riguarda
+il resto: il vero reskin visivo, che serve asset veri.
+
+### Lista asset per la grafica (quello che Michele ha chiesto di preparare)
+
+**Font**
+- Un font "da titolo" gotico/medievale — SOLO per intestazioni, non
+  per il testo lungo da leggere (un font decorativo su un paragrafo
+  intero di prosa diventa illeggibile).
+- Formato `.ttf`/`.otf`, deve includere le lettere accentate italiane
+  (à è é ì ò ù). Se serve un peso Bold, meglio un file a parte.
+- Licenza libera per uso in app se è un font esistente scelto da lei;
+  nessun problema se lo disegna.
+
+**Texture di sfondo (pergamena)**
+- Un'immagine "pergamena invecchiata", **tileable** (si ripete senza
+  cuciture visibili) — più robusta di un'immagine fissa perché
+  funziona su qualunque dimensione di schermo.
+- Formato PNG o WebP, almeno 1024×1024 se tileable.
+- Serve pensata per **tema scuro** (l'app oggi gira quasi sempre in
+  dark mode): va verificato come si comporta di notte, non solo di
+  giorno.
+
+**Cornice a bordi strappati**
+- Bordo decorativo "carta strappata" da mettere intorno alle card. Il
+  formato più comodo per Android è un **9-patch** (PNG speciale che si
+  allunga senza deformarsi); se non lo conosce va bene anche una
+  striscia strappata semplice da ripetere sopra/sotto un pannello.
+- PNG con trasparenza.
+
+**Icone per arma (9 pezzi)**
+- Asta, Spada, Daga, Martello, Pugnale, Lancia, Spadone, Ascia, Mazza
+  — stile china/silhouette, come nel registro.
+- Formato **SVG** preferito (si scala senza perdere qualità); se non
+  esporta SVG vanno bene PNG grandi (almeno 512×512). Ne abbiamo già
+  alcune (ascia, mappa, oro) ma non nello stesso stile — se le rifà
+  tutte insieme, coerenza garantita.
+
+**Decorazioni opzionali (non urgenti)**
+- Zaino, borsa/corone, pasto, mucchio di equipaggiamento, spade
+  incrociate col teschio di lupo, medaglione del "saggio": danno
+  personalità ma non sono indispensabili, si può partire senza.
+- Un'illustrazione del lupo per il logo dell'app — ispirata, MAI la
+  stessa del logo ufficiale Lone Wolf.
+
+**Cosa NON chiederle**: copiare il logo "LONE WOLF" o le illustrazioni
+specifiche del libro originale — quelle sono protette. Lo stile sì,
+il contenuto esatto no.
+
+### Costo dell'integrazione (una volta pronti gli asset)
+Meccanico ma esteso: font in `res/font` + riferimento nel tema Compose
+per i soli titoli; texture come sfondo via `Modifier.background` sui
+pannelli principali; bordo 9-patch o composizione di strisce; icone
+armi come Vector Drawable (conversione da SVG) al posto delle
+placeholder attuali. Tocca molte schermate — è un lavoro ampio ma
+senza sorprese architetturali, nessun contratto da cambiare.
+
+## 3. Motore alternativo: una libreria Kotlin per modelli GGUF
 
 **Origine**: idea di Michele (22/07/2026), nata dopo il confronto tra
 Gemma 4 E4B (qualità migliore, più lento) e 2B abliterated (più
@@ -126,7 +201,7 @@ l'interfaccia. Il contratto regge già.
 **Non schedulato**: nessuna azione finché Michele non porta una
 libreria concreta da valutare.
 
-## 3. Altre proposte raccolte
+## 4. Altre proposte raccolte
 
 ### Già PREDISPOSTE nel design chiuso (i contratti reggono)
 - **Effetti oggetto oltre `HEAL:n`**: il formato è dichiarativo ed
