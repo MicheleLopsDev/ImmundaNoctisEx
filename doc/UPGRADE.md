@@ -21,7 +21,21 @@ chiuso (i contratti reggono, manca l'implementazione), altre sono
 la Fase 4. **Rinviata da Michele**: prima serve misurare Gemma sul
 device (vedi §Rischio).
 
-Sono **due feature distinte** che convivono:
+Sono **tre feature distinte** che convivono:
+
+### 1c. Suono una tantum agganciato all'immagine risolta (NUOVO, 22/07/2026)
+Idea di Michele, molto più semplice delle due sotto: **non tocca
+Gemma per niente**. `backgroundImage`/`enemyImage`/`npcImage` sono già
+vocabolari chiusi, già risolti in modo affidabile
+(`SceneImageCatalog`/`EnemyImageCatalog`/`NpcImageCatalog`) — basta
+riusare LO STESSO id per pescare un file audio con lo stesso nome
+(`loc_market.mp3`), un colpo secco (SoundPool, non loop), riprodotto
+insieme all'immagine, senza toccare la musica di sottofondo. Nessun
+campo nuovo su `Scene`, nessun rischio di vocabolario extra nel
+prompt: il rinvio motivato dal rischio (sotto) non si applica a
+questa. Checklist degli asset da produrre: `doc/SUONI-IMMAGINI.md`.
+**In corso**: struttura ancora da scrivere (caricamento pigro per
+nome, cartella `assets/sfx/images/`), in attesa dei primi file mp3.
 
 ### 1a. Ambience di scena (tappeto sonoro)
 Un campo opzionale `ambience` sulla scena (simmetrico a
