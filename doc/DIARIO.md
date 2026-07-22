@@ -1521,6 +1521,26 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai vista/sentita girare
   sul device.**
 
+- **BUG: la musica non riparte all'apertura dell'app** (22/07,
+  Michele, dopo aver provato i due modelli 2B: "un baco rimane, ad
+  esempio sulla musica appena apro l'applicazione anche se la musica è
+  selezionata come attiva non suona"). Causa: `musicPlayer.play()`/
+  `.pause()` partono SOLO da un tocco dentro `OptionsRoute` (switch o
+  scelta traccia) — mai da soli. `MusicPlayer` a scope applicazione
+  (fix del 22/07 mattina) sopravvive alla navigazione DENTRO un
+  processo già avviato, ma su un processo NUOVO (app appena aperta)
+  nasce silenzioso e nessuno leggeva mai `MusicPreferences.musicEnabled`
+  per farlo ripartire da sé: la musica restava spenta finché non si
+  rientrava in Opzioni e si ritoccava lo switch, anche con la
+  preferenza salvata su "attiva". Corretto con un `LaunchedEffect(Unit)`
+  in `AppNavigation` (una volta sola per processo, non dentro
+  `OptionsRoute` che si monta/smonta a ogni navigazione): se
+  `musicEnabled` è vero, fa partire subito `musicPlayer.play()` con la
+  traccia e il volume salvati (stessa formula `musicVolume *
+  generalVolume` di `OptionsRoute`).
+  Compilazione e suite riverificate verdi. **Mai vista/sentita girare
+  sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
