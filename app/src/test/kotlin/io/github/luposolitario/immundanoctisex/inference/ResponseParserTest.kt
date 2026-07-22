@@ -272,4 +272,119 @@ class ResponseParserTest {
     fun nessunaRigaImage_backgroundImageRestaNull() {
         assertNull(ResponseParser.parse("Prosa.\n--- TAGS ---", scene()).backgroundImage)
     }
+
+    // --- Fixture da output reali di Gemma (log del device, 22/07/2026) ---
+    // Non testo scritto a mano: blocchi tag copiati dai log "IMAGE risolto=
+    // ... — blocco tag" mandati da Michele, sui due motori provati quella
+    // sera (Gemma 4 E4B abliterated e Gemma 4 E2B abliterated). Scene e ID
+    // ricalcano content/scenes.sample.json (il libro campione usato in
+    // quei run), non inventati.
+
+    @Test
+    fun fixtureE4B_bloccoTagBenFormato_conUnRefusoGrammaticaleNelTesto() {
+        // sample-adventure scena "3": choice_3_1 -> "4", dchoice_3_1
+        // SIXTH_SENSE -> "5", dchoice_3_2 CAMOUFLAGE -> "5".
+        val scene = scene(
+            choices = listOf(choice("choice_3_1", "4", "Walk on, hand on your weapon")),
+            disciplineChoices = listOf(
+                DisciplineChoice("dchoice_3_1", "SIXTH_SENSE", "You sense the ambush before they see you...", "5"),
+                DisciplineChoice("dchoice_3_2", "CAMOUFLAGE", "You blend with the shadows...", "5"),
+            ),
+        )
+        // "sul tuo'arma" è un refuso grammaticale vero del modello (doveva
+        // essere "sulla tua arma"): il parser non valida la grammatica,
+        // solo la struttura — deve passare comunque.
+        val raw = "Prosa.\n--- TAGS ---\n" +
+            "CHOICE|4|1|Procedi, mano sul tuo'arma\n" +
+            "DISCIPLINE|SIXTH_SENSE|Senti l'imboscata prima che lo vedano loro...\n" +
+            "DISCIPLINE|CAMOUFLAGE|Ti confondi con le ombre...\n" +
+            "IMAGE|loc_warehouse"
+
+        val result = ResponseParser.parse(raw, scene)
+
+        assertEquals("Procedi, mano sul tuo'arma", result.choiceTexts["choice_3_1"])
+        assertEquals("Senti l'imboscata prima che lo vedano loro...", result.disciplineChoiceTexts["dchoice_3_1"])
+        assertEquals("Ti confondi con le ombre...", result.disciplineChoiceTexts["dchoice_3_2"])
+        assertEquals("loc_warehouse", result.backgroundImage)
+    }
+
+    @Test
+    fun fixtureE4B_allucinazioneSullaScenaFinale_scartataDelTutto() {
+        // sample-adventure scena "6" (ENDING, VICTORY): nessuna scelta e
+        // nessuna disciplina vera. Il modello ha comunque scritto i
+        // SEGNAPOSTO del formato alla lettera ("scene_id", "discipline_id"
+        // come stringhe letterali, non ID veri) e mischiato inglese e
+        // italiano nella stessa riga — nessun crash, tutto scartato perché
+        // la scena reale non ha scelte con cui far combaciare nulla.
+        val scene = scene(choices = emptyList(), disciplineChoices = emptyList())
+        val raw = "Prosa.\n--- TAGS ---\n" +
+            "CHOICE|scene_id|progressive|The player can now open the chest.\n" +
+            "DISCIPLINE|discipline_id|Esplorare il cofano|Examine the chest"
+
+        val result = ResponseParser.parse(raw, scene)
+
+        assertEquals(emptyMap(), result.choiceTexts)
+        assertEquals(emptyMap(), result.disciplineChoiceTexts)
+    }
+
+    @Test
+    fun fixtureE2B_immagineSenzaPrefissoLoc_scartataDalCatalogoChiuso() {
+        // sample-adventure scena "4" (combattimento, senza scelte proprie):
+        // il modello più piccolo (2B) ha scritto "warehouse" invece di
+        // "loc_warehouse" — il vocabolario è chiuso per uguaglianza esatta,
+        // non per somiglianza: niente immagine invece di una scelta quasi
+        // giusta ma sbagliata.
+        val scene = scene(choices = emptyList(), disciplineChoices = emptyList())
+        val raw = "Prosa.\n--- TAGS ---\n" +
+            "CHOICE|scene_01|progressive|Chiudi la porta e cerca un riparo\n" +
+            "DISCIPLINE|discipline_basic|Migliora le tue abilità di combattimento\n" +
+            "ENEMY|Thug_1\n" +
+            "IMAGE|warehouse"
+
+        val result = ResponseParser.parse(raw, scene)
+
+        assertNull(result.backgroundImage)
+        assertEquals("Thug_1", result.enemyName)
+    }
+
+    @Test
+    fun fixtureE2B_treScelteInventateDiSanaPianta_scartateDelTutto() {
+        // Stessa scena finale del fixture E4B sopra, ma il 2B è andato
+        // oltre: ha inventato TRE scelte fittizie con ID a caso
+        // (scene_001/002/003) e le ha ripetute pari pari come DISCIPLINE.
+        // Nessuna delle due liste reali della scena ne contiene una vera.
+        val scene = scene(choices = emptyList(), disciplineChoices = emptyList())
+        val raw = "Prosa.\n--- TAGS ---\n" +
+            "CHOICE|scene_001|progressive|Apri la cassaforte\n" +
+            "CHOICE|scene_002|progressive|Osserva il marchio sulla cassaforte\n" +
+            "CHOICE|scene_003|progressive|Ricorda la promessa del testo\n" +
+            "DISCIPLINE|scene_001|Apri la cassaforte\n" +
+            "DISCIPLINE|scene_002|Osserva il marchio sulla cassaforte\n" +
+            "DISCIPLINE|scene_003|Ricorda la promessa del testo"
+
+        val result = ResponseParser.parse(raw, scene)
+
+        assertEquals(emptyMap(), result.choiceTexts)
+        assertEquals(emptyMap(), result.disciplineChoiceTexts)
+    }
+
+    @Test
+    fun fixtureE2B_caratteriGiapponesiNellaProsa_nonRomponoIlParsing() {
+        // Il 2B ha mescolato caratteri giapponesi dentro una parola
+        // italiana ("strarつきate") nel testo VISIBILE — un problema di
+        // qualità del modello, non del parser: la narrativa passa
+        // comunque, senza eccezioni né filtri sui caratteri.
+        val raw = "Lo acciaio strascia liberando due brutti che emergono dalle ombre del magazzino, " +
+            "le lame già strarつきate, i loro sguardi piatti di violenza addestrata.\n" +
+            "--- TAGS ---\n" +
+            "CHOICE|4|1|Procedi, mano sulla tua arma"
+
+        val result = ResponseParser.parse(raw, scene())
+
+        assertEquals(
+            "Lo acciaio strascia liberando due brutti che emergono dalle ombre del magazzino, " +
+                "le lame già strarつきate, i loro sguardi piatti di violenza addestrata.",
+            result.narrative,
+        )
+    }
 }
