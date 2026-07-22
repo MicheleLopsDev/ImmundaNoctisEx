@@ -1,12 +1,15 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -15,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
@@ -39,6 +43,17 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 fun CombatDiaryPanel(state: AdventureState, session: CombatSession) {
     Card {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Il Diario di Combattimento cartaceo lo mostra sempre in testa
+            // (Michele 22/07/2026, foto del registro): un dato che avevamo
+            // già (currentScene.id), solo mai portato dentro al combattimento.
+            Text(
+                "Paragrafo ${state.currentScene.id}",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(4.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -84,8 +99,11 @@ private fun CombatantColumn(name: String, character: Character, maxEndurance: In
     }
 }
 
+// internal: riusata anche dalla scheda personaggio per scomporre
+// Combattività in base + modificatori (richiesta Michele 22/07/2026,
+// dal registro cartaceo: "BASE" + caselle "MODIFICATORI").
 @Composable
-private fun modifierLabel(modifier: StatModifier): String {
+internal fun modifierLabel(modifier: StatModifier): String {
     val sign = if (modifier.amount >= 0) "+" else ""
     val stat = if (modifier.stat == StatType.COMBAT_SKILL) "CS" else "RES"
     val name = disciplineName(modifier.sourceType)?.let { stringResource(it) } ?: modifier.sourceType
@@ -96,12 +114,23 @@ private fun modifierLabel(modifier: StatModifier): String {
 private fun CenterColumn(state: AdventureState, session: CombatSession) {
     val ratio = effectiveCombatSkill(session.player) - effectiveCombatSkill(session.enemy)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Rapporto", style = MaterialTheme.typography.labelSmall)
-        Text(
-            if (ratio >= 0) "+$ratio" else "$ratio",
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.titleMedium,
-        )
+        Text("Rapporto\ndi Forza", style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
+        Spacer(Modifier.height(4.dp))
+        // Riquadro invece di solo testo (Michele 22/07/2026, dal Diario di
+        // Combattimento cartaceo: il Rapporto di Forza è l'unico numero
+        // dentro un box vero, al centro tra le due colonne).
+        Box(
+            modifier = Modifier
+                .border(1.5.dp, MaterialTheme.colorScheme.tertiary, RoundedCornerShape(6.dp))
+                .padding(horizontal = 14.dp, vertical = 4.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                if (ratio >= 0) "+$ratio" else "$ratio",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineSmall,
+            )
+        }
         Spacer(Modifier.height(8.dp))
         if (session.status == CombatStatus.ONGOING) {
             // fightRound() è SINCRONO: se combatFightRound() mutasse lo

@@ -35,11 +35,15 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.CharacterRole
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
+import io.github.luposolitario.immundanoctisex.core.data.model.StatType
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.rank.KaiRank
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
+import io.github.luposolitario.immundanoctisex.core.engine.stats.itemEnduranceBonus
+import io.github.luposolitario.immundanoctisex.core.engine.stats.weaponskillBonus
+import io.github.luposolitario.immundanoctisex.ui.adventure.modifierLabel
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineDescription
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
@@ -88,8 +92,8 @@ private fun StatsTab(hero: Character) {
             )
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround) {
-                Text("Combattività: ${effectiveCombatSkill(hero)}", fontWeight = FontWeight.Bold)
-                Text("Resistenza: ${effectiveEndurance(hero)}/${effectiveMaxEndurance(hero)}", fontWeight = FontWeight.Bold)
+                CombatSkillBreakdown(hero)
+                EnduranceBreakdown(hero)
             }
         }
     }
@@ -130,6 +134,53 @@ private fun StatsTab(hero: Character) {
                     }
                 }
             }
+        }
+    }
+}
+
+// Base + modificatori (Michele 22/07/2026, dal registro cartaceo: "BASE" +
+// caselle "MODIFICATORI" invece di un solo numero): stessa scomposizione
+// già pubblica in EffectiveStats per non ricalcolare nulla qui — la Scheda
+// SPIEGA il numero, non lo ridetermina (l'errore di v1 da non ripetere).
+@Composable
+private fun CombatSkillBreakdown(hero: Character) {
+    val weaponBonus = weaponskillBonus(hero)
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Combattività: ${effectiveCombatSkill(hero)}", fontWeight = FontWeight.Bold)
+        Text(
+            "Base ${hero.baseCombatSkill}",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        hero.activeModifiers.filter { it.stat == StatType.COMBAT_SKILL }.forEach { modifier ->
+            Text(modifierLabel(modifier), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.tertiary)
+        }
+        if (weaponBonus != 0) {
+            Text(
+                "+$weaponBonus CS (specializzazione)",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.tertiary,
+            )
+        }
+    }
+}
+
+@Composable
+private fun EnduranceBreakdown(hero: Character) {
+    val itemBonuses = hero.inventory.filter { itemEnduranceBonus(it) != 0 }
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text("Resistenza: ${effectiveEndurance(hero)}/${effectiveMaxEndurance(hero)}", fontWeight = FontWeight.Bold)
+        Text(
+            "Base ${hero.currentEndurance}/${hero.maxEndurance}",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        itemBonuses.forEach { item ->
+            Text(
+                "${item.name} +${itemEnduranceBonus(item)} RES",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.tertiary,
+            )
         }
     }
 }
