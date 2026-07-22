@@ -1394,7 +1394,17 @@ SALGONO**, in anticipo su Fase 5 — scelta esplicita di Michele.
    veri, grassetto, tono narrativo, dimensioni testo, sfondo della
    card di stato (22/07), poi TTS con tre volumi e test voce, musica a
    combo con anteprima (22/07).
-5. Mancano ancora le **fixture** da output reali di Gemma.
+5. ~~Mancano ancora le **fixture** da output reali di Gemma~~ —
+   **FATTO 22/07**: sei nuovi test in `ResponseParserTest`, non testo
+   scritto a mano ma blocchi tag copiati dai log del device (E4B e 2B
+   abliterated, stesso run di quella sera): un blocco ben formato con
+   un refuso grammaticale reale ("sul tuo'arma"), l'allucinazione
+   sulla scena finale (segnaposto del formato scritti alla lettera),
+   un'IMAGE senza prefisso `loc_` scartata dal 2B, tre scelte
+   inventate di sana pianta scartate, e caratteri giapponesi mescolati
+   nella prosa (`strarつきate`) che non rompono il parsing. Tutti e sei
+   confermano la stessa garanzia: qualunque cosa scriva il modello,
+   solo ciò che combacia con la scena vera arriva al giocatore.
 6. **RINVIATO CONSAPEVOLMENTE da Michele**: il leak di **140 MB per
    partita** (memoria nativa). Su 15,5 GB non si sente con 3 partite;
    l'ottimizzazione si fa alla fine. Non è una svista: è una scelta.
