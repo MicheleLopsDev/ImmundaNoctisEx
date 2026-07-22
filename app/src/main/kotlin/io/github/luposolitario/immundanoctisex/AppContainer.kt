@@ -21,6 +21,7 @@ import io.github.luposolitario.immundanoctisex.util.FontPreferences
 import io.github.luposolitario.immundanoctisex.util.LanguagePreferences
 import io.github.luposolitario.immundanoctisex.util.MusicPreferences
 import io.github.luposolitario.immundanoctisex.util.NarrativeTonePreferences
+import io.github.luposolitario.immundanoctisex.util.SoundEffectPreferences
 import io.github.luposolitario.immundanoctisex.util.StatusCardColorPreferences
 import io.github.luposolitario.immundanoctisex.util.ThemePreferences
 import io.github.luposolitario.immundanoctisex.util.TtsPreferences
@@ -54,7 +55,9 @@ class AppContainer(context: Context) {
     // alla navigazione tra schermate, non solo vivere dentro Opzioni.
     val musicPlayer = MusicPlayer(context)
 
-    val soundEffectPlayer = SoundEffectPlayer(context)
+    val soundEffectPreferences = SoundEffectPreferences(context)
+
+    val soundEffectPlayer = SoundEffectPlayer(context, soundEffectPreferences)
 
     val audioPreferences = AudioPreferences(context)
 

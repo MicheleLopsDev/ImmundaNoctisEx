@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
+import io.github.luposolitario.immundanoctisex.util.SoundEffectPreferences
 
 // Effetti sonori brevi: il tiro del dado (22/07/2026, richiesta Michele),
 // poi mangiare/bere (stesso giorno, "ho aggiunto altri 2 suoni... se le
@@ -12,8 +13,10 @@ import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 // da usare nelle transizioni"). SoundPool invece di MediaPlayer: un colpo
 // secco deve partire SUBITO al tocco, non dopo la latenza di preparazione
 // di un player pensato per file lunghi in loop (quello lo usa
-// MusicPlayer). Volume legato al generale (AudioPreferences), stesso
-// principio già in uso per TTS e musica.
+// MusicPlayer). Volume = effettiSuoni × generale (22/07/2026, richiesta
+// Michele: "la barra con il volume dei suoni... deve essere una barra a
+// parte" — prima usava solo il generale, senza un proprio controllo come
+// TTS e musica ce l'hanno già).
 enum class SoundEffect(val assetPath: String) {
     DICE_ROLL("sfx/dice_roll.mp3"),
     EAT("sfx/eat.mp3"),
@@ -25,7 +28,10 @@ enum class SoundEffect(val assetPath: String) {
     COMBAT_START("sfx/combat_start.mp3"),
 }
 
-class SoundEffectPlayer(private val context: Context) {
+class SoundEffectPlayer(
+    private val context: Context,
+    private val soundEffectPreferences: SoundEffectPreferences = SoundEffectPreferences(context),
+) {
 
     private val audioPreferences = AudioPreferences(context)
 
@@ -63,10 +69,13 @@ class SoundEffectPlayer(private val context: Context) {
         }
     }
 
+    private fun effectiveVolume(): Float =
+        (soundEffectPreferences.volume * audioPreferences.generalVolume).coerceIn(0f, 1f)
+
     fun play(effect: SoundEffect) {
         val id = soundIds[effect] ?: return
         if (id !in loaded) return
-        val volume = audioPreferences.generalVolume.coerceIn(0f, 1f)
+        val volume = effectiveVolume()
         runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
     }
 
@@ -85,7 +94,7 @@ class SoundEffectPlayer(private val context: Context) {
             loadedId
         } ?: return
         if (id !in loaded) return
-        val volume = audioPreferences.generalVolume.coerceIn(0f, 1f)
+        val volume = effectiveVolume()
         runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
     }
 
