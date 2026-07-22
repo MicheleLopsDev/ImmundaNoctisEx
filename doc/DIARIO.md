@@ -1541,6 +1541,42 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai vista/sentita girare
   sul device.**
 
+- **PROVATO un Gemma 4 2B abliterated — più veloce, ma testo peggiore**
+  (22/07, Michele, log dedicato dopo che il primo inviato risultava
+  ancora sull'E4B — impronta esatta delle sezioni del file, stessa
+  identica ai log precedenti: confermato PRIMA di fidarsi del
+  "sembra migliorato"). Col 2B vero confermato dall'impronta diversa
+  (`nativa` ~620MB invece di ~1080-2150MB, velocità 21-37 token/s
+  contro 8-19 dell'E4B — più veloce di un buon 2×) è comparsa la cosa
+  che Michele temeva: "non vorrei compromettere il testo".
+  - **Caratteri estranei nel testo mostrato al giocatore**: "le lame
+    già strarつきate" — caratteri giapponesi mescolati dentro una
+    parola italiana, nella prosa VISIBILE (non nel blocco tag
+    scartato: si vede a schermo per davvero, salvato nel diario-grafo
+    come testo letto). "Caratteri strani" di Michele, confermati.
+  - **Grammatica peggiore in generale**: "Lo acciaio strascia
+    liberando due brutti che emergono dalle ombre" — italiano rotto,
+    frase senza senso; l'E4B sullo stesso punto della storia
+    (sample-adventure scena 4) scriveva "L'acciaio risuona liberamente
+    mentre due sciacalli escono dall'ombra del magazzino", corretto.
+  - **Blocco tag ancora più confuso dell'E4B**: ID inventati invece di
+    quelli veri (`CHOICE|scene_01|...`, `DISCIPLINE|discipline_basic|
+    ...`, `IMAGE|warehouse` invece di `loc_warehouse` — prefisso perso
+    due volte su due), e sulla scena finale (senza scelte vere)
+    inventate di sana pianta tre scelte fittizie ripetute anche come
+    DISCIPLINE. **Nessun rischio per il giocatore**: `ResponseParser.
+    resolveChoices` fa il match sul `nextSceneId` VERO della scena
+    (`choices.isEmpty() -> emptyMap()` se la scena non ne ha), quindi
+    tutta questa invenzione viene scartata in silenzio e le scelte
+    mostrate restano sempre quelle reali del libro (al più non
+    tradotte, mai finte) — degradazione garantita, confermata anche
+    sul modello peggiore provato finora.
+  **Non ancora una decisione**: Michele valuta se il guadagno di
+  velocità vale il calo di qualità del testo, coerente con quanto
+  detto la sera prima ("non vorrei compromettere il testo — si
+  potrebbero provare più scelte"). Nessuna azione di codice presa: è
+  un giudizio sul modello, non un bug da correggere.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
