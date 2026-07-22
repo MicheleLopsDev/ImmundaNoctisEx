@@ -125,34 +125,51 @@ il resto: il vero reskin visivo, che serve asset veri.
 
 **Texture di sfondo (pergamena)**
 - Un'immagine "pergamena invecchiata", **tileable** (si ripete senza
-  cuciture visibili) — più robusta di un'immagine fissa perché
-  funziona su qualunque dimensione di schermo.
-- Formato PNG o WebP, almeno 1024×1024 se tileable.
-- Serve pensata per **tema scuro** (l'app oggi gira quasi sempre in
-  dark mode): va verificato come si comporta di notte, non solo di
-  giorno.
+  cuciture visibili ai bordi) — più robusta di un'immagine fissa
+  perché funziona su qualunque dimensione di schermo.
+- **2048×2048 px** (minimo accettabile 1024×1024 px): sul tile piccolo
+  la grana si vede se il pannello è grande, meglio abbondare.
+- Formato PNG (texture fotografiche/grana fine comprimono meglio in
+  PNG che in WebP con artefatti visibili); converto io in WebP dopo.
+- Pensata per **tema scuro** (l'app gira quasi sempre in dark mode):
+  va bene anche solo per la notte, il giorno è secondario.
 
 **Cornice a bordi strappati**
 - Bordo decorativo "carta strappata" da mettere intorno alle card. Il
-  formato più comodo per Android è un **9-patch** (PNG speciale che si
-  allunga senza deformarsi); se non lo conosce va bene anche una
-  striscia strappata semplice da ripetere sopra/sotto un pannello.
-- PNG con trasparenza.
+  formato più comodo per Android è un **9-patch**; se non lo conosce,
+  l'alternativa più semplice è **una striscia orizzontale tileable**
+  (si ripete solo in larghezza, non in altezza) da mettere sopra e
+  sotto un pannello — **1080×150 px**, trasparente tranne il profilo
+  strappato.
+- Se invece fa il 9-patch vero, la converto io da qualunque dimensione
+  di partenza ragionevole (es. 400×400 px), è lei a scegliere lo stile
+  del bordo, non la dimensione esatta.
+- PNG con trasparenza (canale alpha).
 
 **Icone per arma (9 pezzi)**
 - Asta, Spada, Daga, Martello, Pugnale, Lancia, Spadone, Ascia, Mazza
   — stile china/silhouette, come nel registro.
-- Formato **SVG** preferito (si scala senza perdere qualità); se non
-  esporta SVG vanno bene PNG grandi (almeno 512×512). Ne abbiamo già
-  alcune (ascia, mappa, oro) ma non nello stesso stile — se le rifà
-  tutte insieme, coerenza garantita.
+- Artboard **512×512 px** per tutte e 9 (stesso formato quadrato,
+  stesso peso del tratto), così restano coerenti tra loro a schermo.
+- Formato **SVG** preferito (si scala senza perdere qualità, converto
+  io in Vector Drawable Android); se non esporta SVG vanno bene PNG
+  alla stessa dimensione (512×512 px), sfondo trasparente. Ne abbiamo
+  già alcune (ascia, mappa, oro) ma non nello stesso stile — se le
+  rifà tutte insieme, coerenza garantita.
 
 **Decorazioni opzionali (non urgenti)**
-- Zaino, borsa/corone, pasto, mucchio di equipaggiamento, spade
-  incrociate col teschio di lupo, medaglione del "saggio": danno
-  personalità ma non sono indispensabili, si può partire senza.
+- Zaino, borsa/corone, pasto, mucchio di equipaggiamento — accenti
+  piccoli vicino alle rispettive sezioni: **400×400 px**, PNG
+  trasparente.
+- Spade incrociate col teschio di lupo (per il riquadro del Rapporto
+  di Forza in combattimento) e medaglione del "saggio" (decorazione
+  per il Registro discipline): **600×600 px**, PNG trasparente.
 - Un'illustrazione del lupo per il logo dell'app — ispirata, MAI la
-  stessa del logo ufficiale Lone Wolf.
+  stessa del logo ufficiale Lone Wolf: **1024×1024 px**, PNG
+  trasparente (un'icona lanciatore Android si ritaglia da lì dopo,
+  non serve che si preoccupi lei del formato "adaptive icon").
+- Tutte danno personalità ma non sono indispensabili: si può partire
+  senza e aggiungerle quando ci sono.
 
 **Cosa NON chiederle**: copiare il logo "LONE WOLF" o le illustrazioni
 specifiche del libro originale — quelle sono protette. Lo stile sì,
