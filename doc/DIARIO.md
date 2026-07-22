@@ -1663,6 +1663,42 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai vista girare sul
   device.**
 
+- **Prime rifiniture UI dal registro cartaceo di Lupo Solitario**
+  (22/07, Michele ha mandato le foto delle 4 pagine del registro
+  ufficiale — Diario di Combattimento, Zaino/Borsa/Pasti/Oggetti
+  Speciali, Combattività/Resistenza/Armamento, Registro di Guerra —
+  chiedendo confronto e proposte). Il reskin completo (pergamena,
+  bordi strappati, font gotico, illustrazioni) resta un discorso a
+  parte: servono asset veri (font, texture, icone) che Michele
+  dovrebbe procurarsi — non le stesse illustrazioni Mongoose/
+  originali, per non riprodurre materiale protetto. Fatte le due
+  proposte più economiche, che riusano dati già presenti:
+  - **`CombatDiaryPanel`**: aggiunto "Paragrafo {scena}" in testa (il
+    cartaceo lo mostra sempre, noi avevamo `currentScene.id` ma non
+    lo portavamo mai dentro al combattimento) e il Rapporto di Forza
+    ora sta dentro un riquadro bordato invece che testo nudo, più
+    vicino al box del cartaceo.
+  - **Scheda personaggio**: Combattività e Resistenza scomposte in
+    **Base + Modificatori**, come nel registro. Non ricalcola nulla
+    di nuovo: `weaponskillBonus()` e `itemEnduranceBonus()` erano già
+    pubbliche apposta (`EffectiveStats.kt`, commento del 20/07: "la
+    Scheda deve poter SPIEGARE il numero... invece di duplicare
+    l'if/else lato UI"), `modifierLabel` (già in `CombatDiaryPanel`
+    per gli stessi modificatori nel combattimento) è diventata
+    `internal` e riusata qui invece di duplicata.
+  - **Verificato durante la discussione**: il grado Kai (Novizio →
+    Gran Maestro Supremo) esiste GIÀ (`KaiRank`, REGOLE.md Blocco 3) e
+    si vede già in scheda e card di stato — non era un pezzo mancante,
+    solo non ancora vestito come "Registro di Guerra". Con le 5
+    discipline fisse del Libro 1 resta sempre "Iniziato Kai": Michele
+    ricordava "3 discipline nel primo libro" ma ha confermato di
+    essersi sbagliato, 5 resta la regola.
+  Restano da valutare: lista icone per arma stile "Disciplina della
+  Scherma" (icone già presenti, `ic_axe` e sorelle) e layout dedicato
+  per il grado Kai.
+  Compilazione e suite riverificate verdi. **Mai viste girare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
