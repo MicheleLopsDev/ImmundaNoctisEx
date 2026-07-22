@@ -1732,6 +1732,40 @@ sul device.**
   device (Michele: "sembra andare"); il suono d'inizio combattimento
   mai sentito girare.**
 
+- **Suoni per le immagini del catalogo e per i finali — struttura
+  completa, PRIMA degli asset** (22/07, Michele: "puoi prevederli
+  tutti se non ci sono non si suonano... l'importante è che non vada
+  in errore... intanto puoi fare il codice per tutte queste cose").
+  Scritto tutto senza aspettare i file mp3, che Michele procurerà con
+  calma (checklist in `doc/SUONI-IMMAGINI.md`).
+  - `SoundEffectPlayer.playNamed(name, folder)`: vocabolario APERTO
+    (a differenza dell'enum `SoundEffect` fisso) — carica al bisogno
+    invece che tutto all'avvio (troppi nomi, 50+ immagini più i
+    finali), cache con `null` per i nomi già provati e assenti (non
+    si ritenta ad ogni chiamata — attenzione già presa: `getOrPut` con
+    Kotlin NON distingue "chiave assente" da "chiave presente con
+    valore null" per una mappa `<String, Int?>`, quindi si usa
+    `containsKey` esplicito invece). File mancante = silenzio, mai un
+    errore. Il costruttore è diventato `private val context` (prima
+    solo parametro, serviva anche fuori dall'`init`).
+  - **Immagini** (`AdventureState.syncImageSounds`): un suono per
+    `backgroundImage`/`enemyImage`/`npcImage`, ma SOLO quando il
+    valore cambia rispetto all'ultima volta (tre variabili
+    `lastPlayed*`), non ad ogni ricomposizione. Richiamata sia da
+    `moveTo` (copre nemico/NPC, sempre dell'autore, noti subito, e lo
+    sfondo quando l'autore ne ha uno valido) sia dal completamento
+    della narrazione (copre lo sfondo quando arriva più tardi da
+    Gemma). Cartella attesa: `assets/sfx/images/`.
+  - **Finali** (`AdventureState.playEndingSoundIfNew`): agganciato a
+    `EndingOutcome` (VICTORY/DEFEAT/NEUTRAL) e al genere dell'eroe,
+    stessa distinzione già in uso per la voce TTS — 6 nomi attesi
+    (`ending_victory_male`/`_female`, `ending_defeat_male`/`_female`,
+    `ending_neutral_male`/`_female`). Non è più "che aspetto ha
+    l'eroe" (`hero_female`/`hero_male`, scartato) ma "come finisce la
+    storia" — aggancio più corretto. Cartella `assets/sfx/endings/`.
+  Compilazione e suite riverificate verdi. **Mai sentiti girare sul
+  device: nessun asset esiste ancora, solo la struttura.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
