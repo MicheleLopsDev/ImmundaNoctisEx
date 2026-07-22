@@ -19,6 +19,10 @@ enum class SoundEffect(val assetPath: String) {
     EAT("sfx/eat.mp3"),
     DRINK("sfx/drink.mp3"),
     FOOTSTEPS("sfx/footsteps.mp3"),
+    // Il vecchio scontro di spade, liberato dal cambio del dado (22/07/2026,
+    // Michele: "lo possiamo usare per l'inizio delle scene di
+    // combattimento?") — riuso di un file già presente, nessun nuovo asset.
+    COMBAT_START("sfx/combat_start.mp3"),
 }
 
 class SoundEffectPlayer(context: Context) {

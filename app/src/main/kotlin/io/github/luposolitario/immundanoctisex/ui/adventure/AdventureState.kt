@@ -357,6 +357,7 @@ class AdventureState(
         val combat = currentScene.combat ?: return
         combatSession = CombatSession(gameState.hero, combat, dice).also { it.quickResolve() }
         lastRound = null
+        soundEffectPlayer?.play(SoundEffect.COMBAT_START)
     }
 
     // Modalità COMPLETA: round per round col menu tattico.
@@ -364,6 +365,7 @@ class AdventureState(
         val combat = currentScene.combat ?: return
         combatSession = CombatSession(gameState.hero, combat, dice)
         lastRound = null
+        soundEffectPlayer?.play(SoundEffect.COMBAT_START)
     }
 
     fun combatFightRound(): RoundResult? {
