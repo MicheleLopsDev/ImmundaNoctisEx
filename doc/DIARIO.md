@@ -1766,6 +1766,27 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai sentiti girare sul
   device: nessun asset esiste ancora, solo la struttura.**
 
+- **Quarta barra volume: Effetti sonori** (22/07, Michele: "manca una
+  cosa, la barra con il volume dei suoni nelle preferenze deve essere
+  una barra a parte"). Fino a qui `SoundEffectPlayer` (dado, passi,
+  mangiare/bere, inizio combattimento, e ora immagini/finali) usava
+  SOLO il volume generale — a differenza di TTS e musica, che hanno
+  già ciascuno il proprio controllo indipendente.
+  - Nuova `SoundEffectPreferences` (`util/`, stesso schema esatto di
+    `TtsPreferences`/`MusicPreferences`: una sola preferenza `volume`,
+    default 0,7).
+  - `SoundEffectPlayer` prende ora anche `SoundEffectPreferences` nel
+    costruttore (con default `= SoundEffectPreferences(context)` per
+    non rompere chi lo istanzia con un solo argomento); il volume
+    effettivo è `effettiSuoni × generale`, stessa formula già in uso
+    per `effectiveMusicVolume()`.
+  - `VolumeSection`/`VolumeUi`: quarta barra "Effetti sonori", stesso
+    slider degli altri tre, nessun aggiornamento "live" mentre si
+    trascina (a differenza della musica, non c'è uno stream continuo
+    da correggere in tempo reale — un tocco per sentirlo basta).
+  Compilazione e suite riverificate verdi. **Mai vista girare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
