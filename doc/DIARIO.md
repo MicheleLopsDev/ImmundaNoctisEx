@@ -1719,6 +1719,19 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai sentiti girare sul
   device.**
 
+- **Suono d'inizio combattimento, riciclando il vecchio dado** (22/07,
+  Michele, confermato il nuovo suono del dado: "ok sembra andare il
+  vecchio roll prima era un rumore di spade lo possiamo usare per
+  l'inizio delle scene di combattimento?"). Nessun asset nuovo: il
+  file rimasto libero dal cambio di `dice_roll.mp3`
+  (`dragon-studio-sword-clashhit-393837.mp3`) diventa
+  `SoundEffect.COMBAT_START`, agganciato sia a `startQuickCombat()`
+  che a `startCompleteCombat()` — l'unico punto in cui un
+  combattimento comincia per davvero, in entrambe le modalità.
+  Compilazione e suite riverificate verdi. **CONFERMATO il dado sul
+  device (Michele: "sembra andare"); il suono d'inizio combattimento
+  mai sentito girare.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
