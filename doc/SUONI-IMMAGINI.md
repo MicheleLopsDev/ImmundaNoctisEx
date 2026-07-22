@@ -83,12 +83,32 @@ Le `beast_*` compaiono anche qui (stessa immagine, incontro pacifico
 invece che ostile): **stesso file audio** già elencato sopra, non va
 duplicato.
 
+## Finali dell'avventura (`ending_*`) — 6
+
+Non sono immagini del catalogo: agganciati a come finisce la storia
+(`EndingOutcome`) e al genere dell'eroe (stessa distinzione già usata
+per la voce TTS). Vanno in `app/src/main/assets/sfx/endings/` (non
+`sfx/images/`), stessa regola del resto: file mancante = silenzio.
+
+- [ ] `ending_victory_male` — grido/voce di gioia, eroe maschio
+- [ ] `ending_victory_female` — grido/voce di gioia, eroe femmina
+- [ ] `ending_defeat_male` — grido di morte, eroe maschio
+- [ ] `ending_defeat_female` — grido di morte, eroe femmina
+- [ ] `ending_neutral_male` — finale né vittoria né sconfitta netta, eroe maschio
+- [ ] `ending_neutral_female` — finale né vittoria né sconfitta netta, eroe femmina
+
+Michele: "puoi prevederli tutti se non ci sono non si suonano, così
+posso magari mettere delle canzoni se non trovo nulla, l'importante è
+che non vada in errore" — qualunque file, anche una canzone intera
+buttata dentro come segnaposto, va bene: non c'è controllo di durata o
+contenuto, solo il nome del file conta.
+
 ## Casi particolari, forse da escludere
 
 - [ ] `misc_battle_clash` — placeholder generico di scontro: un suono
   ci starebbe (es. riusare `combat_start`), ma non è un'immagine con
   un soggetto preciso.
 - `hero_female` / `hero_male` — ritratto dell'EROE stesso (banner
-  della scena): **probabilmente nessun suono ha senso qui**, sono il
-  personaggio del giocatore, non un luogo o una creatura. Lasciati
-  fuori dalla checklist sopra apposta — dimmi se invece li vuoi.
+  della scena): **sostituiti dai finali sopra**, che sono l'aggancio
+  giusto (come finisce la storia, non che aspetto ha l'eroe). Restano
+  fuori dalla checklist immagini.
