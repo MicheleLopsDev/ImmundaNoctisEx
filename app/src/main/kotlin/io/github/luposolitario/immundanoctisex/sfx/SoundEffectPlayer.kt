@@ -25,7 +25,7 @@ enum class SoundEffect(val assetPath: String) {
     COMBAT_START("sfx/combat_start.mp3"),
 }
 
-class SoundEffectPlayer(context: Context) {
+class SoundEffectPlayer(private val context: Context) {
 
     private val audioPreferences = AudioPreferences(context)
 
@@ -42,6 +42,14 @@ class SoundEffectPlayer(context: Context) {
     private val soundIds = mutableMapOf<SoundEffect, Int>()
     private val loaded = mutableSetOf<Int>()
 
+    // Suoni "a nome libero" (22/07/2026, Michele: "ogni risorsa immagine
+    // ha un corrispettivo mp3" + "una voce di gioia quando termina
+    // l'avventura e un grido quando muore"): troppi per un enum fisso
+    // (50+ immagini più i finali), caricati al bisogno invece che tutti
+    // insieme all'avvio. null in cache = già provato, il file non c'è —
+    // non si ritenta ad ogni chiamata (vedi playNamed).
+    private val namedSoundIds = mutableMapOf<String, Int?>()
+
     init {
         pool.setOnLoadCompleteListener { _, sampleId, status ->
             if (status == 0) loaded += sampleId
@@ -57,6 +65,25 @@ class SoundEffectPlayer(context: Context) {
 
     fun play(effect: SoundEffect) {
         val id = soundIds[effect] ?: return
+        if (id !in loaded) return
+        val volume = audioPreferences.generalVolume.coerceIn(0f, 1f)
+        runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
+    }
+
+    // Vocabolario APERTO (a differenza di SoundEffect): qualunque nome si
+    // prova, `sfx/$folder/$name.mp3`. File mancante = silenzio, mai un
+    // errore — Michele: "l'importante è che non vada in errore", così può
+    // procurare gli asset con calma senza rompere nulla nel frattempo.
+    fun playNamed(name: String, folder: String = "images") {
+        val id = if (namedSoundIds.containsKey(name)) {
+            namedSoundIds[name]
+        } else {
+            val loadedId = runCatching {
+                context.assets.openFd("sfx/$folder/$name.mp3").use { afd -> pool.load(afd, 1) }
+            }.getOrNull()
+            namedSoundIds[name] = loadedId
+            loadedId
+        } ?: return
         if (id !in loaded) return
         val volume = audioPreferences.generalVolume.coerceIn(0f, 1f)
         runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
