@@ -91,7 +91,42 @@ audio e un player (roba di Fase 7).
 
 ---
 
-## 2. Altre proposte raccolte
+## 2. Motore alternativo: una libreria Kotlin per modelli GGUF
+
+**Origine**: idea di Michele (22/07/2026), nata dopo il confronto tra
+Gemma 4 E4B (qualità migliore, più lento) e 2B abliterated (più
+veloce, testo peggiore — vedi DIARIO.md). **Rinviata da Michele
+stesso**: "il motore di modello per adesso lo lasciamo selezionabile...
+per adesso lasciamo così" — non è un rifiuto, è "non ora".
+
+**Cosa**: oggi `InferenceEngine` ha una sola implementazione,
+`LiteRtLmEngine` su `com.google.ai.edge.litertlm` (solo formato
+`.litertlm`, GPU/CPU). L'idea è valutare se esiste una libreria Kotlin
+matura per il formato **GGUF** (llama.cpp e derivati), che ha un
+catalogo di modelli quantizzati molto più ampio — potrebbe includere
+varianti più veloci del 2B senza il calo di qualità osservato.
+
+**Perché potrebbe valere la pena**: `InferenceEngine` è già
+un'interfaccia (una delle quattro motivate da CLAUDE.md/ARCHITETTURA):
+un secondo motore si affiancherebbe senza toccare `SceneNarrator`,
+`ResponseParser` o `PromptBuilder`, che parlano solo con
+l'interfaccia. Il contratto regge già.
+
+**Cosa va verificato prima di scriverne una riga**:
+- Esiste davvero una libreria Kotlin/Android matura per GGUF (non solo
+  binding JNI grezzi da mantenere a mano)? Con supporto GPU su
+  Snapdragon, o solo CPU?
+- I modelli GGUF disponibili per Gemma (o alternative) sono
+  davvero più veloci a parità di qualità, o è lo stesso compromesso
+  velocità/testo già visto col 2B abliterated, con un formato diverso?
+- Due motori vuol dire due cataloghi di modelli, due UI di download,
+  due set di parametri avanzati (temperatura/topK/topP potrebbero non
+  mappare 1:1) — costo di manutenzione reale, non solo un file in più.
+
+**Non schedulato**: nessuna azione finché Michele non porta una
+libreria concreta da valutare.
+
+## 3. Altre proposte raccolte
 
 ### Già PREDISPOSTE nel design chiuso (i contratti reggono)
 - **Effetti oggetto oltre `HEAL:n`**: il formato è dichiarativo ed
