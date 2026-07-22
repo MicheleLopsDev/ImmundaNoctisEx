@@ -9,6 +9,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.CombatOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
+import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.JourneyEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
@@ -273,6 +274,10 @@ class AdventureState(
                         translatedChoices = event.scene.choiceTexts + event.scene.disciplineChoiceTexts
                         translatedEnemyName = event.scene.enemyName
                         sceneBackgroundImage = event.scene.backgroundImage
+                        // Lo sfondo può arrivare solo ora da Gemma (l'autore
+                        // non ne aveva uno valido): richiama la stessa sync
+                        // di moveTo, che suona solo se il valore è CAMBIATO.
+                        syncImageSounds()
                         isGenerating = false
                         // Suono in sospeso (22/07/2026, Michele: partiva
                         // ancora mentre lo streaming era a metà — "meglio
@@ -551,11 +556,57 @@ class AdventureState(
         if (currentScene.sceneType == SceneType.TRANSITION && currentScene.combat == null) {
             soundEffectPlayer?.play(SoundEffect.FOOTSTEPS)
         }
+        syncImageSounds()
+        playEndingSoundIfNew()
         autoSave()
         handleIronDeath()
         // La scena nuova si racconta da sé; il contesto è la CODA della
         // precedente (mai il diario: inferenza senza memoria).
         startNarration(previousSceneText = textJustRead)
+    }
+
+    // Un mp3 per ogni risorsa immagine (Michele 22/07/2026: "tutte le
+    // risorse immagine hanno un corrispettivo mp3 che si suona insieme
+    // una volta, la musica è sempre sottofondo"): vocabolario APERTO
+    // (SoundEffectPlayer.playNamed), non un catalogo chiuso come le
+    // immagini stesse — un file mancante è solo silenzio. Ogni campo si
+    // suona solo quando CAMBIA rispetto all'ultima volta, non ad ogni
+    // ricomposizione: enemyImage/npcImage sono sempre dell'autore, noti
+    // subito; backgroundImage può arrivare più tardi da Gemma (per questo
+    // la funzione si richiama anche a narrazione completata).
+    private var lastPlayedBackgroundImage: String? = null
+    private var lastPlayedEnemyImage: String? = null
+    private var lastPlayedNpcImage: String? = null
+
+    private fun syncImageSounds() {
+        val bg = backgroundImage
+        if (bg != null && bg != lastPlayedBackgroundImage) soundEffectPlayer?.playNamed(bg)
+        lastPlayedBackgroundImage = bg
+
+        val enemy = currentScene.combat?.enemyImage
+        if (enemy != null && enemy != lastPlayedEnemyImage) soundEffectPlayer?.playNamed(enemy)
+        lastPlayedEnemyImage = enemy
+
+        val npc = currentScene.npcImage
+        if (npc != null && npc != lastPlayedNpcImage) soundEffectPlayer?.playNamed(npc)
+        lastPlayedNpcImage = npc
+    }
+
+    // Suono di finale (Michele 22/07/2026: "una voce di gioia quando
+    // termina l'avventura e un grido quando muore"), diviso per genere
+    // come già la voce TTS. Cartella a parte (endings/) dallo stesso
+    // vocabolario aperto delle immagini — nomi attesi:
+    // ending_victory_male/female, ending_defeat_male/female,
+    // ending_neutral_male/female.
+    private var lastPlayedEnding: EndingOutcome? = null
+
+    private fun playEndingSoundIfNew() {
+        if (!isEnding) return
+        val outcome = endingOutcome
+        if (outcome == lastPlayedEnding) return
+        lastPlayedEnding = outcome
+        val genderSuffix = if (gameState.hero.gender == Gender.FEMALE) "female" else "male"
+        soundEffectPlayer?.playNamed("ending_${outcome.name.lowercase()}_$genderSuffix", folder = "endings")
     }
 
     // Ogni mutazione dello stato di gioco passa di qui: è il punto giusto
