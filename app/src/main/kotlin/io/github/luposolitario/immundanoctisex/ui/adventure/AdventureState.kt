@@ -539,6 +539,16 @@ class AdventureState(
         currentScene = sceneById(result.sceneId)
         currentLocation = currentScene.locationName ?: currentLocation
         pickedItemNames = pickedNamesFor(currentScene)
+        // Passi (Michele 22/07/2026: "un suono... di passi da usare nelle
+        // transizioni"): solo sul cammino narrativo vero, non su
+        // START/ENDING né sull'ingresso in combattimento (TRANSITION può
+        // essere anche una scena di scontro, es. sample-adventure scena
+        // "4") — lì i passi stonerebbero. Parte subito, non in sospeso
+        // come il pasto: accompagna il gesto di scegliere, non un fatto
+        // da confermare col testo.
+        if (currentScene.sceneType == SceneType.TRANSITION && currentScene.combat == null) {
+            soundEffectPlayer?.play(SoundEffect.FOOTSTEPS)
+        }
         autoSave()
         handleIronDeath()
         // La scena nuova si racconta da sé; il contesto è la CODA della

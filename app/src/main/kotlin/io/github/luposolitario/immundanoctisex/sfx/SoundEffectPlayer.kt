@@ -7,15 +7,18 @@ import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 
 // Effetti sonori brevi: il tiro del dado (22/07/2026, richiesta Michele),
 // poi mangiare/bere (stesso giorno, "ho aggiunto altri 2 suoni... se le
-// associ alle azioni specifiche andrebbe bene"). SoundPool invece di
-// MediaPlayer: un colpo secco deve partire SUBITO al tocco, non dopo la
-// latenza di preparazione di un player pensato per file lunghi in loop
-// (quello lo usa MusicPlayer). Volume legato al generale
-// (AudioPreferences), stesso principio già in uso per TTS e musica.
+// associ alle azioni specifiche andrebbe bene"), poi i passi nelle
+// transizioni (22/07/2026, "un suono per il roll del dado e uno di passi
+// da usare nelle transizioni"). SoundPool invece di MediaPlayer: un colpo
+// secco deve partire SUBITO al tocco, non dopo la latenza di preparazione
+// di un player pensato per file lunghi in loop (quello lo usa
+// MusicPlayer). Volume legato al generale (AudioPreferences), stesso
+// principio già in uso per TTS e musica.
 enum class SoundEffect(val assetPath: String) {
     DICE_ROLL("sfx/dice_roll.mp3"),
     EAT("sfx/eat.mp3"),
     DRINK("sfx/drink.mp3"),
+    FOOTSTEPS("sfx/footsteps.mp3"),
 }
 
 class SoundEffectPlayer(context: Context) {
