@@ -212,12 +212,11 @@ stato (`HeroIcon` in `:core:data`). **Mai visto girare sul device.**
 - Falco, Aquila, Orso, Volpe, Corvo, Gufo, Leone, Tigre, Pantera,
   Lince, Cinghiale, Cervo (con corna), Serpente/Vipera, Drago —
   tutte e 14 pronte, `res/drawable/hero_*.png`.
-- **Decisione in sospeso**: il foglio aveva anche un lupo nello
-  stesso stile "ombreggiato" degli altri 14, diverso dall'attuale
-  `lupo_solitario.png` (più semplice, due soli toni) — salvato come
-  `hero_wolf_new.png`, non agganciato. Da decidere: sostituire il
-  lupo esistente per uniformità di stile su tutte e 15, o tenerlo
-  com'è.
+- Il foglio aveva anche un lupo nello stesso stile "ombreggiato"
+  degli altri 14: **sostituito** `lupo_solitario.png` su richiesta
+  di Michele ("uniforma il tutto") — tutte e 15 le icone sono ora
+  nella stessa famiglia visiva. Stesso file, quindi anche la faccia
+  zero del Dado del Destino (`TenSidedDie`) eredita il lupo nuovo.
 
 **Cosa NON chiederle**: copiare il logo "LONE WOLF" o le illustrazioni
 specifiche del libro originale — quelle sono protette. Lo stile sì,

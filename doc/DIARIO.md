@@ -2316,12 +2316,12 @@ sul device.**
   sorpresa stavolta: sfondo bianco pieno, non a scacchi). 14 nuovi
   file `res/drawable/hero_*.png`, percentuali di opacità 18-35%,
   sane. Agganciati uno per uno in `CreationCatalog.heroIconRes`.
-  **Decisione lasciata a Michele, non presa da sola**: il foglio
-  aveva anche un lupo nello stesso stile "ombreggiato" degli altri 14
-  (diverso dal `lupo_solitario.png` attuale, più semplice e a due
-  soli toni) — salvato come `hero_wolf_new.png`, NON agganciato,
-  in attesa di sapere se sostituire il lupo esistente per uniformità
-  di stile su tutte e 15 le icone o tenerlo com'è.
+  **Deciso subito dopo da Michele: "uniforma il tutto"** — il lupo
+  nuovo (stesso stile "ombreggiato" degli altri 14) ha SOSTITUITO
+  `lupo_solitario.png` (stesso nome file, quindi anche `TenSidedDie`
+  — la faccia zero del dado — eredita il lupo nuovo senza bisogno di
+  toccarlo). `hero_wolf_new.png` cancellato, non più necessario.
+  Tutte e 15 le icone sono ora nella stessa famiglia visiva.
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device**: primo giro con le illustrazioni vere, mai visto girare.
 
