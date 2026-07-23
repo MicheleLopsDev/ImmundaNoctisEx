@@ -2087,6 +2087,43 @@ sul device.**
   Compilazione riverificata verde. **Ancora da confermare sul
   device.**
 
+  **Vista sul device, ANCORA CONFUSA** (stesso 23/07, Michele, con la
+  stessa foto: "stesso problema la parte alta è troppo piccola
+  rispetto a quella centrale e il testo va fuori"): la vera causa non
+  era più la texture, ma la STRUTTURA del pannello. Il pannello di
+  narrazione ha sempre avuto un'altezza FISSA (`Modifier.weight(1f)`,
+  riempie lo spazio che resta sullo schermo) con lo scroll interno del
+  testo — comportamento invariato da prima della pergamena. Con la
+  pergamena, però, lo scroll interno mostra un pezzo A CASO del
+  paragrafo dentro una cornice che sembra sempre "l'inizio di una
+  pagina" (bordo strappato in alto fisso sullo schermo), e il pezzo
+  visibile può iniziare a metà frase — da qui la sensazione di testo
+  "che va fuori": non uno sforamento di rendering, un disallineamento
+  concettuale tra "quanta pergamena si vede" (fissa) e "quale pezzo di
+  storia si vede" (scorrevole a caso).
+  Michele ha scelto esplicitamente, tra tre alternative proposte (far
+  crescere il pannello e scorrere tutta la schermata / tenere il
+  riquadro fisso ma con una pergamena continua senza l'aria di inizio-
+  pagina / spezzare in pagine): **il pannello cresce, scorre l'intera
+  schermata**. Tolto `Modifier.weight(1f)` e lo scroll interno dal
+  pannello di narrazione (ora wrap-content, stesso principio di
+  `CombatDiaryPanel`): l'INTERA `Column` da banner a scelte/scheda è
+  ora dentro una nuova `Column(Modifier.weight(1f).verticalScroll(...))`,
+  solo l'header resta fisso in cima. Il testo, ora per intero, sta
+  sempre su tutta la pergamena — niente più "alcune parti sì, altre
+  no".
+  **Corretta nella stessa foto anche l'animazione del narratore
+  troppo in alto** (Michele: "scrive sopra il logo e confonde il
+  testo"): lo stato "pensa" saltava la riga dell'icona "leggi" che nel
+  testo vero riserva ~48dp sopra — aggiunto uno `Spacer(48.dp)`
+  identico prima di `NarratorThinking`, stesso margine dal bordo della
+  pergamena in entrambi gli stati.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device**: cambia la UX in modo reale (le scelte in fondo ora
+  possono richiedere uno scroll su un paragrafo lungo, invece di
+  essere sempre visibili appena sotto) — scelta esplicita di Michele,
+  non collaterale.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
