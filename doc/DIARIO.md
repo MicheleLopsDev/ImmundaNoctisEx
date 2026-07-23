@@ -2393,6 +2393,13 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Icone animale, secondo giro** (24/07, stesso messaggio di Michele:
+  "quasi non distingui gli animali diversi" — 72dp non bastava
+  ancora): altro salto, non un ritocco — 100dp (celle minime da 120 a
+  140dp, altezza griglia da 460 a 560dp).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
