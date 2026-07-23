@@ -1954,6 +1954,23 @@ sul device.**
   device**: da provare tutte e tre le scelte (AUTO coi due temi, LIGHT
   e DARK forzati) durante un combattimento vero.
 
+- **Pergamena estesa al pannello di narrazione** (23/07, stesso giorno,
+  Michele con uno screenshot: "no claude non ha aggiornato lo sfondo
+  guarda" — riferito al box di testo della scena normale, non al
+  combattimento, dove infatti non era mai stata agganciata). Chiarito
+  lo scope ed esteso su richiesta esplicita: stesso trattamento di
+  `CombatDiaryPanel` applicato al `Card` che mostra `state.narrative`
+  in `AdventureScreen.kt` — Card Material3 di sempre se OFF, altrimenti
+  `Column` dipinta con `Modifier.paint` (`sizeToIntrinsics = false`) e
+  inchiostro forzato via `CompositionLocalProvider`, stile risolto con
+  lo stesso `ParchmentStyle.resolved(isDarkTheme)`/`inkColor()` di
+  poco fa — nessuna nuova astrazione, stesso codice duplicato una
+  seconda volta perché i due pannelli hanno strutture diverse (Card
+  con `weight(1f)` + scroll qui, Card semplice nel diario di
+  combattimento).
+  Compilazione e suite riverificate verdi. **Mai vista girare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
