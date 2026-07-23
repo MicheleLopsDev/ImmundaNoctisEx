@@ -179,16 +179,12 @@ fun AdventureScreen(
 
         // Stile pergamena (23/07/2026, richiesta Michele dopo aver visto lo
         // screenshot del pannello di narrazione ancora piatto: "estendilo
-        // anche al testo, non solo al combattimento"; corretto lo stesso
-        // giorno): Card Material3 di sempre se OFF, altrimenti Box +
-        // Image(Modifier.matchParentSize()) — stesso pattern già
-        // funzionante di AdventureBanner, non il Modifier.paint() del
-        // primo giro (compilava ma non si vedeva affatto sul device,
-        // vedi CombatDiaryPanel per il dettaglio). matchParentSize() non
-        // si importa: è un membro di BoxScope, risolto dal contesto del
-        // Box.
+        // anche al testo, non solo al combattimento"; poi ancora 23/07/2026
+        // la pila a tre fasce — vedi ParchmentBackground.kt, il testo
+        // sforava oltre il bordo strappato fisso): Card Material3 di
+        // sempre se OFF, altrimenti Box + ParchmentBackground.
         val narrationStyle = parchmentStyle.resolved(isDarkTheme)
-        val narrationDrawableRes = narrationStyle.drawableRes
+        val narrationParchmentActive = narrationStyle.topRes != null
         val narrationPanelModifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)
         val narrationContent: @Composable () -> Unit = {
             if (state.narrative.isBlank() && state.isGenerating) {
@@ -223,19 +219,14 @@ fun AdventureScreen(
                 }
             }
         }
-        if (narrationDrawableRes == null) {
+        if (!narrationParchmentActive) {
             Card(modifier = narrationPanelModifier, elevation = CardDefaults.cardElevation(2.dp)) {
                 narrationContent()
             }
         } else {
             CompositionLocalProvider(LocalContentColor provides narrationStyle.inkColor()) {
                 Box(modifier = narrationPanelModifier.clip(RoundedCornerShape(12.dp))) {
-                    Image(
-                        painter = painterResource(id = narrationDrawableRes),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.matchParentSize(),
-                    )
+                    ParchmentBackground(narrationStyle)
                     Column {
                         narrationContent()
                     }
