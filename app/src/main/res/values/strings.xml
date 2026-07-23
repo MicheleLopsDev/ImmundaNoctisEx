@@ -81,6 +81,7 @@
     <string name="creation_gender">Chi sei?</string>
     <string name="creation_gender_male">Lupo</string>
     <string name="creation_gender_female">Lupa</string>
+    <string name="creation_name">Nome (opzionale)</string>
     <string name="creation_stats_title">Statistiche di Combattimento</string>
     <string name="creation_combat_skill">Combattività: %1$d</string>
     <string name="creation_endurance">Resistenza: %1$d</string>

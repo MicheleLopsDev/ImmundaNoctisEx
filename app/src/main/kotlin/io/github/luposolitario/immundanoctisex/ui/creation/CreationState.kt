@@ -27,6 +27,13 @@ class CreationState(private val dice: DiceRoller) {
 
     var gender: Gender by mutableStateOf(Gender.MALE)
 
+    // Nome personalizzabile (24/07/2026, richiesta Michele): vuoto per
+    // default, si risolve in "Lupo"/"Lupa" solo alla creazione della
+    // sessione (buildSession) — un segnaposto ANONIMO apposta, non il
+    // nome canonico "Lupo Solitario"/"Lupa Solitaria" del protagonista
+    // dei libri, che sembrerebbe già un nome scelto da qualcuno.
+    var heroName: String by mutableStateOf("")
+
     // Tiro canonico: CS = 10 + tiro, Resistenza = 20 + tiro, Corone = tiro.
     var combatSkill: Int by mutableStateOf(0)
         private set
@@ -104,7 +111,7 @@ class CreationState(private val dice: DiceRoller) {
         val weapon = selectedWeapon
         var hero = Character(
             role = CharacterRole.HERO,
-            name = if (gender == Gender.MALE) "Lupo Solitario" else "Lupa Solitaria",
+            name = heroName.trim().ifBlank { if (gender == Gender.MALE) "Lupo" else "Lupa" },
             gender = gender,
             baseCombatSkill = combatSkill,
             currentEndurance = endurance,

@@ -119,6 +119,26 @@ private fun GenderCard(state: CreationState) {
                     onClick = { state.gender = Gender.FEMALE },
                 )
             }
+            Spacer(Modifier.height(12.dp))
+            // Nome personalizzabile (24/07/2026, richiesta Michele):
+            // opzionale, il placeholder mostra già cosa succede se si
+            // lascia vuoto ("Lupo"/"Lupa" secondo il genere scelto sopra).
+            OutlinedTextField(
+                value = state.heroName,
+                onValueChange = { state.heroName = it },
+                label = { Text(stringResource(R.string.creation_name)) },
+                placeholder = {
+                    Text(
+                        if (state.gender == Gender.MALE) {
+                            stringResource(R.string.creation_gender_male)
+                        } else {
+                            stringResource(R.string.creation_gender_female)
+                        },
+                    )
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
         }
     }
 }
