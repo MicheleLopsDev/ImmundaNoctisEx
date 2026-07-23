@@ -137,7 +137,19 @@ il resto: il vero reskin visivo, che serve asset veri.
 - Licenza libera per uso in app se è un font esistente scelto da lei;
   nessun problema se lo disegna.
 
-**Texture di sfondo (pergamena)** (file Texture di sfondo)
+**Texture di sfondo (pergamena)** (file Texture di sfondo) — **ASSET
+PRONTO, NON ANCORA AGGANCIATO A UNO SCHERMO** (22/07): riesportata da
+Michele con sfondo bianco, sfondo rimosso qui (flood-fill a range
+fisso) → `res/drawable/parchment_panel.png`. Non è tileable (il file
+ha i bordi strappati DISEGNATI su tutti e 4 i lati, un pannello unico
+già completo, non un pattern da ripetere) — più comodo così: si usa
+com'è come sfondo di una card, non serve calcolare una ripetizione.
+**Decisione da prendere prima di agganciarlo**: l'app gira quasi
+sempre in tema scuro con testo chiaro — su un fondo di pergamena
+chiaro il testo chiaro diventerebbe illeggibile. Serve decidere se
+forzare un colore d'inchiostro scuro sopra la pergamena (a
+prescindere dal tema) o un'altra soluzione, prima di applicarlo a
+qualunque pannello vero.
 - Un'immagine "pergamena invecchiata", **tileable** (si ripete senza
   cuciture visibili ai bordi) — più robusta di un'immagine fissa
   perché funziona su qualunque dimensione di schermo.
@@ -160,28 +172,33 @@ il resto: il vero reskin visivo, che serve asset veri.
   del bordo, non la dimensione esatta.
 - PNG con trasparenza (canale alpha).
 
-**Icone per arma (9 pezzi)**(file Icone per arma.png)
+**Icone per arma (9 pezzi)**(file Icone per arma.png) — **FATTO
+22/07**: `ic_dagger`/`ic_spear`/`ic_mace`/`ic_short_sword`/
+`ic_warhammer`/`ic_sword`/`ic_axe`/`ic_staff`/`ic_broadsword` in
+`res/drawable/`, agganciate in `CreationCatalog.weaponTypeIcon` —
+sostituite le sei di v1, riempite le tre mancanti (segnaposto
+`ic_unknown_item` non serve più per queste). Il file consegnato aveva
+lo sfondo a scacchi disegnato nei pixel (non trasparenza vera) — Michele
+l'ha riesportato con sfondo bianco pieno, rimosso qui con un flood-fill
+a range fisso (dettagli in DIARIO.md). Non ancora vista girare sul
+device.
 - Asta, Spada, Daga, Martello, Pugnale, Lancia, Spadone, Ascia, Mazza
   — stile china/silhouette, come nel registro.
-- Artboard **512×512 px** per tutte e 9 (stesso formato quadrato,
-  stesso peso del tratto), così restano coerenti tra loro a schermo.
-- Formato **SVG** preferito (si scala senza perdere qualità, converto
-  io in Vector Drawable Android); se non esporta SVG vanno bene PNG
-  alla stessa dimensione (512×512 px), sfondo trasparente. Ne abbiamo
-  già alcune (ascia, mappa, oro) ma non nello stesso stile — se le
-  rifà tutte insieme, coerenza garantita.
 
 **Decorazioni opzionali (non urgenti)**( file Decorazioni opzionali.png )
-- Zaino, pozioni , borsa/corone, pasto, mucchio di equipaggiamento — accenti
-  piccoli vicino alle rispettive sezioni: **400×400 px**, PNG
-  trasparente.
-- Spade incrociate col teschio di lupo (per il riquadro del Rapporto
-  di Forza in combattimento) e medaglione del "saggio" (decorazione
-  per il Registro discipline): **600×600 px**, PNG trasparente.
-- Un'illustrazione del lupo per il logo dell'app — ispirata, MAI la
-  stessa del logo ufficiale Lone Wolf: **1024×1024 px**, PNG
-  trasparente (un'icona lanciatore Android si ritaglia da lì dopo,
-  non serve che si preoccupi lei del formato "adaptive icon").
+— **ASSET PRONTI, NON ANCORA AGGANCIATI A UNO SCHERMO**: `res/drawable/`
+ha `deco_backpack`/`deco_gold_pouch`/`deco_meal`/`deco_travel_gear`/
+`deco_potion`/`deco_combat_emblem`/`deco_arcane_medallion`/`wolf_logo`
+(sfondo rimosso, stessa tecnica delle armi) più `ic_map_icon`
+sostituita nello stesso stile. Manca la decisione di DOVE usarli
+(quale schermo, quale sezione) — nessuna UI li mostra ancora.
+- Zaino, pozioni, borsa/corone, pasto, mucchio di equipaggiamento —
+  accenti piccoli vicino alle rispettive sezioni.
+- Spade incrociate con la testa di lupo (per il riquadro del Rapporto
+  di Forza in combattimento) e medaglione arcano occhio+libro
+  (decorazione per il Registro discipline).
+- Un'illustrazione del lupo per il logo dell'app — ispirata, non
+  quella ufficiale Lone Wolf: `wolf_logo.png`, pronta.
 - Tutte danno personalità ma non sono indispensabili: si può partire
   senza e aggiungerle quando ci sono.
 
