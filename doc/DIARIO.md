@@ -2068,6 +2068,25 @@ sul device.**
   vista con un testo vero, lungo, per giudicare se il "cucito" tra le
   tre fasce si vede o no.
 
+  **Vista sul device, BRUTTA** (Michele, foto + "è brutta come è
+  venuta"): la fascia centrale, presa da una fettina di soli 100px
+  (200 per la variante scura), su un paragrafo lungo si stirava in
+  verticale per 5-8 volte — la grana sottile della pergamena
+  diventava una striatura verticale che sembrava legno, con un
+  cucito visibile dove incontrava la fascia superiore. Il principio
+  (bordi fissi, centro elastico) era giusto; la fettina scelta per il
+  centro era troppo sottile per lo stiramento reale che doveva
+  sopportare.
+  **Corretto** allargando la fascia centrale a quasi TUTTO lo spazio
+  verticale disponibile tra le due fasce fisse nell'immagine
+  originale (576px su 1024 per la chiara, 1150px su 2048 per la
+  scura, invece di 100/200px) — con una fonte quasi della stessa
+  taglia del bisogno reale, lo stiramento resta vicino a 1:1 anche su
+  testi lunghi, niente più smagliatura. Stesso inset orizzontale di
+  prima (i denti del bordo laterale restano esclusi).
+  Compilazione riverificata verde. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
