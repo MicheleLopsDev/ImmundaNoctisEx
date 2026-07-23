@@ -31,6 +31,11 @@ import io.github.luposolitario.immundanoctisex.R
 // Android, fatto con tre `Image` impilate invece di un `.9.png`.
 enum class ParchmentStyle(
     val displayName: String,
+    // Immagine intera (bordo strappato + scudi): usata come cornice
+    // decorativa GRANDE, non allineata pixel-per-pixel al testo (24/07,
+    // schizzo di Michele dopo aver bocciato la pila a tre fasce — vedi
+    // sotto).
+    val fullRes: Int?,
     val topRes: Int?,
     val middleRes: Int?,
     val bottomRes: Int?,
@@ -45,10 +50,11 @@ enum class ParchmentStyle(
     // invece del nero del tema, a prescindere dalla profondità.
     val baseColor: Color?,
 ) {
-    OFF("Disattivata (default)", null, null, null, null),
-    AUTO("Automatica (segue il tema)", null, null, null, null),
+    OFF("Disattivata (default)", null, null, null, null, null),
+    AUTO("Automatica (segue il tema)", null, null, null, null, null),
     LIGHT(
         "Pergamena chiara",
+        R.drawable.parchment_panel,
         R.drawable.parchment_panel_top,
         R.drawable.parchment_panel_middle,
         R.drawable.parchment_panel_bottom,
@@ -56,6 +62,7 @@ enum class ParchmentStyle(
     ),
     DARK(
         "Pergamena scura",
+        R.drawable.parchment_panel_dark,
         R.drawable.parchment_panel_dark_top,
         R.drawable.parchment_panel_dark_middle,
         R.drawable.parchment_panel_dark_bottom,

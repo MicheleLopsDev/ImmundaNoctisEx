@@ -19,8 +19,15 @@ import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 // vera del testo — stesso principio di un nine-patch Android, fatto
 // con tre Image impilate. Estensione di BoxScope (non una funzione
 // libera): `Modifier.matchParentSize()` esiste solo dentro un `Box`,
-// va richiamata da lì. Condivisa da CombatDiaryPanel e AdventureScreen
-// per non duplicare la pila due volte.
+// va richiamata da lì.
+//
+// Usata SOLO da CombatDiaryPanel (24/07/2026): il pannello di
+// narrazione è passato a `NarrationParchmentPanel` (vedi
+// NarrationParchmentPanel.kt), schizzo di Michele dopo aver bocciato
+// questa pila per il testo lungo — qui resta perché il contenuto del
+// Diario di Combattimento è breve e non scrolla, il problema del
+// "dente strappato sotto una riga di testo" è meno probabile ma non
+// impossibile: beneficia comunque del `baseColor` sotto.
 @Composable
 fun BoxScope.ParchmentBackground(style: ParchmentStyle) {
     val top = style.topRes
