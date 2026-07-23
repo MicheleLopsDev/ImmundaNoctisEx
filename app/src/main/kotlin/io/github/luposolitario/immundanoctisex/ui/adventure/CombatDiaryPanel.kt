@@ -1,5 +1,6 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +20,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,28 +59,26 @@ fun CombatDiaryPanel(
     isDarkTheme: Boolean = false,
 ) {
     // Stile pergamena (22/07/2026, richiesta Michele, scelta in Opzioni;
-    // 23/07/2026 AUTO): OFF resta il Card Material3 di sempre. Attivo,
-    // `Modifier.paint` dipinge l'immagine come sfondo alla dimensione
-    // del Column (mai quella intrinseca dell'immagine — sizeToIntrinsics
-    // = false, altrimenti il pannello vorrebbe diventare quadrato come
-    // la pergamena 1024×1024 invece di seguire il proprio contenuto), e
-    // il colore del testo di default diventa l'inchiostro giusto per LA
-    // VARIANTE RISOLTA (CompositionLocalProvider, non serve toccare ogni
-    // singolo Text — solo quelli con un colore ESPLICITO, es. i
-    // modificatori tertiary, restano quello che erano).
+    // 23/07/2026 AUTO, poi corretto lo stesso giorno): OFF resta il Card
+    // Material3 di sempre. Attivo, `Box` + `Image(Modifier.matchParentSize())`
+    // dipinge la pergamena SOTTO al contenuto — stesso pattern già
+    // funzionante di AdventureBanner (l'unico verificato sul device). Il
+    // primo tentativo con `Modifier.paint()` compilava ma non si vedeva
+    // affatto sul device (Michele, screenshot): mai stato provato prima
+    // di quel giro, si è rivelato inaffidabile. `matchParentSize()` non
+    // richiede un import (è un membro di `BoxScope`, non una funzione
+    // top-level: importarlo esplicitamente è ciò che aveva causato
+    // l'errore "Unresolved reference" del primo giro — l'API esiste
+    // davvero, era l'import ad essere sbagliato). Il colore del testo di
+    // default diventa l'inchiostro giusto per LA VARIANTE RISOLTA
+    // (CompositionLocalProvider, non serve toccare ogni singolo Text —
+    // solo quelli con un colore ESPLICITO, es. i modificatori tertiary,
+    // restano quello che erano).
     val resolvedStyle = parchmentStyle.resolved(isDarkTheme)
     val drawableRes = resolvedStyle.drawableRes
-    val columnModifier = if (drawableRes != null) {
-        Modifier
-            .clip(RoundedCornerShape(12.dp))
-            .paint(painterResource(id = drawableRes), contentScale = ContentScale.Crop, sizeToIntrinsics = false)
-            .padding(16.dp)
-    } else {
-        Modifier.padding(16.dp)
-    }
 
     val content: @Composable () -> Unit = {
-        Column(modifier = columnModifier) {
+        Column(modifier = Modifier.padding(16.dp)) {
             // Il Diario di Combattimento cartaceo lo mostra sempre in testa
             // (Michele 22/07/2026, foto del registro): un dato che avevamo
             // già (currentScene.id), solo mai portato dentro al combattimento.
@@ -121,7 +119,15 @@ fun CombatDiaryPanel(
         Card { content() }
     } else {
         CompositionLocalProvider(LocalContentColor provides resolvedStyle.inkColor()) {
-            content()
+            Box(modifier = Modifier.clip(RoundedCornerShape(12.dp))) {
+                Image(
+                    painter = painterResource(id = drawableRes),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.matchParentSize(),
+                )
+                content()
+            }
         }
     }
 }
