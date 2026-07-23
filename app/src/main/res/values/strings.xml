@@ -82,6 +82,8 @@
     <string name="creation_gender_male">Lupo</string>
     <string name="creation_gender_female">Lupa</string>
     <string name="creation_name">Nome (opzionale)</string>
+    <string name="creation_name_default_male">Eroe Solitario</string>
+    <string name="creation_name_default_female">Eroina Solitaria</string>
     <string name="creation_icon">Icona</string>
     <string name="hero_icon_wolf">Lupo</string>
     <string name="hero_icon_falcon">Falco</string>
