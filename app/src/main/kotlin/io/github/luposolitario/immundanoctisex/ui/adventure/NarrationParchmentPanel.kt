@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,6 +36,12 @@ import io.github.luposolitario.immundanoctisex.util.inkColor
 @Composable
 fun NarrationParchmentPanel(
     style: ParchmentStyle,
+    // Serve solo al colore del bordo (24/07/2026, Michele, dalla foto
+    // con il rettangolo arancione disegnato sopra: "un bordo che in
+    // notturna può essere oro e in tema chiaro argento" — segue il
+    // TEMA dell'app, non lo stile pergamena scelto: chi ha "Pergamena
+    // chiara" col telefono in tema scuro vuole comunque il bordo oro).
+    isDarkTheme: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -48,6 +53,7 @@ fun NarrationParchmentPanel(
         }
         return
     }
+    val borderColor = if (isDarkTheme) FRAME_BORDER_GOLD else FRAME_BORDER_SILVER
     Box(modifier = modifier) {
         Image(
             painter = painterResource(id = fullRes),
@@ -55,12 +61,19 @@ fun NarrationParchmentPanel(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize(),
         )
+        // Margine PROPORZIONALE (fillMaxSize(fraction), non un padding
+        // fisso in dp): gli scudi degli angoli occupano fino al ~19-22%
+        // dell'immagine dagli angoli (misurato con Pillow) — un padding
+        // fisso lasciava il testo a coprirli su schermi diversi da
+        // quello di prova. Al 68% il riquadro resta ben dentro, scudi e
+        // strappo restano visibili e non coperti dal testo (Michele,
+        // foto col rettangolo arancione: "verifica che i loghi... non
+        // siano sovrascritte da testo").
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
-                .fillMaxSize()
-                .padding(28.dp)
-                .border(2.dp, FRAME_BORDER_COLOR, RoundedCornerShape(8.dp))
+                .fillMaxSize(0.68f)
+                .border(3.dp, borderColor, RoundedCornerShape(8.dp))
                 .clip(RoundedCornerShape(8.dp)),
         ) {
             Image(
@@ -76,7 +89,8 @@ fun NarrationParchmentPanel(
     }
 }
 
-// Marrone cuoio scuro: un bordo unico per entrambe le varianti, come la
-// rilegatura di un registro vero — non l'inchiostro (che cambia tra
-// chiaro/scuro), un elemento di cornice a parte.
-private val FRAME_BORDER_COLOR = Color(0xFF4A3524)
+// Oro in tema scuro, argento in tema chiaro (24/07/2026, richiesta
+// esplicita di Michele) — non l'inchiostro (che segue lo stile
+// pergamena scelto, non il tema): un elemento di cornice a parte.
+private val FRAME_BORDER_GOLD = Color(0xFFD4AF37)
+private val FRAME_BORDER_SILVER = Color(0xFF9A9A9A)
