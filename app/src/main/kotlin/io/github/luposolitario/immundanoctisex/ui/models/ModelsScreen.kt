@@ -55,6 +55,11 @@ fun ModelsScreen(
     downloadedIds: Set<String>,
     token: String,
     downloadState: DownloadUiState,
+    // A quale modello appartiene DAVVERO il downloadState (24/07/2026,
+    // bug corretto — vedi ModelDownloadWorker/ModelsRoute): mai più
+    // selectedModelId, che poteva essere un modello diverso da quello
+    // che sta scaricando per davvero.
+    runningModelId: String?,
     storageInfo: String?,
     advancedSettings: AdvancedSettingsUi,
     onSelectModel: (DownloadableModel) -> Unit,
@@ -100,6 +105,12 @@ fun ModelsScreen(
             Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
         }
 
+        // Un download in corso blocca il bottone "Scarica" su TUTTE le
+        // altre card (24/07/2026 — vedi commento su runningModelId): senza
+        // questo, un tocco su un'altra card CANCELLAVA quello in corso
+        // (WorkManager REPLACE) invece di essere semplicemente ignorato.
+        val anyDownloadRunning = downloadState is DownloadUiState.Running
+
         Text("Consigliati", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
         models.forEach { model ->
             ModelCard(
@@ -108,7 +119,8 @@ fun ModelsScreen(
                 active = model.id == activeModelId,
                 downloaded = model.id in downloadedIds,
                 isActivating = isActivating,
-                downloadState = downloadState.takeIf { model.id == selectedModelId } ?: DownloadUiState.Idle,
+                downloadState = downloadState.takeIf { model.id == runningModelId } ?: DownloadUiState.Idle,
+                downloadBlockedByOther = anyDownloadRunning && model.id != runningModelId,
                 onSelect = { onSelectModel(model) },
                 onActivate = { onActivate(model) },
                 onDownload = { onDownload(model) },
@@ -127,7 +139,8 @@ fun ModelsScreen(
                     active = model.id == activeModelId,
                     downloaded = model.id in downloadedIds,
                     isActivating = isActivating,
-                    downloadState = downloadState.takeIf { model.id == selectedModelId } ?: DownloadUiState.Idle,
+                    downloadState = downloadState.takeIf { model.id == runningModelId } ?: DownloadUiState.Idle,
+                    downloadBlockedByOther = anyDownloadRunning && model.id != runningModelId,
                     onSelect = { onSelectModel(model) },
                     onActivate = { onActivate(model) },
                     onDownload = { onDownload(model) },
@@ -180,6 +193,7 @@ private fun ModelCard(
     downloaded: Boolean,
     isActivating: Boolean,
     downloadState: DownloadUiState,
+    downloadBlockedByOther: Boolean,
     onSelect: () -> Unit,
     onActivate: () -> Unit,
     onDownload: () -> Unit,
@@ -246,7 +260,11 @@ private fun ModelCard(
             if (downloadState !is DownloadUiState.Running) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (!downloaded) {
-                        Button(onClick = onDownload) { Text("Scarica") }
+                        // Disabilitato mentre un ALTRO modello sta
+                        // scaricando (24/07/2026): prima restava sempre
+                        // attivo, e un tocco qui cancellava il download in
+                        // corso invece di limitarsi a essere ignorato.
+                        Button(onClick = onDownload, enabled = !downloadBlockedByOther) { Text("Scarica") }
                     } else {
                         // Cambia il motore a caldo (Michele 22/07/2026):
                         // scaricati più modelli, si passa dall'uno
@@ -370,6 +388,7 @@ private fun ModelsScreenPreview() {
             downloadedIds = emptySet(),
             token = "",
             downloadState = DownloadUiState.Running(downloaded = 1_200_000_000, total = 3_659_530_240),
+            runningModelId = ModelCatalog.default.id,
             storageInfo = "Modelli sul telefono: 1 — 3,66 GB occupati",
             advancedSettings = AdvancedSettingsUi(
                 maxTokens = "10240",

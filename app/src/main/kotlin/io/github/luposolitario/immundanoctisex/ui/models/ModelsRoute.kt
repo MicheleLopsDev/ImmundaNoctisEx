@@ -105,7 +105,14 @@ fun ModelsRoute(
         .getWorkInfosForUniqueWorkFlow(ModelDownloadWorker.WORK_NAME)
         .collectAsState(initial = emptyList())
 
-    val downloadState = workInfos.firstOrNull().toUiState()
+    val activeWorkInfo = workInfos.firstOrNull()
+    val downloadState = activeWorkInfo.toUiState()
+    // BUG (24/07/2026, Michele: download "bloccati" — vedi
+    // ModelDownloadWorker per il dettaglio): il progresso ora si
+    // attribuisce leggendo l'id che il worker rimanda nel progresso,
+    // MAI più fidandosi di selectedModelId (poteva appartenere a un
+    // modello diverso da quello che sta davvero scaricando).
+    val runningModelId = activeWorkInfo?.progress?.getString(ModelDownloadWorker.KEY_MODEL_ID)
 
     // A download finito la lista si aggiorna: il bottone diventa "Elimina".
     // I modelli personalizzati partono con sizeBytes=0 (ignota finché non
@@ -133,6 +140,7 @@ fun ModelsRoute(
         downloadedIds = downloadedIds,
         token = token,
         downloadState = downloadState,
+        runningModelId = runningModelId,
         onSelectModel = { model ->
             selectedModelId = model.id
             preferences.selectedModelId = model.id
@@ -321,6 +329,7 @@ private fun startDownload(
     val request = OneTimeWorkRequestBuilder<ModelDownloadWorker>()
         .setInputData(
             workDataOf(
+                ModelDownloadWorker.KEY_MODEL_ID to model.id,
                 ModelDownloadWorker.KEY_URL to model.url,
                 ModelDownloadWorker.KEY_DESTINATION to preferences.fileFor(model).absolutePath,
                 ModelDownloadWorker.KEY_EXPECTED_SIZE to model.sizeBytes,
