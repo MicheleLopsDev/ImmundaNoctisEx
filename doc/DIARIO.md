@@ -2153,6 +2153,37 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+  **BOCCIATO DA MICHELE, 24/07**: uno schizzo suo, mandato con un
+  disegno vero — "non mi piace nulla, deve essere una cosa così, vorrei
+  però che ripartissi": tutta la pila a tre fasce (nine-patch, colore
+  di sfondo pieno) buttata via. Il disegno mostra un'idea più semplice
+  e diversa: la pergamena grande resta un'illustrazione DECORATIVA
+  (bordo strappato + scudi, `ContentScale.Crop` sull'intero riquadro,
+  nessun bisogno di inseguire l'altezza del testo pixel per pixel), e
+  il testo vive in un riquadro PIÙ PICCOLO e SEPARATO, con margine
+  dalla cornice, un bordo vero (marrone cuoio) e uno sfondo = la
+  stessa texture piatta del centro già pronta (`middleRes`, senza
+  denti strappati — qui non serve nessun trucco). Due domande fatte
+  PRIMA di ricominciare (per non sbagliare una quarta volta): il
+  riquadro di testo torna ad avere altezza fissa con scroll interno
+  (confermato — annulla la scelta "scorre tutta la schermata" di
+  poco fa) e il bordo va disegnato per davvero (confermato).
+  Nuovo file `NarrationParchmentPanel.kt`: `Box` con l'immagine intera
+  (`ParchmentStyle.fullRes`, nuovo campo) a piena dimensione, dentro
+  un secondo `Box` più piccolo (padding 28dp, bordo 2dp marrone cuoio
+  `#4A3524`, sfondo = `middleRes` con `ContentScale.Crop` — sicuro
+  perché il riquadro ha dimensione FISSA, non deve stirarsi). Ripristinato
+  lo scroll interno sul `Text` (`verticalScroll`) e `Modifier.weight(1f)`
+  sul pannello, tolta la Column-wrapper che faceva scorrere l'intera
+  schermata. `ParchmentBackground.kt` (la pila a tre fasce) resta
+  SOLO per `CombatDiaryPanel` (contenuto breve, non scrolla, il
+  problema del dente profondo è meno probabile ma protetto comunque
+  dal `baseColor`).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device**: quarto giro su questa stessa feature, stavolta partito da
+  un disegno esplicito invece che da un'idea mia — file da guardare
+  con più attenzione prima di dichiararlo chiuso.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
