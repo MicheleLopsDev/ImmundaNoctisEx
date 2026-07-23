@@ -1,6 +1,6 @@
 package io.github.luposolitario.immundanoctisex.util
 
-// Le 4 tracce composte da Michele (origina_res/), incluse nell'APK
+// Le 5 tracce composte da Michele (origina_res/), incluse nell'APK
 // (assets/music/). Catalogo chiuso (22/07/2026, richiesta Michele: "una
 // combo con le canzoni che ho fatto, non un picker") — niente file
 // esterni per ora, solo queste.
@@ -9,7 +9,11 @@ data class BundledTrack(val id: String, val displayName: String, val assetPath: 
 object BundledMusicCatalog {
     // Nome per esteso (Michele 22/07/2026: "fai apparire il nome per
     // esteso dei file mp3"): categoria + titolo originale del brano.
+    // "menu" in testa alla lista (24/07/2026, richiesta Michele: "il main
+    // theme dell'app... mettila come default") — `default` è sempre la
+    // prima della lista, nessun'altra riga da cambiare per farla tale.
     val TRACKS: List<BundledTrack> = listOf(
+        BundledTrack("menu", "Main Theme — Destino Segnato", "music/menu_Destino_segnato.mp3"),
         BundledTrack("esplorazione", "Esplorazione — Where the Statues Kneel", "music/esplorazione_Where_The_Statues_Kneel.mp3"),
         BundledTrack("combattimento", "Combattimento — The Iron Vow", "music/combattimento_The_Iron_Vow.mp3"),
         BundledTrack("mercato", "Mercato — What Is the Fee?", "music/mercato_What_Is_the_Fee_.mp3"),
