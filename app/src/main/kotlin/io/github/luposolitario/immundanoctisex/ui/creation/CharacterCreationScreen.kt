@@ -188,10 +188,15 @@ private fun HeroIconCard(state: CreationState) {
             Text(stringResource(R.string.creation_icon), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 120.dp),
+                // Ancora troppo piccole a 72dp (24/07/2026, stesso
+                // giorno, Michele: "quasi non distingui gli animali
+                // diversi") — un altro salto, non un ritocco: 100dp,
+                // celle minime da 120 a 140dp per farcele stare senza
+                // schiacciarle.
+                columns = GridCells.Adaptive(minSize = 140.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().height(460.dp),
+                modifier = Modifier.fillMaxWidth().height(560.dp),
             ) {
                 items(HeroIcon.entries) { icon ->
                     WeaponCell(
@@ -199,7 +204,7 @@ private fun HeroIconCard(state: CreationState) {
                         nameRes = heroIconName(icon),
                         selected = state.heroIcon == icon,
                         onClick = { state.heroIcon = icon },
-                        iconSize = 72.dp,
+                        iconSize = 100.dp,
                     )
                 }
             }
