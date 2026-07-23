@@ -327,15 +327,18 @@ private fun WeaponCard(state: CreationState) {
             Text(stringResource(R.string.creation_equipment_title), style = MaterialTheme.typography.titleLarge)
             Text(stringResource(R.string.creation_pick_weapon), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
-            // Icone in griglia, come le discipline (richiesta Michele).
-            // Celle ancora più larghe (24/07/2026, secondo giro: "non le
-            // distingui, almeno il 50%" — 64dp non bastava ancora,
-            // 96dp è esattamente +50%).
+            // Griglia a DUE colonne fisse, non "adattiva" (24/07/2026,
+            // terzo giro: con minSize=190dp lo schermo ci faceva stare
+            // una sola colonna, celle enormi con l'icona persa in mezzo
+            // al vuoto — "puoi ingrandirle anche del doppio rispetto
+            // allo spazio" era un sintomo della griglia sbagliata, non
+            // (solo) dell'icona piccola). Due colonne = celle più strette
+            // e più quadrate, l'icona le riempie per davvero.
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 190.dp),
+                columns = GridCells.Fixed(2),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().height(700.dp),
+                modifier = Modifier.fillMaxWidth().height(950.dp),
             ) {
                 items(INITIAL_WEAPONS) { weapon ->
                     WeaponCell(
@@ -343,6 +346,16 @@ private fun WeaponCard(state: CreationState) {
                         nameRes = weaponTypeName(requireNotNull(weapon.weaponType)),
                         selected = state.selectedWeapon?.name == weapon.name,
                         onClick = { state.selectWeapon(weapon) },
+                        // 120dp, proporzionata alla cella (metà schermo,
+                        // non più tutta la larghezza) invece che a un
+                        // valore fisso scelto alla cieca.
+                        iconSize = 120.dp,
+                        // Sfondo verde sull'arma della specializzazione
+                        // WEAPONSKILL, se scelta (24/07/2026, richiesta
+                        // Michele) — indipendente dal bordo oro
+                        // dell'arma IMPUGNATA: due fatti diversi, si
+                        // possono vedere insieme.
+                        isSpecialization = weapon.weaponType == state.weaponSkillType,
                     )
                 }
                 // Arti marziali: si parte senza armi (con WEAPONSKILL+UNARMED
@@ -353,6 +366,8 @@ private fun WeaponCard(state: CreationState) {
                         nameRes = R.string.weapon_unarmed,
                         selected = state.fightsUnarmed,
                         onClick = { state.selectUnarmed() },
+                        iconSize = 120.dp,
+                        isSpecialization = state.weaponSkillType == WeaponType.UNARMED,
                     )
                 }
             }
@@ -414,13 +429,22 @@ private fun WeaponCell(
     selected: Boolean,
     onClick: () -> Unit,
     iconSize: androidx.compose.ui.unit.Dp = 96.dp,
+    // Sfondo verde per l'arma della specializzazione WEAPONSKILL, se
+    // scelta (24/07/2026, richiesta Michele) — indipendente dal bordo
+    // oro di "impugnata ora": due fatti diversi (specializzazione vs
+    // selezione corrente), si vedono insieme se coincidono.
+    isSpecialization: Boolean = false,
 ) {
     val borderColor = if (selected) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
     androidx.compose.material3.OutlinedCard(
         onClick = onClick,
         border = androidx.compose.foundation.BorderStroke(if (selected) 3.dp else 1.dp, borderColor),
         colors = androidx.compose.material3.CardDefaults.outlinedCardColors(
-            containerColor = if (selected) Color(0xFFFFD700).copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = when {
+                isSpecialization -> Color(0xFF2E7D32).copy(alpha = 0.35f)
+                selected -> Color(0xFFFFD700).copy(alpha = 0.15f)
+                else -> MaterialTheme.colorScheme.surfaceVariant
+            },
         ),
     ) {
         Column(
