@@ -2338,6 +2338,17 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Main theme dell'app, nuovo brano di default** (24/07, richiesta
+  Michele: nuovo file consegnato, "vorrei fosse il default... dovrebbe
+  essere il main theme"): `menu_Destino_segnato.mp3` copiato in
+  `assets/music/`, aggiunto a `BundledMusicCatalog.TRACKS` come "Main
+  Theme — Destino Segnato" — messo in TESTA alla lista, così
+  `default = TRACKS.first()` lo prende automaticamente senza toccare
+  nessun'altra riga. Catalogo ora a 5 tracce (prima 4). Nessun test
+  dipende dall'ordine o dal conteggio del catalogo.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
