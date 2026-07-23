@@ -2209,6 +2209,25 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+  **"Bello" — primo riscontro pienamente positivo sull'intera feature
+  pergamena, 24/07**: Michele ha provato anche il tema chiaro senza
+  pergamena, gli piace anche l'effetto "zoom" del pannello scoperto
+  poco fa (lo trova un effetto speciale piacevole, non un bug — resta
+  invariato, nessun codice toccato per quello). Ha chiesto se il
+  bordo oro/argento potesse usare una texture: spiegato che una
+  texture fotografica su un bordo di pochi dp non renderebbe (Compose
+  non segue il tracciato del bordo con un pattern ripetuto, si
+  vedrebbe solo schiacciata/irriconoscibile) — un GRADIENTE imita
+  meglio un riflesso metallico. Confermato, con due dettagli:
+  colori PIENI (non pastello) e bordo un po' più spesso per dargli
+  risalto.
+  `Modifier.border()` accetta anche un `Brush`, non solo un `Color`:
+  sostituito con `Brush.linearGradient` a 5 fermate (chiaro→scuro→
+  chiaro→scuro→chiaro, diagonale) per entrambe le varianti, spessore
+  da 3dp a 5dp.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
