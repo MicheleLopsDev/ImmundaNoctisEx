@@ -26,12 +26,10 @@ import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +45,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
-import io.github.luposolitario.immundanoctisex.util.inkColor
 import io.github.luposolitario.immundanoctisex.util.resolved
 
 // La scena teatrale in forma minima (Fase 3, "prima funziona poi è
@@ -163,154 +160,125 @@ fun AdventureScreen(
             },
         )
 
-        // Lo schermo intero scorre da qui in giù, non solo il testo
-        // (Michele 23/07/2026: "pensavo che allungassi lo sfondo... tutto
-        // il testo deve essere su sfondo, non alcune parti sì altre no" —
-        // col pannello ad altezza FISSA + scroll interno di prima, la
-        // pergamena mostrava un pezzo a caso del paragrafo dentro una
-        // cornice che sembrava sempre "l'inizio pagina", per questo il
-        // testo sembrava sforare. Ora il pannello CRESCE per contenere
-        // tutto il testo, come il Diario di Combattimento; a crescere è
-        // questa Column, non il testo al suo interno).
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
+        // Il palcoscenico: sfondo + ritratti, col cerchio d'oro su chi
+        // "parla" (il narratore mentre scrive, altrimenti l'eroe).
+        AdventureBanner(
+            heroName = state.hero.name,
+            heroGender = state.hero.gender,
+            // Stato del narratore unificato (UI.md): il cerchio d'oro resta
+            // acceso sia mentre Gemma scrive sia mentre il TTS legge.
+            narratorSpeaking = state.isGenerating || state.isSpeaking,
+            // L'alone pulsa solo finché non c'è nulla da leggere: appena
+            // arriva il primo pezzo di testo torna fermo.
+            narratorThinking = state.isGenerating && state.narrative.isBlank(),
+            backgroundImageName = state.backgroundImage,
+        )
+
+        // Stile pergamena (22/07→24/07/2026, richiesta Michele, più giri:
+        // vedi DIARIO.md per la storia completa). Versione attuale, da
+        // uno schizzo di Michele dopo aver bocciato la pila a tre fasce:
+        // la pergamena grande resta una CORNICE decorativa (Card
+        // Material3 se OFF), il testo vive in un riquadro più piccolo e
+        // bordato con scroll interno — vedi NarrationParchmentPanel.kt.
+        val narrationStyle = parchmentStyle.resolved(isDarkTheme)
+        NarrationParchmentPanel(
+            style = narrationStyle,
+            modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp),
         ) {
-            // Il palcoscenico: sfondo + ritratti, col cerchio d'oro su chi
-            // "parla" (il narratore mentre scrive, altrimenti l'eroe).
-            AdventureBanner(
-                heroName = state.hero.name,
-                heroGender = state.hero.gender,
-                // Stato del narratore unificato (UI.md): il cerchio d'oro resta
-                // acceso sia mentre Gemma scrive sia mentre il TTS legge.
-                narratorSpeaking = state.isGenerating || state.isSpeaking,
-                // L'alone pulsa solo finché non c'è nulla da leggere: appena
-                // arriva il primo pezzo di testo torna fermo.
-                narratorThinking = state.isGenerating && state.narrative.isBlank(),
-                backgroundImageName = state.backgroundImage,
-            )
-
-            // Stile pergamena (23/07/2026, richiesta Michele dopo aver visto lo
-            // screenshot del pannello di narrazione ancora piatto: "estendilo
-            // anche al testo, non solo al combattimento"; poi ancora 23/07/2026
-            // la pila a tre fasce — vedi ParchmentBackground.kt, il testo
-            // sforava oltre il bordo strappato fisso): Card Material3 di
-            // sempre se OFF, altrimenti Box + ParchmentBackground.
-            val narrationStyle = parchmentStyle.resolved(isDarkTheme)
-            val narrationParchmentActive = narrationStyle.topRes != null
-            val narrationPanelModifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            val narrationContent: @Composable () -> Unit = {
-                if (state.narrative.isBlank() && state.isGenerating) {
-                    // Il narratore sta scrivendo: nessun testo originale da
-                    // leggere, solo l'attesa RACCONTATA (UI.md §Flusso).
-                    // Spacer della stessa altezza della riga dell'icona
-                    // "leggi" del ramo sotto (Michele 23/07/2026: "scrive
-                    // sopra il logo" — senza questo spacer l'attesa parte
-                    // ~32dp più in alto del testo vero, abbastanza da
-                    // toccare gli scudi della pergamena).
-                    Spacer(Modifier.height(48.dp))
-                    NarratorThinking(loadingModel = state.isLoadingModel)
-                } else {
-                    Column {
-                        // Icona "leggi" (UI.md §Flusso centrale): grigia/
-                        // disattivata se l'auto-lettura è già accesa in
-                        // Opzioni, altrimenti un tocco fa leggere la scena.
-                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                            IconButton(onClick = onReadAloud, enabled = !autoReadEnabled) {
-                                Icon(
-                                    imageVector = Icons.Default.VolumeUp,
-                                    contentDescription = "Leggi ad alta voce",
-                                )
-                            }
-                        }
-                        Text(
-                            // Il finale fabbricato dal motore nasce senza testo: lo
-                            // scrive il narratore. Se non ha potuto (modello assente
-                            // o generazione fallita) si mette quello fisso, perché
-                            // una schermata vuota non è un finale.
-                            text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontFamily = readingFont,
-                            fontWeight = if (boldText) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale.multiplier,
-                            // Niente più scroll qui (23/07/2026): lo scroll è
-                            // sull'intera schermata, il testo si mostra per
-                            // intero e il pannello/la pergamena crescono con lui.
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                        )
-                    }
-                }
-            }
-            if (!narrationParchmentActive) {
-                Card(modifier = narrationPanelModifier, elevation = CardDefaults.cardElevation(2.dp)) {
-                    narrationContent()
-                }
+            if (state.narrative.isBlank() && state.isGenerating) {
+                // Il narratore sta scrivendo: nessun testo originale da
+                // leggere, solo l'attesa RACCONTATA (UI.md §Flusso).
+                // Spacer della stessa altezza della riga dell'icona
+                // "leggi" del ramo sotto (Michele 23/07/2026: "scrive
+                // sopra il logo" — senza questo spacer l'attesa parte
+                // ~32dp più in alto del testo vero, abbastanza da
+                // toccare gli scudi della pergamena).
+                Spacer(Modifier.height(48.dp))
+                NarratorThinking(loadingModel = state.isLoadingModel)
             } else {
-                CompositionLocalProvider(LocalContentColor provides narrationStyle.inkColor()) {
-                    Box(modifier = narrationPanelModifier.clip(RoundedCornerShape(12.dp))) {
-                        ParchmentBackground(narrationStyle)
-                        Column {
-                            narrationContent()
+                Column {
+                    // Icona "leggi" (UI.md §Flusso centrale): grigia/
+                    // disattivata se l'auto-lettura è già accesa in
+                    // Opzioni, altrimenti un tocco fa leggere la scena.
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        IconButton(onClick = onReadAloud, enabled = !autoReadEnabled) {
+                            Icon(
+                                imageVector = Icons.Default.VolumeUp,
+                                contentDescription = "Leggi ad alta voce",
+                            )
                         }
                     }
+                    Text(
+                        // Il finale fabbricato dal motore nasce senza testo: lo
+                        // scrive il narratore. Se non ha potuto (modello assente
+                        // o generazione fallita) si mette quello fisso, perché
+                        // una schermata vuota non è un finale.
+                        text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontFamily = readingFont,
+                        fontWeight = if (boldText) FontWeight.Bold else FontWeight.Normal,
+                        fontSize = MaterialTheme.typography.bodyLarge.fontSize * textScale.multiplier,
+                        // Scroll di nuovo INTERNO al riquadro (24/07/2026,
+                        // schizzo di Michele): il riquadro ha altezza
+                        // fissa, non insegue più la lunghezza del testo.
+                        modifier = Modifier.padding(horizontal = 16.dp).verticalScroll(rememberScrollState()),
+                    )
                 }
             }
+        }
 
-            // Un incontro pacifico nella storia (Michele 22/07/2026: "npc o
-            // beast se sono amichevoli vanno sotto il testo"), non un
-            // avversario — quello ha il suo posto in CombatEntryZone. Solo
-            // quando l'autore l'ha dichiarato (Scene.npcImage); altrimenti
-            // niente, come prima di questa funzione.
-            npcImageRes(state.currentScene.npcImage)?.let { res ->
-                Image(
-                    painter = painterResource(id = res),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    // 120dp (Michele 22/07/2026: 100 -> 110 -> "un altro 10% in
-                    // più e ci siamo" — arrotondato da 121 per un numero pulito).
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp)
-                        .clip(RoundedCornerShape(8.dp)),
-                )
-                Spacer(Modifier.height(8.dp))
-            }
-
-            StatusCard(hero = state.hero, onClick = { showSheet = true }, cardColor = statusCardColor)
+        // Un incontro pacifico nella storia (Michele 22/07/2026: "npc o
+        // beast se sono amichevoli vanno sotto il testo"), non un
+        // avversario — quello ha il suo posto in CombatEntryZone. Solo
+        // quando l'autore l'ha dichiarato (Scene.npcImage); altrimenti
+        // niente, come prima di questa funzione.
+        npcImageRes(state.currentScene.npcImage)?.let { res ->
+            Image(
+                painter = painterResource(id = res),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                // 120dp (Michele 22/07/2026: 100 -> 110 -> "un altro 10% in
+                // più e ci siamo" — arrotondato da 121 per un numero pulito).
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+            )
             Spacer(Modifier.height(8.dp))
+        }
 
-            when {
-                state.combatSession != null -> CombatActiveZone(state, parchmentStyle, isDarkTheme)
-                // Finché il narratore scrive non si mostrano scelte né nemico:
-                // apparirebbero col testo originale per poi cambiare sotto gli
-                // occhi (UI.md: prima lo streaming, POI i pulsanti).
-                state.isGenerating -> Unit
-                state.currentScene.combat != null -> CombatEntryZone(state)
-                state.isEnding -> EndingZone(state, onExitToHome, onReloadCheckpoint)
-                state.requiresRoll -> DiceZone(state)
-                else -> {
-                    if (state.availableItems.isNotEmpty()) {
-                        PickupZone(state)
-                        Spacer(Modifier.height(6.dp))
-                    }
-                    ChoicesZone(state)
-                    // Piazzamento checkpoint dal menu (STATO.md Blocco 2): fuori
-                    // dal combattimento, col budget della difficoltà visibile.
-                    if (state.checkpointsRemaining > 0) {
-                        Spacer(Modifier.height(6.dp))
-                        // Prima non c'era NESSUN riscontro visivo: il file si
-                        // scriveva ma la scritta restava uguale, e sembrava che
-                        // il tasto non facesse nulla (Michele 20/07/2026).
-                        if (checkpointsSaved > 0) {
-                            SaveConfirmedRow(onExpired = { checkpointsSaved = 0 })
-                        } else {
-                            androidx.compose.material3.TextButton(
-                                onClick = { if (state.placeCheckpoint()) checkpointsSaved++ },
-                            ) {
-                                Text("Piazza checkpoint (rimasti: ${state.checkpointsRemaining})")
-                            }
+        StatusCard(hero = state.hero, onClick = { showSheet = true }, cardColor = statusCardColor)
+        Spacer(Modifier.height(8.dp))
+
+        when {
+            state.combatSession != null -> CombatActiveZone(state, parchmentStyle, isDarkTheme)
+            // Finché il narratore scrive non si mostrano scelte né nemico:
+            // apparirebbero col testo originale per poi cambiare sotto gli
+            // occhi (UI.md: prima lo streaming, POI i pulsanti).
+            state.isGenerating -> Unit
+            state.currentScene.combat != null -> CombatEntryZone(state)
+            state.isEnding -> EndingZone(state, onExitToHome, onReloadCheckpoint)
+            state.requiresRoll -> DiceZone(state)
+            else -> {
+                if (state.availableItems.isNotEmpty()) {
+                    PickupZone(state)
+                    Spacer(Modifier.height(6.dp))
+                }
+                ChoicesZone(state)
+                // Piazzamento checkpoint dal menu (STATO.md Blocco 2): fuori
+                // dal combattimento, col budget della difficoltà visibile.
+                if (state.checkpointsRemaining > 0) {
+                    Spacer(Modifier.height(6.dp))
+                    // Prima non c'era NESSUN riscontro visivo: il file si
+                    // scriveva ma la scritta restava uguale, e sembrava che
+                    // il tasto non facesse nulla (Michele 20/07/2026).
+                    if (checkpointsSaved > 0) {
+                        SaveConfirmedRow(onExpired = { checkpointsSaved = 0 })
+                    } else {
+                        androidx.compose.material3.TextButton(
+                            onClick = { if (state.placeCheckpoint()) checkpointsSaved++ },
+                        ) {
+                            Text("Piazza checkpoint (rimasti: ${state.checkpointsRemaining})")
                         }
                     }
                 }
