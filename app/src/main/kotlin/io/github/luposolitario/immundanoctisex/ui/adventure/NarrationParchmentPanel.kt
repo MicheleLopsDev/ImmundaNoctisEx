@@ -13,6 +13,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -53,7 +54,7 @@ fun NarrationParchmentPanel(
         }
         return
     }
-    val borderColor = if (isDarkTheme) FRAME_BORDER_GOLD else FRAME_BORDER_SILVER
+    val borderBrush = if (isDarkTheme) goldBorderBrush() else silverBorderBrush()
     Box(modifier = modifier) {
         Image(
             painter = painterResource(id = fullRes),
@@ -73,7 +74,7 @@ fun NarrationParchmentPanel(
             modifier = Modifier
                 .align(Alignment.Center)
                 .fillMaxSize(0.68f)
-                .border(3.dp, borderColor, RoundedCornerShape(8.dp))
+                .border(5.dp, borderBrush, RoundedCornerShape(8.dp))
                 .clip(RoundedCornerShape(8.dp)),
         ) {
             Image(
@@ -92,5 +93,16 @@ fun NarrationParchmentPanel(
 // Oro in tema scuro, argento in tema chiaro (24/07/2026, richiesta
 // esplicita di Michele) — non l'inchiostro (che segue lo stile
 // pergamena scelto, non il tema): un elemento di cornice a parte.
-private val FRAME_BORDER_GOLD = Color(0xFFD4AF37)
-private val FRAME_BORDER_SILVER = Color(0xFF9A9A9A)
+// Gradiente, non colore piatto (24/07/2026, stesso giorno: "potrebbe
+// usare una texture?" — una texture vera su un bordo di pochi dp non
+// si vedrebbe, un gradiente diagonale chiaro/scuro/chiaro imita il
+// riflesso della luce su un bordo metallico, molto più convincente di
+// una linea piatta). Colori PIENI, non pastello (richiesta esplicita:
+// "usa colori solidi").
+private fun goldBorderBrush() = Brush.linearGradient(
+    listOf(Color(0xFFFFE9A8), Color(0xFFB8860B), Color(0xFFFFD700), Color(0xFF8B6508), Color(0xFFFFE9A8)),
+)
+
+private fun silverBorderBrush() = Brush.linearGradient(
+    listOf(Color(0xFFF2F2F2), Color(0xFF8A8A8A), Color(0xFFD9D9D9), Color(0xFF6E6E6E), Color(0xFFF2F2F2)),
+)
