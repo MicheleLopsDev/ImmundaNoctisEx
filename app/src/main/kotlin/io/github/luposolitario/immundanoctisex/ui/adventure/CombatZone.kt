@@ -58,7 +58,11 @@ fun CombatEntryZone(state: AdventureState) {
 // Michele 20/07/2026) + menu tattico. Il pannello resta lo stesso dal
 // primo colpo al riepilogo finale — mai un salto visivo a metà scontro.
 @Composable
-fun CombatActiveZone(state: AdventureState, parchmentStyle: ParchmentStyle = ParchmentStyle.OFF) {
+fun CombatActiveZone(
+    state: AdventureState,
+    parchmentStyle: ParchmentStyle = ParchmentStyle.OFF,
+    isDarkTheme: Boolean = false,
+) {
     val session = requireNotNull(state.combatSession)
     val combat = requireNotNull(state.currentScene.combat)
 
@@ -78,7 +82,7 @@ fun CombatActiveZone(state: AdventureState, parchmentStyle: ParchmentStyle = Par
             // nemico?") — prima spariva non appena si sceglieva Rapido/
             // Completo, perché la mostrava solo CombatEntryZone.
             EnemyPortrait(combat.enemyImage)
-            CombatDiaryPanel(state, session, parchmentStyle)
+            CombatDiaryPanel(state, session, parchmentStyle, isDarkTheme)
             if (session.status == CombatStatus.ONGOING) {
                 TacticalMenu(state, session)
             }

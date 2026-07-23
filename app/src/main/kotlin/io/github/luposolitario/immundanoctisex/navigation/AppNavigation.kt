@@ -121,6 +121,7 @@ fun AppNavigation(
                         backStack.clear()
                         route = Route.HOME
                     },
+                    isDarkTheme = isDarkTheme,
                 )
             }
         }

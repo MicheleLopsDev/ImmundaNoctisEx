@@ -7,27 +7,48 @@ import io.github.luposolitario.immundanoctisex.R
 
 // Stile pergamena per il Diario di Combattimento (22/07/2026, richiesta
 // Michele, dal piano di reskin — "potremmo far scegliere nelle
-// opzioni?"): non un semplice interruttore, una vera scelta a tre, come
-// AccentColor. OFF di default: chi non la vuole resta sul Material3
-// piatto di oggi, nessuna sorpresa per chi già gioca.
-//
-// Un solo colore d'inchiostro per ENTRAMBE le varianti (INK, sotto): la
-// pergamena chiara e quella scura sono comunque più chiare del testo
-// scuro forzato sopra — stesso principio del registro cartaceo, dove
-// l'inchiostro è sempre nero a prescindere dal colore della pagina.
+// opzioni?"; 23/07/2026, AUTO aggiunta su richiesta di Michele: "auto
+// mode... sceglie chiaro scuro a seconda del tema del sistema, oppure
+// selezioni indipendentemente e in quel caso adatti i colori"). OFF di
+// default: chi non la vuole resta sul Material3 piatto di oggi, nessuna
+// sorpresa per chi già gioca. AUTO segue il tema effettivo dell'app
+// (`isDarkTheme` da `ThemePreferences.useDarkTheme`, non il solo
+// sistema: se Michele ha forzato un tema nelle Opzioni, AUTO rispetta
+// quella scelta). LIGHT/DARK restano selezionabili a prescindere dal
+// tema.
 enum class ParchmentStyle(val displayName: String, val drawableRes: Int?) {
     OFF("Disattivata (default)", null),
+    AUTO("Automatica (segue il tema)", null),
     LIGHT("Pergamena chiara", R.drawable.parchment_panel),
     DARK("Pergamena scura", R.drawable.parchment_panel_dark),
     ;
 
     companion object {
-        // Colore d'inchiostro forzato quando lo stile è attivo: il tema
-        // scuro dell'app userebbe testo chiaro, illeggibile su un fondo
-        // di pergamena chiaro o scuro ma comunque più chiaro del nero.
-        val INK = Color(0xFF2A1F14)
+        // Due inchiostri, non uno solo (BUG corretto 23/07/2026: prima
+        // un unico INK scuro veniva forzato anche sulla pergamena
+        // scura — testo scuro su fondo marrone scuro, illeggibile.
+        // La pergamena chiara vuole inchiostro scuro come un registro
+        // vero; quella scura vuole un chiaro da pergamena vecchia, non
+        // il bianco piatto del tema scuro dell'app).
+        val INK_ON_LIGHT = Color(0xFF2A1F14)
+        val INK_ON_DARK = Color(0xFFE8DCC5)
     }
 }
+
+// AUTO si risolve nella scelta concreta più adatta al tema IN USO in
+// quel momento (non nel solo sistema, vedi sopra); OFF/LIGHT/DARK
+// restano quello che sono, la scelta esplicita vince sempre sul tema.
+fun ParchmentStyle.resolved(isDarkTheme: Boolean): ParchmentStyle =
+    if (this == ParchmentStyle.AUTO) {
+        if (isDarkTheme) ParchmentStyle.DARK else ParchmentStyle.LIGHT
+    } else {
+        this
+    }
+
+// Da chiamare SEMPRE su uno stile già risolto (mai su AUTO: non ha un
+// drawable/inchiostro propri, solo OFF/LIGHT/DARK ce l'hanno).
+fun ParchmentStyle.inkColor(): Color =
+    if (this == ParchmentStyle.DARK) ParchmentStyle.INK_ON_DARK else ParchmentStyle.INK_ON_LIGHT
 
 class ParchmentPreferences(context: Context) {
 

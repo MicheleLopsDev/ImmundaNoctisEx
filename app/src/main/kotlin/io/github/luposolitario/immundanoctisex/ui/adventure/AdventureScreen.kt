@@ -79,6 +79,9 @@ fun AdventureScreen(
     // statusCardColor, un parametro in più, nessun controllo nella scena.
     parchmentStyle: io.github.luposolitario.immundanoctisex.util.ParchmentStyle =
         io.github.luposolitario.immundanoctisex.util.ParchmentStyle.OFF,
+    // Serve solo a risolvere lo stile AUTO della pergamena (23/07/2026):
+    // quale tema è EFFETTIVAMENTE in uso, override incluso.
+    isDarkTheme: Boolean = false,
     // TTS (UI.md, Tappa 2): l'icona "leggi" è cliccabile solo se
     // l'auto-lettura è spenta in Opzioni — accesa, legge già da sé.
     autoReadEnabled: Boolean = false,
@@ -230,7 +233,7 @@ fun AdventureScreen(
         Spacer(Modifier.height(8.dp))
 
         when {
-            state.combatSession != null -> CombatActiveZone(state, parchmentStyle)
+            state.combatSession != null -> CombatActiveZone(state, parchmentStyle, isDarkTheme)
             // Finché il narratore scrive non si mostrano scelte né nemico:
             // apparirebbero col testo originale per poi cambiare sotto gli
             // occhi (UI.md: prima lo streaming, POI i pulsanti).
