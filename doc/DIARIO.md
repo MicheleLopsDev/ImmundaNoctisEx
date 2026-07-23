@@ -1787,6 +1787,30 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai vista girare sul
   device.**
 
+- **Font di lettura sostituiti con quattro font a tema Lupo Solitario**
+  (22/07, Michele: "ho trovato queste, puoi scaricarle e sostituirle
+  alle font esistenti" — Cinzel Decorative, Almendra Display,
+  MedievalSharp, Uncial Antiqua). Stessa fonte e licenza dei quattro
+  precedenti (github.com/google/fonts, OFL), verificati scaricabili
+  uno per uno prima di sostituire (`ofl/almendra/`, non
+  `ofl/almendradisplay/`: Michele stesso ha notato che la Display
+  "non è l'ideale per testi leggermente più lunghi" — qui il font
+  copre il testo di lettura vero, non solo i titoli, quindi si è
+  scelta la variante pensata per quello). `almendra.ttf`
+  identificato in modo bizzarro dal comando `file` di sistema ("SIMH
+  tape data") ma con tabelle sfnt regolari nell'header
+  (DSIG/GDEF/GPOS/GSUB/OS2/cmap/glyf/head/...) e compilazione risorse
+  Android passata senza errori — falso allarme dell'euristica di
+  `file`, non corruzione vera.
+  `ReadingFont` rinominato (ALMENDRA/CINZEL/MEDIEVAL_SHARP/UNCIAL al
+  posto di SERIF/SANS_SERIF/MONOSPACE/CURSIVE — sicuro in Fase 4,
+  nessun utente vero con preferenze salvate da rompere): default
+  spostato su Almendra, la più leggibile delle quattro. Vecchi file
+  (`lora.ttf`, `inter.ttf`, `roboto_mono.ttf`, `caveat.ttf`) cancellati
+  per davvero, non lasciati come scarto morto in `res/font/`.
+  Compilazione e suite riverificate verdi. **Mai visti girare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
