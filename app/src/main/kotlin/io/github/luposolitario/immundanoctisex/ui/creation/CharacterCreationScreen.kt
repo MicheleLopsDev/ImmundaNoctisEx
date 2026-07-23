@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
+import io.github.luposolitario.immundanoctisex.core.data.model.HeroIcon
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.dice.RandomDiceRoller
@@ -77,6 +78,7 @@ fun CharacterCreationScreen(
         )
 
         GenderCard(state)
+        HeroIconCard(state)
         StatsCard(state)
         DisciplinesCard(state)
         WeaponSkillCard(state)
@@ -166,6 +168,35 @@ private fun PortraitOption(
         )
         Spacer(Modifier.height(4.dp))
         Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
+    }
+}
+
+// Icona dell'eroe (24/07/2026, richiesta Michele: "facciamogli scegliere
+// l'icona... devono essere tutti animali"), stessa cella/griglia già
+// usata per le armi — solo WOLF ha un'illustrazione vera oggi
+// (heroIconRes degrada sul lupo per tutte le altre, vedi CreationCatalog).
+@Composable
+private fun HeroIconCard(state: CreationState) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Text(stringResource(R.string.creation_icon), style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(8.dp))
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 90.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().height(360.dp),
+            ) {
+                items(HeroIcon.entries) { icon ->
+                    WeaponCell(
+                        iconRes = heroIconRes(icon),
+                        nameRes = heroIconName(icon),
+                        selected = state.heroIcon == icon,
+                        onClick = { state.heroIcon = icon },
+                    )
+                }
+            }
+        }
     }
 }
 
