@@ -11,11 +11,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,6 +37,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombat
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 
 // Il Diario di Combattimento cartaceo di Lupo Solitario (richiesta Michele
 // 20/07/2026, riferimento fotografato dal registro ufficiale): non un
@@ -40,16 +47,40 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 // Sostituisce le barre di Resistenza e il testo del round di prima; il
 // menu tattico (oggetto/disciplina/fuga) resta un blocco separato sotto.
 @Composable
-fun CombatDiaryPanel(state: AdventureState, session: CombatSession) {
-    Card {
-        Column(modifier = Modifier.padding(16.dp)) {
+fun CombatDiaryPanel(
+    state: AdventureState,
+    session: CombatSession,
+    parchmentStyle: ParchmentStyle = ParchmentStyle.OFF,
+) {
+    // Stile pergamena (22/07/2026, richiesta Michele, scelta in Opzioni):
+    // OFF resta il Card Material3 di sempre. Attivo, `Modifier.paint`
+    // dipinge l'immagine come sfondo alla dimensione del Column (mai
+    // quella intrinseca dell'immagine — sizeToIntrinsics = false,
+    // altrimenti il pannello vorrebbe diventare quadrato come la
+    // pergamena 1024×1024 invece di seguire il proprio contenuto), e il
+    // colore del testo di default diventa l'inchiostro scuro
+    // (CompositionLocalProvider, non serve toccare ogni singolo Text —
+    // solo quelli con un colore ESPLICITO, es. i modificatori tertiary,
+    // restano quello che erano).
+    val drawableRes = parchmentStyle.drawableRes
+    val columnModifier = if (drawableRes != null) {
+        Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .paint(painterResource(id = drawableRes), contentScale = ContentScale.Crop, sizeToIntrinsics = false)
+            .padding(16.dp)
+    } else {
+        Modifier.padding(16.dp)
+    }
+
+    val content: @Composable () -> Unit = {
+        Column(modifier = columnModifier) {
             // Il Diario di Combattimento cartaceo lo mostra sempre in testa
             // (Michele 22/07/2026, foto del registro): un dato che avevamo
             // già (currentScene.id), solo mai portato dentro al combattimento.
             Text(
                 "Paragrafo ${state.currentScene.id}",
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (parchmentStyle == ParchmentStyle.OFF) MaterialTheme.colorScheme.onSurfaceVariant else ParchmentStyle.INK,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -76,6 +107,14 @@ fun CombatDiaryPanel(state: AdventureState, session: CombatSession) {
                 Spacer(Modifier.height(12.dp))
                 CombatOutcome(state, session)
             }
+        }
+    }
+
+    if (drawableRes == null) {
+        Card { content() }
+    } else {
+        CompositionLocalProvider(LocalContentColor provides ParchmentStyle.INK) {
+            content()
         }
     }
 }
