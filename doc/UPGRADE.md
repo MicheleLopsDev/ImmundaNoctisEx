@@ -202,25 +202,22 @@ sostituita nello stesso stile. Manca la decisione di DOVE usarli
 - Tutte danno personalità ma non sono indispensabili: si può partire
   senza e aggiungerle quando ci sono.
 
-**Icone eroe — 14 animali (oltre al lupo già fatto)** — **CODICE
-PRONTO, ASSET DA FARE** (24/07/2026, richiesta Michele: "facciamogli
-scegliere l'icona... devono essere tutti animali"): la scelta è già
-selezionabile in creazione personaggio e collegata alla card di stato
-(`HeroIcon` in `:core:data`, `CreationCatalog.heroIconRes` in `:app`)
-— finché non arrivano le illustrazioni vere, ogni animale mostra il
-lupo (nessuno schermo rotto, si vede subito che la scelta funziona).
+**Icone eroe — 14 animali (oltre al lupo già fatto)** (file `icone per
+personaggi.png`) — **FATTO 24/07/2026**: consegnato un foglio unico
+5×3 con tutti e 14 gli animali (più un lupo di riferimento nello
+stesso stile); ritagliato e sfondo rimosso qui (stesso flood-fill già
+collaudato), agganciato in `CreationCatalog.heroIconRes` — la scelta
+è selezionabile in creazione personaggio e mostrata nella card di
+stato (`HeroIcon` in `:core:data`). **Mai visto girare sul device.**
 - Falco, Aquila, Orso, Volpe, Corvo, Gufo, Leone, Tigre, Pantera,
-  Lince, Cinghiale, Cervo (con corna), Serpente/Vipera, Drago (bonus
-  fantasy, opzionale).
-- Stessa "famiglia" visiva del lupo attuale (`lupo_solitario.png`):
-  testa di profilo, stile mascotte/logo a china — contorni netti
-  neri, dettagli bianchi, nessuna sfumatura/fotorealismo.
-- **2048×2048 px**, formato PNG, sfondo bianco pieno (o trasparente se
-  sa farlo, si sistema qui comunque) — nessun colore, solo bianco e
-  nero.
-- Quando arriva un file, si aggancia cambiando UNA riga in
-  `CreationCatalog.heroIconRes` (una riga per animale, non un default
-  unico): nessun altro codice da toccare.
+  Lince, Cinghiale, Cervo (con corna), Serpente/Vipera, Drago —
+  tutte e 14 pronte, `res/drawable/hero_*.png`.
+- **Decisione in sospeso**: il foglio aveva anche un lupo nello
+  stesso stile "ombreggiato" degli altri 14, diverso dall'attuale
+  `lupo_solitario.png` (più semplice, due soli toni) — salvato come
+  `hero_wolf_new.png`, non agganciato. Da decidere: sostituire il
+  lupo esistente per uniformità di stile su tutte e 15, o tenerlo
+  com'è.
 
 **Cosa NON chiederle**: copiare il logo "LONE WOLF" o le illustrazioni
 specifiche del libro originale — quelle sono protette. Lo stile sì,
