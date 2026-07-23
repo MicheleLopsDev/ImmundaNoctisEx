@@ -91,26 +91,29 @@ fun weaponTypeName(type: WeaponType): Int = when (type) {
 
 // Icona dell'eroe (24/07/2026, richiesta Michele: "facciamogli scegliere
 // l'icona... devono essere tutti animali", lista mandata al grafico).
-// SOLO WOLF ha un asset vero oggi (`lupo_solitario.png`): tutti gli altri
-// degradano su di lui finché non arriva l'illustrazione — riga per riga,
-// non un `else` unico, così quando arriva un'icona nuova si aggiorna una
-// riga sola e si vede subito cosa manca ancora.
+// Consegnate il 24/07 in un unico foglio "icone per personaggi.png"
+// (griglia 5×3 con etichetta sotto ogni icona), ritagliate e sfondo
+// rimosso qui (stesso flood-fill a range fisso già collaudato). SOLO
+// WOLF resta sull'asset precedente (`lupo_solitario.png`, quello già
+// in uso): il foglio nuovo aveva anche un lupo nello stesso stile
+// degli altri 14, ma sostituirlo è una scelta da confermare con
+// Michele, non presa qui da sola — vedi DIARIO.md.
 fun heroIconRes(icon: HeroIcon): Int = when (icon) {
     HeroIcon.WOLF -> R.drawable.lupo_solitario
-    HeroIcon.FALCON -> R.drawable.lupo_solitario
-    HeroIcon.EAGLE -> R.drawable.lupo_solitario
-    HeroIcon.BEAR -> R.drawable.lupo_solitario
-    HeroIcon.FOX -> R.drawable.lupo_solitario
-    HeroIcon.RAVEN -> R.drawable.lupo_solitario
-    HeroIcon.OWL -> R.drawable.lupo_solitario
-    HeroIcon.LION -> R.drawable.lupo_solitario
-    HeroIcon.TIGER -> R.drawable.lupo_solitario
-    HeroIcon.PANTHER -> R.drawable.lupo_solitario
-    HeroIcon.LYNX -> R.drawable.lupo_solitario
-    HeroIcon.BOAR -> R.drawable.lupo_solitario
-    HeroIcon.STAG -> R.drawable.lupo_solitario
-    HeroIcon.SNAKE -> R.drawable.lupo_solitario
-    HeroIcon.DRAGON -> R.drawable.lupo_solitario
+    HeroIcon.FALCON -> R.drawable.hero_falcon
+    HeroIcon.EAGLE -> R.drawable.hero_eagle
+    HeroIcon.BEAR -> R.drawable.hero_bear
+    HeroIcon.FOX -> R.drawable.hero_fox
+    HeroIcon.RAVEN -> R.drawable.hero_raven
+    HeroIcon.OWL -> R.drawable.hero_owl
+    HeroIcon.LION -> R.drawable.hero_lion
+    HeroIcon.TIGER -> R.drawable.hero_tiger
+    HeroIcon.PANTHER -> R.drawable.hero_panther
+    HeroIcon.LYNX -> R.drawable.hero_lynx
+    HeroIcon.BOAR -> R.drawable.hero_boar
+    HeroIcon.STAG -> R.drawable.hero_stag
+    HeroIcon.SNAKE -> R.drawable.hero_snake
+    HeroIcon.DRAGON -> R.drawable.hero_dragon
 }
 
 @StringRes
