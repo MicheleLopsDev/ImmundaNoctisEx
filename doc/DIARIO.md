@@ -2465,6 +2465,18 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Bottone "Attiva" rosso quando è già attivo** (24/07, stesso giorno,
+  Michele: "invece che grigio quando è attivato il pulsante diventa
+  rosso e compare la frase Attivato" — il grigio disabilitato di
+  Material passava inosservato, non si capiva a colpo d'occhio quale
+  modello fosse in uso): `colorScheme.error` pieno (non lo sbiadito di
+  default sui bottoni disabilitati — servono
+  `disabledContainerColor`/`disabledContentColor` espliciti, altrimenti
+  Material applica comunque la sua trasparenza) + testo "Attivato" al
+  posto di "Attiva", resta comunque non cliccabile.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
