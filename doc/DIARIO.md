@@ -2438,6 +2438,33 @@ sul device.**
   worker l'ha rinominato dopo aver verificato che il download fosse
   completo, mai un troncato spacciato per buono).
 
+- **Musica "zombie" dopo aver chiuso l'app + notifica di download senza
+  modo di fermarla** (24/07, Michele: "anche se chiusa continuavo a
+  sentire la musica... ho dovuto riavviare il telefono... e anche se
+  nella lista dei processi mi dice che l'app non c'è più continua a
+  scaricare e sento la musica"). Meccanismo esatto, confermato prima di
+  scrivere codice: `MusicPlayer` è un `MediaPlayer` grezzo a scope
+  applicazione, SENZA nessun Service né notifica — di suo, chiudendo
+  l'app il processo morirebbe e la musica con lui. Ma il download usa
+  un Foreground Service (corretto: i download DEVONO sopravvivere in
+  background) che tiene in vita l'INTERO processo, musica compresa,
+  che invece non aveva alcun motivo di restare accesa — due componenti
+  diversi, un solo sintomo. Proposta a Michele e confermata: NON un
+  vero player persistente stile radio per la musica (troppo lavoro per
+  qualcosa che nel gioco deve restare musica d'ambiente legata all'app
+  aperta) — due fix mirati:
+  - `MainActivity.onDestroy()` ora ferma `musicPlayer` esplicitamente:
+    quando l'utente chiude davvero l'app (swipe dai recenti), Android
+    chiama SEMPRE onDestroy sull'Activity, a prescindere dal fatto che
+    il processo sopravviva per il download.
+  - La notifica del download ora ha un bottone **Annulla**
+    (`WorkManager.createCancelPendingIntent`, l'API pensata apposta per
+    questo — nessun `BroadcastReceiver` scritto a mano): prima non
+    aveva NESSUNA azione, l'unico modo di fermare un download bloccato
+    era riaprire l'app o riavviare il telefono.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
