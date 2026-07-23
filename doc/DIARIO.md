@@ -1926,6 +1926,34 @@ sul device.**
   girare sul device**: default OFF (comportamento di sempre), da
   provare accendendo la scelta in Opzioni durante un combattimento.
 
+- **Quarto stile AUTO + bug d'inchiostro corretto** (23/07, stesso
+  giorno, Michele: "auto mode per lo sfondo sceglie chiaro scuro a
+  seconda del tema del sistema, oppure selezioni indipendentemente e
+  in quel caso adatti i colori"):
+  - `ParchmentStyle` ha ora un quarto valore, **AUTO**: risolve in
+    `LIGHT`/`DARK` in base al tema EFFETTIVAMENTE in uso
+    (`isDarkTheme`, filo diretto da `MainActivity` — che già lo calcola
+    con `ThemePreferences.useDarkTheme`, override incluso — fino a
+    `AppNavigation` -> `AdventureRoute` -> `AdventureScreen` ->
+    `CombatActiveZone` -> `CombatDiaryPanel`, stesso schema di
+    `parchmentStyle`). Non il solo sistema operativo: se Michele ha
+    forzato un tema dalle Opzioni, AUTO rispetta quello.
+  - **BUG trovato rileggendo il codice per aggiungere AUTO**: il colore
+    d'inchiostro (`ParchmentStyle.INK`) era UNICO per entrambe le
+    varianti — un residuo del primo giro, quando la pergamena scura
+    ancora non esisteva. Sulla texture scura (centro ~83,66,50, un
+    marrone scuro) il testo forzato scuro (0x2A1F14) sarebbe stato
+    quasi invisibile: lo stesso problema di leggibilità già segnalato
+    come "da decidere" nella voce precedente, mai più ripreso finché
+    non è saltato fuori scrivendo AUTO. Corretto PRIMA di finire sul
+    device: due inchiostri (`INK_ON_LIGHT` invariato, nuovo
+    `INK_ON_DARK` color crema 0xE8DCC5), scelti da una nuova
+    `ParchmentStyle.inkColor()` in base allo stile GIÀ RISOLTO (mai su
+    AUTO, che da solo non ha drawable/inchiostro propri).
+  Compilazione e suite riverificate verdi. **Mai vista girare sul
+  device**: da provare tutte e tre le scelte (AUTO coi due temi, LIGHT
+  e DARK forzati) durante un combattimento vero.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
