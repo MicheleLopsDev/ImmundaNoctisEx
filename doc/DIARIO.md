@@ -2477,6 +2477,29 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Icone nello zaino, arti marziali/elmo/corazza ancora vecchie**
+  (24/07, Michele con due screenshot: scheda personaggio e creazione).
+  Due cose distinte:
+  - **Zaino senza icone**: Pasti e pozioni mostravano solo testo,
+    diversamente dalle celle arma/oggetto speciale altrove (icona
+    sopra, nome+modificatore sotto). Agganciate `deco_meal`/
+    `deco_potion` (dal foglio decorazioni, già pronte ma mai
+    agganciate finora) — nuova `backpackItemIcon()`, null per
+    qualunque oggetto non riconosciuto (es. da un `ADD_ITEM` di un
+    libro): niente icona, mai un segnaposto rotto.
+  - **Arti marziali/Elmo/Corazza, confermate vecchie icone v1**:
+    misurate con Pillow — `ic_fists.png` (204×247, palette
+    indicizzata, 9KB), `ic_helmet.png`/`ic_armor.png` (386×150,
+    palette indicizzata, 2-5KB), tutte MOLTO più piccole e a linea
+    sottile rispetto alle 9 icone armi nuove (748×226+, RGBA,
+    100-200KB, contorni spessi) — erano rimaste fuori dai due fogli
+    già consegnati. Aggiunte a `doc/UPGRADE.md` con le stesse
+    specifiche (2048×2048, PNG, sfondo bianco) per il prossimo giro
+    dal grafico — nessun codice da scrivere finché non arrivano i
+    file.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
