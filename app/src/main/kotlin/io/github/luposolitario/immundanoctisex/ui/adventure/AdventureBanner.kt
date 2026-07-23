@@ -76,10 +76,14 @@ fun AdventureBanner(
                 thinking = narratorThinking,
             )
             PortraitBadge(
+                // 24/07/2026: sostituiti class_warrior_male/female
+                // (fotorealistici, fuori stile) coi busti a china
+                // ritagliati da hero.png — stesso file usato per il
+                // ritratto in creazione personaggio.
                 imageRes = if (heroGender == Gender.MALE) {
-                    R.drawable.class_warrior_male
+                    R.drawable.hero_portrait_male
                 } else {
-                    R.drawable.class_warrior_female
+                    R.drawable.hero_portrait_female
                 },
                 label = heroName,
                 speaking = !narratorSpeaking,
