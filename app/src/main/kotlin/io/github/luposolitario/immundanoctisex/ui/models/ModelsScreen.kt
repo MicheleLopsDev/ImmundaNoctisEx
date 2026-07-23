@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -269,8 +270,34 @@ private fun ModelCard(
                         // Cambia il motore a caldo (Michele 22/07/2026):
                         // scaricati più modelli, si passa dall'uno
                         // all'altro con un tocco, anche a partita in corso.
-                        Button(onClick = onActivate, enabled = !active && !isActivating) {
-                            Text(if (isActivating) "Attivazione…" else "Attiva")
+                        // Attivo = rosso pieno con scritta "Attivato"
+                        // (24/07/2026, richiesta Michele: il grigio
+                        // disabilitato di Material passava inosservato —
+                        // disabledContainerColor/disabledContentColor
+                        // espliciti, altrimenti Material spegne comunque
+                        // il rosso con la sua trasparenza di default sui
+                        // bottoni disabilitati).
+                        Button(
+                            onClick = onActivate,
+                            enabled = !active && !isActivating,
+                            colors = if (active) {
+                                ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError,
+                                    disabledContainerColor = MaterialTheme.colorScheme.error,
+                                    disabledContentColor = MaterialTheme.colorScheme.onError,
+                                )
+                            } else {
+                                ButtonDefaults.buttonColors()
+                            },
+                        ) {
+                            Text(
+                                when {
+                                    isActivating -> "Attivazione…"
+                                    active -> "Attivato"
+                                    else -> "Attiva"
+                                },
+                            )
                         }
                         OutlinedButton(onClick = onDelete, enabled = !isActivating) { Text("Elimina") }
                     }
