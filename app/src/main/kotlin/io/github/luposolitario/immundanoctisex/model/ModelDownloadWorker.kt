@@ -44,6 +44,15 @@ class ModelDownloadWorker(context: Context, params: WorkerParameters) :
         val expectedSize = inputData.getLong(KEY_EXPECTED_SIZE, 0L)
         // Opzionale per costruzione: i repo aperti non lo richiedono.
         val token = inputData.getString(KEY_TOKEN)?.takeIf { it.isNotBlank() }
+        // BUG (24/07/2026, Michele: download "bloccati", l'interfaccia non
+        // aggiorna): la UI legava il progresso al modello SELEZIONATO, non
+        // a quello che sta scaricando DAVVERO — un tocco su "Scarica" di
+        // un'altra card (il suo bottone restava sempre attivo) cancellava
+        // il download in corso e ne accodava uno nuovo (WorkManager REPLACE
+        // sullo stesso lavoro unico), e il ciclo poteva ripetersi. L'id
+        // torna nel progresso apposta: chi osserva sa DAVVERO quale
+        // modello sta scaricando, non deve fidarsi della selezione.
+        val modelId = inputData.getString(KEY_MODEL_ID)
 
         val finalFile = File(destinationPath)
         val partFile = File("$destinationPath.part")
@@ -51,6 +60,10 @@ class ModelDownloadWorker(context: Context, params: WorkerParameters) :
 
         try {
             setForeground(foregroundInfo(0))
+            // Identità nota SUBITO, prima ancora di aprire la connessione:
+            // niente attesa del primo scatto di PROGRESS_STEP per sapere
+            // di chi è questo download.
+            setProgress(workDataOf(KEY_MODEL_ID to modelId, KEY_BYTES_DOWNLOADED to 0L, KEY_TOTAL_BYTES to expectedSize))
 
             val alreadyDownloaded = if (partFile.exists()) partFile.length() else 0L
             val connection = openConnection(urlString, token, resumeFrom = alreadyDownloaded)
@@ -112,7 +125,11 @@ class ModelDownloadWorker(context: Context, params: WorkerParameters) :
                         if (downloaded - lastNotified >= PROGRESS_STEP) {
                             lastNotified = downloaded
                             setProgress(
-                                workDataOf(KEY_BYTES_DOWNLOADED to downloaded, KEY_TOTAL_BYTES to totalSize),
+                                workDataOf(
+                                    KEY_MODEL_ID to modelId,
+                                    KEY_BYTES_DOWNLOADED to downloaded,
+                                    KEY_TOTAL_BYTES to totalSize,
+                                ),
                             )
                             setForeground(foregroundInfo(percentOf(downloaded, totalSize)))
                         }
@@ -202,6 +219,7 @@ class ModelDownloadWorker(context: Context, params: WorkerParameters) :
 
     companion object {
         const val WORK_NAME = "model_download"
+        const val KEY_MODEL_ID = "model_id"
         const val KEY_URL = "url"
         const val KEY_DESTINATION = "destination"
         const val KEY_TOKEN = "token"
