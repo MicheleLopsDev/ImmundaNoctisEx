@@ -2349,6 +2349,27 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Icone animale più grandi + nuovo nome di default** (24/07, stesso
+  giorno, Michele: "ingrandisci un po' le icone degli animali... il
+  nome di default a questo punto dovrebbe essere Eroe Solitario/Eroina
+  Solitaria"):
+  - `WeaponCell` (condivisa con la griglia delle armi) ha ora un
+    `iconSize` parametrico (default 48dp invariato, le armi non
+    cambiano) — `HeroIconCard` passa 72dp, griglia con celle minime
+    da 90dp a 120dp e altezza da 360dp a 460dp per farci stare le
+    icone più grandi senza schiacciarle.
+  - Il nome di default non è più "Lupo"/"Lupa" (aveva senso quando
+    l'icona era sempre il lupo, non più ora che si sceglie tra 15
+    animali — "Lupo" come nome scegliendo un drago sarebbe strano):
+    **"Eroe Solitario"/"Eroina Solitaria"**, generico per qualunque
+    icona scelta. Nuove stringhe `creation_name_default_male/female`
+    (placeholder nel campo nome); `creation_gender_male/female`
+    ("Lupo"/"Lupa", le etichette del toggle genere) restano invariate,
+    sono un'altra cosa. Fallback in `CreationState.buildSession`
+    aggiornato allo stesso modo.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
