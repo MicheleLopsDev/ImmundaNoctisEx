@@ -183,6 +183,7 @@ fun AdventureScreen(
         val narrationStyle = parchmentStyle.resolved(isDarkTheme)
         NarrationParchmentPanel(
             style = narrationStyle,
+            isDarkTheme = isDarkTheme,
             modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp),
         ) {
             if (state.narrative.isBlank() && state.isGenerating) {
