@@ -1,6 +1,5 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,8 +19,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,23 +56,16 @@ fun CombatDiaryPanel(
     isDarkTheme: Boolean = false,
 ) {
     // Stile pergamena (22/07/2026, richiesta Michele, scelta in Opzioni;
-    // 23/07/2026 AUTO, poi corretto lo stesso giorno): OFF resta il Card
-    // Material3 di sempre. Attivo, `Box` + `Image(Modifier.matchParentSize())`
-    // dipinge la pergamena SOTTO al contenuto — stesso pattern già
-    // funzionante di AdventureBanner (l'unico verificato sul device). Il
-    // primo tentativo con `Modifier.paint()` compilava ma non si vedeva
-    // affatto sul device (Michele, screenshot): mai stato provato prima
-    // di quel giro, si è rivelato inaffidabile. `matchParentSize()` non
-    // richiede un import (è un membro di `BoxScope`, non una funzione
-    // top-level: importarlo esplicitamente è ciò che aveva causato
-    // l'errore "Unresolved reference" del primo giro — l'API esiste
-    // davvero, era l'import ad essere sbagliato). Il colore del testo di
-    // default diventa l'inchiostro giusto per LA VARIANTE RISOLTA
+    // 23/07/2026 AUTO; poi ancora 23/07/2026 la pila a tre fasce — vedi
+    // ParchmentBackground.kt): OFF resta il Card Material3 di sempre.
+    // Attivo, `ParchmentBackground` dipinge la pergamena SOTTO al
+    // contenuto dentro lo stesso Box. Il colore del testo di default
+    // diventa l'inchiostro giusto per LA VARIANTE RISOLTA
     // (CompositionLocalProvider, non serve toccare ogni singolo Text —
     // solo quelli con un colore ESPLICITO, es. i modificatori tertiary,
     // restano quello che erano).
     val resolvedStyle = parchmentStyle.resolved(isDarkTheme)
-    val drawableRes = resolvedStyle.drawableRes
+    val parchmentActive = resolvedStyle.topRes != null
 
     val content: @Composable () -> Unit = {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -115,17 +105,12 @@ fun CombatDiaryPanel(
         }
     }
 
-    if (drawableRes == null) {
+    if (!parchmentActive) {
         Card { content() }
     } else {
         CompositionLocalProvider(LocalContentColor provides resolvedStyle.inkColor()) {
             Box(modifier = Modifier.clip(RoundedCornerShape(12.dp))) {
-                Image(
-                    painter = painterResource(id = drawableRes),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.matchParentSize(),
-                )
+                ParchmentBackground(resolvedStyle)
                 content()
             }
         }

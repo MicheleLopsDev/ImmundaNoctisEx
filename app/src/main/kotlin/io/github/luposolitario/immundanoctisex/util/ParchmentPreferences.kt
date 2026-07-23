@@ -16,11 +16,39 @@ import io.github.luposolitario.immundanoctisex.R
 // sistema: se Michele ha forzato un tema nelle Opzioni, AUTO rispetta
 // quella scelta). LIGHT/DARK restano selezionabili a prescindere dal
 // tema.
-enum class ParchmentStyle(val displayName: String, val drawableRes: Int?) {
-    OFF("Disattivata (default)", null),
-    AUTO("Automatica (segue il tema)", null),
-    LIGHT("Pergamena chiara", R.drawable.parchment_panel),
-    DARK("Pergamena scura", R.drawable.parchment_panel_dark),
+//
+// Tre risorse, non una sola (23/07/2026, Michele sul device: "il testo
+// sfora... si potrebbe tagliare in due ed avere la parte centrale che si
+// allunga"): la pergamena è un ritaglio a bordi strappati su TUTTI e
+// quattro i lati, non solo alto/basso — una singola immagine con
+// ContentScale.Crop tiene fisso il bordo strappato mentre il testo può
+// essere più lungo del riquadro e sforare oltre. `topRes`/`bottomRes`
+// tengono lo strappo + gli scudi degli angoli a dimensione fissa;
+// `middleRes` è una fascia sottile e neutra (bordi laterali esclusi in
+// fase di ritaglio, altrimenti una tacca del bordo si stirerebbe su
+// tutta l'altezza centrale) che si allunga in verticale fino
+// all'altezza vera del testo — stesso principio di un nine-patch
+// Android, fatto con tre `Image` impilate invece di un `.9.png`.
+enum class ParchmentStyle(
+    val displayName: String,
+    val topRes: Int?,
+    val middleRes: Int?,
+    val bottomRes: Int?,
+) {
+    OFF("Disattivata (default)", null, null, null),
+    AUTO("Automatica (segue il tema)", null, null, null),
+    LIGHT(
+        "Pergamena chiara",
+        R.drawable.parchment_panel_top,
+        R.drawable.parchment_panel_middle,
+        R.drawable.parchment_panel_bottom,
+    ),
+    DARK(
+        "Pergamena scura",
+        R.drawable.parchment_panel_dark_top,
+        R.drawable.parchment_panel_dark_middle,
+        R.drawable.parchment_panel_dark_bottom,
+    ),
     ;
 
     companion object {
