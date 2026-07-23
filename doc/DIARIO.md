@@ -2228,6 +2228,26 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Nuovo default per la card di stato** (24/07, richiesta Michele: "il
+  default non sarà più uguale a quello di visualizzazione del testo" —
+  prima DEFAULT non passava nessun colore, restava la superficie
+  standard di Material, la stessa del riquadro di lettura quando la
+  pergamena è OFF): ora DEFAULT ha un colore VERO, diverso per tema —
+  blu navy (`#1E2A4A`) in tema chiaro, marroncino (`#D8B48C`) in tema
+  scuro, con testo abbinato per il contrasto. Gli altri 5 preset
+  (Lavanda/Azzurro/Menta/Ambra/Rosa, personalizzabili in Opzioni)
+  restano fissi e invariati — solo il default cambia, come richiesto
+  esplicitamente. Due nuove funzioni `resolvedBackground(isDarkTheme)`/
+  `resolvedContent(isDarkTheme)` al posto di leggere `background`/
+  `content` direttamente; `StatusCard` riceve `isDarkTheme` solo per
+  questo. **Nota a margine, non corretta apposta**: lo swatch di
+  anteprima in Opzioni per DEFAULT mostra ancora il grigio generico
+  "come il tema" (non naviga/marroncino) — richiederebbe risolvere il
+  tema anche lì (Options non lo fa oggi), fuori scope per la richiesta
+  di oggi.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
