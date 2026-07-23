@@ -79,6 +79,6 @@ fun FontSection(
 @Composable
 private fun FontSectionPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
-        FontSection(selected = ReadingFont.SERIF, onSelect = {}, bold = false, onBoldChange = {})
+        FontSection(selected = ReadingFont.ALMENDRA, onSelect = {}, bold = false, onBoldChange = {})
     }
 }

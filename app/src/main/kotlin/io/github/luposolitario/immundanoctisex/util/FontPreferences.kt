@@ -19,11 +19,20 @@ import io.github.luposolitario.immundanoctisex.R
 // scaricati da github.com/google/fonts) impacchettati in res/font/:
 // stesso rendering garantito ovunque, offline, senza dipendere da cosa
 // il telefono ha installato.
+//
+// SOSTITUITI di nuovo (22/07/2026, Michele: quattro font "fantasy
+// classico" trovati su Google Fonts, "puoi scaricarle e sostituirle
+// alle font esistenti") — stessa fonte (github.com/google/fonts, OFL),
+// stesso meccanismo, contenuto diverso: da font generici leggibili a
+// font a tema Lupo Solitario/medievale. Scelta Almendra (non la
+// variante Display) come default: Michele stesso ha notato che la
+// Display "non è l'ideale per testi lunghi" mentre la normale lo è —
+// qui il font copre il testo di lettura vero, non solo i titoli.
 enum class ReadingFont(val displayName: String, val family: FontFamily) {
-    SERIF("Serif (default) — Lora", FontFamily(Font(R.font.lora))),
-    SANS_SERIF("Sans serif — Inter", FontFamily(Font(R.font.inter))),
-    MONOSPACE("Monospace — Roboto Mono", FontFamily(Font(R.font.roboto_mono))),
-    CURSIVE("Corsivo — Caveat", FontFamily(Font(R.font.caveat))),
+    ALMENDRA("Calligrafico (default) — Almendra", FontFamily(Font(R.font.almendra))),
+    CINZEL("Imperiale — Cinzel Decorative", FontFamily(Font(R.font.cinzel_decorative))),
+    MEDIEVAL_SHARP("Gotico — MedievalSharp", FontFamily(Font(R.font.medieval_sharp))),
+    UNCIAL("Onciale — Uncial Antiqua", FontFamily(Font(R.font.uncial_antiqua))),
 }
 
 // Grandezza del testo di lettura (richiesta Michele 21/07/2026: un
@@ -53,7 +62,7 @@ class FontPreferences(context: Context) {
     var readingFont: ReadingFont
         get() = prefs.getString(KEY_FONT, null)
             ?.let { name -> runCatching { ReadingFont.valueOf(name) }.getOrNull() }
-            ?: ReadingFont.SERIF
+            ?: ReadingFont.ALMENDRA
         set(value) = prefs.edit().putString(KEY_FONT, value.name).apply()
 
     var textScale: TextScale
