@@ -1887,6 +1887,45 @@ sul device.**
   usarla per davvero (vedi UPGRADE.md).
   Compilazione riverificata verde. **Mai vista girare sul device.**
 
+- **Pergamena scura + scelta in Opzioni** (23/07, seguito diretto del
+  punto sopra): Michele ha chiesto se creare una variante scura avesse
+  senso; risposta data — più semplice e fedele forzare l'inchiostro
+  scuro sul testo sopra la pergamena chiara, invece di ridisegnare
+  tutta la texture. Michele ha comunque fatto realizzare la variante
+  scura E proposto di **far scegliere lo stile in Opzioni** — deciso di
+  fare entrambe le cose insieme: 1 texture scura pronta subito,
+  struttura a scelta multipla già pronta per quando ce ne saranno
+  altre.
+  - `origina_res/Texture di sfondo scuro.png` (2048×2048, sfondo
+    pieno) processata con lo stesso script ormai corretto (flood-fill
+    a range fisso, nessuna conversione di canale prima di
+    `imwrite`) → `res/drawable/parchment_panel_dark.png`, verificata
+    numericamente (bordi trasparenti, centro marrone scuro intatto).
+  - Nuovo `ParchmentStyle` (OFF/LIGHT/DARK, enum con `drawableRes` +
+    colore `INK` condiviso) e `ParchmentPreferences` (stesso schema di
+    `AccentColorPreferences`/`StatusCardColorPreferences`), nuova
+    `ParchmentSection.kt` nelle Opzioni, cablata in `AppContainer` ->
+    `OptionsRoute`/`OptionsScreen` -> `AdventureRoute`/`AdventureScreen`
+    -> `CombatActiveZone` -> `CombatDiaryPanel` (l'unico pannello che
+    già usava una Card dedicata).
+  - **Inciampo tecnico**: il primo tentativo (`Box` + `Image(Modifier
+    .matchParentSize())`, pattern visto altrove) non compilava —
+    `Unresolved reference 'matchParentSize'` non risolveva in questo
+    setup Compose. Risolto dipingendo la pergamena direttamente come
+    sfondo del `Column` con `Modifier.paint(painter, contentScale =
+    Crop, sizeToIntrinsics = false)`: il flag è quello che conta,
+    senza il pannello vorrebbe adottare il rapporto d'aspetto
+    intrinseco dell'immagine (quasi quadrato) invece di seguire il
+    proprio contenuto. Testo forzato all'inchiostro scuro con
+    `CompositionLocalProvider(LocalContentColor provides
+    ParchmentStyle.INK)` attorno al contenuto, così non serve toccare
+    ogni singolo `Text` — quelli con un colore esplicito (es. i
+    modificatori `tertiary`) restano quello che erano.
+  Compilazione e suite riverificate verdi (`core:engine`, `core:data`,
+  `app:compileDebugKotlin`, `app:testDebugUnitTest`). **Mai vista
+  girare sul device**: default OFF (comportamento di sempre), da
+  provare accendendo la scelta in Opzioni durante un combattimento.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
