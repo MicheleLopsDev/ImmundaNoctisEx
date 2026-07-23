@@ -2124,6 +2124,35 @@ sul device.**
   essere sempre visibili appena sotto) — scelta esplicita di Michele,
   non collaterale.
 
+  **Vista sul device, testo ANCORA su nero in due punti** (stesso
+  23/07, Michele, con la stessa identica foto: "la parte alta e
+  troppo piccola rispetto a quella centrale... il testo finisce sopra
+  il logo... lo noti con le parole 'svegli' e 'verso'"): il pannello
+  ora cresce correttamente, ma proprio quelle due parole cadevano
+  dentro un dente del bordo strappato — misurato con numpy: il dente
+  PIÙ profondo nella fascia alta arriva al 30,5% dell'altezza
+  originale (chiara) e 36,4% (scura), ben oltre il 90° percentile
+  tipico (~6-12%). Non un bug di layout: la texture del bordo
+  strappato ha zone trasparenti profonde per disegno, e prima o poi
+  una riga di testo ci casca sopra.
+  **Primo tentativo, SCARTATO**: "sanare" via script i denti oltre il
+  92° percentile (riempiendoli con il colore del bordo naturale a
+  quella profondità) ha introdotto un artefatto peggiore — righe
+  verticali dorate che sforavano fin sopra il bordo strappato, dove
+  il colore campionato era un pixel di bordo/luce anziché pergamena
+  piatta. Ripristinati i due master puliti da git (`git checkout --`)
+  prima di procedere oltre: nessun danno resta.
+  **Fix più semplice e robusto**: un colore PIENO (vicino alla media
+  della texture: chiaro `#DEC9AB`, scuro `#554334`, campionati con
+  numpy dalla zona centrale sicura) dipinto PRIMA della pila di tre
+  immagini in `ParchmentBackground`. Qualunque dente, per quanto
+  profondo, mostra questo colore invece del nero del tema — risolve
+  il problema per costruzione, indipendentemente da quanto sono
+  profondi i denti, senza dover ritoccare pixel per pixel le due
+  texture. Nuovo campo `ParchmentStyle.baseColor`.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
