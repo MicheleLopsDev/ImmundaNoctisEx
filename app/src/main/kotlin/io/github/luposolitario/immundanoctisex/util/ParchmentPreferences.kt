@@ -34,20 +34,32 @@ enum class ParchmentStyle(
     val topRes: Int?,
     val middleRes: Int?,
     val bottomRes: Int?,
+    // Colore pieno dietro alla pila di immagini (23/07/2026, Michele sul
+    // device: "svegli" e "verso" finivano su sfondo nero): il bordo
+    // strappato ha denti profondi e irregolari su tutti e quattro i lati,
+    // alcuni quasi a metà della fascia — tentare di "sanare" i denti più
+    // estremi via script ha introdotto righe verticali indesiderate
+    // (colore del bordo esteso per errore fino al margine). Molto più
+    // robusto: un colore pieno, vicino alla media della texture, dietro a
+    // tutto — qualunque dente, per quanto profondo, mostra questo colore
+    // invece del nero del tema, a prescindere dalla profondità.
+    val baseColor: Color?,
 ) {
-    OFF("Disattivata (default)", null, null, null),
-    AUTO("Automatica (segue il tema)", null, null, null),
+    OFF("Disattivata (default)", null, null, null, null),
+    AUTO("Automatica (segue il tema)", null, null, null, null),
     LIGHT(
         "Pergamena chiara",
         R.drawable.parchment_panel_top,
         R.drawable.parchment_panel_middle,
         R.drawable.parchment_panel_bottom,
+        Color(0xFFDEC9AB),
     ),
     DARK(
         "Pergamena scura",
         R.drawable.parchment_panel_dark_top,
         R.drawable.parchment_panel_dark_middle,
         R.drawable.parchment_panel_dark_bottom,
+        Color(0xFF554334),
     ),
     ;
 

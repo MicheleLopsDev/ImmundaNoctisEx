@@ -1,8 +1,10 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,6 +27,12 @@ fun BoxScope.ParchmentBackground(style: ParchmentStyle) {
     val middle = style.middleRes
     val bottom = style.bottomRes
     if (top == null || middle == null || bottom == null) return
+    // Colore pieno PRIMA della pila di immagini: qualunque dente del
+    // bordo strappato, per quanto profondo, mostra questo colore invece
+    // del nero del tema sotto (vedi ParchmentStyle.baseColor).
+    style.baseColor?.let { color ->
+        Spacer(modifier = Modifier.matchParentSize().background(color))
+    }
     Column(modifier = Modifier.matchParentSize()) {
         Image(
             painter = painterResource(id = top),
