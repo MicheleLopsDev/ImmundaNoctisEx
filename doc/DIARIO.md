@@ -2248,6 +2248,30 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Nome dell'eroe personalizzabile** (24/07, idea di Michele, discussa
+  prima di scrivere codice: "che ne dici?" — accettato con una
+  precisazione mia: il default va accorciato da "Lupo Solitario"/"Lupa
+  Solitaria" (il nome CANONICO del protagonista dei libri, sembra già
+  scelto da qualcuno) a "Lupo"/"Lupa" (un segnaposto chiaramente
+  anonimo, invita a essere sostituito) — Michele ha confermato).
+  Nuovo `CreationState.heroName` (stringa vuota di default), un
+  `OutlinedTextField` opzionale nella schermata di creazione (subito
+  sotto la scelta del genere) col placeholder che mostra già "Lupo"/
+  "Lupa" secondo il genere selezionato — così si vede cosa succede
+  lasciandolo vuoto, senza doverlo indovinare. `buildSession` risolve
+  `heroName.trim().ifBlank { "Lupo"/"Lupa" }`.
+  **Stessa richiesta, seconda parte**: il nome dell'eroe ora compare
+  anche nella lista dei salvataggi (schermata Avventura, quando esiste
+  già una sessione) — prima si vedeva solo il titolo del libro e la
+  scena, non chi la sta giocando. L'eroe è unico per costruzione
+  (stesso presupposto già usato in `GameState.hero`): si legge con
+  `characters.first { role == HERO }`.
+  Aggiornata anche la @Preview della schermata Avventura (prima non
+  aveva nessun personaggio nella sessione d'esempio — `.first{}`
+  sull'eroe sarebbe andato in crash appena renderizzata).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
