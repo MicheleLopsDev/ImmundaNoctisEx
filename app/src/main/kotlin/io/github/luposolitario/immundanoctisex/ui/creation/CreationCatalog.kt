@@ -55,12 +55,17 @@ fun disciplineName(id: String): Int? = KAI_DISCIPLINES_UI.firstOrNull { it.id ==
 fun disciplineDescription(id: String): Int? =
     KAI_DISCIPLINES_UI.firstOrNull { it.id == id }?.descriptionRes
 
-// Icone armi di v1 (origina_res). Mapping su ID canonici Ex:
-// ic_staff->QUARTERSTAFF, ic_fists->UNARMED; dagger/short_sword/warhammer
-// non esistono in v1 -> segnaposto ic_unknown_item (da produrre, Fase 7).
+// Icone armi (22/07/2026, Michele: nuovo foglio a 9 pezzi nello stesso
+// stile china/silhouette, dal piano di reskin — sfondo rimosso qui con
+// flood-fill a range fisso, vedi DIARIO.md). Sostituisce le sei icone di
+// v1 E riempie le tre che mancavano (dagger/short_sword/warhammer, prima
+// sul segnaposto ic_unknown_item). Tutte e nove ora coerenti tra loro.
 fun weaponTypeIcon(type: WeaponType?): Int = when (type) {
+    WeaponType.DAGGER -> R.drawable.ic_dagger
     WeaponType.SPEAR -> R.drawable.ic_spear
     WeaponType.MACE -> R.drawable.ic_mace
+    WeaponType.SHORT_SWORD -> R.drawable.ic_short_sword
+    WeaponType.WARHAMMER -> R.drawable.ic_warhammer
     WeaponType.SWORD -> R.drawable.ic_sword
     WeaponType.AXE -> R.drawable.ic_axe
     WeaponType.QUARTERSTAFF -> R.drawable.ic_staff
