@@ -2,6 +2,7 @@ package io.github.luposolitario.immundanoctisex.ui.adventure
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,7 +39,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -179,21 +179,17 @@ fun AdventureScreen(
 
         // Stile pergamena (23/07/2026, richiesta Michele dopo aver visto lo
         // screenshot del pannello di narrazione ancora piatto: "estendilo
-        // anche al testo, non solo al combattimento"): stesso trattamento
-        // di CombatDiaryPanel — Card Material3 di sempre se OFF, altrimenti
-        // Column dipinta con la pergamena (Modifier.paint,
-        // sizeToIntrinsics = false) e inchiostro forzato via
-        // CompositionLocalProvider.
+        // anche al testo, non solo al combattimento"; corretto lo stesso
+        // giorno): Card Material3 di sempre se OFF, altrimenti Box +
+        // Image(Modifier.matchParentSize()) — stesso pattern già
+        // funzionante di AdventureBanner, non il Modifier.paint() del
+        // primo giro (compilava ma non si vedeva affatto sul device,
+        // vedi CombatDiaryPanel per il dettaglio). matchParentSize() non
+        // si importa: è un membro di BoxScope, risolto dal contesto del
+        // Box.
         val narrationStyle = parchmentStyle.resolved(isDarkTheme)
         val narrationDrawableRes = narrationStyle.drawableRes
-        val narrationPanelModifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp).let {
-            if (narrationDrawableRes != null) {
-                it.clip(RoundedCornerShape(12.dp))
-                    .paint(painterResource(id = narrationDrawableRes), contentScale = ContentScale.Crop, sizeToIntrinsics = false)
-            } else {
-                it
-            }
-        }
+        val narrationPanelModifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp)
         val narrationContent: @Composable () -> Unit = {
             if (state.narrative.isBlank() && state.isGenerating) {
                 // Il narratore sta scrivendo: nessun testo originale da
@@ -233,8 +229,16 @@ fun AdventureScreen(
             }
         } else {
             CompositionLocalProvider(LocalContentColor provides narrationStyle.inkColor()) {
-                Column(modifier = narrationPanelModifier) {
-                    narrationContent()
+                Box(modifier = narrationPanelModifier.clip(RoundedCornerShape(12.dp))) {
+                    Image(
+                        painter = painterResource(id = narrationDrawableRes),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.matchParentSize(),
+                    )
+                    Column {
+                        narrationContent()
+                    }
                 }
             }
         }
