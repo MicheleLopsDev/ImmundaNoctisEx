@@ -2400,6 +2400,37 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **BUG SERIO nel download dei modelli: il progresso si legava alla
+  selezione, non al download vero** (24/07, Michele mentre provava i
+  download: "sembra che l'app sia bloccata... sono partiti i task per
+  il download e non si stoppano... l'interfaccia non aggiorna" — log
+  allegato). Il log mostrava la prova diretta: un lavoro WorkManager
+  (`6d8450de...`) cancellato dopo soli ~15MB, e un secondo
+  (`66b56673...`) partito 7ms dopo, stesso worker unico
+  (`ModelDownloadWorker`, `ExistingWorkPolicy.REPLACE`).
+  **Causa radice**, trovata in `ModelsScreen.kt`: ogni card mostrava il
+  vero `downloadState` SOLO se `model.id == selectedModelId` — per
+  TUTTE le altre card restava sempre `Idle`, quindi il loro bottone
+  "Scarica" restava SEMPRE attivo, anche mentre un download diverso
+  era in corso. Un tocco lì — anche per sbaglio, o perché la card
+  giusta sembrava non aggiornarsi — cancellava il download in corso
+  (WorkManager REPLACE sullo stesso lavoro unico) e ne accodava uno
+  nuovo, potenzialmente all'infinito se il giocatore, confuso, ritocca
+  "Scarica" pensando che l'app sia bloccata.
+  **Corretto**: il worker ora rimanda l'ID del modello nel progresso
+  (`KEY_MODEL_ID`, scritto SUBITO all'avvio, non solo ai passi di
+  `PROGRESS_STEP` — l'identità è nota fin dal primo istante, non
+  serve aspettare 2MB scaricati) — mai più fidarsi di
+  `selectedModelId`, che poteva appartenere a un modello diverso da
+  quello che sta scaricando per davvero. Nuovo `runningModelId` in
+  `ModelsRoute`, derivato dal progresso vero. Il bottone "Scarica" di
+  OGNI card che non è quella in corso viene ora DISABILITATO
+  (`downloadBlockedByOther`) finché il download attivo non finisce:
+  il tocco che prima cancellava tutto ora è semplicemente impossibile.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device**: bug trovato da un log reale, non da ipotesi — ma il fix
+  va comunque riprovato scaricando un modello per davvero.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
