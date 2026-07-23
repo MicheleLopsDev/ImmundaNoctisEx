@@ -137,7 +137,7 @@ il resto: il vero reskin visivo, che serve asset veri.
 - Licenza libera per uso in app se è un font esistente scelto da lei;
   nessun problema se lo disegna.
 
-**Texture di sfondo (pergamena)**
+**Texture di sfondo (pergamena)** (file Texture di sfondo)
 - Un'immagine "pergamena invecchiata", **tileable** (si ripete senza
   cuciture visibili ai bordi) — più robusta di un'immagine fissa
   perché funziona su qualunque dimensione di schermo.
@@ -160,7 +160,7 @@ il resto: il vero reskin visivo, che serve asset veri.
   del bordo, non la dimensione esatta.
 - PNG con trasparenza (canale alpha).
 
-**Icone per arma (9 pezzi)**
+**Icone per arma (9 pezzi)**(file Icone per arma.png)
 - Asta, Spada, Daga, Martello, Pugnale, Lancia, Spadone, Ascia, Mazza
   — stile china/silhouette, come nel registro.
 - Artboard **512×512 px** per tutte e 9 (stesso formato quadrato,
@@ -171,8 +171,8 @@ il resto: il vero reskin visivo, che serve asset veri.
   già alcune (ascia, mappa, oro) ma non nello stesso stile — se le
   rifà tutte insieme, coerenza garantita.
 
-**Decorazioni opzionali (non urgenti)**
-- Zaino, borsa/corone, pasto, mucchio di equipaggiamento — accenti
+**Decorazioni opzionali (non urgenti)**( file Decorazioni opzionali.png )
+- Zaino, pozioni , borsa/corone, pasto, mucchio di equipaggiamento — accenti
   piccoli vicino alle rispettive sezioni: **400×400 px**, PNG
   trasparente.
 - Spade incrociate col teschio di lupo (per il riquadro del Rapporto
