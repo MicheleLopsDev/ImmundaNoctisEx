@@ -2535,6 +2535,25 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Griglia armi: era la griglia sbagliata, non (solo) l'icona
+  piccola** (24/07, foto: "puoi ingrandirle anche del doppio rispetto
+  allo spazio" — con `GridCells.Adaptive(minSize = 190.dp)` lo schermo
+  ci faceva stare una SOLA colonna: celle enormi a piena larghezza con
+  l'icona (96dp) persa in mezzo al vuoto. Cambiata a `GridCells
+  .Fixed(2)`: celle più strette e quadrate, icona a 120dp che le
+  riempie per davvero — non più un numero scelto alla cieca ma
+  proporzionato alla cella vera. Altezza griglia 700→950dp per le 5
+  righe da due colonne.
+  **Stessa richiesta, seconda parte**: sfondo VERDE
+  (`0xFF2E7D32`, alpha 0.35) sull'arma della specializzazione
+  WEAPONSKILL, se scelta — indipendente dal bordo oro dell'arma
+  IMPUGNATA ORA: due fatti diversi (specializzazione vs selezione
+  corrente), visibili insieme se coincidono. Nuovo parametro
+  `isSpecialization` su `WeaponCell`, applicato anche alla cella Arti
+  marziali (la specializzazione può essere UNARMED).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
