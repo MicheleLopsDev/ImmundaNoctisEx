@@ -2026,6 +2026,48 @@ sul device.**
   device**: Michele deve riselezionare lo stile in Opzioni (senza
   disinstallare) e riprovare.
 
+  **CONFERMATA sul device, stesso 23/07**: dopo aver riselezionato lo
+  stile in Opzioni la pergamena si vede — foto mandata da Michele,
+  bordi strappati e scudi visibili, inchiostro leggibile. La causa
+  era davvero solo la preferenza azzerata dalla disinstallazione, il
+  codice era già giusto.
+
+  **Difetto reale trovato SUBITO dopo, dalla stessa foto** (Michele:
+  "il testo sfora, si potrebbe tagliare in due ed avere la parte
+  centrale che si allunga fino alla dimensione del testo?"):
+  `ContentScale.Crop` su un'unica immagine quadrata tiene il bordo
+  strappato a proporzioni FISSE, ma il testo del narratore può essere
+  più lungo del riquadro — risultato, l'ultima riga di prosa finiva
+  sforata oltre il bordo inferiore della pergamena. Proposta di
+  Michele esattamente giusta: è il principio del nine-patch Android
+  (bordi fissi, centro elastico), mai usato in questo progetto
+  finora.
+  **Un ostacolo in più scoperto tagliando**: i bordi strappati corrono
+  su TUTTI e quattro i lati della pergamena, non solo alto/basso — una
+  fascia centrale presa a piena larghezza avrebbe portato dentro una
+  tacca del bordo laterale, poi stirata in una riga verticale enorme e
+  innaturale. Risolto con un inset orizzontale (10% per lato) sul
+  ritaglio della sola fascia centrale, che esclude le tacche più
+  profonde e lascia solo texture pulita.
+  Costruita `ParchmentBackground.kt` (nuovo file, estensione di
+  `BoxScope`: `Modifier.matchParentSize()` va richiamata dentro un
+  `Box`, quindi la funzione condivisa deve dichiararsi tale, non una
+  funzione libera) che impila tre `Image` — alto e basso a dimensione
+  naturale (`ContentScale.FillWidth`), il centro steso
+  (`ContentScale.FillBounds`) su un `Modifier.weight(1f)` che assorbe
+  tutto lo spazio verticale restante. `ParchmentStyle` non espone più
+  un singolo `drawableRes`, ma tre risorse (`topRes`/`middleRes`/
+  `bottomRes`) per LIGHT e DARK; 6 nuovi file PNG generati con uno
+  script Python/Pillow dai due pannelli già pronti (nessun nuovo
+  asset chiesto a Michele). Condivisa da `CombatDiaryPanel` e dal
+  pannello di narrazione di `AdventureScreen`, un solo posto invece
+  di due copie della stessa pila.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device**: risolve il difetto SULLA CARTA (bordi fissi, centro
+  elastico), ma la fascia centrale è stata scelta a occhio — va
+  vista con un testo vero, lungo, per giudicare se il "cucito" tra le
+  tre fasce si vede o no.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
