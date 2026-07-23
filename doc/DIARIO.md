@@ -2184,6 +2184,31 @@ sul device.**
   un disegno esplicito invece che da un'idea mia — file da guardare
   con più attenzione prima di dichiararlo chiuso.
 
+  **Vista sul device, "molto meglio"** (24/07, Michele: "l'idea è
+  giusta" — primo riscontro positivo sull'intera feature pergamena):
+  ha mandato due foto, la seconda con un rettangolo arancione
+  disegnato SOPRA lo screenshot per indicare dove vuole davvero il
+  bordo — più stretto di com'era, ben dentro rispetto agli scudi degli
+  angoli. Due correzioni precise:
+  - **Margine insufficiente**: misurato con Pillow sull'immagine
+    intera, gli scudi occupano fino al ~19-22% dell'area dagli angoli
+    — il padding fisso di 28dp non bastava, e su schermi diversi da
+    quello di prova il rapporto cambia comunque (un dp fisso non
+    scala con la dimensione del riquadro). Sostituito con
+    `Modifier.fillMaxSize(0.68f)` — una FRAZIONE del riquadro
+    esterno, non un valore assoluto: scala automaticamente qualunque
+    sia lo schermo, resta ben dentro gli scudi.
+  - **Bordo oro/argento secondo il TEMA**, non lo stile pergamena
+    (richiesta esplicita: "in notturna può essere oro e in tema
+    chiaro argento"): `NarrationParchmentPanel` ora riceve
+    `isDarkTheme` solo per questo — chi sceglie "Pergamena chiara" col
+    telefono in tema scuro vuole comunque il bordo oro, non quello
+    legato allo stile. Il marrone cuoio di prima si confondeva con la
+    texture (contrasto troppo basso); oro (`#D4AF37`) e argento
+    (`#9A9A9A`) risaltano su qualunque variante.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
