@@ -13,6 +13,7 @@ import io.github.luposolitario.immundanoctisex.tts.TtsService
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.BundledMusicCatalog
 import io.github.luposolitario.immundanoctisex.util.OutputLanguage
+import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 import java.util.Locale
 
@@ -35,6 +36,7 @@ fun OptionsRoute(
     var themeOverride by remember { mutableStateOf(darkOverride) }
     var accentColor by remember { mutableStateOf(container.accentColorPreferences.accentColor) }
     var statusCardColor by remember { mutableStateOf(container.statusCardColorPreferences.statusCardColor) }
+    var parchmentStyle by remember { mutableStateOf(container.parchmentPreferences.style) }
     var font by remember { mutableStateOf(container.fontPreferences.readingFont) }
     var bold by remember { mutableStateOf(container.fontPreferences.boldText) }
     var language by remember { mutableStateOf(container.languagePreferences.outputLanguage) }
@@ -91,6 +93,11 @@ fun OptionsRoute(
         onStatusCardColorSelect = { selected ->
             statusCardColor = selected
             container.statusCardColorPreferences.statusCardColor = selected
+        },
+        parchmentStyle = parchmentStyle,
+        onParchmentStyleSelect = { selected ->
+            parchmentStyle = selected
+            container.parchmentPreferences.style = selected
         },
         readingFont = font,
         onFontSelect = { selected ->

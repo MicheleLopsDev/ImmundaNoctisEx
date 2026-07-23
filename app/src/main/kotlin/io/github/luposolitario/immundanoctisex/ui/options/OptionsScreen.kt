@@ -31,6 +31,7 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.NarrativeTone
 import io.github.luposolitario.immundanoctisex.util.OutputLanguage
+import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 import io.github.luposolitario.immundanoctisex.util.ReadingFont
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 
@@ -45,6 +46,8 @@ fun OptionsScreen(
     onAccentColorSelect: (AccentColor) -> Unit,
     statusCardColor: StatusCardColor,
     onStatusCardColorSelect: (StatusCardColor) -> Unit,
+    parchmentStyle: ParchmentStyle,
+    onParchmentStyleSelect: (ParchmentStyle) -> Unit,
     readingFont: ReadingFont,
     onFontSelect: (ReadingFont) -> Unit,
     boldText: Boolean,
@@ -101,6 +104,7 @@ fun OptionsScreen(
             ThemeSection(darkOverride, onThemeSelect)
             AccentColorSection(accentColor, onAccentColorSelect)
             StatusCardColorSection(statusCardColor, onStatusCardColorSelect)
+            ParchmentSection(parchmentStyle, onParchmentStyleSelect)
             LanguageSection(outputLanguage, onLanguageSelect)
             ToneSection(narrativeTone, onToneSelect)
             FontSection(readingFont, onFontSelect, boldText, onBoldTextChange)
@@ -198,6 +202,8 @@ private fun OptionsScreenPreview() {
             onAccentColorSelect = {},
             statusCardColor = StatusCardColor.DEFAULT,
             onStatusCardColorSelect = {},
+            parchmentStyle = ParchmentStyle.OFF,
+            onParchmentStyleSelect = {},
             readingFont = ReadingFont.ALMENDRA,
             onFontSelect = {},
             boldText = false,

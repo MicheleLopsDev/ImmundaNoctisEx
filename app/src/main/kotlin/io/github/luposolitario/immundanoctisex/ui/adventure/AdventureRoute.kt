@@ -119,6 +119,7 @@ fun AdventureRoute(
                 onTextScaleChange = { container.fontPreferences.textScale = it },
                 boldText = container.fontPreferences.boldText,
                 statusCardColor = container.statusCardColorPreferences.statusCardColor,
+                parchmentStyle = container.parchmentPreferences.style,
                 autoReadEnabled = container.ttsPreferences.autoReadEnabled,
                 onReadAloud = state::readAloud,
             )
