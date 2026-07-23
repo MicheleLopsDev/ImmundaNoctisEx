@@ -2303,6 +2303,28 @@ sul device.**
   animale si scelga — atteso, non un bug, finché non arrivano le
   illustrazioni vere.
 
+  **Le 14 illustrazioni sono arrivate lo stesso giorno**: Michele ha
+  consegnato `origina_res/icone per personaggi.png`, un foglio unico
+  5×3 con tutti e 14 gli animali (più un lupo di riferimento nello
+  stesso stile) e un'etichetta di testo sotto ogni icona. Ritagliate
+  con uno script Python/OpenCV: confini misurati con un profilo di
+  oscurità per riga (il testo sotto ogni icona ha una "gobba" di
+  pixel scuri separata, non attaccata al disegno — le tre righe hanno
+  margini diversi, la terza riga finisce più in basso delle prime
+  due) per tagliare SOLO il disegno, mai la scritta. Sfondo rimosso
+  con lo stesso flood-fill a range fisso già collaudato (nessuna
+  sorpresa stavolta: sfondo bianco pieno, non a scacchi). 14 nuovi
+  file `res/drawable/hero_*.png`, percentuali di opacità 18-35%,
+  sane. Agganciati uno per uno in `CreationCatalog.heroIconRes`.
+  **Decisione lasciata a Michele, non presa da sola**: il foglio
+  aveva anche un lupo nello stesso stile "ombreggiato" degli altri 14
+  (diverso dal `lupo_solitario.png` attuale, più semplice e a due
+  soli toni) — salvato come `hero_wolf_new.png`, NON agganciato,
+  in attesa di sapere se sostituire il lupo esistente per uniformità
+  di stile su tutte e 15 le icone o tenerlo com'è.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device**: primo giro con le illustrazioni vere, mai visto girare.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
