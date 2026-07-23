@@ -124,7 +124,11 @@ private fun GenderCard(state: CreationState) {
             Spacer(Modifier.height(12.dp))
             // Nome personalizzabile (24/07/2026, richiesta Michele):
             // opzionale, il placeholder mostra già cosa succede se si
-            // lascia vuoto ("Lupo"/"Lupa" secondo il genere scelto sopra).
+            // lascia vuoto. Non più "Lupo"/"Lupa" (24/07/2026, stesso
+            // giorno, ora che l'icona è personalizzabile su 15 animali:
+            // "Lupo" come nome non avrebbe più senso scegliendo un
+            // drago) — "Eroe Solitario"/"Eroina Solitaria", generico
+            // quanto basta per qualunque animale si scelga.
             OutlinedTextField(
                 value = state.heroName,
                 onValueChange = { state.heroName = it },
@@ -132,9 +136,9 @@ private fun GenderCard(state: CreationState) {
                 placeholder = {
                     Text(
                         if (state.gender == Gender.MALE) {
-                            stringResource(R.string.creation_gender_male)
+                            stringResource(R.string.creation_name_default_male)
                         } else {
-                            stringResource(R.string.creation_gender_female)
+                            stringResource(R.string.creation_name_default_female)
                         },
                     )
                 },
@@ -182,10 +186,10 @@ private fun HeroIconCard(state: CreationState) {
             Text(stringResource(R.string.creation_icon), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 90.dp),
+                columns = GridCells.Adaptive(minSize = 120.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().height(360.dp),
+                modifier = Modifier.fillMaxWidth().height(460.dp),
             ) {
                 items(HeroIcon.entries) { icon ->
                     WeaponCell(
@@ -193,6 +197,7 @@ private fun HeroIconCard(state: CreationState) {
                         nameRes = heroIconName(icon),
                         selected = state.heroIcon == icon,
                         onClick = { state.heroIcon = icon },
+                        iconSize = 72.dp,
                     )
                 }
             }
@@ -388,12 +393,16 @@ private fun SpecialItemCard(state: CreationState) {
 
 // Cella arma: icona di v1 + nome, bordo oro sulla selezionata (stessa
 // convenzione dei ritratti e dell'arma impugnata nella Scheda).
+// iconSize parametrico (24/07/2026, richiesta Michele: "ingrandisci un
+// po' le icone degli animali") — default 48dp invariato per le armi,
+// solo HeroIconCard passa un valore più grande.
 @Composable
 private fun WeaponCell(
     iconRes: Int,
     nameRes: Int,
     selected: Boolean,
     onClick: () -> Unit,
+    iconSize: androidx.compose.ui.unit.Dp = 48.dp,
 ) {
     val borderColor = if (selected) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
     androidx.compose.material3.OutlinedCard(
@@ -410,7 +419,7 @@ private fun WeaponCell(
             Image(
                 painter = painterResource(id = iconRes),
                 contentDescription = stringResource(nameRes),
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.size(iconSize),
             )
             Spacer(Modifier.height(6.dp))
             Text(
