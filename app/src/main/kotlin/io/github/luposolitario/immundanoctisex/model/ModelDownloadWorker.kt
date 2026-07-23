@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import kotlinx.coroutines.Dispatchers
@@ -202,12 +203,23 @@ class ModelDownloadWorker(context: Context, params: WorkerParameters) :
                 NotificationChannel(CHANNEL_ID, "Download modello", NotificationManager.IMPORTANCE_LOW),
             )
         }
+        // Bottone "Annulla" (24/07/2026, richiesta Michele dopo il bug del
+        // download zombie: "una icona gestibile dal menu superiore...
+        // così non rischiamo di dover riavviare il telefono"): prima la
+        // notifica non aveva NESSUNA azione, l'unico modo di fermare un
+        // download bloccato era il tasto "Annulla" dentro l'app (che
+        // presuppone poterla riaprire) o riavviare il telefono.
+        // createCancelPendingIntent è l'API di WorkManager pensata apposta
+        // per questo: cancella IL LAVORO CON QUESTO id, non serve gestire
+        // a mano nessun BroadcastReceiver.
+        val cancelIntent = WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
         val notification: Notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
             .setContentTitle("Scaricamento del modello")
             .setContentText("$percent%")
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setProgress(100, percent, percent == 0)
             .setOngoing(true)
+            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Annulla", cancelIntent)
             .build()
 
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

@@ -61,4 +61,23 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    // BUG (24/07/2026, Michele: "anche se chiusa continuavo a sentire la
+    // musica... ho dovuto riavviare il telefono"): MusicPlayer vive a
+    // scope applicazione (un MediaPlayer grezzo, nessun Service, nessuna
+    // notifica) apposta per sopravvivere alla navigazione tra schermate —
+    // di suo, chiudendo l'app il processo morirebbe e la musica con lui.
+    // Ma un download in corso usa un Foreground Service (giustamente, i
+    // download DEVONO sopravvivere in background) che tiene in vita
+    // l'INTERO processo — musica compresa, che invece non ha alcun
+    // motivo di restare accesa. onDestroy la ferma esplicitamente:
+    // quando l'utente chiude davvero l'app (swipe dai recenti), Android
+    // chiama sempre onDestroy sull'Activity, A PRESCINDERE dal fatto che
+    // il processo sopravviva per il download. Se l'Activity viene
+    // ricreata (rotazione) si prende una AppContainer/MusicPlayer nuovi
+    // di zecca (by lazy sull'istanza Activity, non condiviso).
+    override fun onDestroy() {
+        container.musicPlayer.release()
+        super.onDestroy()
+    }
 }
