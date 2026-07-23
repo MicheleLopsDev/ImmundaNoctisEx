@@ -1811,6 +1811,82 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai visti girare sul
   device.**
 
+- **Primi asset del reskin: 9 icone armi + decorazioni, e un bug di
+  esportazione trovato per strada** (22/07, Michele ha mandato tre
+  file in `origina_res/` per il piano di reskin — foglio armi,
+  decorazioni opzionali, texture pergamena — dicendo "trovi le
+  corrispondenze nel doc di UPGRADE").
+  - **BUG scoperto**: tutti e tre i file avevano il canale alpha
+    pieno (255 ovunque) — la scacchiera "trasparente" che si vedeva
+    era disegnata DENTRO i pixel, non trasparenza vera del formato
+    (probabile anteprima del tool di generazione salvata al posto
+    dell'export con canale alpha). Nell'app sarebbe comparso un
+    riquadro grigio a scacchi intorno a ogni icona. Nel frattempo
+    avevo già sovrascritto le 6 icone armi esistenti (che ERANO
+    trasparenti per davvero) tagliando il foglio a griglia — **tutto
+    ripristinato** (`git checkout` sulle 6 icone, cancellati i file
+    nuovi rotti, codice tornato pulito) prima di procedere oltre.
+  - Michele ha rifatto due dei tre file con **sfondo bianco pieno**
+    invece che trasparente (più facile da esportare per lui). Rimosso
+    lo sfondo qui con `cv2.floodFill` a 8 semi (i 4 angoli + i 4 punti
+    medi dei lati) — **prima tentativo con range "floating" (default):
+    ha mangiato quasi tutto il disegno**, non solo lo sfondo: su un
+    bordo anti-aliasato la tolleranza confronta ogni pixel col VICINO
+    appena colorato, quindi "scivola" un passo alla volta dal bianco
+    fino al nero lungo la sfumatura, senza mai un salto abbastanza
+    grande da fermarsi (misurato: da 0-1% di pixel opachi rimasti su
+    7 icone su 9). **Corretto con `FLOODFILL_FIXED_RANGE`** (confronta
+    col colore ORIGINALE del seme, non col vicino): 20-33% di pixel
+    opachi su tutte e nove, range sano.
+  - **Secondo bug, di slicing non di trasparenza**: il foglio
+    decorazioni ha 6 colonne nella prima riga ma solo 3 nella seconda
+    (icone più grandi, spaziate diversamente) — tagliarlo con una
+    griglia uniforme 6×2 ha preso `wolf_logo` a metà del medaglione
+    arcano e `deco_combat_emblem` a metà delle spade incrociate.
+    Corretto ritagliando la riga 2 da sola, a griglia 3 colonne.
+  - **Risultato**: 9 icone armi coerenti (`ic_dagger`/`ic_spear`/
+    `ic_mace`/`ic_short_sword`/`ic_warhammer`/`ic_sword`/`ic_axe`/
+    `ic_staff`/`ic_broadsword`, agganciate in
+    `CreationCatalog.weaponTypeIcon` — le tre mancanti non usano più
+    il segnaposto `ic_unknown_item`), `ic_map_icon` sostituita nello
+    stesso stile, e 8 decorazioni (`deco_backpack`/`deco_gold_pouch`/
+    `deco_meal`/`deco_travel_gear`/`deco_potion`/`deco_combat_emblem`/
+    `deco_arcane_medallion`/`wolf_logo`) pronte in `res/drawable/` ma
+    **non ancora agganciate a nessuno schermo** — manca la decisione
+    di dove usarle. La texture di pergamena resta in sospeso: quel
+    file non è stato riesportato con sfondo bianco, stesso trattamento
+    ancora da fare.
+  Compilazione e suite riverificate verdi (icone armi, uniche già
+  agganciate al codice). **Mai visti girare sul device.**
+
+- **Scoperta a margine**: due commit (`5a31894`, `0a54760`) risultano
+  fatti da Michele con "Claude Fable 5" come co-autore — un'altra app/
+  sessione Claude (probabilmente sul telefono) che Michele usa per
+  salvare in fretta i file grezzi in `origina_res/` mentre continua a
+  lavorare qui per l'integrazione vera. Nessun conflitto, solo utile
+  saperlo per non stupirsi di file nuovi o piccoli edit a UPGRADE.md
+  comparsi senza essere passati da questa sessione.
+
+- **Texture di pergamena: stesso trattamento, un bug in più trovato
+  per strada** (22/07, stesso giro): Michele ha riesportato anche
+  questo file con sfondo bianco. Sfondo rimosso con lo stesso
+  flood-fill a range fisso → `res/drawable/parchment_panel.png`, bordi
+  strappati puliti, trasparenza vera confermata.
+  **BUG nello script trovato qui, invisibile prima**: `cv2.imwrite` si
+  aspetta l'ordine canali BGR(A), non RGB(A) — lo script convertiva in
+  RGBA prima di scrivere, quindi `imwrite` ha ri-invertito i canali
+  una seconda volta, scambiando rosso e blu. Sulle icone armi/
+  decorazioni (bianco e nero, R≈G≈B) non si vedeva nessuna differenza;
+  sulla pergamena (colore vero, marrone/beige) il risultato usciva
+  bluastro. Verificato che le icone già salvate NON fossero affette
+  (scarto massimo tra R e B: 15/255, rumore di compressione, non un
+  vero scambio di canale) — corretto lo script per il resto.
+  Non ancora agganciato a nessun pannello: la pergamena è chiara,
+  l'app gira quasi sempre in tema scuro con testo chiaro — serve
+  decidere come restare leggibili sopra un fondo chiaro prima di
+  usarla per davvero (vedi UPGRADE.md).
+  Compilazione riverificata verde. **Mai vista girare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
