@@ -38,6 +38,8 @@ import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEnd
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
+import io.github.luposolitario.immundanoctisex.util.inkColor
+import io.github.luposolitario.immundanoctisex.util.resolved
 
 // Il Diario di Combattimento cartaceo di Lupo Solitario (richiesta Michele
 // 20/07/2026, riferimento fotografato dal registro ufficiale): non un
@@ -51,18 +53,23 @@ fun CombatDiaryPanel(
     state: AdventureState,
     session: CombatSession,
     parchmentStyle: ParchmentStyle = ParchmentStyle.OFF,
+    // Serve solo a risolvere AUTO (23/07/2026): quale pergamena scegliere
+    // segue il tema EFFETTIVO dell'app (override incluso), non il solo
+    // sistema — vedi ParchmentStyle.resolved().
+    isDarkTheme: Boolean = false,
 ) {
-    // Stile pergamena (22/07/2026, richiesta Michele, scelta in Opzioni):
-    // OFF resta il Card Material3 di sempre. Attivo, `Modifier.paint`
-    // dipinge l'immagine come sfondo alla dimensione del Column (mai
-    // quella intrinseca dell'immagine — sizeToIntrinsics = false,
-    // altrimenti il pannello vorrebbe diventare quadrato come la
-    // pergamena 1024×1024 invece di seguire il proprio contenuto), e il
-    // colore del testo di default diventa l'inchiostro scuro
-    // (CompositionLocalProvider, non serve toccare ogni singolo Text —
-    // solo quelli con un colore ESPLICITO, es. i modificatori tertiary,
-    // restano quello che erano).
-    val drawableRes = parchmentStyle.drawableRes
+    // Stile pergamena (22/07/2026, richiesta Michele, scelta in Opzioni;
+    // 23/07/2026 AUTO): OFF resta il Card Material3 di sempre. Attivo,
+    // `Modifier.paint` dipinge l'immagine come sfondo alla dimensione
+    // del Column (mai quella intrinseca dell'immagine — sizeToIntrinsics
+    // = false, altrimenti il pannello vorrebbe diventare quadrato come
+    // la pergamena 1024×1024 invece di seguire il proprio contenuto), e
+    // il colore del testo di default diventa l'inchiostro giusto per LA
+    // VARIANTE RISOLTA (CompositionLocalProvider, non serve toccare ogni
+    // singolo Text — solo quelli con un colore ESPLICITO, es. i
+    // modificatori tertiary, restano quello che erano).
+    val resolvedStyle = parchmentStyle.resolved(isDarkTheme)
+    val drawableRes = resolvedStyle.drawableRes
     val columnModifier = if (drawableRes != null) {
         Modifier
             .clip(RoundedCornerShape(12.dp))
@@ -80,7 +87,7 @@ fun CombatDiaryPanel(
             Text(
                 "Paragrafo ${state.currentScene.id}",
                 style = MaterialTheme.typography.labelMedium,
-                color = if (parchmentStyle == ParchmentStyle.OFF) MaterialTheme.colorScheme.onSurfaceVariant else ParchmentStyle.INK,
+                color = if (resolvedStyle == ParchmentStyle.OFF) MaterialTheme.colorScheme.onSurfaceVariant else resolvedStyle.inkColor(),
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -113,7 +120,7 @@ fun CombatDiaryPanel(
     if (drawableRes == null) {
         Card { content() }
     } else {
-        CompositionLocalProvider(LocalContentColor provides ParchmentStyle.INK) {
+        CompositionLocalProvider(LocalContentColor provides resolvedStyle.inkColor()) {
             content()
         }
     }

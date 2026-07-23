@@ -30,6 +30,9 @@ fun AdventureRoute(
     container: AppContainer,
     session: SessionData,
     onExitToHome: () -> Unit,
+    // Tema EFFETTIVAMENTE in uso (override incluso): serve solo a
+    // risolvere lo stile AUTO della pergamena (23/07/2026).
+    isDarkTheme: Boolean = false,
 ) {
     val context = LocalContext.current
     val loadResult = remember { container.packageRepository.load() }
@@ -120,6 +123,7 @@ fun AdventureRoute(
                 boldText = container.fontPreferences.boldText,
                 statusCardColor = container.statusCardColorPreferences.statusCardColor,
                 parchmentStyle = container.parchmentPreferences.style,
+                isDarkTheme = isDarkTheme,
                 autoReadEnabled = container.ttsPreferences.autoReadEnabled,
                 onReadAloud = state::readAloud,
             )
