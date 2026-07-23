@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.graphics.vector.ImageVector
 import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
+import io.github.luposolitario.immundanoctisex.core.data.model.HeroIcon
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 
@@ -86,6 +87,49 @@ fun weaponTypeName(type: WeaponType): Int = when (type) {
     WeaponType.QUARTERSTAFF -> R.string.weapon_quarterstaff
     WeaponType.BROADSWORD -> R.string.weapon_broadsword
     WeaponType.UNARMED -> R.string.weapon_unarmed
+}
+
+// Icona dell'eroe (24/07/2026, richiesta Michele: "facciamogli scegliere
+// l'icona... devono essere tutti animali", lista mandata al grafico).
+// SOLO WOLF ha un asset vero oggi (`lupo_solitario.png`): tutti gli altri
+// degradano su di lui finché non arriva l'illustrazione — riga per riga,
+// non un `else` unico, così quando arriva un'icona nuova si aggiorna una
+// riga sola e si vede subito cosa manca ancora.
+fun heroIconRes(icon: HeroIcon): Int = when (icon) {
+    HeroIcon.WOLF -> R.drawable.lupo_solitario
+    HeroIcon.FALCON -> R.drawable.lupo_solitario
+    HeroIcon.EAGLE -> R.drawable.lupo_solitario
+    HeroIcon.BEAR -> R.drawable.lupo_solitario
+    HeroIcon.FOX -> R.drawable.lupo_solitario
+    HeroIcon.RAVEN -> R.drawable.lupo_solitario
+    HeroIcon.OWL -> R.drawable.lupo_solitario
+    HeroIcon.LION -> R.drawable.lupo_solitario
+    HeroIcon.TIGER -> R.drawable.lupo_solitario
+    HeroIcon.PANTHER -> R.drawable.lupo_solitario
+    HeroIcon.LYNX -> R.drawable.lupo_solitario
+    HeroIcon.BOAR -> R.drawable.lupo_solitario
+    HeroIcon.STAG -> R.drawable.lupo_solitario
+    HeroIcon.SNAKE -> R.drawable.lupo_solitario
+    HeroIcon.DRAGON -> R.drawable.lupo_solitario
+}
+
+@StringRes
+fun heroIconName(icon: HeroIcon): Int = when (icon) {
+    HeroIcon.WOLF -> R.string.hero_icon_wolf
+    HeroIcon.FALCON -> R.string.hero_icon_falcon
+    HeroIcon.EAGLE -> R.string.hero_icon_eagle
+    HeroIcon.BEAR -> R.string.hero_icon_bear
+    HeroIcon.FOX -> R.string.hero_icon_fox
+    HeroIcon.RAVEN -> R.string.hero_icon_raven
+    HeroIcon.OWL -> R.string.hero_icon_owl
+    HeroIcon.LION -> R.string.hero_icon_lion
+    HeroIcon.TIGER -> R.string.hero_icon_tiger
+    HeroIcon.PANTHER -> R.string.hero_icon_panther
+    HeroIcon.LYNX -> R.string.hero_icon_lynx
+    HeroIcon.BOAR -> R.string.hero_icon_boar
+    HeroIcon.STAG -> R.string.hero_icon_stag
+    HeroIcon.SNAKE -> R.string.hero_icon_snake
+    HeroIcon.DRAGON -> R.string.hero_icon_dragon
 }
 
 // Oggetto speciale iniziale a scelta (come v1/canone libro 1): Mappa,

@@ -78,8 +78,10 @@ fun StatusCard(
             modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Icona scelta in creazione (24/07/2026): heroIconRes degrada
+            // sul lupo per ogni animale senza ancora un'illustrazione vera.
             Image(
-                painter = painterResource(id = R.drawable.lupo_solitario),
+                painter = painterResource(id = io.github.luposolitario.immundanoctisex.ui.creation.heroIconRes(hero.icon)),
                 contentDescription = hero.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(44.dp).clip(CircleShape).border(2.dp, KAI_GOLD, CircleShape),

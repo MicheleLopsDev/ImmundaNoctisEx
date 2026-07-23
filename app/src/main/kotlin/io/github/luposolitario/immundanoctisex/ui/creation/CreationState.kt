@@ -10,6 +10,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.CharacterRole
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
+import io.github.luposolitario.immundanoctisex.core.data.model.HeroIcon
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
@@ -33,6 +34,11 @@ class CreationState(private val dice: DiceRoller) {
     // nome canonico "Lupo Solitario"/"Lupa Solitaria" del protagonista
     // dei libri, che sembrerebbe già un nome scelto da qualcuno.
     var heroName: String by mutableStateOf("")
+
+    // Icona dell'eroe (24/07/2026, richiesta Michele: "facciamogli
+    // scegliere l'icona... devono essere tutti animali"): WOLF di
+    // default, coerente col nome di default (Lupo/Lupa).
+    var heroIcon: HeroIcon by mutableStateOf(HeroIcon.WOLF)
 
     // Tiro canonico: CS = 10 + tiro, Resistenza = 20 + tiro, Corone = tiro.
     var combatSkill: Int by mutableStateOf(0)
@@ -118,6 +124,7 @@ class CreationState(private val dice: DiceRoller) {
             maxEndurance = endurance,
             kaiDisciplines = selectedDisciplines.toList(),
             weaponSkillType = if (needsWeaponSkillChoice) weaponSkillType else null,
+            icon = heroIcon,
         )
         val startingItems = buildList {
             weapon?.let { add(it) }
