@@ -2427,9 +2427,16 @@ sul device.**
   OGNI card che non è quella in corso viene ora DISABILITATO
   (`downloadBlockedByOther`) finché il download attivo non finisce:
   il tocco che prima cancellava tutto ora è semplicemente impossibile.
-  Compilazione e suite riverificate verdi. **Ancora da confermare sul
-  device**: bug trovato da un log reale, non da ipotesi — ma il fix
-  va comunque riprovato scaricando un modello per davvero.
+  Compilazione e suite riverificate verdi. **CONFERMATO sul device**
+  (24/07, Michele, dopo aver rifatto la prova dei tre tocchi in
+  sequenza sulla build con il fix: "ok questo fix funziona") — chiuso.
+  Un giro di analisi in più prima della conferma: un log successivo
+  mostrava un solo download (Gemma 3n, ripreso da 1,37GB, completato
+  con successo) senza nessuna cancellazione — utile a escludere che
+  `isDownloaded()` avesse un problema strutturale a parte (per Gemma
+  3n, dimensione ignota in anticipo: il file finale esiste SOLO se il
+  worker l'ha rinominato dopo aver verificato che il download fosse
+  completo, mai un troncato spacciato per buono).
 
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
