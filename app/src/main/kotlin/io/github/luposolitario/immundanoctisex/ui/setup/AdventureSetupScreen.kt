@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.R
+import io.github.luposolitario.immundanoctisex.core.data.model.CharacterRole
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
@@ -121,9 +122,20 @@ private fun SavedSessionCard(session: SessionData, onContinue: () -> Unit, onDel
     val formattedDate = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.getDefault())
         .format(Date(session.lastUpdate))
 
+    // Nome dell'eroe nella lista salvataggi (24/07/2026, richiesta
+    // Michele): l'eroe è unico per costruzione (stesso presupposto di
+    // GameState.hero — una sessione senza eroe è un pacchetto rotto,
+    // intercettato a monte dai validatori).
+    val heroName = session.characters.first { it.role == CharacterRole.HERO }.name
+
     Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)) {
         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(session.packageId, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Text(
+                heroName,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
             Text(
                 stringResource(R.string.setup_last_save, formattedDate),
                 style = MaterialTheme.typography.bodySmall,
@@ -207,4 +219,13 @@ private fun previewSession() = SessionData(
     difficulty = Difficulty.NORMAL,
     currentSceneId = "3",
     lastUpdate = 1_700_000_000_000,
+    characters = listOf(
+        io.github.luposolitario.immundanoctisex.core.data.model.Character(
+            role = CharacterRole.HERO,
+            name = "Lupo",
+            baseCombatSkill = 18,
+            currentEndurance = 25,
+            maxEndurance = 25,
+        ),
+    ),
 )
