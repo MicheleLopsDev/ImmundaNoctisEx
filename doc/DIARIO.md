@@ -2325,6 +2325,19 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device**: primo giro con le illustrazioni vere, mai visto girare.
 
+- **Default scuro della card di stato, invertito** (24/07, stesso
+  giorno, Michele sul device con foto: "un colore di default per il
+  tema scuro che non si legge chiaramente" — la card col marroncino
+  CHIARO spiccava come una toppa fuori posto in mezzo a tutto il resto
+  scuro, più uno stacco di contesto che un vero difetto di contrasto
+  testo/sfondo). Invertito: `DEFAULT_DARK_BG` ora un marrone cuoio
+  SCURO (`#3D2B1F`, prima `#D8B48C` chiaro), `DEFAULT_DARK_CONTENT`
+  crema chiaro (`#EFE0C9`, prima marrone scuro) — la card ora si
+  comporta da superficie scura in mezzo alle altre invece di stonare,
+  il default in tema chiaro (blu navy) resta invariato.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
