@@ -2526,6 +2526,15 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Icone armi, secondo giro** (24/07, stesso giorno, Michele: "aumenta
+  ancora le icone delle armi, non le distingui, almeno il 50%"): 64dp
+  non bastava ancora — `WeaponCell` (condivisa da armi e oggetti
+  speciali) a 96dp, esattamente +50% rispetto a 64dp. Griglia armi:
+  celle minime da 130 a 190dp, altezza da 460 a 700dp per farcele
+  stare senza schiacciarle.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
