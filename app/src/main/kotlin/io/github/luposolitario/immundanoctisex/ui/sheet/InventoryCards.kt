@@ -97,10 +97,12 @@ fun BackpackCard(hero: Character, onConsumeItem: (String) -> Unit, onDiscardItem
                             // un ADD_ITEM di un libro) resta senza icona,
                             // non un segnaposto rotto.
                             backpackItemIcon(item)?.let { iconRes ->
+                                // 28dp -> 34dp (24/07/2026, richiesta
+                                // Michele: "un pelo più grandi").
                                 Image(
                                     painter = painterResource(id = iconRes),
                                     contentDescription = null,
-                                    modifier = Modifier.size(28.dp),
+                                    modifier = Modifier.size(34.dp),
                                 )
                                 Spacer(Modifier.height(2.dp))
                             }
