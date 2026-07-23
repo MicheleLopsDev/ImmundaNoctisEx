@@ -93,11 +93,13 @@ fun weaponTypeName(type: WeaponType): Int = when (type) {
 // l'icona... devono essere tutti animali", lista mandata al grafico).
 // Consegnate il 24/07 in un unico foglio "icone per personaggi.png"
 // (griglia 5×3 con etichetta sotto ogni icona), ritagliate e sfondo
-// rimosso qui (stesso flood-fill a range fisso già collaudato). SOLO
-// WOLF resta sull'asset precedente (`lupo_solitario.png`, quello già
-// in uso): il foglio nuovo aveva anche un lupo nello stesso stile
-// degli altri 14, ma sostituirlo è una scelta da confermare con
-// Michele, non presa qui da sola — vedi DIARIO.md.
+// rimosso qui (stesso flood-fill a range fisso già collaudato). Il
+// foglio aveva anche un lupo nello stesso stile "ombreggiato" degli
+// altri 14: su richiesta di Michele ("uniforma il tutto") ha
+// SOSTITUITO il vecchio `lupo_solitario.png` (due soli toni, stile
+// diverso) — tutte e 15 le icone sono ora nella stessa famiglia
+// visiva. Stesso file, quindi anche `TenSidedDie` (faccia zero del
+// dado) eredita il lupo nuovo senza bisogno di toccarlo.
 fun heroIconRes(icon: HeroIcon): Int = when (icon) {
     HeroIcon.WOLF -> R.drawable.lupo_solitario
     HeroIcon.FALCON -> R.drawable.hero_falcon
