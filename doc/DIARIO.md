@@ -1971,6 +1971,39 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai vista girare sul
   device.**
 
+- **BUG REALE trovato da Michele sul device: la pergamena non si
+  vedeva affatto** (23/07, screenshot + poi un log completo su
+  richiesta): niente texture, niente bordi strappati, niente scudi
+  negli angoli — solo il colore piatto di sfondo dell'app dietro un
+  riquadro trasparente. Il log (`adb logcat`, 853 righe) non mostrava
+  nessun crash né eccezione: il motore Gemma generava regolarmente
+  (misura 42,1 token/s), la UI restava viva. Non un errore rumoroso,
+  un `Modifier.paint()` che semplicemente non disegnava nulla — mai
+  verificato sul device prima d'ora (introdotto durante il turno
+  precedente proprio per aggirare l'errore di compilazione di
+  `matchParentSize`, mai riconsiderato dopo).
+  **Causa radice, trovata rileggendo con calma l'errore originale**:
+  quell'errore (`Unresolved reference 'matchParentSize'`) non era
+  perché l'API non esiste — è un MEMBRO di `BoxScope`, non una
+  funzione top-level, quindi non si importa affatto: basta chiamarla
+  dentro un `Box { }`. Il vero errore era una riga di troppo,
+  `import androidx.compose.foundation.layout.matchParentSize`, che
+  non ha mai avuto nulla da risolvere. Invece di cancellare quella
+  riga, il giro precedente aveva cambiato completamente approccio
+  (`Modifier.paint`) — la correzione sbagliata, mai controllata su
+  device, e infatti quella rivelatasi rotta.
+  **Corretto tornando al pattern originale** `Box` + `Image(Modifier
+  .matchParentSize())`, lo STESSO già usato e confermato funzionante
+  in `AdventureBanner` (l'illustrazione visibile in cima a ogni
+  scena, in entrambi gli screenshot di Michele) — non una scelta
+  nuova, un pattern già in produzione. Applicato sia a
+  `CombatDiaryPanel` sia al pannello di narrazione di
+  `AdventureScreen`.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device**: la correzione si basa su un pattern già provato altrove
+  nel progetto, ma il caso preciso (pergamena + testo sopra) va
+  comunque riverificato con gli occhi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
