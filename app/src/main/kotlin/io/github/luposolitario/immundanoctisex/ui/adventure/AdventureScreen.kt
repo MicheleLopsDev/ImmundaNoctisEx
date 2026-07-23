@@ -248,7 +248,7 @@ fun AdventureScreen(
             Spacer(Modifier.height(8.dp))
         }
 
-        StatusCard(hero = state.hero, onClick = { showSheet = true }, cardColor = statusCardColor)
+        StatusCard(hero = state.hero, onClick = { showSheet = true }, cardColor = statusCardColor, isDarkTheme = isDarkTheme)
         Spacer(Modifier.height(8.dp))
 
         when {

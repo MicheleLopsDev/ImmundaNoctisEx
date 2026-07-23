@@ -43,6 +43,8 @@ import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEnd
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 import io.github.luposolitario.immundanoctisex.ui.sheet.kaiRankName
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
+import io.github.luposolitario.immundanoctisex.util.resolvedBackground
+import io.github.luposolitario.immundanoctisex.util.resolvedContent
 
 // La card di stato in fondo alla scena (UI.md §Card di stato), con le
 // icone di v1 al posto del solo testo: ritratto-lupo tondo, medaglia
@@ -56,12 +58,18 @@ fun StatusCard(
     hero: Character,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    // Scelto in Opzioni (StatusCardColorPreferences, 21/07/2026): DEFAULT
-    // non passa colori a Card, resta la superficie standard di Material.
+    // Scelto in Opzioni (StatusCardColorPreferences, 21/07/2026). DEFAULT
+    // ha ora un colore VERO (24/07/2026: blu navy/marroncino secondo il
+    // tema, non più la superficie standard di Material) — serve
+    // isDarkTheme solo per risolvere quello, gli altri preset restano
+    // fissi a prescindere dal tema.
     cardColor: StatusCardColor = StatusCardColor.DEFAULT,
+    isDarkTheme: Boolean = false,
 ) {
-    val colors = if (cardColor.background != null && cardColor.content != null) {
-        CardDefaults.cardColors(containerColor = cardColor.background, contentColor = cardColor.content)
+    val background = cardColor.resolvedBackground(isDarkTheme)
+    val content = cardColor.resolvedContent(isDarkTheme)
+    val colors = if (background != null && content != null) {
+        CardDefaults.cardColors(containerColor = background, contentColor = content)
     } else {
         CardDefaults.cardColors()
     }
@@ -180,6 +188,7 @@ private fun StatusCardPreview() {
                 kaiDisciplines = listOf("HEALING", "MINDBLAST", "TRACKING", "HUNTING", "SIXTH_SENSE"),
             ),
             onClick = {},
+            isDarkTheme = true,
         )
     }
 }
