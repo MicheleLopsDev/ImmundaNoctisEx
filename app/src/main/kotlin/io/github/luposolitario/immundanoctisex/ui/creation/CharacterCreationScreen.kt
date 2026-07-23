@@ -328,13 +328,14 @@ private fun WeaponCard(state: CreationState) {
             Text(stringResource(R.string.creation_pick_weapon), style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
             // Icone in griglia, come le discipline (richiesta Michele).
-            // Celle un po' più larghe (24/07/2026: icone ingrandite a
-            // 64dp, 110dp non lasciava abbastanza margine).
+            // Celle ancora più larghe (24/07/2026, secondo giro: "non le
+            // distingui, almeno il 50%" — 64dp non bastava ancora,
+            // 96dp è esattamente +50%).
             LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 130.dp),
+                columns = GridCells.Adaptive(minSize = 190.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth().height(460.dp),
+                modifier = Modifier.fillMaxWidth().height(700.dp),
             ) {
                 items(INITIAL_WEAPONS) { weapon ->
                     WeaponCell(
@@ -402,17 +403,17 @@ private fun SpecialItemCard(state: CreationState) {
 
 // Cella arma: icona + nome, bordo oro sulla selezionata (stessa
 // convenzione dei ritratti e dell'arma impugnata nella Scheda).
-// iconSize parametrico (24/07/2026: prima 48dp di default, richiesta
-// Michele "rendi tutte le icone un pelo più grandi, soprattutto quelle
-// delle armi in creazione" — 64dp per armi/oggetti speciali,
-// HeroIconCard resta a 100dp per gli animali, invariato).
+// iconSize parametrico: 48dp -> 64dp -> 96dp (24/07/2026, secondo giro:
+// "aumenta ancora... non le distingui, almeno il 50%" — 96dp è
+// esattamente +50% rispetto a 64dp). HeroIconCard resta a 100dp per gli
+// animali, invariato.
 @Composable
 private fun WeaponCell(
     iconRes: Int,
     nameRes: Int,
     selected: Boolean,
     onClick: () -> Unit,
-    iconSize: androidx.compose.ui.unit.Dp = 64.dp,
+    iconSize: androidx.compose.ui.unit.Dp = 96.dp,
 ) {
     val borderColor = if (selected) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
     androidx.compose.material3.OutlinedCard(
