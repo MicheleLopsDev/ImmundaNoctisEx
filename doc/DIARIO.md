@@ -2272,6 +2272,37 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Icona dell'eroe personalizzabile, tutti animali** (24/07, idea di
+  Michele — prima discussa: gli ho dato una lista di 15 animali con le
+  specifiche (2048×2048, stile china bianco/nero come il lupo attuale)
+  da passare al grafico; poi confermato "prepara tutto... come default
+  se non ci sono dai il lupo così tutto funziona"):
+  - Nuovo `HeroIcon` (enum, `:core:data`, zero Android — stesso schema
+    di `WeaponType`): WOLF + 14 animali (Falco, Aquila, Orso, Volpe,
+    Corvo, Gufo, Leone, Tigre, Pantera, Lince, Cinghiale, Cervo,
+    Serpente, Drago). Nuovo campo `Character.icon`, default WOLF —
+    `@Serializable` con default, retrocompatibile con le sessioni già
+    salvate (JSON vecchio senza il campo → WOLF).
+  - Mappa verso i drawable in `:app` (`CreationCatalog.heroIconRes`/
+    `heroIconName`, stesso schema di `weaponTypeIcon`): riga per riga,
+    non un `else` unico — SOLO WOLF ha un asset vero
+    (`lupo_solitario.png`), tutti gli altri 14 puntano anch'essi al
+    lupo per ora, così la scelta funziona e si vede subito già oggi;
+    quando arriva un'illustrazione nuova si cambia una riga sola.
+  - Scelta in creazione (`HeroIconCard`, nuova, riusa `WeaponCell` già
+    esistente per le armi — stessa griglia, stessa cella): subito dopo
+    la scelta del genere. `CreationState.heroIcon` (default WOLF),
+    passato a `Character.icon` in `buildSession`.
+  - `StatusCard` non mostra più `R.drawable.lupo_solitario` fisso: usa
+    `heroIconRes(hero.icon)`, che oggi degrada sempre sul lupo ma è già
+    collegato alla scelta reale.
+  Compilazione e suite riverificate verdi (incluse `core:engine`/
+  `core:data`, la serializzazione del salvataggio non si è rotta).
+  **Ancora da confermare sul device**: con l'asset unico (lupo) per
+  tutte le scelte, oggi si vede sempre lo stesso ritratto qualunque
+  animale si scelga — atteso, non un bug, finché non arrivano le
+  illustrazioni vere.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16

@@ -202,6 +202,26 @@ sostituita nello stesso stile. Manca la decisione di DOVE usarli
 - Tutte danno personalità ma non sono indispensabili: si può partire
   senza e aggiungerle quando ci sono.
 
+**Icone eroe — 14 animali (oltre al lupo già fatto)** — **CODICE
+PRONTO, ASSET DA FARE** (24/07/2026, richiesta Michele: "facciamogli
+scegliere l'icona... devono essere tutti animali"): la scelta è già
+selezionabile in creazione personaggio e collegata alla card di stato
+(`HeroIcon` in `:core:data`, `CreationCatalog.heroIconRes` in `:app`)
+— finché non arrivano le illustrazioni vere, ogni animale mostra il
+lupo (nessuno schermo rotto, si vede subito che la scelta funziona).
+- Falco, Aquila, Orso, Volpe, Corvo, Gufo, Leone, Tigre, Pantera,
+  Lince, Cinghiale, Cervo (con corna), Serpente/Vipera, Drago (bonus
+  fantasy, opzionale).
+- Stessa "famiglia" visiva del lupo attuale (`lupo_solitario.png`):
+  testa di profilo, stile mascotte/logo a china — contorni netti
+  neri, dettagli bianchi, nessuna sfumatura/fotorealismo.
+- **2048×2048 px**, formato PNG, sfondo bianco pieno (o trasparente se
+  sa farlo, si sistema qui comunque) — nessun colore, solo bianco e
+  nero.
+- Quando arriva un file, si aggancia cambiando UNA riga in
+  `CreationCatalog.heroIconRes` (una riga per animale, non un default
+  unico): nessun altro codice da toccare.
+
 **Cosa NON chiederle**: copiare il logo "LONE WOLF" o le illustrazioni
 specifiche del libro originale — quelle sono protette. Lo stile sì,
 il contenuto esatto no.
