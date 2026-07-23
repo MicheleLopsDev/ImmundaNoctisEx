@@ -2370,6 +2370,29 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **I due eroi a china, sostituiscono i ritratti fotorealistici** (24/07,
+  Michele: "ho aggiunto un nuovo file con i due eroi, genera le due
+  icone e vorrei che nel menu ci fosse la figura intera e sostituire
+  le vecchie icone con icone realizzate da queste"): consegnato
+  `origina_res/hero.png` (1024×1024, i due eroi affiancati, stile a
+  china coerente col resto del reskin). Da notare PRIMA di procedere:
+  i vecchi `class_warrior_male/female.jpeg` (usati nel ritratto di
+  creazione e nel banner) erano fotorealistici — assomigliavano
+  parecchio a Geralt di Rivia (The Witcher), stile completamente fuori
+  registro rispetto al resto dell'app. Sostituiti, non solo aggiornati.
+  - Ritagliati due busti (440×440 maschio, 370×370 femmina) con sfondo
+    rimosso (stesso flood-fill collaudato) → `hero_portrait_male.png`/
+    `hero_portrait_female.png`, agganciati al posto di
+    `class_warrior_male/female` sia nel ritratto di creazione
+    personaggio sia nel banner della scena (`AdventureBanner`). File
+    vecchi rimossi (`git rm`), nessun altro riferimento rimasto.
+  - Illustrazione intera (`hero_banner.png`, stesso sfondo rimosso)
+    aggiunta come apertura della schermata Home (`ContentScale.Fit`,
+    mai `Crop` — "la figura intera", non ritagliata): la Home prima
+    non aveva NESSUNA immagine, solo testo e tile.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
