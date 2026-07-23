@@ -198,7 +198,7 @@ private fun OptionsScreenPreview() {
             onAccentColorSelect = {},
             statusCardColor = StatusCardColor.DEFAULT,
             onStatusCardColorSelect = {},
-            readingFont = ReadingFont.SERIF,
+            readingFont = ReadingFont.ALMENDRA,
             onFontSelect = {},
             boldText = false,
             onBoldTextChange = {},
