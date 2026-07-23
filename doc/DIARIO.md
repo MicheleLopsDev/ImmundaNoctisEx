@@ -2500,6 +2500,21 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Arti marziali/Elmo/Corazza: illustrazioni vere, stesso giorno**
+  (24/07, Michele: "ho aggiunto il file decorazioni... trovi anche
+  altre immagini ma trovi quelle tre nuove"): consegnato
+  `Decorazioni.png`, un foglio con 10 icone — 7 già viste in un giro
+  precedente (zaino, borsa oro, pasto, corredo da viaggio, pozione,
+  emblema lupo+spade, medaglione arcano) e 3 davvero nuove: un gesto
+  "karate chop" (arti marziali, sostituisce il pugno chiuso di v1), un
+  elmo con muso di lupo, un gilet di maglia. Ritagliate e sfondo
+  rimosso con lo stesso flood-fill collaudato, **sovrascritti
+  direttamente** `ic_fists.png`/`ic_helmet.png`/`ic_armor.png` (stesso
+  nome file di prima): zero righe di codice da toccare, il catalogo
+  puntava già lì.
+  Compilazione e suite riverificate verdi. **Mai visto girare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
