@@ -30,10 +30,17 @@ enum class StatusCardColor(val displayName: String, val background: Color?, val 
 // chiaro, marroncino in tema scuro. Solo IL DEFAULT cambia — gli altri
 // preset (personalizzazione in Opzioni) restano quello che erano,
 // invariati.
+//
+// Marroncino SCURO, non chiaro (24/07/2026, stesso giorno, Michele sul
+// device: "un colore di default per il tema scuro che non si legge
+// chiaramente" — un riquadro chiaro e caldo dentro un tema scuro
+// spiccava come una toppa fuori posto, invece di un vero difetto di
+// contrasto). Invertito: sfondo cuoio scuro + testo crema, si comporta
+// da superficie scura in mezzo alle altre invece di stonare.
 private val DEFAULT_LIGHT_BG = Color(0xFF1E2A4A)
 private val DEFAULT_LIGHT_CONTENT = Color(0xFFE9EDF5)
-private val DEFAULT_DARK_BG = Color(0xFFD8B48C)
-private val DEFAULT_DARK_CONTENT = Color(0xFF3B2712)
+private val DEFAULT_DARK_BG = Color(0xFF3D2B1F)
+private val DEFAULT_DARK_CONTENT = Color(0xFFEFE0C9)
 
 // Da chiamare al posto di leggere `background`/`content` direttamente
 // quando serve il colore EFFETTIVO da disegnare: per DEFAULT dipende dal
