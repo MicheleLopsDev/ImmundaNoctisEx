@@ -2004,6 +2004,28 @@ sul device.**
   nel progetto, ma il caso preciso (pergamena + testo sopra) va
   comunque riverificato con gli occhi.
 
+  **EPILOGO, stesso 23/07**: dopo il fix Box+Image, Michele riportava
+  ancora "ancora non va" anche dopo un "restart pulito". Aggiunto un
+  log temporaneo (`Log.d`, tag `ParchmentDebug`) che stampa
+  preferenza/tema/stile risolto/drawable ad ogni composizione, per
+  capire se il ramo nuovo veniva anche solo raggiunto — a quel punto
+  tre giri di fix diversi avevano prodotto zero cambiamenti visibili,
+  serviva un dato oggettivo invece di continuare a indovinare.
+  **Il log ha chiuso il caso in un colpo solo**: `preferenza=OFF`. Il
+  codice era corretto fin dal giro precedente — il "restart pulito"
+  di Michele era quasi certamente una disinstallazione, che azzera le
+  `SharedPreferences` (`parchment_preferences` è un file a parte): la
+  scelta "Automatica" fatta in una build precedente non sopravvive a
+  una disinstallazione, e serve rifarla da Opzioni dopo ogni
+  reinstallazione pulita. **Non un bug di rendering, un problema di
+  persistenza delle preferenze durante il test** — la lezione per le
+  prossime volte: un log con i valori effettivi chiude in un giro
+  quello che tre round di fix "al buio" non erano riusciti a
+  chiarire. Log di debug rimossi una volta trovata la causa.
+  Compilazione riverificata verde. **Ancora da confermare sul
+  device**: Michele deve riselezionare lo stile in Opzioni (senza
+  disinstallare) e riprovare.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
