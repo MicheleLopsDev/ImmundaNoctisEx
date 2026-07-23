@@ -2515,6 +2515,17 @@ sul device.**
   Compilazione e suite riverificate verdi. **Mai visto girare sul
   device.**
 
+- **Icone ingrandite ovunque, un pelo** (24/07, stesso giorno, Michele:
+  "rendi tutte le icone un pelo più grandi, soprattutto quelle delle
+  armi in fase di creazione"): `WeaponCell` (condivisa da armi e
+  oggetti speciali) da 48dp a 64dp di default — celle della griglia
+  armi da 110dp a 130dp, altezza da 420 a 460dp per farcele stare.
+  Icona nello zaino (appena agganciata) da 28dp a 34dp. `HeroIconCard`
+  (animali, già a 100dp da un giro precedente di ingrandimenti) lasciata
+  invariata.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
