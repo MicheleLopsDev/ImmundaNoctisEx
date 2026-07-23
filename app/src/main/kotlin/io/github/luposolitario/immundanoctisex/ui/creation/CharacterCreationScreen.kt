@@ -95,9 +95,11 @@ fun CharacterCreationScreen(
     }
 }
 
-// Lupo o lupa coi RITRATTI di v1 (class_warrior, richiesta Michele dopo il
-// primo test sul device): tocco sul ritratto, cerchio evidenziato sul
-// selezionato.
+// Lupo o lupa coi RITRATTI (24/07/2026: sostituiti quelli di v1 —
+// `class_warrior_male/female`, fotorealistici e fuori stile rispetto al
+// resto del reskin a china — coi busti ritagliati da `hero.png`,
+// stesso stile a china di tutte le altre icone): tocco sul ritratto,
+// cerchio evidenziato sul selezionato.
 @Composable
 private fun GenderCard(state: CreationState) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -109,13 +111,13 @@ private fun GenderCard(state: CreationState) {
                 horizontalArrangement = Arrangement.SpaceAround,
             ) {
                 PortraitOption(
-                    imageRes = R.drawable.class_warrior_male,
+                    imageRes = R.drawable.hero_portrait_male,
                     label = stringResource(R.string.creation_gender_male),
                     selected = state.gender == Gender.MALE,
                     onClick = { state.gender = Gender.MALE },
                 )
                 PortraitOption(
-                    imageRes = R.drawable.class_warrior_female,
+                    imageRes = R.drawable.hero_portrait_female,
                     label = stringResource(R.string.creation_gender_female),
                     selected = state.gender == Gender.FEMALE,
                     onClick = { state.gender = Gender.FEMALE },

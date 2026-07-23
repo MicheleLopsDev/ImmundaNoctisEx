@@ -1,5 +1,6 @@
 package io.github.luposolitario.immundanoctisex.ui.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,9 +31,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
 // Home a riquadri come v1 (UI.md §schermata 1, senza le tile STDF):
@@ -84,6 +88,17 @@ fun HomeScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // Figura intera dei due eroi (24/07/2026, richiesta Michele:
+            // "vorrei che nel menu ci fosse la figura intera" — a
+            // differenza dei busti circolari usati altrove, qui va
+            // mostrata per intero: ContentScale.Fit, mai Crop).
+            Image(
+                painter = painterResource(id = R.drawable.hero_banner),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxWidth().height(220.dp),
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 "Libro: $currentBookTitle",
                 style = MaterialTheme.typography.bodyMedium,
