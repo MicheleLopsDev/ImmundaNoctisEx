@@ -185,21 +185,13 @@ device.
 - Asta, Spada, Daga, Martello, Pugnale, Lancia, Spadone, Ascia, Mazza
   — stile china/silhouette, come nel registro.
 
-**Arti marziali, Elmo, Corazza — ancora vecchie icone v1** — **DA FARE**
-(24/07/2026, richiesta Michele, controllando la schermata di creazione:
-"controlla le icone delle arti marziali e quelle della corazza e
-dell'elmo che sono le vecchie icone non le nuove" — confermato: sono
-rimaste fuori dal foglio "Icone per arma" e da quello delle
-decorazioni). `ic_fists.png` (204×247, palette indicizzata, 9KB),
-`ic_helmet.png`/`ic_armor.png` (386×150, palette indicizzata, 2-5KB) —
-tutte e tre MOLTO più piccole e in uno stile a linea sottile diverso
-dalle icone nuove (748×226+, RGBA, 100-200KB, contorni spessi).
-- Pugno chiuso (arti marziali/combattimento a mani nude), elmo,
-  giubbotto di maglia di ferro — stesso stile china/silhouette a
-  contorni spessi delle 9 icone armi già fatte, così stanno bene
-  insieme nella stessa schermata di creazione.
-- **2048×2048 px**, PNG, sfondo bianco pieno (si rimuove qui) — stesse
-  specifiche di tutte le altre icone di questo reskin.
+**Arti marziali, Elmo, Corazza** (file Decorazioni.png, insieme ad
+altre già pronte in precedenza) — **FATTO 24/07/2026**: `ic_fists.png`
+(gesto "karate chop" al posto del pugno chiuso di v1), `ic_helmet.png`
+(elmo con muso di lupo), `ic_armor.png` (gilet di maglia) ritagliati e
+sfondo rimosso qui, stesso nome file di prima — nessun codice da
+toccare, `CreationCatalog`/`INITIAL_SPECIAL_ITEMS` li puntavano già.
+**Mai visto girare sul device.**
 
 **Decorazioni opzionali (non urgenti)**( file Decorazioni opzionali.png )
 — **ASSET PRONTI, NON ANCORA AGGANCIATI A UNO SCHERMO**: `res/drawable/`
