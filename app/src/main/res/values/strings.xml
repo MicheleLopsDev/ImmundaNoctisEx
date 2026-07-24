@@ -47,6 +47,12 @@
          ne ha uno e il narratore non è riuscito a scriverlo. -->
     <string name="ending_synthetic_fallback">Qui la tua storia si interrompe. Il libro non racconta cosa accadde dopo.</string>
 
+    <!-- Zona scelte (24/07/2026, richiesta Michele: menu a comparsa +
+         conferma al posto dei bottoni impilati, per non schiacciare il
+         testo della scena con tante opzioni). -->
+    <string name="adventure_choose_action">Scegli cosa fare</string>
+    <string name="adventure_continue">Continua</string>
+
     <!-- Tipi d'arma (enum WeaponType) -->
     <string name="weapon_dagger">Pugnale</string>
     <string name="weapon_spear">Lancia</string>
