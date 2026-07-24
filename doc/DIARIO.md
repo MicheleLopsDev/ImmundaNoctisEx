@@ -2626,6 +2626,27 @@ sul device.**
   ora che l'icona eroe copre 15 animali. Compilazione e suite
   riverificate verdi. **Ancora da confermare sul device.**
 
+- **Rifiniture creazione: sottotitolo tolto, dado centrato, Scherma
+  verde** (24/07, stesso giorno, Michele: "cancella la scritta Scegli
+  il nostro eroe c'è già la scritta Crea il tuo Eroe basta quella...
+  l'icona del dado sotto le discipline kai lo metti centrato, e se per
+  caso scegli scherma colora di verde la specializzazione scherma e
+  metti anche lì al centro il nome dell'arma e anche il dado come negli
+  altri casi" — corregge di nuovo la modifica appena sopra: il
+  sottotitolo era ridondante col titolo, non serviva riformularlo, andava
+  tolto):
+  - `creation_subtitle` rimosso da schermata e da `strings.xml` (era
+    diventato inutile appena aggiunto).
+  - Dado di `DisciplinesCard` centrato in un `Row` con
+    `Arrangement.Center`, invece che appoggiato a sinistra.
+  - `WeaponSkillCard`: sfondo verde (`Color(0xFF2E7D32)` alpha 0.35,
+    stesso valore della cella specializzazione in `WeaponCard`, per
+    coerenza) quando Scherma è sbloccata; contenuto della card centrato
+    (`horizontalAlignment = CenterHorizontally`), quindi anche nome
+    dell'arma e dado.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
