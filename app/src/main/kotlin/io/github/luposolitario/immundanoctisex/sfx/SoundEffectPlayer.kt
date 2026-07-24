@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.MediaMetadataRetriever
 import android.media.SoundPool
+import io.github.luposolitario.immundanoctisex.music.MusicPlayer
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 import io.github.luposolitario.immundanoctisex.util.SoundEffectPreferences
 
@@ -32,6 +33,18 @@ enum class SoundEffect(val assetPath: String) {
 class SoundEffectPlayer(
     private val context: Context,
     private val soundEffectPreferences: SoundEffectPreferences = SoundEffectPreferences(context),
+    // Per mettere in pausa la musica durante i suoni "a nome libero"
+    // (24/07/2026, richiesta Michele: "durante il play dei suoni o dei
+    // loc la musica vada in pausa... così da non confondere il
+    // giocatore") — solo per questi, non per i brevi SoundEffect
+    // dell'enum (dado/passi/mangiare), che durano meno di un secondo e
+    // non giustificano un'interruzione della musica. Null nei test/
+    // @Preview dove non serve.
+    private val musicPlayer: MusicPlayer? = null,
+    // SoundEffectPlayer non conosce le preferenze musica: chi lo
+    // costruisce (AppContainer) decide come rispondere a "la musica
+    // dovrebbe essere accesa in questo momento?".
+    private val shouldResumeMusic: () -> Boolean = { true },
 ) {
 
     private val audioPreferences = AudioPreferences(context)
@@ -125,6 +138,11 @@ class SoundEffectPlayer(
             }.getOrDefault(0L)
         }
         namedSoundPlayingUntil[name] = now + duration
+
+        // Musica in pausa per la durata del suono, poi riprende da sola
+        // (solo se stava davvero suonando e l'utente non l'ha spenta nel
+        // frattempo — vedi MusicPlayer.duckFor).
+        musicPlayer?.duckFor(duration, shouldResumeMusic)
 
         val volume = effectiveVolume()
         runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
