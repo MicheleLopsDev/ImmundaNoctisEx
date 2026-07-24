@@ -1,0 +1,19 @@
+<!-- Faccia Laterale (Ombra) -->
+<path
+    android:fillColor="#2E7D32"
+    android:pathData="M 20 15 L 75 50 L 20 85 L 15 80 L 65 50 L 15 20 Z" />
+    
+<!-- Bordo Inferiore (Spessore Profondo) -->
+<path
+    android:fillColor="#1B5E20"
+    android:pathData="M 75 50 L 75 55 L 20 90 L 20 85 Z" />
+    
+<!-- Bordo Superiore Interno (Spessore Profondo) -->
+<path
+    android:fillColor="#1B5E20"
+    android:pathData="M 75 50 L 75 55 L 20 20 L 20 15 Z" />
+    
+<!-- Faccia Principale (Top - Luminosa) -->
+<path
+    android:fillColor="#4CAF50"
+    android:pathData="M 25 10 L 80 45 L 25 80 L 15 75 L 65 45 L 15 15 Z" />
