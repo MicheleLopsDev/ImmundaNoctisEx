@@ -17,18 +17,14 @@ import io.github.luposolitario.immundanoctisex.R
 // quella scelta). LIGHT/DARK restano selezionabili a prescindere dal
 // tema.
 //
-// Tre risorse, non una sola (23/07/2026, Michele sul device: "il testo
-// sfora... si potrebbe tagliare in due ed avere la parte centrale che si
-// allunga"): la pergamena è un ritaglio a bordi strappati su TUTTI e
-// quattro i lati, non solo alto/basso — una singola immagine con
-// ContentScale.Crop tiene fisso il bordo strappato mentre il testo può
-// essere più lungo del riquadro e sforare oltre. `topRes`/`bottomRes`
-// tengono lo strappo + gli scudi degli angoli a dimensione fissa;
-// `middleRes` è una fascia sottile e neutra (bordi laterali esclusi in
-// fase di ritaglio, altrimenti una tacca del bordo si stirerebbe su
-// tutta l'altezza centrale) che si allunga in verticale fino
-// all'altezza vera del testo — stesso principio di un nine-patch
-// Android, fatto con tre `Image` impilate invece di un `.9.png`.
+// `middleRes` è la fascia neutra usata come sfondo del riquadro di testo
+// dentro `NarrationParchmentPanel` (bordi laterali esclusi in fase di
+// ritaglio, altrimenti una tacca del bordo si stirerebbe). `topRes`/
+// `bottomRes` della vecchia pila a tre fasce sono stati rimossi
+// (24/07/2026): servivano solo a `ParchmentBackground.kt`
+// (`CombatDiaryPanel`), cancellato quando Michele ha chiesto di togliere
+// del tutto lo sfondo dal Diario di Combattimento ("nessuna pergamena e
+// basta").
 enum class ParchmentStyle(
     val displayName: String,
     // Immagine intera (bordo strappato + scudi): usata come cornice
@@ -36,38 +32,12 @@ enum class ParchmentStyle(
     // schizzo di Michele dopo aver bocciato la pila a tre fasce — vedi
     // sotto).
     val fullRes: Int?,
-    val topRes: Int?,
     val middleRes: Int?,
-    val bottomRes: Int?,
-    // Colore pieno dietro alla pila di immagini (23/07/2026, Michele sul
-    // device: "svegli" e "verso" finivano su sfondo nero): il bordo
-    // strappato ha denti profondi e irregolari su tutti e quattro i lati,
-    // alcuni quasi a metà della fascia — tentare di "sanare" i denti più
-    // estremi via script ha introdotto righe verticali indesiderate
-    // (colore del bordo esteso per errore fino al margine). Molto più
-    // robusto: un colore pieno, vicino alla media della texture, dietro a
-    // tutto — qualunque dente, per quanto profondo, mostra questo colore
-    // invece del nero del tema, a prescindere dalla profondità.
-    val baseColor: Color?,
 ) {
-    OFF("Disattivata (default)", null, null, null, null, null),
-    AUTO("Automatica (segue il tema)", null, null, null, null, null),
-    LIGHT(
-        "Pergamena chiara",
-        R.drawable.parchment_panel,
-        R.drawable.parchment_panel_top,
-        R.drawable.parchment_panel_middle,
-        R.drawable.parchment_panel_bottom,
-        Color(0xFFDEC9AB),
-    ),
-    DARK(
-        "Pergamena scura",
-        R.drawable.parchment_panel_dark,
-        R.drawable.parchment_panel_dark_top,
-        R.drawable.parchment_panel_dark_middle,
-        R.drawable.parchment_panel_dark_bottom,
-        Color(0xFF554334),
-    ),
+    OFF("Disattivata (default)", null, null),
+    AUTO("Automatica (segue il tema)", null, null),
+    LIGHT("Pergamena chiara", R.drawable.parchment_panel, R.drawable.parchment_panel_middle),
+    DARK("Pergamena scura", R.drawable.parchment_panel_dark, R.drawable.parchment_panel_dark_middle),
     ;
 
     companion object {

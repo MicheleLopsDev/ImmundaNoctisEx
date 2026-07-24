@@ -270,7 +270,7 @@ fun AdventureScreen(
         Spacer(Modifier.height(8.dp))
 
         when {
-            state.combatSession != null -> CombatActiveZone(state, parchmentStyle, isDarkTheme)
+            state.combatSession != null -> CombatActiveZone(state)
             // Finché il narratore scrive non si mostrano scelte né nemico:
             // apparirebbero col testo originale per poi cambiare sotto gli
             // occhi (UI.md: prima lo streaming, POI i pulsanti).
