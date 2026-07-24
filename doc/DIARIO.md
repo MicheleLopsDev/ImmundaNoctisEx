@@ -2834,6 +2834,36 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Musica in pausa durante i suoni location/finali, 17 nuovi loc_***
+  (24/07, stesso giorno, Michele: "ho aggiunto una serie di file mp3
+  per i loc... voglio che durante il play dei suoni o dei loc la
+  musica vada in pausa e si senta l'audio del loc così da non
+  confondere il giocatore"):
+  - `MusicPlayer.duckFor(durationMs, shouldResume)`: mette in pausa la
+    musica quando parte un suono "a nome libero" (`playNamed`, quindi
+    loc/enemy/npc/finali — NON i brevi `SoundEffect` dell'enum come
+    dado/passi, durano meno di un secondo e un'interruzione lì sarebbe
+    fastidiosa, non utile) e la fa ripartire da sola dopo circa la sua
+    durata. Riprende SOLO se la musica stava davvero suonando (altrimenti
+    "riprenderebbe" una musica già spenta dall'utente) e solo se
+    `shouldResume()` — cablato in `AppContainer` su
+    `musicPreferences.musicEnabled` — è ancora vero al momento buono
+    (l'utente potrebbe averla spenta a mano nel frattempo).
+    `SoundEffectPlayer` riceve `musicPlayer` e questa lambda da
+    `AppContainer`, resta lui stesso senza sapere nulla delle
+    preferenze musica.
+  - 17 nuovi `loc_*.mp3` in `assets/sfx/images/`: 7 corrispondono a ID
+    veri di `SceneImageCatalog` (forest, harbor, market, mountain_pass,
+    smithy_interior, storm_tower, tavern — spuntati in
+    `doc/SUONI-IMMAGINI.md`), 10 NON hanno ancora un ID corrispondente
+    nel catalogo (abandoned_keep, ancient_ruins, battlefield, dungeon,
+    haunted_house, swamp, temple, volcano, waterfall, wizard_tower) —
+    copiati comunque (vocabolario aperto, nessun errore), ma restano
+    silenziosi finché non si aggiunge l'immagine giusta al catalogo,
+    segnalato a parte nel documento.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
