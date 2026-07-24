@@ -2903,6 +2903,17 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **`loc_temple` rifatta e agganciata** (24/07, stesso giorno, Michele:
+  "ok sistemato anche il tempio"): la nuova illustrazione è un "Tempio
+  del Sole di Kai" — soli incisi, statue guardiane di leone e ariete,
+  teschio animale sopra l'ingresso — coerente con l'ambientazione,
+  niente più iconografia cristiana. Ridimensionata/salvata in
+  `res/drawable-nodpi/loc_temple.jpg`, id+descrizione aggiunti a
+  `SceneImageCatalog.DESCRIPTIONS`/`sceneBackgroundRes`. Tutte e 11 le
+  location del secondo giro sono ora nel catalogo (35 location totali).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
