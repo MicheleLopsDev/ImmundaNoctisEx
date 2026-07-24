@@ -1,9 +1,12 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -18,7 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +39,16 @@ import kotlin.random.Random
 // fisico originale). Componente autonomo, non solo per il combattimento:
 // è candidato a diventare l'innesco del Dado del Destino generale che
 // UI.md assegna a Fase 7 (skillCheck, randomChoiceTable, evasione).
+//
+// Animazione "a scatti" in stile 3D (24/07/2026, disegnata da Michele —
+// icona `ic_d10` a facce ombreggiate + una prova standalone in
+// `origina_res/algoritmo_di_roll_e_ui_kotlin_compose.kt`): sostituisce
+// la semplice rotazione 2D di un cerchio colorato con un `graphicsLayer`
+// che ruota di 3 giri completi (1080°) e "pompa" fino al 130% a metà
+// corsa, mentre le facce si susseguono a passi via via più lenti (effetto
+// attrito) invece che a intervallo costante. Il contratto verso chi
+// chiama resta identico (onRoll/onTap/initialFace), solo l'aspetto e il
+// timing sono cambiati.
 //
 // `onRoll` è chiamato SOLO a fine animazione, mai al tocco: se il
 // chiamante muta lo stato di gioco dentro `onRoll` (come fa il
@@ -55,24 +68,46 @@ import kotlin.random.Random
 fun TenSidedDie(onRoll: () -> Int?, onTap: () -> Unit = {}, initialFace: Int? = null) {
     var rolling by remember { mutableStateOf(false) }
     var face by remember { mutableStateOf(initialFace) }
-    var spin by remember { mutableStateOf(0f) }
     val scope = rememberCoroutineScope()
+    val interactionSource = remember { MutableInteractionSource() }
+
+    val rotationZ by animateFloatAsState(
+        targetValue = if (rolling) 1080f else 0f,
+        animationSpec = tween(durationMillis = ROLL_DURATION_MS, easing = FastOutSlowInEasing),
+        label = "dice_roll_rotation",
+    )
+    // keyframes: parte da 1f, tocca 1.3f a metà corsa, torna a 1f
+    // (il target) alla fine — l'effetto "pop" del lancio.
+    val scale by animateFloatAsState(
+        targetValue = 1f,
+        animationSpec = keyframes {
+            durationMillis = ROLL_DURATION_MS
+            1.3f at ROLL_DURATION_MS / 2
+        },
+        label = "dice_roll_scale",
+    )
 
     Box(
         modifier = Modifier
-            .size(56.dp)
-            .rotate(spin)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant)
-            .border(2.dp, MaterialTheme.colorScheme.tertiary, CircleShape)
-            .clickable(enabled = !rolling) {
+            .size(64.dp)
+            .graphicsLayer {
+                this.rotationZ = rotationZ
+                this.scaleX = scale
+                this.scaleY = scale
+            }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = !rolling,
+            ) {
                 onTap()
                 scope.launch {
                     rolling = true
-                    repeat(ROLL_STEPS) {
+                    // Passi crescenti invece di intervallo costante
+                    // (Michele: rallenta "come per attrito" verso la fine).
+                    for (step in 1..ROLL_STEPS) {
                         face = Random.nextInt(0, 10)
-                        spin += 360f / ROLL_STEPS
-                        delay(STEP_MS)
+                        delay(ROLL_STEP_BASE_MS + step * ROLL_STEP_GROWTH_MS)
                     }
                     face = onRoll()
                     rolling = false
@@ -85,9 +120,14 @@ fun TenSidedDie(onRoll: () -> Int?, onTap: () -> Unit = {}, initialFace: Int? = 
                 painter = painterResource(id = R.drawable.lupo_solitario),
                 contentDescription = "Zero",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.size(40.dp).clip(CircleShape),
+                modifier = Modifier.size(48.dp).clip(CircleShape),
             )
         } else {
+            Image(
+                painter = painterResource(id = R.drawable.ic_d10),
+                contentDescription = "Dado a 10 facce",
+                modifier = Modifier.size(64.dp),
+            )
             Text(
                 face?.toString() ?: "?",
                 style = MaterialTheme.typography.titleLarge,
@@ -98,8 +138,12 @@ fun TenSidedDie(onRoll: () -> Int?, onTap: () -> Unit = {}, initialFace: Int? = 
     }
 }
 
-private const val ROLL_STEPS = 8
-private const val STEP_MS = 70L
+// 20 passi con ritardo crescente invece di 8 a intervallo fisso —
+// somma ~1,4s, sincronizzata con la rotazione/scala sopra (1,2s).
+private const val ROLL_STEPS = 20
+private const val ROLL_STEP_BASE_MS = 50L
+private const val ROLL_STEP_GROWTH_MS = 2L
+private const val ROLL_DURATION_MS = 1200
 
 @Preview(showBackground = true, name = "Dado a 10 facce")
 @Composable

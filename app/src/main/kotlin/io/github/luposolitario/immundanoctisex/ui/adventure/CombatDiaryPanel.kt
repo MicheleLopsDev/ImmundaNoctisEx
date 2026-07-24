@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.CharacterRole
 import io.github.luposolitario.immundanoctisex.core.data.model.StatModifier
@@ -85,9 +86,14 @@ fun CombatDiaryPanel(state: AdventureState, session: CombatSession) {
                 maxEndurance = session.enemy.maxEndurance,
                 alignEnd = true,
                 // Stessa illustrazione già mostrata sopra (EnemyPortrait
-                // in CombatZone.kt) — null se l'autore non l'ha
-                // dichiarata, niente segnaposto rotto.
-                iconRes = enemyImageRes(state.currentScene.combat?.enemyImage),
+                // in CombatZone.kt) se l'autore l'ha dichiarata; altrimenti
+                // l'icona generica ic_enemy_placeholder (24/07/2026,
+                // richiesta Michele: "al posto del nome del nemico...
+                // questa è di default se non viene indicata nel json") —
+                // qui, a differenza del grande EnemyPortrait, un'icona
+                // c'è SEMPRE, mai solo testo nudo.
+                iconRes = enemyImageRes(state.currentScene.combat?.enemyImage)
+                    ?: R.drawable.ic_enemy_placeholder,
             )
         }
         if (session.status != CombatStatus.ONGOING) {

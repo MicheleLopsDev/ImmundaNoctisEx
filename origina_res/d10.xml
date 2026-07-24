@@ -1,0 +1,39 @@
+<!-- STREAMING_CHUNK:Disegnando la faccia centrale (Kite) -->
+<!-- Faccia 1: Faccia principale centrale (Luminosità media) -->
+<path
+    android:fillColor="#E53935"
+    android:pathData="M 50,5 L 75,45 L 50,95 L 25,45 Z"
+    android:strokeColor="#B71C1C"
+    android:strokeWidth="1"/>
+    
+<!-- STREAMING_CHUNK:Disegnando la faccia in alto a sinistra (Illuminata) -->
+<!-- Faccia 2: Triangolo superiore sinistro (Luce diretta / Highlight) -->
+<path
+    android:fillColor="#FFCDD2"
+    android:pathData="M 50,5 L 25,45 L 5,25 Z"
+    android:strokeColor="#B71C1C"
+    android:strokeWidth="1"/>
+    
+<!-- STREAMING_CHUNK:Disegnando la faccia in alto a destra (Ombra leggera) -->
+<!-- Faccia 3: Triangolo superiore destro (Ombra media) -->
+<path
+    android:fillColor="#C62828"
+    android:pathData="M 50,5 L 75,45 L 95,25 Z"
+    android:strokeColor="#B71C1C"
+    android:strokeWidth="1"/>
+    
+<!-- STREAMING_CHUNK:Disegnando la faccia in basso a sinistra -->
+<!-- Faccia 4: Triangolo inferiore sinistro (Luminosità media/bassa) -->
+<path
+    android:fillColor="#EF5350"
+    android:pathData="M 25,45 L 5,25 L 50,95 Z"
+    android:strokeColor="#B71C1C"
+    android:strokeWidth="1"/>
+    
+<!-- STREAMING_CHUNK:Disegnando la faccia in basso a destra (Ombra scura) -->
+<!-- Faccia 5: Triangolo inferiore destro (Ombra profonda) -->
+<path
+    android:fillColor="#880E4F"
+    android:pathData="M 75,45 L 95,25 L 50,95 Z"
+    android:strokeColor="#B71C1C"
+    android:strokeWidth="1"/>
