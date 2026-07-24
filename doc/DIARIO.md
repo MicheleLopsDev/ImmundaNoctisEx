@@ -3150,6 +3150,38 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Analisi del libro di esempio per un test audio con TTS spento**
+  (24/07, stesso giorno, Michele: "voglio capire quanti effetti sonori
+  devo sentire disabilitando il tts... e se alcune scene non hanno loc
+  aggiungile"): tracciato scena per scena quali suoni ci si aspetta
+  davvero, incrociando `scenes.sample.json` con l'elenco VERO dei file
+  in `assets/sfx/` (non solo la checklist in `doc/SUONI-IMMAGINI.md`,
+  ricontrollata contro `ls` per essere sicuri).
+  - Aggiunte le location mancanti: scena 3 (Old Quarter) ->
+    `loc_crypt`, scena 4 (combattimento) -> `enemyImage:
+    enemy_bandits_city`, scena 5 (fuga sui tetti) -> `loc_harbor`
+    (abbinamento approssimato, nessuna location del catalogo rende
+    bene "tetti di una città di confine" — scelta perché ha già
+    l'mp3), scena 7 (finale sconfitta, stesso vicolo della 3/4) ->
+    `loc_crypt` di nuovo, apposta: non deve ririsuonare.
+  - **Scoperta emersa dall'analisi, non ancora corretta**: la scena 1
+    (START) non passa MAI da `moveTo()` — `currentScene` si
+    inizializza con un semplice `mutableStateOf`, non con una
+    transizione — quindi il suo `backgroundImage` (`loc_tavern`) parte
+    SOLO se il narratore (Gemma) è attivo e completa la generazione
+    (`syncImageSounds()` richiamata da `NarrationEvent.Completed`).
+    Senza modello attivo, il suono della scena 1 non parte mai, a
+    differenza di tutte le altre scene (raggiunte via `moveTo()`,
+    indipendenti dal narratore). Non è legato al TTS (che è solo la
+    lettura vocale, un passo ancora dopo) — segnalato a Michele prima
+    di correggerlo, per non ampliare la modifica di oggi.
+  - `enemy_*`/`beast_*`/`npc_*` non hanno ANCORA nessun mp3 in tutto
+    il progetto (cartella `assets/sfx/enemies` o `npc` non esiste): la
+    scena 4 mostrerà l'illustrazione del nemico ma resterà silenziosa
+    sul suono, come da regola "file mancante = silenzio".
+  Nessuna modifica al codice, solo al contenuto del libro di esempio.
+  Compilazione e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
