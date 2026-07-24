@@ -122,6 +122,19 @@ class CreationState(private val dice: DiceRoller) {
         }
     }
 
+    // "Scegli a caso" per le discipline (24/07/2026, richiesta Michele:
+    // "uno che non vuole perdere tempo usa quello") — 5 delle 10 senza
+    // ripetizioni, stesso DiceRoller di tutto il resto (mai Random
+    // inline). Sostituisce SEMPRE la selezione corrente, ripetibile
+    // senza limiti come statistiche e specializzazione.
+    fun randomizeDisciplines() {
+        val pool = KAI_DISCIPLINES_UI.map { it.id }.toMutableList()
+        val chosen = List(5) { pool.removeAt(dice.roll() % pool.size) }
+        selectedDisciplines.clear()
+        selectedDisciplines.addAll(chosen)
+        weaponSkillType = if ("WEAPONSKILL" in chosen) (weaponSkillType ?: WeaponType.SWORD) else null
+    }
+
     // "Scegli a caso" (decisione Michele: la scelta resta del giocatore,
     // il caso è un'opzione in più): stesso DiceRoller del resto del gioco.
     fun rollRandomWeaponSkill() {

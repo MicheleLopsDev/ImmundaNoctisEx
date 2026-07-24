@@ -21,13 +21,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -252,7 +247,16 @@ private fun DisciplinesCard(state: CreationState) {
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.fillMaxWidth(),
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(4.dp))
+            // "Scegli a caso" anche qui (24/07/2026, richiesta Michele:
+            // "uno che non vuole perdere tempo usa quello") — stessa
+            // etichetta del tiro casuale della specializzazione,
+            // sostituisce SEMPRE la selezione corrente, ripetibile senza
+            // limiti.
+            Button(onClick = { state.randomizeDisciplines() }) {
+                Text(stringResource(R.string.creation_weaponskill_random))
+            }
+            Spacer(Modifier.height(8.dp))
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 150.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -274,14 +278,15 @@ private fun DisciplinesCard(state: CreationState) {
     }
 }
 
-// Specializzazione WEAPONSKILL come MENU A TENDINA (richiesta Michele:
-// accorcia la pagina) + bottone "scegli a caso". SEMPRE visibile:
-// disabilitata con spiegazione finché la disciplina Scherma non è scelta
-// (prima compariva solo con Scherma selezionata e sembrava sparita).
-@OptIn(ExperimentalMaterial3Api::class)
+// Specializzazione WEAPONSKILL, SOLO a caso (24/07/2026, richiesta
+// Michele: "weaponskill solo a caso quante volte si vuole" — tolto il
+// menu a tendina di scelta manuale usato fino a ieri, resta solo il
+// tiro casuale, ripetibile senza limiti come le statistiche). SEMPRE
+// visibile: disabilitata con spiegazione finché la disciplina Scherma
+// non è scelta (prima compariva solo con Scherma selezionata e
+// sembrava sparita).
 @Composable
 private fun WeaponSkillCard(state: CreationState) {
-    var expanded by remember { mutableStateOf(false) }
     val enabled = state.needsWeaponSkillChoice
 
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -295,35 +300,14 @@ private fun WeaponSkillCard(state: CreationState) {
                 color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            ExposedDropdownMenuBox(
-                expanded = expanded && enabled,
-                onExpandedChange = { if (enabled) expanded = it },
-            ) {
-                OutlinedTextField(
-                    value = state.weaponSkillType?.let { stringResource(weaponTypeName(it)) } ?: "—",
-                    onValueChange = {},
-                    readOnly = true,
-                    enabled = enabled,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded && enabled) },
-                    modifier = Modifier.fillMaxWidth().menuAnchor(),
-                )
-                ExposedDropdownMenu(
-                    expanded = expanded && enabled,
-                    onDismissRequest = { expanded = false },
-                ) {
-                    WeaponType.entries.forEach { type ->
-                        DropdownMenuItem(
-                            text = { Text(stringResource(weaponTypeName(type))) },
-                            onClick = {
-                                state.weaponSkillType = type
-                                expanded = false
-                            },
-                        )
-                    }
-                }
-            }
+            Text(
+                state.weaponSkillType?.let { stringResource(weaponTypeName(it)) } ?: "—",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Spacer(Modifier.height(8.dp))
-            OutlinedButton(onClick = { state.rollRandomWeaponSkill() }, enabled = enabled) {
+            Button(onClick = { state.rollRandomWeaponSkill() }, enabled = enabled) {
                 Text(stringResource(R.string.creation_weaponskill_random))
             }
         }
