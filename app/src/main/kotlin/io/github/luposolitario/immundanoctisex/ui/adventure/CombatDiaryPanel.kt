@@ -1,5 +1,6 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,8 +10,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +24,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -33,6 +41,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
+import io.github.luposolitario.immundanoctisex.ui.creation.heroIconRes
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 import io.github.luposolitario.immundanoctisex.util.inkColor
@@ -89,6 +98,7 @@ fun CombatDiaryPanel(
                     character = session.player,
                     maxEndurance = effectiveMaxEndurance(session.player),
                     alignEnd = false,
+                    iconRes = heroIconRes(session.player.icon),
                 )
                 CenterColumn(state, session)
                 CombatantColumn(
@@ -96,6 +106,10 @@ fun CombatDiaryPanel(
                     character = session.enemy,
                     maxEndurance = session.enemy.maxEndurance,
                     alignEnd = true,
+                    // Stessa illustrazione già mostrata sopra (EnemyPortrait
+                    // in CombatZone.kt) — null se l'autore non l'ha
+                    // dichiarata, niente segnaposto rotto.
+                    iconRes = enemyImageRes(state.currentScene.combat?.enemyImage),
                 )
             }
             if (session.status != CombatStatus.ONGOING) {
@@ -118,10 +132,39 @@ fun CombatDiaryPanel(
 }
 
 @Composable
-private fun CombatantColumn(name: String, character: Character, maxEndurance: Int, alignEnd: Boolean) {
+private fun CombatantColumn(
+    name: String,
+    character: Character,
+    maxEndurance: Int,
+    alignEnd: Boolean,
+    // Icona del PG al posto della sola scritta (24/07/2026, richiesta
+    // Michele): l'animale scelto in creazione per l'eroe, l'illustrazione
+    // del nemico (Combat.enemyImage) per l'avversario. Null = niente
+    // icona, resta solo il testo come prima — mai un segnaposto rotto.
+    iconRes: Int? = null,
+) {
     Column(horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start) {
+        iconRes?.let { res ->
+            Image(
+                painter = painterResource(id = res),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(36.dp).clip(CircleShape),
+            )
+            Spacer(Modifier.height(2.dp))
+        }
         Text(name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
         Text("RES ${character.currentEndurance}/$maxEndurance", style = MaterialTheme.typography.bodyMedium)
+        // Barra RES verde per te, rossa per il nemico (24/07/2026,
+        // richiesta Michele): stesso dato del testo sopra, solo più
+        // leggibile a colpo d'occhio durante lo scambio di colpi.
+        LinearProgressIndicator(
+            progress = { (character.currentEndurance.toFloat() / maxEndurance.toFloat()).coerceIn(0f, 1f) },
+            modifier = Modifier.width(72.dp).height(6.dp).clip(RoundedCornerShape(3.dp)),
+            color = if (alignEnd) Color(0xFFE53935) else Color(0xFF4CAF50),
+            trackColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+        Spacer(Modifier.height(2.dp))
         Text("CS ${effectiveCombatSkill(character)}", style = MaterialTheme.typography.bodyMedium)
         // I modificatori attivi (MINDBLAST, ecc.): il fatto sta nel
         // personaggio, qui si mostra solo. Nome localizzato dove esiste
