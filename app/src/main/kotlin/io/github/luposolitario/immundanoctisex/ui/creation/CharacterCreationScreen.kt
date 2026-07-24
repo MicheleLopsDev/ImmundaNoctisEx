@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -71,11 +72,6 @@ fun CharacterCreationScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(stringResource(R.string.creation_title), style = MaterialTheme.typography.headlineLarge)
-        Text(
-            stringResource(R.string.creation_subtitle),
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary,
-        )
 
         GenderCard(state)
         HeroIconCard(state)
@@ -278,9 +274,12 @@ private fun DisciplinesCard(state: CreationState) {
             // "uno che non vuole perdere tempo usa quello") — sostituisce
             // SEMPRE la selezione corrente, ripetibile senza limiti. Solo
             // icona dado, niente etichetta (24/07/2026, stessa richiesta
-            // di Michele per tutte le azioni casuali della creazione).
-            FilledIconButton(onClick = { state.randomizeDisciplines() }) {
-                Icon(Icons.Default.Casino, contentDescription = stringResource(R.string.creation_weaponskill_random))
+            // di Michele per tutte le azioni casuali della creazione),
+            // centrata (24/07/2026, stesso giorno, richiesta Michele).
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                FilledIconButton(onClick = { state.randomizeDisciplines() }) {
+                    Icon(Icons.Default.Casino, contentDescription = stringResource(R.string.creation_weaponskill_random))
+                }
             }
             Spacer(Modifier.height(8.dp))
             LazyVerticalGrid(
@@ -315,8 +314,21 @@ private fun DisciplinesCard(state: CreationState) {
 private fun WeaponSkillCard(state: CreationState) {
     val enabled = state.needsWeaponSkillChoice
 
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp)) {
+    // Sfondo verde quando Scherma è sbloccata (24/07/2026, richiesta
+    // Michele: "colora di verde la specializzazione scherma") — stesso
+    // verde della cella specializzazione in WeaponCard, per coerenza.
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = if (enabled) {
+            CardDefaults.cardColors(containerColor = Color(0xFF2E7D32).copy(alpha = 0.35f))
+        } else {
+            CardDefaults.cardColors()
+        },
+    ) {
+        // Contenuto centrato (24/07/2026, stessa richiesta: "metti anche
+        // lì al centro il nome dell'arma e anche il dado come negli altri
+        // casi").
+        Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(stringResource(R.string.creation_weaponskill_title), style = MaterialTheme.typography.titleLarge)
             Text(
                 stringResource(
