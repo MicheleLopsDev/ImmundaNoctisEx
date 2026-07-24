@@ -2722,6 +2722,39 @@ sul device.**
   più leggeri (meno pixel da codificare). Compilazione e suite
   riverificate verdi. **Ancora da confermare sul device.**
 
+- **Zona scelte: da bottoni impilati a menu popup + conferma** (24/07,
+  stesso giorno). Michele ha chiesto un file di test con 5 scelte
+  insieme in una scena (4 `DisciplineChoice` + 1 scelta verso il
+  combattimento, vedi `content/test-books/test_5_choices_kai_combat.json`,
+  non versionato su richiesta) per vedere `ChoicesZone` sotto stress: col
+  telefono in mano, 5 bottoni/card impilati schiacciavano il riquadro di
+  narrazione a una striscia sottile — il rischio era già stato segnalato
+  a parole prima di vederlo, confermato dallo screenshot.
+  - Proposta di Michele: "trasformiamo i tasti in una sorta di menu a
+    tendina... si apre a popup con sotto il testo, dopo di che torna
+    sotto e si vede solo la selezionata... sotto un tasto Continua con
+    la selezione scelta" — chiesto se applicarlo SEMPRE o solo con
+    tante scelte: **sempre**, per non avere due comportamenti diversi
+    da spiegare e testare (costo accettato: un tap in più anche con
+    1-2 scelte).
+  - `ChoicesZone` riscritta: un solo `OutlinedButton` che apre un
+    `AlertDialog` con TUTTE le opzioni insieme (bottoni per le scelte
+    normali, card con icona per le discipline — stesso stile di prima,
+    solo spostato dentro il popup). La scelta fatta resta "in sospeso"
+    sul bottone (si può riaprire il popup e cambiarla) finché non si
+    tocca "Continua", che compare solo a scelta fatta e chiama
+    `takeChoice`/`useDiscipline` come prima.
+  - Stato locale (`selected`, `showMenu`) chiavato su
+    `state.currentScene.id`: cambiando scena riparte vuoto, niente
+    scelta della scena precedente sopravvissuta per errore.
+  - Contenuto del popup scrollabile con altezza massima (420dp): anche
+    con molte opzioni il popup resta usabile su schermi piccoli invece
+    di sforare.
+  - Due stringhe nuove: `adventure_choose_action` ("Scegli cosa fare"),
+    `adventure_continue` ("Continua").
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
