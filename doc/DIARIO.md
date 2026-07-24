@@ -2964,6 +2964,36 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Icona 3D del Rapporto di Forza a fasce colorate, dado in cima**
+  (24/07, stesso giorno, Michele: "il rapporto di forza lo dividi in 3
+  condizioni e lo rappresenti graficamente con un'immagine vettoriale
+  disegnata in stile 3d da colorare... da 1 a 3 verde da 4 a 7 giallo
+  da 8 a 9 o superiori rosso... oppure il dado del destino al centro
+  in alto tra le icone, scompare il testo 'rapporto di forza'"):
+  chiesto prima se disegnava lui l'icona o si usava un segnaposto —
+  ha invece allegato subito i file veri: `origina_res/minore.xml`,
+  `uguale.xml`, `maggiore.xml`, frammenti di `<path>` con tre facce
+  (ombra laterale, bordo profondo, faccia superiore) per un effetto
+  smussato/3D, tutti nello stesso verde d'esempio, da ricolorare per
+  fascia.
+  - Nuovo `ForceRatioIcon.kt`: la geometria di Michele resta fissa
+    (path riusati letteralmente), il colore cambia per fascia
+    (`RatioTier`: verde/giallo/rosso, stesso schema tonale
+    chiaro/medio/scuro per ognuna, derivato dalle palette Material
+    500/800/900) via `ImageVector.Builder` + `addPathNodes` — costruita
+    in codice, non tre file drawable statici, così le 9 combinazioni
+    segno×fascia non richiedono 9 asset separati.
+  - Segno `< / = / >`: mappatura ESPLICITA di Michele ("< Hero più
+    forte, = il rapporto è 0, > più forte il nemico"), non l'ordine
+    matematico che ci si aspetterebbe — seguita alla lettera.
+  - `CenterColumn` in `CombatDiaryPanel.kt`: tolta la scritta "Rapporto
+    di Forza", il `TenSidedDie` si sposta in cima (prima stava sotto),
+    l'icona 3D colorata prende il posto del vecchio box con solo il
+    numero — il numero (piccolo, "+N"/"-N") resta sotto l'icona per chi
+    vuole il dato esatto.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
