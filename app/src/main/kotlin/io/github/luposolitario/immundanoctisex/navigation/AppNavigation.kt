@@ -64,7 +64,10 @@ fun AppNavigation(
         if (container.musicPreferences.musicEnabled) {
             val volume = (container.musicPreferences.volume * container.audioPreferences.generalVolume)
                 .coerceIn(0f, 1f)
-            container.musicPlayer.play(container.musicPreferences.effectiveTrack, volume)
+            // playConfigured, non più effectiveTrack diretto (24/07/2026):
+            // se la preferenza salvata è la modalità casuale, effectiveTrack
+            // degraderebbe silenziosamente sul default.
+            container.musicPlayer.playConfigured(container.musicPreferences, volume)
         }
     }
 

@@ -42,6 +42,11 @@ fun AdventureRoute(
             // La ricarica di un checkpoint ripristina la fotografia (diario
             // già troncato per costruzione) e ricrea lo stato di gioco.
             var currentSession by remember { mutableStateOf(session) }
+            // Tasto rapido musica nell'header (24/07/2026, richiesta
+            // Michele: "un tasto per spegnere o attivare la musica senza
+            // andare in menu") — stesso pattern di currentSession: stato
+            // qui perché solo la Route ha accesso a container.musicPlayer.
+            var musicEnabled by remember { mutableStateOf(container.musicPreferences.musicEnabled) }
             val scope = rememberCoroutineScope()
             // Il grafo con la GARANZIA che una scena di morte esista: da qui
             // in giù tutti lavorano sullo stesso manifest completato, così
@@ -126,6 +131,19 @@ fun AdventureRoute(
                 isDarkTheme = isDarkTheme,
                 autoReadEnabled = container.ttsPreferences.autoReadEnabled,
                 onReadAloud = state::readAloud,
+                musicEnabled = musicEnabled,
+                onMusicToggle = {
+                    val next = !musicEnabled
+                    musicEnabled = next
+                    container.musicPreferences.musicEnabled = next
+                    if (next) {
+                        val volume = (container.musicPreferences.volume * container.audioPreferences.generalVolume)
+                            .coerceIn(0f, 1f)
+                        container.musicPlayer.playConfigured(container.musicPreferences, volume)
+                    } else {
+                        container.musicPlayer.pause()
+                    }
+                },
             )
         }
 

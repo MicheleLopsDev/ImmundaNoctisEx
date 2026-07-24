@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.MusicOff
 import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Icon
@@ -93,6 +95,12 @@ fun AdventureScreen(
     // l'auto-lettura è spenta in Opzioni — accesa, legge già da sé.
     autoReadEnabled: Boolean = false,
     onReadAloud: () -> Unit = {},
+    // Tasto rapido musica (24/07/2026, richiesta Michele: "un tasto per
+    // spegnere o attivare la musica senza andare in menu") — stesso
+    // pattern di autoReadEnabled/onReadAloud: stato letto da Opzioni,
+    // l'azione vera vive nella Route che ha accesso al container.
+    musicEnabled: Boolean = false,
+    onMusicToggle: () -> Unit = {},
 ) {
     // Scheda e Diario come overlay dentro la route (stato condiviso;
     // diventeranno destinazioni proprie in Fase 5).
@@ -163,6 +171,8 @@ fun AdventureScreen(
                 textScale = next
                 onTextScaleChange(next)
             },
+            musicEnabled = musicEnabled,
+            onMusicToggle = onMusicToggle,
         )
 
         // Il palcoscenico: sfondo + ritratti, col cerchio d'oro su chi
@@ -324,6 +334,8 @@ private fun Header(
     onExitClick: () -> Unit,
     textScale: io.github.luposolitario.immundanoctisex.util.TextScale,
     onTextScaleCycle: () -> Unit,
+    musicEnabled: Boolean,
+    onMusicToggle: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -377,6 +389,16 @@ private fun Header(
                 Icon(
                     imageVector = Icons.Default.ZoomIn,
                     contentDescription = "Cambia grandezza testo (${textScale.icon})",
+                )
+            }
+            // Tasto rapido musica (24/07/2026, richiesta Michele: "un
+            // tasto per spegnere o attivare la musica senza andare in
+            // menu") — icona diversa da quella "leggi ad alta voce" più
+            // sotto (VolumeUp), per non confondere le due azioni.
+            androidx.compose.material3.IconButton(onClick = onMusicToggle) {
+                Icon(
+                    imageVector = if (musicEnabled) Icons.Default.MusicNote else Icons.Default.MusicOff,
+                    contentDescription = if (musicEnabled) "Spegni la musica" else "Attiva la musica",
                 )
             }
             // Uscita al menu (Michele 20/07/2026: mancava del tutto). Con
