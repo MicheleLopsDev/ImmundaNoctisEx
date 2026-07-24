@@ -2864,6 +2864,19 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Lista asset per le 10 immagini location mancanti + `loc_wizard_cove`**
+  (24/07, stesso giorno, Michele: "dammi la lista dei file immagine
+  loc che mancano e la specifiche e grandezza delle immagini, una
+  breve descrizione per la generazione, scrivi che devono avere lo
+  sfondo bianco ed essere in stile kai" + poi "aggiungi loc_wizard_cove
+  anche come mp3, aggiorna il doc"): specifiche (formato, 16:9 min.
+  1280px, sfondo bianco, stile china/Kai) e descrizione breve per
+  ciascuna delle 11 location senza immagine, scritte in
+  `doc/UPGRADE.md`. Aggiunto anche l'mp3 di `loc_wizard_cove`, stesso
+  trattamento delle altre 10 (silenzioso finché non arriva l'immagine).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
