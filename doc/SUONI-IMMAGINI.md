@@ -27,26 +27,37 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 - [x] `loc_caves` — ingresso di grotta tra le montagne
 - [x] `loc_crypt` — ingresso di cripta, rune e teschi sull'arco
 - [x] `loc_cursed_castle` — cancello di castello gotico, gargoyle, uno scheletro alla soglia
-- [ ] `loc_forest` — sentiero nel bosco verso le montagne
+- [x] `loc_forest` — sentiero nel bosco verso le montagne
 - [ ] `loc_forest_prey` — bosco fitto con cervi selvatici
 - [ ] `loc_graveyard` — cimitero di notte, luna calante
-- [ ] `loc_harbor` — porto costiero, castello sull'acqua
+- [x] `loc_harbor` — porto costiero, castello sull'acqua
 - [ ] `loc_helgedad` — skyline di città nera di notte
 - [ ] `loc_helgedad_gate` — arco d'ingresso con guardiani cornuti
 - [ ] `loc_infernal_city` — città infernale sotto un cielo di tempesta
 - [ ] `loc_kai_monastery` — monastero in cima alla montagna
-- [ ] `loc_market` — mercato cittadino affollato
+- [x] `loc_market` — mercato cittadino affollato
 - [ ] `loc_monastery_dawn` — alba sulle montagne, castello all'orizzonte
 - [ ] `loc_mountain` — vetta rocciosa tra le nuvole
-- [ ] `loc_mountain_pass` — passo di montagna, cavaliere e soldati
+- [x] `loc_mountain_pass` — passo di montagna, cavaliere e soldati
 - [ ] `loc_smithy_exterior` — esterno di una fucina, di notte
-- [ ] `loc_smithy_interior` — interno di fucina, fabbro alla forgia
+- [x] `loc_smithy_interior` — interno di fucina, fabbro alla forgia
 - [ ] `loc_standing_stones` — cerchio di pietre erette, notte di luna
-- [ ] `loc_storm_tower` — torre di pietra con rune, tempesta di fulmini
-- [ ] `loc_tavern` — interno di taverna affollata
+- [x] `loc_storm_tower` — torre di pietra con rune, tempesta di fulmini
+- [x] `loc_tavern` — interno di taverna affollata
 - [ ] `loc_tomb_exterior` — ingresso di tomba, catene e statue demoniache
 - [ ] `loc_tomb_interior` — interno di tomba, sarcofago
 - [ ] `loc_warehouse` — interno di magazzino, casse e pergamene
+
+**Ricevuti ma SENZA un ID corrispondente nel catalogo** (24/07/2026):
+questi 10 file sono stati aggiunti in `assets/sfx/images/` (nessun
+errore, il vocabolario è aperto), ma `SceneImageCatalog.kt` non ha
+nessuna di queste location, quindi `backgroundImage` di una scena non
+potrà mai valere uno di questi nomi — restano silenziosi finché non si
+aggiunge l'immagine corrispondente al catalogo (o si scopre che il nome
+doveva essere uno di quelli già in lista sopra):
+`loc_abandoned_keep`, `loc_ancient_ruins`, `loc_battlefield`,
+`loc_dungeon`, `loc_haunted_house`, `loc_swamp`, `loc_temple`,
+`loc_volcano`, `loc_waterfall`, `loc_wizard_tower`.
 
 ## Nemici e bestie ostili (`enemy_*`/`beast_*`) — 14
 
