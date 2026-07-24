@@ -24,9 +24,9 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 ## Luoghi (`loc_*`) — 24
 
 - [ ] `loc_black_gate` — portale di pietra con statue di teschi cornuti, in un bosco
-- [ ] `loc_caves` — ingresso di grotta tra le montagne
-- [ ] `loc_crypt` — ingresso di cripta, rune e teschi sull'arco
-- [ ] `loc_cursed_castle` — cancello di castello gotico, gargoyle, uno scheletro alla soglia
+- [x] `loc_caves` — ingresso di grotta tra le montagne
+- [x] `loc_crypt` — ingresso di cripta, rune e teschi sull'arco
+- [x] `loc_cursed_castle` — cancello di castello gotico, gargoyle, uno scheletro alla soglia
 - [ ] `loc_forest` — sentiero nel bosco verso le montagne
 - [ ] `loc_forest_prey` — bosco fitto con cervi selvatici
 - [ ] `loc_graveyard` — cimitero di notte, luna calante
@@ -90,18 +90,40 @@ Non sono immagini del catalogo: agganciati a come finisce la storia
 per la voce TTS). Vanno in `app/src/main/assets/sfx/endings/` (non
 `sfx/images/`), stessa regola del resto: file mancante = silenzio.
 
-- [ ] `ending_victory_male` — grido/voce di gioia, eroe maschio
-- [ ] `ending_victory_female` — grido/voce di gioia, eroe femmina
-- [ ] `ending_defeat_male` — grido di morte, eroe maschio
-- [ ] `ending_defeat_female` — grido di morte, eroe femmina
-- [ ] `ending_neutral_male` — finale né vittoria né sconfitta netta, eroe maschio
-- [ ] `ending_neutral_female` — finale né vittoria né sconfitta netta, eroe femmina
+- [x] `ending_victory_male` — grido/voce di gioia, eroe maschio
+- [x] `ending_victory_female` — grido/voce di gioia, eroe femmina
+- [x] `ending_defeat_male` — grido di morte, eroe maschio
+- [x] `ending_defeat_female` — grido di morte, eroe femmina
+- [x] `ending_neutral_male` — finale né vittoria né sconfitta netta, eroe maschio
+- [x] `ending_neutral_female` — finale né vittoria né sconfitta netta, eroe femmina
 
 Michele: "puoi prevederli tutti se non ci sono non si suonano, così
 posso magari mettere delle canzoni se non trovo nulla, l'importante è
 che non vada in errore" — qualunque file, anche una canzone intera
 buttata dentro come segnaposto, va bene: non c'è controllo di durata o
 contenuto, solo il nome del file conta.
+
+## Musica di sottofondo — 10
+
+A differenza di tutto il resto in questo documento, NON sono legate a
+un'immagine del catalogo: sono le tracce del catalogo musicale
+(`app/.../util/BundledMusicCatalog.kt`), scelte a mano nelle Opzioni
+(o in modalità **Casuale**, 24/07/2026: le alterna senza mai ripetere
+quella appena suonata). Vanno in `app/src/main/assets/music/`, in
+LOOP quando è selezionata una singola traccia. Categoria assegnata a
+orecchio dal titolo dove non era ovvia (segnato sotto): da confermare
+con Michele, correggibile cambiando solo il `displayName` nel catalogo.
+
+- [x] `menu_Destino_segnato` — Main Theme (default), "Destino Segnato"
+- [x] `esplorazione_Where_The_Statues_Kneel` — Esplorazione, "Where the Statues Kneel"
+- [x] `combattimento_The_Iron_Vow` — Combattimento, "The Iron Vow"
+- [x] `mercato_What_Is_the_Fee_` — Mercato, "What Is the Fee?"
+- [x] `romantico_Breath_and_Bone` — Romantico, "Breath and Bone"
+- [x] `Il_Voto_di_Ferro` — Combattimento (categoria non confermata), "Il Voto di Ferro"
+- [x] `Il_cuore_e_la_spada` — Romantico (categoria non confermata), "Il Cuore e la Spada"
+- [x] `Monete_per_un_fiore` — Mercato (categoria non confermata), "Monete per un Fiore"
+- [x] `Tra_Market_e_Tower` — Mercato (categoria non confermata), "Tra Market e Tower"
+- [x] `L_eterno_ritorno` — Esplorazione (categoria non confermata), "L'Eterno Ritorno"
 
 ## Casi particolari, forse da escludere
 
