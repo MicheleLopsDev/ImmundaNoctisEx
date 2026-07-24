@@ -2994,6 +2994,30 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Tolto ogni sfondo dal Diario di Combattimento** (24/07, stesso
+  giorno, Michele: "dalla card del combat rimuovi lo sfondo" — chiesto
+  se intendeva solo il Card di default o anche la pergamena, ha
+  risposto: "intendo nessuna pergamena e basta il resto è uguale"):
+  - `CombatDiaryPanel`: tolto sia il `Card` Material3 (pergamena OFF)
+    sia la pila a tre fasce di `ParchmentBackground` (pergamena
+    attiva) — il contenuto (icone, barre RES, icona del Rapporto di
+    Forza, dado) sta ora direttamente sullo schermo, senza nessun
+    riquadro dietro.
+  - `ParchmentBackground.kt` cancellato: era usato SOLO da
+    `CombatDiaryPanel`, diventato orfano. `ParchmentStyle.topRes`/
+    `bottomRes`/`baseColor` rimossi dall'enum (servivano solo lì);
+    resta `middleRes`, ancora usato da `NarrationParchmentPanel`.
+    `CombatActiveZone`/`CombatDiaryPanel` non prendono più
+    `parchmentStyle`/`isDarkTheme`, non gli serve più nulla.
+  - La "pergamena dedicata al Diario di Combattimento" proposta poco
+    prima (due immagini 1200×640px senza scudi, vedi entrata
+    precedente) è **ritirata**: superata da questa decisione, prima
+    ancora che Michele la commissionasse. Segnato in `doc/UPGRADE.md`.
+    Restano orfani (non cancellati, per non allargare la modifica) i
+    drawable `parchment_panel_top/bottom.png` e le versioni `_dark`.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
