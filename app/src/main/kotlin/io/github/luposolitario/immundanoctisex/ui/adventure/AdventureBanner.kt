@@ -145,6 +145,12 @@ private fun PortraitBadge(
         Text(
             text = label,
             fontSize = 11.sp,
+            // lineHeight esplicito (24/07/2026): senza, il Text eredita
+            // l'interlinea di default (pensata per un fontSize più
+            // grande) e riserva diversi dp invisibili sotto la scritta —
+            // parte dello spazio di troppo segnalato da Michele tra i
+            // nomi e la pergamena qui sotto.
+            lineHeight = 12.sp,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(top = 2.dp),
