@@ -201,6 +201,15 @@ private fun HeroIconCard(state: CreationState) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text(stringResource(R.string.creation_icon), style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(4.dp))
+            // Dado anche qui (24/07/2026, richiesta Michele: "il random
+            // per anche le altre scelte... icone ed oggetti"), centrato
+            // come gli altri.
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                FilledIconButton(onClick = { state.randomizeHeroIcon() }) {
+                    Icon(Icons.Default.Casino, contentDescription = stringResource(R.string.creation_weaponskill_random))
+                }
+            }
             Spacer(Modifier.height(8.dp))
             LazyVerticalGrid(
                 // Ancora troppo piccole a 72dp (24/07/2026, stesso
@@ -360,6 +369,16 @@ private fun WeaponCard(state: CreationState) {
         Column(Modifier.padding(16.dp)) {
             Text(stringResource(R.string.creation_equipment_title), style = MaterialTheme.typography.titleLarge)
             Text(stringResource(R.string.creation_pick_weapon), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(4.dp))
+            // Dado anche per l'arma (24/07/2026, richiesta Michele:
+            // "il random per anche le altre scelte... icone ed
+            // oggetti"), tra le 9 armi vere (le arti marziali restano
+            // una scelta a parte, non nel tiro).
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                FilledIconButton(onClick = { state.randomizeWeapon() }) {
+                    Icon(Icons.Default.Casino, contentDescription = stringResource(R.string.creation_weaponskill_random))
+                }
+            }
             Spacer(Modifier.height(8.dp))
             // Griglia a DUE colonne fisse, non "adattiva" (24/07/2026,
             // terzo giro: con minSize=190dp lo schermo ci faceva stare
@@ -416,6 +435,15 @@ private fun SpecialItemCard(state: CreationState) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text(stringResource(R.string.creation_pick_special), style = MaterialTheme.typography.titleLarge)
+            Spacer(Modifier.height(4.dp))
+            // Dado anche per l'oggetto speciale (24/07/2026, richiesta
+            // Michele: "il random per anche le altre scelte... icone ed
+            // oggetti"), centrato come gli altri.
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                FilledIconButton(onClick = { state.randomizeSpecialItem() }) {
+                    Icon(Icons.Default.Casino, contentDescription = stringResource(R.string.creation_weaponskill_random))
+                }
+            }
             Spacer(Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),

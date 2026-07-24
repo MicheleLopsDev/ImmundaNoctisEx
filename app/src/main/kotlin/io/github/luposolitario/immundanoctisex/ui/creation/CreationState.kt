@@ -132,6 +132,22 @@ class CreationState(private val dice: DiceRoller) {
         }
     }
 
+    // Dado anche per icona, arma e oggetto speciale (24/07/2026, richiesta
+    // Michele: "aggiungiamo il random per anche le altre scelte...
+    // icone ed oggetti") — stesso principio delle altre: sostituisce
+    // SEMPRE la scelta corrente, ripetibile senza limiti.
+    fun randomizeHeroIcon() {
+        heroIcon = HeroIcon.entries[dice.roll() % HeroIcon.entries.size]
+    }
+
+    fun randomizeWeapon() {
+        selectWeapon(INITIAL_WEAPONS[dice.roll() % INITIAL_WEAPONS.size])
+    }
+
+    fun randomizeSpecialItem() {
+        selectedSpecialItem = INITIAL_SPECIAL_ITEMS[dice.roll() % INITIAL_SPECIAL_ITEMS.size]
+    }
+
     // "Scegli a caso" per le discipline (24/07/2026, richiesta Michele:
     // "uno che non vuole perdere tempo usa quello") — 5 delle 10 senza
     // ripetizioni, stesso DiceRoller di tutto il resto (mai Random
