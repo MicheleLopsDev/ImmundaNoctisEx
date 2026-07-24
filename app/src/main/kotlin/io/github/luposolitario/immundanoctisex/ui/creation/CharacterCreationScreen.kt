@@ -226,8 +226,18 @@ private fun StatsCard(state: CreationState) {
                 Text(stringResource(R.string.creation_gold, state.gold))
                 Spacer(Modifier.height(8.dp))
             }
-            Button(onClick = { state.rollStats() }, enabled = !state.statsRolled) {
-                Text(stringResource(R.string.creation_roll_stats))
+            // Statistiche già tirate all'apertura (CreationState.init,
+            // 24/07/2026: "per velocizzare la creazione") — il bottone
+            // resta SEMPRE attivo, mai un tiro solo: "si deve divertire
+            // ma col giusto livello di aleatorietà" (richiesta esplicita
+            // di Michele). L'etichetta cambia in "Ritira" perché non è
+            // più il primo tiro.
+            Button(onClick = { state.rollStats() }) {
+                Text(
+                    stringResource(
+                        if (state.statsRolled) R.string.creation_reroll_stats else R.string.creation_roll_stats,
+                    ),
+                )
             }
         }
     }

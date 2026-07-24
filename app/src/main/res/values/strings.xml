@@ -105,6 +105,7 @@
     <string name="creation_endurance">Resistenza: %1$d</string>
     <string name="creation_gold">Corone d\'oro: %1$d</string>
     <string name="creation_roll_stats">Tira le Statistiche</string>
+    <string name="creation_reroll_stats">Ritira le Statistiche</string>
     <string name="creation_disciplines_title">Scegli 5 Discipline Kai (%1$d/5)</string>
     <string name="creation_weaponskill_title">Specializzazione Scherma</string>
     <string name="creation_weaponskill_pick">Scegli il tipo d\'arma della tua Scherma:</string>
