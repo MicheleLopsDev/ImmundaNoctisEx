@@ -12,6 +12,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.tts.TtsService
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.BundledMusicCatalog
+import io.github.luposolitario.immundanoctisex.util.DiceColor
 import io.github.luposolitario.immundanoctisex.util.OutputLanguage
 import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
@@ -36,6 +37,7 @@ fun OptionsRoute(
     var themeOverride by remember { mutableStateOf(darkOverride) }
     var accentColor by remember { mutableStateOf(container.accentColorPreferences.accentColor) }
     var statusCardColor by remember { mutableStateOf(container.statusCardColorPreferences.statusCardColor) }
+    var diceColor by remember { mutableStateOf(container.diceColorPreferences.diceColor) }
     var parchmentStyle by remember { mutableStateOf(container.parchmentPreferences.style) }
     var font by remember { mutableStateOf(container.fontPreferences.readingFont) }
     var bold by remember { mutableStateOf(container.fontPreferences.boldText) }
@@ -99,6 +101,11 @@ fun OptionsRoute(
         onStatusCardColorSelect = { selected ->
             statusCardColor = selected
             container.statusCardColorPreferences.statusCardColor = selected
+        },
+        diceColor = diceColor,
+        onDiceColorSelect = { selected ->
+            diceColor = selected
+            container.diceColorPreferences.diceColor = selected
         },
         parchmentStyle = parchmentStyle,
         onParchmentStyleSelect = { selected ->

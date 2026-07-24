@@ -17,6 +17,7 @@ import io.github.luposolitario.immundanoctisex.music.MusicPlayer
 import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
 import io.github.luposolitario.immundanoctisex.util.AccentColorPreferences
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
+import io.github.luposolitario.immundanoctisex.util.DiceColorPreferences
 import io.github.luposolitario.immundanoctisex.util.FontPreferences
 import io.github.luposolitario.immundanoctisex.util.LanguagePreferences
 import io.github.luposolitario.immundanoctisex.util.MusicPreferences
@@ -76,6 +77,8 @@ class AppContainer(context: Context) {
     val parchmentPreferences = ParchmentPreferences(context)
 
     val statusCardColorPreferences = StatusCardColorPreferences(context)
+
+    val diceColorPreferences = DiceColorPreferences(context)
 
     // Istanza unica a scope applicazione (ARCHITETTURA §istanze): il
     // modello costa GB e secondi di caricamento, si carica una volta.

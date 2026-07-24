@@ -144,6 +144,7 @@ fun AdventureRoute(
                         container.musicPlayer.pause()
                     }
                 },
+                diceColor = container.diceColorPreferences.diceColor,
             )
         }
 

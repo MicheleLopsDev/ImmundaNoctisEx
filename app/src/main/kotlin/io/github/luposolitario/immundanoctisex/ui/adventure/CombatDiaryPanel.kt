@@ -39,6 +39,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEnd
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
 import io.github.luposolitario.immundanoctisex.ui.creation.heroIconRes
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.util.DiceColor
 
 // Il Diario di Combattimento cartaceo di Lupo Solitario (richiesta Michele
 // 20/07/2026, riferimento fotografato dal registro ufficiale): non un
@@ -55,7 +56,7 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 // sullo schermo, niente riquadro dietro. `ParchmentBackground.kt` non ha
 // più nessun altro punto d'uso, cancellato.
 @Composable
-fun CombatDiaryPanel(state: AdventureState, session: CombatSession) {
+fun CombatDiaryPanel(state: AdventureState, session: CombatSession, diceColor: DiceColor = DiceColor.GRAY) {
     Column(modifier = Modifier.padding(16.dp)) {
         // Il Diario di Combattimento cartaceo lo mostra sempre in testa
         // (Michele 22/07/2026, foto del registro): un dato che avevamo
@@ -79,7 +80,7 @@ fun CombatDiaryPanel(state: AdventureState, session: CombatSession) {
                 alignEnd = false,
                 iconRes = heroIconRes(session.player.icon),
             )
-            CenterColumn(state, session)
+            CenterColumn(state, session, diceColor)
             CombatantColumn(
                 name = session.enemy.name,
                 character = session.enemy,
@@ -163,7 +164,7 @@ internal fun modifierLabel(modifier: StatModifier): String {
 }
 
 @Composable
-private fun CenterColumn(state: AdventureState, session: CombatSession) {
+private fun CenterColumn(state: AdventureState, session: CombatSession, diceColor: DiceColor) {
     val ratio = effectiveCombatSkill(session.player) - effectiveCombatSkill(session.enemy)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         // Il Dado del Destino in cima, tra le icone di eroe e nemico
@@ -178,6 +179,7 @@ private fun CenterColumn(state: AdventureState, session: CombatSession) {
                 onRoll = { state.combatFightRound()?.roll },
                 onTap = { state.playDiceRollSound() },
                 initialFace = state.lastRound?.roll,
+                diceColor = diceColor,
             )
             Spacer(Modifier.height(8.dp))
         }
