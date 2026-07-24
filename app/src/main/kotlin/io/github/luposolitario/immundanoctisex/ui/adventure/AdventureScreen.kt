@@ -184,7 +184,10 @@ fun AdventureScreen(
         NarrationParchmentPanel(
             style = narrationStyle,
             isDarkTheme = isDarkTheme,
-            modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = 8.dp),
+            // Niente più margine sopra (24/07/2026, richiesta Michele:
+            // "troppo spazio tra i nomi delle icone e la pergamena") —
+            // resta solo sotto, verso la card di stato.
+            modifier = Modifier.weight(1f).fillMaxWidth().padding(top = 0.dp, bottom = 8.dp),
         ) {
             if (state.narrative.isBlank() && state.isGenerating) {
                 // Il narratore sta scrivendo: nessun testo originale da
