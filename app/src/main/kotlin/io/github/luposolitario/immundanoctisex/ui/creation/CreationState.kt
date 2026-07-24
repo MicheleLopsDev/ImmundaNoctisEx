@@ -42,6 +42,11 @@ class CreationState(private val dice: DiceRoller) {
     var heroIcon: HeroIcon by mutableStateOf(HeroIcon.WOLF)
 
     // Tiro canonico: CS = 10 + tiro, Resistenza = 20 + tiro, Corone = tiro.
+    // Tirate SUBITO all'apertura (24/07/2026, richiesta Michele: "per
+    // velocizzare la creazione... sarebbe comodo che le statistiche le
+    // ha già tirate lui" — vedi init sotto), ma SEMPRE ri-tirabili senza
+    // limiti: "si deve divertire ma col giusto livello di aleatorietà",
+    // niente bottone che si disabilita dopo il primo tiro.
     var combatSkill: Int by mutableStateOf(0)
         private set
     var endurance: Int by mutableStateOf(0)
@@ -51,20 +56,35 @@ class CreationState(private val dice: DiceRoller) {
 
     val selectedDisciplines: SnapshotStateList<String> = emptyList<String>().toMutableStateList()
 
-    var weaponSkillType: WeaponType? by mutableStateOf(null)
+    // Spada di default (24/07/2026, richiesta Michele, per velocizzare
+    // la creazione): resta un valore INERTE finché WEAPONSKILL non è
+    // tra le discipline scelte (buildSession lo azzera altrimenti, vedi
+    // sotto) — ma se lo sblocca, il menu a tendina mostra già "Spada"
+    // invece di "—", un passaggio in meno.
+    var weaponSkillType: WeaponType? by mutableStateOf(WeaponType.SWORD)
 
-    var selectedWeapon: GameItem? by mutableStateOf(null)
+    // Spada di default anche come arma impugnata (stessa richiesta):
+    // resta comunque cambiabile con un tocco su un'altra arma o sulle
+    // arti marziali, non è un valore bloccato.
+    var selectedWeapon: GameItem? by mutableStateOf(INITIAL_WEAPONS.first { it.weaponType == WeaponType.SWORD })
         private set
 
-    // Arti marziali: si parte SENZA armi (richiesta Michele). Alternativa
-    // esclusiva alla scelta dell'arma.
+    // Arti marziali: alternativa esclusiva alla scelta dell'arma — con
+    // un'arma di default selezionata (sopra), qui resta false finché non
+    // si tocca esplicitamente "Arti marziali".
     var fightsUnarmed: Boolean by mutableStateOf(false)
         private set
 
     // UN oggetto speciale a scelta (come v1/canone): Mappa, Elmo o Gilet.
-    var selectedSpecialItem: SpecialItemUi? by mutableStateOf(null)
+    // Mappa di default (24/07/2026, stessa richiesta di velocizzare la
+    // creazione — INITIAL_SPECIAL_ITEMS.first() è sempre lei).
+    var selectedSpecialItem: SpecialItemUi? by mutableStateOf(INITIAL_SPECIAL_ITEMS.first())
 
     val statsRolled: Boolean get() = combatSkill > 0
+
+    init {
+        rollStats()
+    }
 
     val needsWeaponSkillChoice: Boolean
         get() = selectedDisciplines.contains("WEAPONSKILL")
