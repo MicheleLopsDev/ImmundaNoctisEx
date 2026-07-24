@@ -1,0 +1,120 @@
+{
+    "id": "test-5-choices-kai-combat",
+    "version": "1.0.0",
+    "title": "TEST: 4 discipline Kai + 1 scelta al combattimento",
+    "description": "Verifica visiva di ChoicesZone con 5 opzioni insieme in scena 1: quattro DisciplineChoice (Mimetismo, Caccia, Sesto Senso, Tracking) più una scelta normale che porta a una scena con combat. Serve un eroe che possieda ESATTAMENTE quelle 4 discipline (più una qualunque a piacere per arrivare a 5) perché le card disciplina compaiano tutte insieme: in creazione selezionale a mano, il random non le garantisce.",
+    "language": "it",
+    "genre": "FANTASY",
+    "toneHints": ["tense"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["tense"],
+            "narrativeText": "Il sentiero si divide davanti a un accampamento nemico silenzioso. Una guardia solitaria pattuglia l'ingresso; alle tue spalle, la foresta offre altre vie, se sai come leggerla.",
+            "choices": [
+                {
+                    "id": "c_fight",
+                    "choiceText": "Affronta la guardia di petto",
+                    "nextSceneId": "2"
+                }
+            ],
+            "disciplineChoices": [
+                {
+                    "id": "d_camouflage",
+                    "disciplineId": "CAMOUFLAGE",
+                    "choiceText": "Usa il Mimetismo per intrufolarti senza farti notare",
+                    "nextSceneId": "3"
+                },
+                {
+                    "id": "d_hunting",
+                    "disciplineId": "HUNTING",
+                    "choiceText": "Usa la Caccia per aggirare l'accampamento e procurarti provviste",
+                    "nextSceneId": "4"
+                },
+                {
+                    "id": "d_sixth_sense",
+                    "disciplineId": "SIXTH_SENSE",
+                    "choiceText": "Usa il Sesto Senso per fiutare una trappola nascosta",
+                    "nextSceneId": "5"
+                },
+                {
+                    "id": "d_tracking",
+                    "disciplineId": "TRACKING",
+                    "choiceText": "Usa il Tracking per trovare una scorciatoia tra le tracce",
+                    "nextSceneId": "6"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": ["dangerous"],
+            "narrativeText": "La guardia si volta un attimo troppo tardi: non c'è più spazio per parlare, solo per combattere.",
+            "choices": [],
+            "combat": {
+                "enemyName": "Guardia dell'accampamento",
+                "enemyCombatSkill": 12,
+                "enemyEndurance": 16,
+                "winSceneId": "end_combat_win",
+                "loseSceneId": "end_combat_lose"
+            }
+        },
+        {
+            "id": "end_combat_win",
+            "sceneType": "ENDING",
+            "outcome": "VICTORY",
+            "genre": "FANTASY",
+            "toneHints": ["relieved"],
+            "narrativeText": "La guardia cade. Il campo resta silenzioso: hai vinto lo scontro (fine del test, ramo COMBATTIMENTO).",
+            "choices": []
+        },
+        {
+            "id": "end_combat_lose",
+            "sceneType": "ENDING",
+            "outcome": "DEFEAT",
+            "genre": "FANTASY",
+            "toneHints": ["grim"],
+            "narrativeText": "La guardia ha la meglio (fine del test, ramo COMBATTIMENTO perso).",
+            "choices": []
+        },
+        {
+            "id": "3",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "Ti muovi senza far rumore, invisibile agli occhi della guardia (fine del test, ramo MIMETISMO).",
+            "choices": []
+        },
+        {
+            "id": "4",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "Aggiri l'accampamento e trovi provviste lungo il cammino (fine del test, ramo CACCIA).",
+            "choices": []
+        },
+        {
+            "id": "5",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "Un brivido ti avverte appena in tempo: eviti una trappola nascosta (fine del test, ramo SESTO SENSO).",
+            "choices": []
+        },
+        {
+            "id": "6",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "Le tracce nel fango ti rivelano una scorciatoia sicura (fine del test, ramo TRACKING).",
+            "choices": []
+        }
+    ]
+}
