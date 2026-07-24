@@ -2554,6 +2554,30 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Creazione più veloce: default sensati + statistiche già tirate**
+  (24/07, Michele: "per velocizzare la creazione mettiamo alcune
+  scelte a default... le discipline non selezionarle ovviamente"):
+  - `weaponSkillType` di default `SWORD` (Spada) — resta INERTE finché
+    WEAPONSKILL non è tra le discipline scelte (`buildSession` lo
+    azzera comunque se non serve), ma se si sblocca il menu a tendina
+    mostra già "Spada" invece di "—".
+  - `selectedWeapon` di default l'arma Spada (da `INITIAL_WEAPONS`),
+    `selectedSpecialItem` di default Mappa (`INITIAL_SPECIAL_ITEMS
+    .first()`) — entrambi restano liberamente cambiabili con un tocco.
+  - `heroIcon` era già WOLF di default, invariato. Discipline NON
+    precompilate, come richiesto esplicitamente — restano l'unica
+    scelta obbligatoria manuale (`canProceed` ora dipende quasi solo
+    da quella).
+  - **Statistiche tirate SUBITO all'apertura** (`init { rollStats() }`
+    in `CreationState` — costruita una volta sola per apertura della
+    pagina, `remember` in `CreationRoute`): il bottone "Tira le
+    Statistiche" NON si disabilita più dopo il primo tiro ("si deve
+    divertire ma col giusto livello di aleatorietà" — richiesta
+    esplicita di non limitare i ritiri), etichetta che cambia in
+    "Ritira le Statistiche" quando non è più il primo tiro.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
