@@ -3079,6 +3079,40 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Due bug segnalati insieme: checkpoint al Continua, suono del
+  finale in ritardo** (24/07, stesso giorno, Michele: "come al solito
+  un po' di bug" — entrambe le modifiche sono finite nello stesso
+  commit (`b2fdb84`) perché toccavano lo stesso file (`AdventureState
+  .kt`), anche se sono due fix scollegati):
+  - **"quando salvo un checkpoint, quando parte l'avventura mi deve
+    chiedere se voglio caricare l'ultimo checkpoint salvato oppure il
+    punto a cui ero arrivato"**: `SetupRoute.onContinueSession` prima
+    andava sempre dritto all'auto-save, ignorando eventuali checkpoint
+    piazzati. Ora, solo se il pacchetto ha almeno un checkpoint (slot
+    1..budget, budget per difficoltà), un `AlertDialog` chiede
+    esplicitamente "checkpoint o posizione attuale" prima di
+    proseguire — nessun popup per chi non ne ha mai piazzato uno.
+    Caricare il checkpoint lo CONSUMA (stessa regola già in vigore per
+    il ricaricamento alla morte: "le vite sono davvero finite").
+    Estratta `Difficulty.checkpointBudget()` (prima un `when` solo
+    dentro `AdventureState`) per non duplicare la stessa logica in
+    `SetupRoute`.
+  - **"il messaggio audio finale (vittoria/sconfitta) deve partire
+    solo dopo che il TTS ha finito di leggere l'ultima pagina, con un
+    ritardo di qualche secondo — altrimenti è brutto, parte appena
+    arrivi alla pagina finale"**: `playEndingSoundIfNew()` chiamava
+    `playNamed(...)` immediatamente dentro `moveTo()`, PRIMA ancora che
+    `startNarration()` facesse generare/leggere il testo finale. Ora
+    lancia una coroutine (`scope.launch`, stesso scope già usato per lo
+    streaming della narrazione) che aspetta `!isGenerating` poi un
+    ciclo completo `isSpeaking` true->false (il TTS che legge davvero),
+    più 3" di margine, prima di far partire il suono. Timeout di
+    sicurezza a 45": se il TTS non parte mai (auto-lettura spenta e mai
+    toccata a mano), il suono parte comunque alla scadenza invece di
+    restare in silenzio per sempre.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
