@@ -11,3 +11,13 @@ enum class Difficulty {
     HARD,
     IRON,
 }
+
+// Budget di checkpoint per difficoltà (STATO.md Blocco 2) — funzione
+// condivisa (24/07/2026) invece di duplicare lo stesso `when` in
+// AdventureState e in SetupRoute (che deve sapere quanti slot
+// controllare per offrire "carica l'ultimo checkpoint" al resume).
+fun Difficulty.checkpointBudget(): Int = when (this) {
+    Difficulty.NORMAL -> 2
+    Difficulty.HARD -> 1
+    Difficulty.IRON -> 0
+}

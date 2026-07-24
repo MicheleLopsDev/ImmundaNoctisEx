@@ -7,6 +7,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.CombatOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
+import io.github.luposolitario.immundanoctisex.core.data.model.checkpointBudget
 import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
@@ -39,6 +40,7 @@ import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
 import io.github.luposolitario.immundanoctisex.tts.TtsService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -418,11 +420,7 @@ class AdventureState(
     // Checkpoint (STATO.md Blocco 2): budget per difficoltà, piazzati dal
     // giocatore, scritti una volta e mai sovrascrivibili.
     val checkpointBudget: Int
-        get() = when (gameState.session.difficulty) {
-            Difficulty.NORMAL -> 2
-            Difficulty.HARD -> 1
-            Difficulty.IRON -> 0
-        }
+        get() = gameState.session.difficulty.checkpointBudget()
 
     fun placeCheckpoint(): Boolean {
         if (checkpointsRemaining <= 0) return false
@@ -606,7 +604,33 @@ class AdventureState(
         if (outcome == lastPlayedEnding) return
         lastPlayedEnding = outcome
         val genderSuffix = if (gameState.hero.gender == Gender.FEMALE) "female" else "male"
-        soundEffectPlayer?.playNamed("ending_${outcome.name.lowercase()}_$genderSuffix", folder = "endings")
+        val soundName = "ending_${outcome.name.lowercase()}_$genderSuffix"
+        val scope = this.scope ?: run {
+            soundEffectPlayer?.playNamed(soundName, folder = "endings")
+            return
+        }
+        // Aspetta che la narrazione finisca di generarsi e che il TTS,
+        // se parte, finisca di leggere l'ultima pagina, PIÙ un margine
+        // (24/07/2026, richiesta Michele: "parte appena arrivi alla
+        // pagina finale, è brutto — deve aspettare che il TTS abbia
+        // finito di leggere, con un ritardo di qualche secondo").
+        // Nessuna attesa infinita se il TTS non parte mai (auto-lettura
+        // spenta e mai toccata a mano): un timeout di sicurezza fa
+        // comunque partire il suono.
+        scope.launch {
+            val deadline = System.currentTimeMillis() + ENDING_SOUND_TIMEOUT_MS
+            while (isGenerating && System.currentTimeMillis() < deadline) {
+                delay(ENDING_SOUND_POLL_MS)
+            }
+            var everSpoke = false
+            while (System.currentTimeMillis() < deadline) {
+                if (isSpeaking) everSpoke = true
+                if (everSpoke && !isSpeaking) break
+                delay(ENDING_SOUND_POLL_MS)
+            }
+            delay(ENDING_SOUND_GRACE_MS)
+            soundEffectPlayer?.playNamed(soundName, folder = "endings")
+        }
     }
 
     // Ogni mutazione dello stato di gioco passa di qui: è il punto giusto
@@ -644,5 +668,14 @@ class AdventureState(
         // Buffer dello streaming: la UI si aggiorna al massimo ogni tanto,
         // non a ogni token (CRITICITA.md ~80-100ms).
         const val STREAM_BUFFER_MS = 90L
+
+        // Attesa del suono di finale (24/07/2026): quanto aspettare al
+        // massimo generazione+TTS prima di far partire comunque il suono
+        // (timeout di sicurezza, non un'attesa infinita), ogni quanto
+        // ricontrollare, e il margine "di qualche secondo" richiesto da
+        // Michele dopo che il TTS ha finito di leggere.
+        const val ENDING_SOUND_TIMEOUT_MS = 45_000L
+        const val ENDING_SOUND_POLL_MS = 200L
+        const val ENDING_SOUND_GRACE_MS = 3_000L
     }
 }
