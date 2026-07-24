@@ -3113,6 +3113,16 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Segni < > del Rapporto di Forza invertiti** (24/07, stesso giorno,
+  Michele sul device: "primo sono invertiti i segni < >, inverti le
+  condizioni"): la mappatura letterale che Michele aveva dettato a
+  parole il giorno prima ("< Hero più forte") risultava invertita
+  rispetto alla lettura matematica naturale una volta vista sullo
+  schermo. Scambiate le due condizioni in `ForceRatioIcon`: ora ">"
+  (maggiore) è l'eroe più forte, "<" (minore) il nemico più forte —
+  CS eroe > CS nemico si legge ">", come ci si aspetta. Compilazione
+  e suite riverificate verdi. **Ancora da confermare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
