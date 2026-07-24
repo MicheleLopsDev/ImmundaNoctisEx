@@ -2772,6 +2772,46 @@ sul device.**
   device.** Resta un `origina_res/test1.mp3` non usato da nessun nome
   atteso: da chiedere a Michele cos'è prima di toccarlo.
 
+- **5 nuove tracce musicali, modalità Casuale, tasto rapido in
+  avventura** (24/07, sessione successiva, Michele: "sto aggiungendo
+  altre musiche come quella del mercato... dobbiamo implementare un
+  tasto che se selezionato fa il random dei brani musicali, non
+  riprodurre due volte la stessa musica, e poi mi serve un tasto per
+  spegnere o attivare la musica senza andare in menu"):
+  - `BundledMusicCatalog.TRACKS` passa da 5 a 9 tracce (Il Voto di
+    Ferro, Il Cuore e la Spada, Monete per un Fiore, Tra Market e
+    Tower, L'Eterno Ritorno) — categoria (Combattimento/Romantico/
+    Mercato/Esplorazione) assegnata A ORECCHIO dal titolo, NON
+    confermata da Michele: da correggere se sbagliata, basta cambiare
+    la stringa del `displayName`.
+  - Modalità **Casuale**: nuova voce nel picker delle Opzioni
+    (`BundledMusicCatalog.RANDOM_ID`/`RANDOM_ENTRY`, fuori da `TRACKS`
+    apposta per non farla pescare come file vero). `MusicPlayer
+    .playShuffle()` non mette più in loop la singola traccia: quando
+    finisce ne pesca un'altra (mai la stessa di fila, filtrando
+    `lastShuffledTrackId` dal pool) via `OnCompletionListener`.
+    `playConfigured()` centralizza la scelta traccia-fissa/casuale per
+    tutti i punti che avviano la musica (avvio app, switch delle
+    Opzioni, tasto rapido) — un solo posto invece di ripetere lo stesso
+    if/else quattro volte.
+  - BUG evitato in `OptionsRoute`: l'id selezionato per il picker
+    veniva letto da `effectiveTrack.id`, che degrada sul default per
+    id sconosciuti — con "random" (non in `TRACKS`) avrebbe mostrato
+    "Main Theme" invece di "Casuale" riaprendo le Opzioni a shuffle
+    attivo. Ora legge la preferenza grezza.
+  - **Tasto rapido** nell'header di `AdventureScreen` (icona nota
+    musicale, accanto al ciclo di grandezza testo): accende/spegne la
+    musica senza uscire dalla scena — stesso pattern già usato per
+    `autoReadEnabled`/`onReadAloud` (stato letto da Opzioni, l'azione
+    vera vive nella Route che ha accesso a `container`).
+  - **Trovato per strada**: `loc_caves.mp3`, arrivato nello stesso giro
+    di file ma NON un brano musicale — nome di una location
+    (`SoundEffectPlayer.playNamed` già aspetta `sfx/images/loc_caves
+    .mp3` per gli sfondi di scena, stesso vocabolario aperto delle voci
+    dei finali). Agganciato anche questo, zero codice.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
