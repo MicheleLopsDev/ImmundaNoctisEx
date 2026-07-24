@@ -2610,12 +2610,21 @@ sul device.**
     come `string-array` (`creation_random_names_male/female`) — coerente
     con la regola "nomi localizzati solo in strings.xml". Il campo Nome
     in `GenderCard` ha ora accanto lo stesso `FilledIconButton` a dado.
-  - Lasciato testuale il bottone "Tira/Ritira le Statistiche": non è
-    un'alternativa rapida a una scelta manuale come gli altri tre, è
-    l'unica azione della card — l'etichetta resta più chiara di un'icona
-    muta.
+  - Lasciato testuale, in un primo momento, il bottone "Tira/Ritira le
+    Statistiche" (vedi correzione subito sotto).
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
+
+- **Anche le Statistiche a icona, sottotitolo meno legato al lupo**
+  (24/07, stesso giorno, Michele: "anche per le statistiche metti il
+  dado invece del etichetta meno ne usiamo meglio è" — corregge la
+  scelta di lasciarlo testuale appena sopra): bottone "Tira/Ritira le
+  Statistiche" diventato anche lui `FilledIconButton` con la sola icona
+  dado, `contentDescription` dinamico (tira/ritira) per l'accessibilità.
+  Sottotitolo della creazione da "Lupo Solitario" a "Scegli il nostro
+  eroe" (Michele, stessa richiesta): non aveva più senso legato al lupo
+  ora che l'icona eroe copre 15 animali. Compilazione e suite
+  riverificate verdi. **Ancora da confermare sul device.**
 
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
