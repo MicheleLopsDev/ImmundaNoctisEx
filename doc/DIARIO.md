@@ -3123,6 +3123,33 @@ sul device.**
   CS eroe > CS nemico si legge ">", come ci si aspetta. Compilazione
   e suite riverificate verdi. **Ancora da confermare sul device.**
 
+- **Bug trovato: i suoni location a volte non partivano** (24/07,
+  stesso giorno, Michele ha allegato un log: "alle volte non partono i
+  suoni... sembra che se il tts è manuale alle volte non parte
+  l'audio" — chiesto anche di riverificare la regola d'ordine
+  suoni/passi/TTS). Verificata la regola in `AdventureState.moveTo()`:
+  **era già corretta** — passi, poi `syncImageSounds()` (i suoni
+  location), poi (in coda separata, vedi entrata precedente)
+  `playEndingSoundIfNew()`, tutto PRIMA di `startNarration()` (che è
+  ciò che eventualmente fa partire il TTS). Il log non mostrava
+  eccezioni: il bug era altrove, un silenzio senza errori.
+  - **Causa reale**: `SoundPool.load()` è ASINCRONO. La primissima
+    volta che si chiede un nome mai sentito prima, `pool.load()`
+    parte ma il campione non è ancora in `loaded` quando arriva subito
+    dopo la richiesta di suonarlo — la richiesta spariva in silenzio
+    per sempre (l'id restava comunque in cache, non veniva mai
+    ritentata). Non è legato al TTS in sé: è più visibile con
+    l'auto-lettura spenta perché in quel caso non c'è dell'altro
+    lavoro a occupare il thread principale abbastanza da lasciare per
+    puro caso il tempo alla decodifica di finire nel frattempo.
+  - **Fix**: `SoundEffectPlayer` mette la richiesta in una coda
+    (`pendingPlayOnLoad`) se il campione non è ancora pronto, e la fa
+    partire da sola non appena `setOnLoadCompleteListener` segnala che
+    la decodifica è finita — stesso trattamento per `play(SoundEffect)`
+    e `playNamed(...)`.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
