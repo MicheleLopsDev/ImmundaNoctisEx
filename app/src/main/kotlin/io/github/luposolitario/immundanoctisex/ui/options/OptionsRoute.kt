@@ -49,7 +49,13 @@ fun OptionsRoute(
     var femaleVoice by remember { mutableStateOf(container.ttsPreferences.voiceFor(Gender.FEMALE)) }
 
     var musicEnabled by remember { mutableStateOf(container.musicPreferences.musicEnabled) }
-    var selectedTrackId by remember { mutableStateOf(container.musicPreferences.effectiveTrack.id) }
+    // La preferenza GREZZA, non effectiveTrack (24/07/2026): effectiveTrack
+    // degrada sul default per un id sconosciuto, e "random" non è un id
+    // di TRACKS — con effectiveTrack.id il picker avrebbe mostrato il
+    // default invece di "Casuale" riaprendo le Opzioni a shuffle attivo.
+    var selectedTrackId by remember {
+        mutableStateOf(container.musicPreferences.selectedTrackId ?: BundledMusicCatalog.default.id)
+    }
 
     // I quattro volumi (22/07/2026, richiesta Michele): TTS, musica ed
     // effetti hanno ciascuno il proprio, il generale moltiplica tutti e
@@ -154,7 +160,7 @@ fun OptionsRoute(
         },
         musicUi = MusicUi(
             musicEnabled = musicEnabled,
-            tracks = BundledMusicCatalog.TRACKS,
+            tracks = BundledMusicCatalog.PICKER_ENTRIES,
             selectedTrackId = selectedTrackId,
         ),
         onMusicEnabledChange = { enabled ->
@@ -165,7 +171,7 @@ fun OptionsRoute(
             // gia selezionata, si limitava a mettere in pausa quando si
             // spegneva - non faceva mai partire nulla quando si accendeva.
             if (enabled) {
-                container.musicPlayer.play(BundledMusicCatalog.byId(selectedTrackId), effectiveMusicVolume())
+                container.musicPlayer.playConfigured(container.musicPreferences, effectiveMusicVolume())
             } else {
                 container.musicPlayer.pause()
             }
@@ -173,7 +179,11 @@ fun OptionsRoute(
         onTrackSelect = { id ->
             selectedTrackId = id
             container.musicPreferences.selectedTrackId = id
-            container.musicPlayer.play(BundledMusicCatalog.byId(id), effectiveMusicVolume())
+            // playConfigured, non più play(byId(id)) diretto (24/07/2026):
+            // "id" può essere anche BundledMusicCatalog.RANDOM_ID, che non
+            // è un file vero — playConfigured sa distinguerlo e avvia la
+            // modalità casuale invece di caricare un asset inesistente.
+            container.musicPlayer.playConfigured(container.musicPreferences, effectiveMusicVolume())
             // Scegliere una traccia vuol dire volerla sentire (Michele:
             // "seleziono una combo e questa parte per provarla") - se lo
             // switch era spento si accende da solo, cosi lo stato visibile
