@@ -2939,6 +2939,31 @@ sul device.**
   strappato non toccato. Compilazione e suite riverificate verdi.
   **Ancora da confermare sul device.**
 
+- **Icone PG/nemico e barre RES nel Diario di Combattimento, pergamena
+  dedicata in arrivo** (24/07, stesso giorno, screenshot di Michele
+  del combattimento contro i Warehouse Thugs — richiesta a tre punti:
+  "vorrei creare due pergamene... a dimensione della finestra del
+  combat... senza scudini... poi due barrette della RES, una rossa per
+  i nemici e una verde per me... poi le icone del pg al posto di Tu e
+  al posto dei nemici"):
+  - Fatte subito le ultime due: `CombatantColumn` in
+    `CombatDiaryPanel.kt` mostra ora un'icona sopra al nome (l'animale
+    scelto in creazione per l'eroe via `heroIconRes`, l'illustrazione
+    dichiarata in `Combat.enemyImage` per l'avversario — stessa già
+    mostrata sopra in `EnemyPortrait`, null se non dichiarata, niente
+    segnaposto) e una `LinearProgressIndicator` colorata (verde per il
+    giocatore, rossa per il nemico) accanto al testo "RES x/y".
+  - La pergamena dedicata resta **da fare**: serve prima l'asset.
+    Specifiche scritte in `doc/UPGRADE.md` (1200×640px, china/Kai,
+    sfondo bianco, senza scudi, chiara+scura) — misura presa dalle
+    proporzioni della card nello screenshot, non pixel-perfect di
+    proposito (mostrata con `ContentScale.Crop` come le altre
+    pergamene, un'altezza leggermente diversa non rompe nulla). Quando
+    arrivano i file, serve un campo nuovo in `ParchmentStyle`
+    (`combatRes`, distinto da `fullRes` già usato dalla narrazione).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
