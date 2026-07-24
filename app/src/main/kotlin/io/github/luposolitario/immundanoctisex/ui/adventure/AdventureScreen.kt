@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,6 +29,7 @@ import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +47,8 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.R
+import io.github.luposolitario.immundanoctisex.core.data.model.Choice
+import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 import io.github.luposolitario.immundanoctisex.util.resolved
 
@@ -387,31 +392,93 @@ private fun Header(
     }
 }
 
+// Selezione in due tempi (24/07/2026, richiesta Michele dopo aver visto
+// 5 scelte impilate schiacciare il testo della scena a una striscia
+// sottile): un solo bottone che apre un popup con TUTTE le opzioni
+// (normali + discipline insieme), la scelta fatta resta "in sospeso"
+// (mostrata sul bottone, si può riaprire il popup e cambiarla) finché
+// non si tocca Continua. SEMPRE questo comportamento, anche con una
+// sola scelta — un solo flusso da capire e testare, non due (scelta di
+// Michele tra "sempre" e "solo con tante scelte").
 @Composable
 private fun ChoicesZone(state: AdventureState) {
+    // Chiave sulla scena: cambiando scena si riparte senza selezione,
+    // niente scelta della scena precedente che sopravvive per sbaglio.
+    var showMenu by remember(state.currentScene.id) { mutableStateOf(false) }
+    var selected by remember(state.currentScene.id) { mutableStateOf<Any?>(null) }
+
+    fun labelFor(item: Any): String = when (item) {
+        is Choice -> state.choiceText(item)
+        is DisciplineChoice -> state.disciplineChoiceText(item)
+        else -> ""
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        state.availableChoices.forEach { choice ->
-            Button(onClick = { state.takeChoice(choice) }, modifier = Modifier.fillMaxWidth()) {
-                Text(state.choiceText(choice))
-            }
+        OutlinedButton(onClick = { showMenu = true }, modifier = Modifier.fillMaxWidth()) {
+            Text(selected?.let { labelFor(it) } ?: stringResource(R.string.adventure_choose_action))
         }
-        state.availableDisciplineChoices.forEach { choice ->
-            OutlinedCard(
-                onClick = { state.useDiscipline(choice) },
+        if (selected != null) {
+            Button(
+                onClick = {
+                    when (val choice = selected) {
+                        is Choice -> state.takeChoice(choice)
+                        is DisciplineChoice -> state.useDiscipline(choice)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = disciplineIcon(choice.disciplineId),
-                        contentDescription = choice.disciplineId,
-                        tint = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier.size(20.dp),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(state.disciplineChoiceText(choice), fontStyle = FontStyle.Italic, fontWeight = FontWeight.Bold)
-                }
+                Text(stringResource(R.string.adventure_continue))
             }
         }
+    }
+
+    if (showMenu) {
+        AlertDialog(
+            onDismissRequest = { showMenu = false },
+            title = { Text(stringResource(R.string.adventure_choose_action)) },
+            text = {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState()),
+                ) {
+                    state.availableChoices.forEach { choice ->
+                        Button(
+                            onClick = { selected = choice; showMenu = false },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(state.choiceText(choice))
+                        }
+                    }
+                    state.availableDisciplineChoices.forEach { choice ->
+                        OutlinedCard(
+                            onClick = { selected = choice; showMenu = false },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    imageVector = disciplineIcon(choice.disciplineId),
+                                    contentDescription = choice.disciplineId,
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                    modifier = Modifier.size(20.dp),
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    state.disciplineChoiceText(choice),
+                                    fontStyle = FontStyle.Italic,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {},
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showMenu = false }) {
+                    Text("Annulla")
+                }
+            },
+        )
     }
 }
 
