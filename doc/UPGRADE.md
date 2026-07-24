@@ -226,6 +226,50 @@ stato (`HeroIcon` in `:core:data`). **Mai visto girare sul device.**
   nella stessa famiglia visiva. Stesso file, quindi anche la faccia
   zero del Dado del Destino (`TenSidedDie`) eredita il lupo nuovo.
 
+**Sfondi di scena (`loc_*`) mancanti — 10 location nuove** (24/07/2026)
+— **DA FARE**: emerse mentre si agganciavano i suoni location
+(`doc/SUONI-IMMAGINI.md`) — Michele aveva già registrato gli mp3 per
+queste 10 location, ma non esistono ancora né come immagine né come ID
+in `SceneImageCatalog.kt`/`sceneBackgroundRes` (a differenza dei 24
+`loc_*` attuali, che hanno già tutti un file vero in
+`res/drawable-nodpi/*.jpg`, stile fotografico non ancora reskinnato).
+Una volta pronte le immagini, l'aggancio è codice minimo: un id in più
+in `SceneImageCatalog.DESCRIPTIONS` + un `when` in più in
+`sceneBackgroundRes`, stesso schema delle altre 24.
+
+- Formato **JPG o PNG**, orientamento **orizzontale** (16:9 o simile,
+  es. 1600×900 px, minimo 1280px sul lato lungo): il banner della scena
+  le mostra con `ContentScale.Crop` in una fascia larga e bassa
+  (`AdventureBanner`), un'immagine quadrata o verticale verrebbe
+  tagliata di più del necessario.
+- **Sfondo bianco**, **stile china/Kai** — stessa famiglia visiva del
+  reskin già fatto (icone eroe, armi, ritratti): illustrazione a china/
+  silhouette, non fotorealistica. Rottura di stile rispetto alle 24
+  location attuali (fotografiche): non è un problema per queste 10
+  nuove, ma segnala che PRIMA O POI anche le 24 vecchie andranno
+  rifatte nello stesso stile per coerenza (non urgente, non richiesto
+  ora).
+- Descrizione breve per la generazione, una per location:
+  - `loc_abandoned_keep` — una rocca/fortezza abbandonata, mura
+    diroccate invase dall'edera, in rovina.
+  - `loc_ancient_ruins` — rovine di un antico tempio, colonne spezzate
+    invase dalla vegetazione.
+  - `loc_battlefield` — campo di battaglia devastato, armi e scudi
+    spezzati a terra, corvi in volo.
+  - `loc_dungeon` — corridoio di prigione sotterranea, sbarre di
+    ferro, torce alle pareti.
+  - `loc_haunted_house` — casa abbandonata e infestata, finestre
+    rotte, atmosfera inquietante.
+  - `loc_swamp` — palude nebbiosa, alberi contorti e morti, acqua
+    torbida.
+  - `loc_temple` — facciata di un tempio antico, colonne di pietra, un
+    altare in fondo.
+  - `loc_volcano` — paesaggio vulcanico, colate di lava, cratere
+    fumante.
+  - `loc_waterfall` — cascata tra le rocce, foresta intorno.
+  - `loc_wizard_tower` — torre solitaria di un mago, alta e affusolata,
+    simboli arcani incisi, finestre luminescenti.
+
 **Cosa NON chiederle**: copiare il logo "LONE WOLF" o le illustrazioni
 specifiche del libro originale — quelle sono protette. Lo stile sì,
 il contenuto esatto no.
