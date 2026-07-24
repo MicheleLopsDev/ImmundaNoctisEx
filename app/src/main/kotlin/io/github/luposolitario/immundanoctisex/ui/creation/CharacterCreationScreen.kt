@@ -19,9 +19,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -126,22 +131,41 @@ private fun GenderCard(state: CreationState) {
             // "Lupo" come nome non avrebbe più senso scegliendo un
             // drago) — "Eroe Solitario"/"Eroina Solitaria", generico
             // quanto basta per qualunque animale si scelga.
-            OutlinedTextField(
-                value = state.heroName,
-                onValueChange = { state.heroName = it },
-                label = { Text(stringResource(R.string.creation_name)) },
-                placeholder = {
-                    Text(
-                        if (state.gender == Gender.MALE) {
-                            stringResource(R.string.creation_name_default_male)
-                        } else {
-                            stringResource(R.string.creation_name_default_female)
-                        },
-                    )
-                },
-                singleLine = true,
+            // Dado per un nome a caso (24/07/2026, richiesta Michele:
+            // "nomi casuali che rispettano il canone") — liste in
+            // strings.xml (nomi = testo mostrato, non un ID), scelte
+            // dallo stesso DiceRoller di tutto il resto.
+            val maleNames = stringArrayResource(R.array.creation_random_names_male)
+            val femaleNames = stringArrayResource(R.array.creation_random_names_female)
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-            )
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                OutlinedTextField(
+                    value = state.heroName,
+                    onValueChange = { state.heroName = it },
+                    label = { Text(stringResource(R.string.creation_name)) },
+                    placeholder = {
+                        Text(
+                            if (state.gender == Gender.MALE) {
+                                stringResource(R.string.creation_name_default_male)
+                            } else {
+                                stringResource(R.string.creation_name_default_female)
+                            },
+                        )
+                    },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(Modifier.width(8.dp))
+                FilledIconButton(
+                    onClick = {
+                        state.randomizeName((if (state.gender == Gender.MALE) maleNames else femaleNames).toList())
+                    },
+                ) {
+                    Icon(Icons.Default.Casino, contentDescription = stringResource(R.string.creation_name_random))
+                }
+            }
         }
     }
 }
@@ -249,12 +273,12 @@ private fun DisciplinesCard(state: CreationState) {
             )
             Spacer(Modifier.height(4.dp))
             // "Scegli a caso" anche qui (24/07/2026, richiesta Michele:
-            // "uno che non vuole perdere tempo usa quello") — stessa
-            // etichetta del tiro casuale della specializzazione,
-            // sostituisce SEMPRE la selezione corrente, ripetibile senza
-            // limiti.
-            Button(onClick = { state.randomizeDisciplines() }) {
-                Text(stringResource(R.string.creation_weaponskill_random))
+            // "uno che non vuole perdere tempo usa quello") — sostituisce
+            // SEMPRE la selezione corrente, ripetibile senza limiti. Solo
+            // icona dado, niente etichetta (24/07/2026, stessa richiesta
+            // di Michele per tutte le azioni casuali della creazione).
+            FilledIconButton(onClick = { state.randomizeDisciplines() }) {
+                Icon(Icons.Default.Casino, contentDescription = stringResource(R.string.creation_weaponskill_random))
             }
             Spacer(Modifier.height(8.dp))
             LazyVerticalGrid(
@@ -307,8 +331,10 @@ private fun WeaponSkillCard(state: CreationState) {
                 color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(8.dp))
-            Button(onClick = { state.rollRandomWeaponSkill() }, enabled = enabled) {
-                Text(stringResource(R.string.creation_weaponskill_random))
+            // Solo icona dado, niente etichetta (24/07/2026, richiesta
+            // Michele: "un'icona dado affianco invece della scritta").
+            FilledIconButton(onClick = { state.rollRandomWeaponSkill() }, enabled = enabled) {
+                Icon(Icons.Default.Casino, contentDescription = stringResource(R.string.creation_weaponskill_random))
             }
         }
     }

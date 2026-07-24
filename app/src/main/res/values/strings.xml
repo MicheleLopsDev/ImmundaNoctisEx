@@ -84,6 +84,55 @@
     <string name="creation_name">Nome (opzionale)</string>
     <string name="creation_name_default_male">Eroe Solitario</string>
     <string name="creation_name_default_female">Eroina Solitaria</string>
+    <string name="creation_name_random">Nome a caso</string>
+    <!-- Nomi casuali in stile Sommerlund/guerriero Kai (24/07/2026,
+         richiesta Michele: "nomi casuali che rispettano il canone") —
+         inventati nello stile dei libri, non nomi di personaggi
+         specifici. Usati dal dado accanto al campo Nome. -->
+    <string-array name="creation_random_names_male">
+        <item>Darian</item>
+        <item>Kelvar</item>
+        <item>Rothgar</item>
+        <item>Aldric</item>
+        <item>Bran</item>
+        <item>Corwin</item>
+        <item>Eamon</item>
+        <item>Fenwick</item>
+        <item>Garrick</item>
+        <item>Hadwin</item>
+        <item>Ivor</item>
+        <item>Jareth</item>
+        <item>Kael</item>
+        <item>Loran</item>
+        <item>Merek</item>
+        <item>Osric</item>
+        <item>Thorne</item>
+        <item>Wystan</item>
+        <item>Aric</item>
+        <item>Brennus</item>
+    </string-array>
+    <string-array name="creation_random_names_female">
+        <item>Elara</item>
+        <item>Wren</item>
+        <item>Isolde</item>
+        <item>Maren</item>
+        <item>Sable</item>
+        <item>Thalia</item>
+        <item>Vesper</item>
+        <item>Wynn</item>
+        <item>Aveline</item>
+        <item>Brynn</item>
+        <item>Cora</item>
+        <item>Elowen</item>
+        <item>Freya</item>
+        <item>Ingrid</item>
+        <item>Lyra</item>
+        <item>Maeve</item>
+        <item>Nerys</item>
+        <item>Rowan</item>
+        <item>Sela</item>
+        <item>Talia</item>
+    </string-array>
     <string name="creation_icon">Icona</string>
     <string name="hero_icon_wolf">Lupo</string>
     <string name="hero_icon_falcon">Falco</string>

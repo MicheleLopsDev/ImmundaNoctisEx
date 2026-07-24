@@ -112,6 +112,16 @@ class CreationState(private val dice: DiceRoller) {
         gold = dice.roll()
     }
 
+    // Nome a caso (24/07/2026, richiesta Michele: "nomi casuali che
+    // rispettano il canone... icona dado affianco") — la lista (in
+    // strings.xml, testo mostrato) arriva dal composable perché solo lui
+    // ha accesso alle risorse Android; qui si sceglie solo l'indice,
+    // stesso DiceRoller di tutto il resto.
+    fun randomizeName(candidates: List<String>) {
+        if (candidates.isEmpty()) return
+        heroName = candidates[dice.roll() % candidates.size]
+    }
+
     fun toggleDiscipline(id: String) {
         when {
             selectedDisciplines.contains(id) -> {
