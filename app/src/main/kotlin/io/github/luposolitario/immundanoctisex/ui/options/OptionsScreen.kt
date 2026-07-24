@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.AccentColor
+import io.github.luposolitario.immundanoctisex.util.DiceColor
 import io.github.luposolitario.immundanoctisex.util.NarrativeTone
 import io.github.luposolitario.immundanoctisex.util.OutputLanguage
 import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
@@ -46,6 +47,8 @@ fun OptionsScreen(
     onAccentColorSelect: (AccentColor) -> Unit,
     statusCardColor: StatusCardColor,
     onStatusCardColorSelect: (StatusCardColor) -> Unit,
+    diceColor: DiceColor,
+    onDiceColorSelect: (DiceColor) -> Unit,
     parchmentStyle: ParchmentStyle,
     onParchmentStyleSelect: (ParchmentStyle) -> Unit,
     readingFont: ReadingFont,
@@ -104,6 +107,7 @@ fun OptionsScreen(
             ThemeSection(darkOverride, onThemeSelect)
             AccentColorSection(accentColor, onAccentColorSelect)
             StatusCardColorSection(statusCardColor, onStatusCardColorSelect)
+            DiceColorSection(diceColor, onDiceColorSelect)
             ParchmentSection(parchmentStyle, onParchmentStyleSelect)
             LanguageSection(outputLanguage, onLanguageSelect)
             ToneSection(narrativeTone, onToneSelect)
@@ -202,6 +206,8 @@ private fun OptionsScreenPreview() {
             onAccentColorSelect = {},
             statusCardColor = StatusCardColor.DEFAULT,
             onStatusCardColorSelect = {},
+            diceColor = DiceColor.GRAY,
+            onDiceColorSelect = {},
             parchmentStyle = ParchmentStyle.OFF,
             onParchmentStyleSelect = {},
             readingFont = ReadingFont.ALMENDRA,

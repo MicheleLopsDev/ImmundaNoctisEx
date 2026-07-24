@@ -101,6 +101,12 @@ fun AdventureScreen(
     // l'azione vera vive nella Route che ha accesso al container.
     musicEnabled: Boolean = false,
     onMusicToggle: () -> Unit = {},
+    // Colore del Dado del Destino (24/07/2026, richiesta Michele: "fai
+    // che nelle preferenze si può scegliere il colore del dado") —
+    // stesso pattern di statusCardColor/parchmentStyle, un semplice
+    // parametro letto da Opzioni.
+    diceColor: io.github.luposolitario.immundanoctisex.util.DiceColor =
+        io.github.luposolitario.immundanoctisex.util.DiceColor.GRAY,
 ) {
     // Scheda e Diario come overlay dentro la route (stato condiviso;
     // diventeranno destinazioni proprie in Fase 5).
@@ -270,7 +276,7 @@ fun AdventureScreen(
         Spacer(Modifier.height(8.dp))
 
         when {
-            state.combatSession != null -> CombatActiveZone(state)
+            state.combatSession != null -> CombatActiveZone(state, diceColor)
             // Finché il narratore scrive non si mostrano scelte né nemico:
             // apparirebbero col testo originale per poi cambiare sotto gli
             // occhi (UI.md: prima lo streaming, POI i pulsanti).

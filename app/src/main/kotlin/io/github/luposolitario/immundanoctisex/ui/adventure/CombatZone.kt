@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
+import io.github.luposolitario.immundanoctisex.util.DiceColor
 
 // La zona scelte trasformata in quadro di combattimento (UI.md §Il
 // combattimento nella scena): nessuna schermata separata. Il quadro vero
@@ -57,7 +58,7 @@ fun CombatEntryZone(state: AdventureState) {
 // Michele 20/07/2026) + menu tattico. Il pannello resta lo stesso dal
 // primo colpo al riepilogo finale — mai un salto visivo a metà scontro.
 @Composable
-fun CombatActiveZone(state: AdventureState) {
+fun CombatActiveZone(state: AdventureState, diceColor: DiceColor = DiceColor.GRAY) {
     val session = requireNotNull(state.combatSession)
     val combat = requireNotNull(state.currentScene.combat)
 
@@ -77,7 +78,7 @@ fun CombatActiveZone(state: AdventureState) {
             // nemico?") — prima spariva non appena si sceglieva Rapido/
             // Completo, perché la mostrava solo CombatEntryZone.
             EnemyPortrait(combat.enemyImage)
-            CombatDiaryPanel(state, session)
+            CombatDiaryPanel(state, session, diceColor)
             if (session.status == CombatStatus.ONGOING) {
                 TacticalMenu(state, session)
             }
