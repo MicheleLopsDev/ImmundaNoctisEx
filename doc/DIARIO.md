@@ -2812,6 +2812,28 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **`playNamed` non sovrappone più lo stesso suono** (24/07, stesso
+  giorno, Michele: sta aggiungendo altri mp3 di introduzione location
+  (~30" l'uno, dopo `loc_caves.mp3` sono arrivati `loc_crypt.mp3` e
+  `loc_cursed_castle.mp3`) e ha chiesto: "se un file sta suonando e
+  avvio lo stesso file questo non riparte ma aspetta che finisca,
+  verifica se funziona già così" — VERIFICATO che non era così:
+  `SoundPool.play()` avvia sempre un nuovo stream, nessun controllo su
+  cosa sta già suonando.
+  - `SoundEffectPlayer.playNamed()`: se il nome richiesto è già "in
+    corso" (stimato dalla durata vera del file via
+    `MediaMetadataRetriever`, letta una sola volta e messa in cache —
+    non un valore fisso a 30", regge file di lunghezza diversa), la
+    chiamata viene ignorata invece di avviare una seconda copia in
+    overlap. SoundPool non ha un `OnCompletionListener` come
+    MediaPlayer: “aspetta che finisca” si traduce così, non con un
+    callback vero — semplicemente non si accavalla, non si mette in
+    coda un replay automatico al termine (lettura scelta del testo di
+    Michele: "questo non riparte" riferito al suono che sta già
+    suonando, non a un secondo tentativo posticipato).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
