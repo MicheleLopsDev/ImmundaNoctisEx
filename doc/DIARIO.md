@@ -2578,6 +2578,22 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Specializzazione SOLO a caso, e "a caso" anche per le discipline**
+  (24/07, stesso giorno, Michele: "weaponskill solo a caso quante
+  volte si vuole, possiamo aggiungere anche un random per le
+  discipline così uno che non vuole perdere tempo usa quello"):
+  - Tolto il menu a tendina di `WeaponSkillCard` (scelta manuale):
+    resta solo il tiro casuale, ripetibile senza limiti — stesso
+    principio delle statistiche appena aperto.
+  - Nuova `CreationState.randomizeDisciplines()`: 5 delle 10 senza
+    ripetizioni, stesso `DiceRoller` di sempre (mai `Random` inline),
+    SOSTITUISCE la selezione corrente — bottone "Scegli a caso" anche
+    in `DisciplinesCard`, ripetibile senza limiti. Se WEAPONSKILL
+    finisce tra le 5, la specializzazione riprende un valore (quello
+    già impostato o Spada di default) invece di restare vuota.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
