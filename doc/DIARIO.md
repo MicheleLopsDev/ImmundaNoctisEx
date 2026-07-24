@@ -2877,6 +2877,32 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **10 nuove location loc_* nel catalogo scene, stile china/Kai**
+  (24/07, stesso giorno, Michele: "ho aggiunto altri file controlla" —
+  le 11 immagini richieste erano arrivate in `origina_res/` come
+  `.jfif`/`.png`): viste tutte prima di agganciarle (mai fidarsi del
+  nome del file da solo).
+  - 10 agganciate: `loc_abandoned_keep`, `loc_ancient_ruins`,
+    `loc_battlefield`, `loc_dungeon`, `loc_haunted_house`, `loc_swamp`,
+    `loc_volcano`, `loc_waterfall`, `loc_wizard_cove`, `loc_wizard_tower`
+    — ridimensionate a 1024px di larghezza, salvate in
+    `res/drawable-nodpi/*.jpg`, id+descrizione aggiunti a
+    `SceneImageCatalog.DESCRIPTIONS` e `sceneBackgroundRes`. Stile
+    perfettamente in linea con la richiesta (china/silhouette, sfondo
+    bianco). `loc_wizard_cove` non era l'insenatura marina ipotizzata
+    nella descrizione originale: l'immagine consegnata è lo studio
+    nascosto di un mago — descrizione corretta di conseguenza guardando
+    il disegno vero, non il nome del file.
+  - **`loc_temple` NON agganciata**: l'illustrazione ha un rilievo con
+    iconografia cristiana esplicita (Cristo in trono tra i santi, croce
+    sul campanile) — fuori tono per un tempio fantasy generico
+    nell'ambientazione di Lupo Solitario. Resta solo in
+    `origina_res/loc_temple.jfif`, segnalato in `doc/UPGRADE.md`: da
+    chiedere a Michele se rigenerarla senza simbologia religiosa reale
+    o se accettarla comunque.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
