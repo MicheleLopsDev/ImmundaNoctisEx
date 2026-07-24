@@ -2647,6 +2647,22 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Random anche per icona eroe, arma e oggetto speciale** (24/07,
+  stesso giorno, Michele: "aggiungiamo il random per anche le altre
+  scelte potrebbe essere carino icone ed oggetti"): stesso principio di
+  tutte le altre azioni casuali della creazione (sostituisce sempre la
+  scelta corrente, ripetibile senza limiti, stesso `DiceRoller`).
+  - Nuove `CreationState.randomizeHeroIcon()` (tra i 15 animali),
+    `randomizeWeapon()` (tra le 9 armi vere, le arti marziali restano
+    una scelta a parte), `randomizeSpecialItem()` (tra Mappa/Elmo/Gilet).
+  - Dado centrato aggiunto a `HeroIconCard`, `WeaponCard` e
+    `SpecialItemCard`, stessa icona (`Icons.Default.Casino`) e stesso
+    `contentDescription` riusato delle altre. Tutte le scelte della
+    creazione (nome, icona, statistiche, discipline, specializzazione,
+    arma, oggetto speciale) hanno ora un'alternativa a caso.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
