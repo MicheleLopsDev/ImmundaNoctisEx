@@ -2676,6 +2676,17 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Fascia ritratti più stretta e senza nero fisso** (24/07, stesso
+  giorno, screenshot di Michele sul Razr: "non male ma rendi quella
+  parte nera sotto le icone dello stesso colore dello sfondo esterno e
+  la barra nera deve avere la minor lunghezza possibile si mangia un
+  sacco di spazio, guarda l'immagine va ristretta"): lo sfondo fisso
+  `Color.Black` diventa `MaterialTheme.colorScheme.background` (si
+  fondeva male col tema chiaro), padding verticale della fascia da 8dp
+  a 2dp — badge (64dp) invariati, era il padding a sprecare spazio.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
