@@ -2687,6 +2687,25 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Meno spazio tra i nomi del banner e la pergamena** (24/07, stesso
+  giorno, screenshot successivo di Michele: "quasi perfetto pur
+  diminuire lo spazio tra i nomi delle icone e la pergamena mi sembra
+  ci sia ancora troppo spazio"): due cause individuate.
+  - `NarrationParchmentPanel` aveva `padding(vertical = 8.dp)` nel
+    modifier passato da `AdventureScreen` — tolto il margine sopra
+    (`padding(top = 0.dp, bottom = 8.dp)`), resta solo sotto verso la
+    card di stato.
+  - Il `Text` di "Narratore"/nome eroe in `PortraitBadge` aveva
+    `fontSize = 11.sp` ma NESSUN `lineHeight` esplicito: eredita quello
+    di default (pensato per un fontSize più grande), che riserva
+    diversi dp invisibili sotto la scritta a prescindere dai glifi
+    veri. Aggiunto `lineHeight = 12.sp` per allinearlo al fontSize.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device — diagnosi fatta leggendo il layout, non misurata dal vivo:
+  se lo spazio resta ancora troppo, il margine proporzionale del 68%
+  interno a `NarrationParchmentPanel` (Michele, foto col rettangolo
+  arancione, 24/07) è il prossimo sospetto.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
