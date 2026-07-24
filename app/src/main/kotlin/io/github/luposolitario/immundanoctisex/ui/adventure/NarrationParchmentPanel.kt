@@ -66,14 +66,16 @@ fun NarrationParchmentPanel(
         // fisso in dp): gli scudi degli angoli occupano fino al ~19-22%
         // dell'immagine dagli angoli (misurato con Pillow) — un padding
         // fisso lasciava il testo a coprirli su schermi diversi da
-        // quello di prova. Al 68% il riquadro resta ben dentro, scudi e
-        // strappo restano visibili e non coperti dal testo (Michele,
-        // foto col rettangolo arancione: "verifica che i loghi... non
-        // siano sovrascritte da testo").
+        // quello di prova. 68% -> 85% (24/07/2026, screenshot di Michele:
+        // "aumentiamo la dimensione del box in argento, quasi ad arrivare
+        // a filo della pergamena" — nello screenshot gli scudi avevano
+        // ancora molto margine): resta un margine di sicurezza dal bordo
+        // vero e proprio, che ha "denti" strappati profondi e irregolari
+        // in alcuni punti, non solo dagli scudi.
         Box(
             modifier = Modifier
                 .align(Alignment.Center)
-                .fillMaxSize(0.68f)
+                .fillMaxSize(0.85f)
                 .border(5.dp, borderBrush, RoundedCornerShape(8.dp))
                 .clip(RoundedCornerShape(8.dp)),
         ) {
