@@ -2755,6 +2755,23 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Voci dei finali agganciate** (24/07, sessione successiva, Michele:
+  "ho aggiunto le voci degli endings per tutti i casi"): l'impalcatura
+  esisteva già dal 22/07 (`AdventureState.playEndingSoundIfNew()`,
+  richiesta di allora: "una voce di gioia quando termina l'avventura e
+  un grido quando muore") ma senza i file veri — `playNamed` degradava
+  in silenzio, come progettato. Copiati i 6 file che Michele ha
+  registrato/generato in `origina_res/` dentro
+  `assets/sfx/endings/` con GLI STESSI NOMI già attesi dal codice
+  (`ending_victory_male.mp3`, `ending_victory_female.mp3`,
+  `ending_defeat_male.mp3`, `ending_defeat_female.mp3`,
+  `ending_neutral_male.mp3`, `ending_neutral_female.mp3`): zero
+  modifiche al codice, solo posizionamento asset. Anche i sorgenti in
+  `origina_res/` versionati, come per le altre risorse audio/immagine.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.** Resta un `origina_res/test1.mp3` non usato da nessun nome
+  atteso: da chiedere a Michele cos'è prima di toccarlo.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
