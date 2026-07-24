@@ -2914,6 +2914,18 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Riquadro di testo della pergamena ingrandito (68% -> 85%)** (24/07,
+  stesso giorno, screenshot di Michele: "se aumentiamo la dimensione
+  del box in argento quasi ad arrivare a filo della pergamena che
+  dici?"): nello screenshot gli scudi degli angoli avevano ancora
+  molto margine rispetto al riquadro, quindi c'era spazio per
+  ingrandirlo — non fino al bordo vero ("a filo"), per lasciare un
+  margine di sicurezza dal bordo strappato (denti irregolari e
+  profondi in alcuni punti, non solo dagli scudi, già scoperto tarando
+  il 68% originale). `NarrationParchmentPanel`: `fillMaxSize(0.68f)` ->
+  `fillMaxSize(0.85f)` sul riquadro interno. Compilazione e suite
+  riverificate verdi. **Ancora da confermare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
