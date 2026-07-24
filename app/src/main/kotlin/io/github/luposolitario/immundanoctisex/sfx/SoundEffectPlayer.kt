@@ -62,6 +62,20 @@ class SoundEffectPlayer(
     private val soundIds = mutableMapOf<SoundEffect, Int>()
     private val loaded = mutableSetOf<Int>()
 
+    // BUG (24/07/2026, Michele: "a volte non partono i suoni... sembra
+    // che se il tts è manuale a volte non parte l'audio"): SoundPool
+    // carica in modo ASINCRONO — la primissima volta che si richiede un
+    // nome, `pool.load()` parte ma il campione non è ancora in `loaded`
+    // quando arriva la richiesta di suonarlo subito dopo, e la richiesta
+    // spariva in silenzio per sempre (mai più ritentata, l'id restava in
+    // cache). Non è legato al TTS: è più visibile quando l'auto-lettura
+    // è spenta perché in quel caso non c'è altro lavoro a tenere occupato
+    // il thread principale abbastanza da lasciare il tempo alla
+    // decodifica di finire per puro caso. Ora, se il campione non è
+    // ancora pronto, la richiesta si mette in coda e parte da sola non
+    // appena la decodifica finisce, invece di sparire.
+    private val pendingPlayOnLoad = mutableMapOf<Int, () -> Unit>()
+
     // Suoni "a nome libero" (22/07/2026, Michele: "ogni risorsa immagine
     // ha un corrispettivo mp3" + "una voce di gioia quando termina
     // l'avventura e un grido quando muore"): troppi per un enum fisso
@@ -83,7 +97,10 @@ class SoundEffectPlayer(
 
     init {
         pool.setOnLoadCompleteListener { _, sampleId, status ->
-            if (status == 0) loaded += sampleId
+            if (status == 0) {
+                loaded += sampleId
+                pendingPlayOnLoad.remove(sampleId)?.invoke()
+            }
         }
         SoundEffect.entries.forEach { effect ->
             runCatching {
@@ -99,8 +116,11 @@ class SoundEffectPlayer(
 
     fun play(effect: SoundEffect) {
         val id = soundIds[effect] ?: return
-        if (id !in loaded) return
         val volume = effectiveVolume()
+        if (id !in loaded) {
+            pendingPlayOnLoad[id] = { runCatching { pool.play(id, volume, volume, 1, 0, 1f) } }
+            return
+        }
         runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
     }
 
@@ -118,7 +138,6 @@ class SoundEffectPlayer(
             namedSoundIds[name] = loadedId
             loadedId
         } ?: return
-        if (id !in loaded) return
 
         // Già in corso: si lascia finire, niente seconda copia sopra.
         val now = System.currentTimeMillis()
@@ -145,6 +164,10 @@ class SoundEffectPlayer(
         musicPlayer?.duckFor(duration, shouldResumeMusic)
 
         val volume = effectiveVolume()
+        if (id !in loaded) {
+            pendingPlayOnLoad[id] = { runCatching { pool.play(id, volume, volume, 1, 0, 1f) } }
+            return
+        }
         runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
     }
 
