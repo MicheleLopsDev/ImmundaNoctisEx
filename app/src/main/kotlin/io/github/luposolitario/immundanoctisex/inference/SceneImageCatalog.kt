@@ -64,6 +64,33 @@ object SceneImageCatalog {
         "loc_tomb_interior" to "inside a tomb, a stone sarcophagus with demonic guardians standing watch",
         "loc_warehouse" to "the interior of a storeroom lined with shelves of crates, potions " +
             "and scrolls, robed figures trading goods near a stone archway",
+        // Secondo giro di location (24/07/2026, Michele: arrivate insieme ai
+        // suoni loc_* già agganciati in SUONI-IMMAGINI.md) — descrizioni
+        // scritte guardando le immagini vere consegnate, non il nome nudo.
+        // loc_temple ESCLUSA di proposito: l'illustrazione ricevuta ha
+        // un'iconografia cristiana esplicita (Cristo in trono, croce sul
+        // campanile), fuori tono per un tempio fantasy generico — in
+        // attesa di una versione diversa da Michele prima di agganciarla.
+        "loc_abandoned_keep" to "a ruined stone keep on a rocky outcrop, crumbling towers " +
+            "overgrown with ivy, rubble and boulders below",
+        "loc_ancient_ruins" to "ancient collapsed temple ruins, broken marble columns overgrown " +
+            "with vines and creeping roots",
+        "loc_battlefield" to "an aftermath battlefield littered with broken swords, spears and " +
+            "shields, a flock of crows circling overhead",
+        "loc_dungeon" to "a stone dungeon corridor lined with barred cells and lit torches, " +
+            "chains hanging on the walls",
+        "loc_haunted_house" to "a decrepit abandoned thatched cottage in a dead swamp forest, " +
+            "broken windows and a sagging roof",
+        "loc_swamp" to "a misty swamp with a crumbling wooden cottage, twisted dead trees and a " +
+            "half-sunken plank path",
+        "loc_volcano" to "an erupting volcano with lava flowing down its slope, smoke billowing " +
+            "from the crater, ruins in the distance",
+        "loc_waterfall" to "a waterfall cascading down a rocky cliff into a forest stream, trees " +
+            "and boulders on both banks",
+        "loc_wizard_cove" to "a wizard's hidden study carved into rock, shelves of potions and " +
+            "books, a cauldron over a fire, a spiral staircase",
+        "loc_wizard_tower" to "a tall spired wizard's tower on a rocky outcrop, arcane runes " +
+            "carved in stone, gnarled trees around its base",
     )
 
     val LOCATIONS: List<String> = DESCRIPTIONS.keys.toList()
