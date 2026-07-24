@@ -94,9 +94,13 @@ private fun buildIcon(name: String, paths: List<String>, tier: RatioTier): Image
 @Composable
 fun ForceRatioIcon(ratio: Int, modifier: Modifier = Modifier) {
     val tier = RatioTier.forAbsRatio(kotlin.math.abs(ratio))
+    // Segni invertiti rispetto al primo giro (24/07/2026, Michele sul
+    // device: "sono invertiti i segni < >, inverti le condizioni") —
+    // ora ">" (maggiore) è l'eroe più forte, "<" (minore) il nemico più
+    // forte: la lettura matematica naturale (CS eroe > CS nemico).
     val icon = when {
-        ratio > 0 -> remember(tier) { buildIcon("minore", MINORE_PATHS, tier) }
-        ratio < 0 -> remember(tier) { buildIcon("maggiore", MAGGIORE_PATHS, tier) }
+        ratio > 0 -> remember(tier) { buildIcon("maggiore", MAGGIORE_PATHS, tier) }
+        ratio < 0 -> remember(tier) { buildIcon("minore", MINORE_PATHS, tier) }
         else -> remember(tier) { buildIcon("uguale", UGUALE_PATHS, tier) }
     }
     Image(imageVector = icon, contentDescription = null, modifier = modifier)
