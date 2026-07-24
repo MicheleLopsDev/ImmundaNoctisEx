@@ -1,7 +1,6 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -194,24 +193,9 @@ internal fun modifierLabel(modifier: StatModifier): String {
 private fun CenterColumn(state: AdventureState, session: CombatSession) {
     val ratio = effectiveCombatSkill(session.player) - effectiveCombatSkill(session.enemy)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Rapporto\ndi Forza", style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(4.dp))
-        // Riquadro invece di solo testo (Michele 22/07/2026, dal Diario di
-        // Combattimento cartaceo: il Rapporto di Forza è l'unico numero
-        // dentro un box vero, al centro tra le due colonne).
-        Box(
-            modifier = Modifier
-                .border(1.5.dp, MaterialTheme.colorScheme.tertiary, RoundedCornerShape(6.dp))
-                .padding(horizontal = 14.dp, vertical = 4.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                if (ratio >= 0) "+$ratio" else "$ratio",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineSmall,
-            )
-        }
-        Spacer(Modifier.height(8.dp))
+        // Il Dado del Destino in cima, tra le icone di eroe e nemico
+        // (24/07/2026, richiesta Michele: "il dado del destino al centro
+        // in alto tra le icone" — prima stava sotto il Rapporto di Forza).
         if (session.status == CombatStatus.ONGOING) {
             // fightRound() è SINCRONO: se combatFightRound() mutasse lo
             // stato al TOCCO invece che a fine animazione, RES e CS
@@ -222,7 +206,18 @@ private fun CenterColumn(state: AdventureState, session: CombatSession) {
                 onTap = { state.playDiceRollSound() },
                 initialFace = state.lastRound?.roll,
             )
+            Spacer(Modifier.height(8.dp))
         }
+        // Icona 3D colorata al posto della scritta "Rapporto di Forza"
+        // (24/07/2026, stessa richiesta: "scompare il testo... è
+        // abbastanza intuitiva la grafica" — verde/giallo/rosso secondo
+        // quanto è squilibrato lo scontro, il segno dice chi è più forte,
+        // il numero piccolo sotto per chi vuole il dato esatto).
+        ForceRatioIcon(ratio, modifier = Modifier.size(40.dp))
+        Text(
+            if (ratio >= 0) "+$ratio" else "$ratio",
+            style = MaterialTheme.typography.labelSmall,
+        )
     }
 }
 
