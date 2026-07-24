@@ -2,7 +2,6 @@ package io.github.luposolitario.immundanoctisex.ui.adventure
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,13 +12,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,9 +38,6 @@ import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEnd
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
 import io.github.luposolitario.immundanoctisex.ui.creation.heroIconRes
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
-import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
-import io.github.luposolitario.immundanoctisex.util.inkColor
-import io.github.luposolitario.immundanoctisex.util.resolved
 
 // Il Diario di Combattimento cartaceo di Lupo Solitario (richiesta Michele
 // 20/07/2026, riferimento fotografato dal registro ufficiale): non un
@@ -53,79 +46,53 @@ import io.github.luposolitario.immundanoctisex.util.resolved
 // Rapporto di Forza al centro, il dado a 10 facce come innesco del tiro.
 // Sostituisce le barre di Resistenza e il testo del round di prima; il
 // menu tattico (oggetto/disciplina/fuga) resta un blocco separato sotto.
+//
+// SENZA sfondo (24/07/2026, richiesta Michele: "dalla card del combat
+// rimuovi lo sfondo... intendo nessuna pergamena e basta") — tolti sia
+// il Card Material3 di prima (pergamena OFF) sia la pila a tre fasce di
+// ParchmentBackground (pergamena attiva): il contenuto sta direttamente
+// sullo schermo, niente riquadro dietro. `ParchmentBackground.kt` non ha
+// più nessun altro punto d'uso, cancellato.
 @Composable
-fun CombatDiaryPanel(
-    state: AdventureState,
-    session: CombatSession,
-    parchmentStyle: ParchmentStyle = ParchmentStyle.OFF,
-    // Serve solo a risolvere AUTO (23/07/2026): quale pergamena scegliere
-    // segue il tema EFFETTIVO dell'app (override incluso), non il solo
-    // sistema — vedi ParchmentStyle.resolved().
-    isDarkTheme: Boolean = false,
-) {
-    // Stile pergamena (22/07/2026, richiesta Michele, scelta in Opzioni;
-    // 23/07/2026 AUTO; poi ancora 23/07/2026 la pila a tre fasce — vedi
-    // ParchmentBackground.kt): OFF resta il Card Material3 di sempre.
-    // Attivo, `ParchmentBackground` dipinge la pergamena SOTTO al
-    // contenuto dentro lo stesso Box. Il colore del testo di default
-    // diventa l'inchiostro giusto per LA VARIANTE RISOLTA
-    // (CompositionLocalProvider, non serve toccare ogni singolo Text —
-    // solo quelli con un colore ESPLICITO, es. i modificatori tertiary,
-    // restano quello che erano).
-    val resolvedStyle = parchmentStyle.resolved(isDarkTheme)
-    val parchmentActive = resolvedStyle.topRes != null
-
-    val content: @Composable () -> Unit = {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Il Diario di Combattimento cartaceo lo mostra sempre in testa
-            // (Michele 22/07/2026, foto del registro): un dato che avevamo
-            // già (currentScene.id), solo mai portato dentro al combattimento.
-            Text(
-                "Paragrafo ${state.currentScene.id}",
-                style = MaterialTheme.typography.labelMedium,
-                color = if (resolvedStyle == ParchmentStyle.OFF) MaterialTheme.colorScheme.onSurfaceVariant else resolvedStyle.inkColor(),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
+fun CombatDiaryPanel(state: AdventureState, session: CombatSession) {
+    Column(modifier = Modifier.padding(16.dp)) {
+        // Il Diario di Combattimento cartaceo lo mostra sempre in testa
+        // (Michele 22/07/2026, foto del registro): un dato che avevamo
+        // già (currentScene.id), solo mai portato dentro al combattimento.
+        Text(
+            "Paragrafo ${state.currentScene.id}",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(Modifier.height(4.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            CombatantColumn(
+                name = "Tu",
+                character = session.player,
+                maxEndurance = effectiveMaxEndurance(session.player),
+                alignEnd = false,
+                iconRes = heroIconRes(session.player.icon),
             )
-            Spacer(Modifier.height(4.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                CombatantColumn(
-                    name = "Tu",
-                    character = session.player,
-                    maxEndurance = effectiveMaxEndurance(session.player),
-                    alignEnd = false,
-                    iconRes = heroIconRes(session.player.icon),
-                )
-                CenterColumn(state, session)
-                CombatantColumn(
-                    name = session.enemy.name,
-                    character = session.enemy,
-                    maxEndurance = session.enemy.maxEndurance,
-                    alignEnd = true,
-                    // Stessa illustrazione già mostrata sopra (EnemyPortrait
-                    // in CombatZone.kt) — null se l'autore non l'ha
-                    // dichiarata, niente segnaposto rotto.
-                    iconRes = enemyImageRes(state.currentScene.combat?.enemyImage),
-                )
-            }
-            if (session.status != CombatStatus.ONGOING) {
-                Spacer(Modifier.height(12.dp))
-                CombatOutcome(state, session)
-            }
+            CenterColumn(state, session)
+            CombatantColumn(
+                name = session.enemy.name,
+                character = session.enemy,
+                maxEndurance = session.enemy.maxEndurance,
+                alignEnd = true,
+                // Stessa illustrazione già mostrata sopra (EnemyPortrait
+                // in CombatZone.kt) — null se l'autore non l'ha
+                // dichiarata, niente segnaposto rotto.
+                iconRes = enemyImageRes(state.currentScene.combat?.enemyImage),
+            )
         }
-    }
-
-    if (!parchmentActive) {
-        Card { content() }
-    } else {
-        CompositionLocalProvider(LocalContentColor provides resolvedStyle.inkColor()) {
-            Box(modifier = Modifier.clip(RoundedCornerShape(12.dp))) {
-                ParchmentBackground(resolvedStyle)
-                content()
-            }
+        if (session.status != CombatStatus.ONGOING) {
+            Spacer(Modifier.height(12.dp))
+            CombatOutcome(state, session)
         }
     }
 }
