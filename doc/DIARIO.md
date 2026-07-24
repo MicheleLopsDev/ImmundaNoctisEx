@@ -3050,6 +3050,35 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Tolto il lupo dalla faccia zero, colore del dado configurabile**
+  (24/07, stesso giorno, Michele, appena vista l'animazione nuova: "c'è
+  una specie di bug perché vedo l'icona di un lupo, non serve a nulla,
+  confonde e basta, lascia sempre il dado, ovviamente fallo diventare
+  grigio e fai che nelle preferenze si può scegliere il colore del
+  dado"):
+  - `TenSidedDie`: la faccia zero non mostra più il simbolo del lupo
+    (dettaglio del dado fisico originale, ma qui percepito come un bug
+    confuso) — ora "0" è un numero come gli altri, sempre la stessa
+    icona a 5 facce.
+  - Nuova `DiceColorPreferences`/`DiceColorSection` (stesso pattern di
+    `AccentColor`: swatch col colore vero in Opzioni, non un picker RGB
+    libero) — 5 preset, GRIGIO di default. Le 5 sfumature delle facce
+    (centrale/luce diretta/ombra media/medio-bassa/ombra profonda) si
+    derivano da UN solo colore base invece di 5 esadecimali fissi per
+    preset, con `lerp` verso bianco/nero — stesso schema tonale della
+    palette rossa originale di Michele, ma calcolato, non hardcoded.
+    `ic_d10.xml` (vector drawable statico) cancellato: l'icona si
+    costruisce ora in codice (`ImageVector.Builder`) per poterla
+    ricolorare, stessa tecnica già usata per `ForceRatioIcon`.
+  - `diceColor` filtra da `AppContainer` fino a `TenSidedDie`
+    attraverso `AdventureRoute` -> `AdventureScreen` ->
+    `CombatActiveZone` -> `CombatDiaryPanel` -> `CenterColumn`, stesso
+    schema già usato per le altre preferenze visive della scena
+    (statusCardColor, parchmentStyle, prima che quest'ultima lasciasse
+    il combattimento).
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
