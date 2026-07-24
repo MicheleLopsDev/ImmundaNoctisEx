@@ -3018,6 +3018,38 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Animazione 3D del dado a 10 facce, icona di default per il nemico**
+  (24/07, stesso giorno, Michele: "ho creato un'animazione complessa
+  per il dado a 10 facce in 3d, xml più codice kotlin... possiamo
+  usare questo, dagli un'occhiata" + "vorrei che nel combat mettessi
+  l'icona ic_enemy_placeholder al posto del nome del nemico...
+  ovviamente se fornita userà quella giusta, questa è di default se
+  non viene indicata nel json"):
+  - Michele ha allegato `origina_res/d10.xml` (le 5 facce triangolari
+    ombreggiate "a aquilone", stessa tecnica dei segni `< = >` di
+    ieri) e `origina_res/algoritmo_di_roll_e_ui_kotlin_compose.kt` (un
+    componente standalone di prova, pacchetto d'esempio a parte).
+    Adattata l'idea dentro il vero `TenSidedDie.kt`: nuovo
+    `ic_d10.xml` (vector drawable), animazione via `graphicsLayer`
+    invece della rotazione 2D di un cerchio colorato — 3 giri completi
+    (1080°) con `FastOutSlowInEasing`, più un "pop" (scala al 130% a
+    metà corsa via `keyframes`), passi della faccia casuale a ritardo
+    CRESCENTE (20 passi, effetto attrito) invece di 8 a intervallo
+    fisso. Contratto verso chi chiama invariato
+    (`onRoll`/`onTap`/`initialFace`), faccia zero mostra ancora il
+    lupo.
+  - `ic_enemy_placeholder.png` (già pronto in `origina_res/res/
+    drawable/`, mai agganciato prima) diventa il fallback dell'icona
+    nemico in `CombatDiaryPanel`: `enemyImageRes(...) ?:
+    R.drawable.ic_enemy_placeholder` — se il libro dichiara
+    `Combat.enemyImage` si vede quello, altrimenti questa silhouette
+    generica, mai più solo il nome nudo. `EnemyPortrait` (il grande
+    banner sopra, in `CombatZone.kt`) resta invariato: lì l'assenza
+    di immagine degrada ancora nel nulla, per non forzare un
+    placeholder enorme su ogni libro che non la dichiara.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
