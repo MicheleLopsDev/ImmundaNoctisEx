@@ -2,6 +2,7 @@ package io.github.luposolitario.immundanoctisex.sfx
 
 import android.content.Context
 import android.media.AudioAttributes
+import android.media.MediaMetadataRetriever
 import android.media.SoundPool
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 import io.github.luposolitario.immundanoctisex.util.SoundEffectPreferences
@@ -56,6 +57,17 @@ class SoundEffectPlayer(
     // non si ritenta ad ogni chiamata (vedi playNamed).
     private val namedSoundIds = mutableMapOf<String, Int?>()
 
+    // Non sovrapporre due volte lo stesso suono (24/07/2026, richiesta
+    // Michele per gli mp3 di introduzione location, ~30" l'uno: "se un
+    // file sta suonando e avvio lo stesso file questo non riparte ma
+    // aspetta che finisca"). SoundPool non ha un OnCompletionListener
+    // come MediaPlayer: si stima quando finisce dalla durata VERA del
+    // file (MediaMetadataRetriever, letta una sola volta e messa in
+    // cache) invece di un valore fisso, così regge anche se un file dura
+    // un po' di più o di meno dei 30" tipici.
+    private val namedSoundDurationMs = mutableMapOf<String, Long>()
+    private val namedSoundPlayingUntil = mutableMapOf<String, Long>()
+
     init {
         pool.setOnLoadCompleteListener { _, sampleId, status ->
             if (status == 0) loaded += sampleId
@@ -94,6 +106,26 @@ class SoundEffectPlayer(
             loadedId
         } ?: return
         if (id !in loaded) return
+
+        // Già in corso: si lascia finire, niente seconda copia sopra.
+        val now = System.currentTimeMillis()
+        if ((namedSoundPlayingUntil[name] ?: 0L) > now) return
+
+        val duration = namedSoundDurationMs.getOrPut(name) {
+            runCatching {
+                context.assets.openFd("sfx/$folder/$name.mp3").use { afd ->
+                    val retriever = MediaMetadataRetriever()
+                    try {
+                        retriever.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                        retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
+                    } finally {
+                        retriever.release()
+                    }
+                }
+            }.getOrDefault(0L)
+        }
+        namedSoundPlayingUntil[name] = now + duration
+
         val volume = effectiveVolume()
         runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
     }
