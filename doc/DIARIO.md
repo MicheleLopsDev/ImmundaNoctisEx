@@ -2706,6 +2706,22 @@ sul device.**
   interno a `NarrationParchmentPanel` (Michele, foto col rettangolo
   arancione, 24/07) è il prossimo sospetto.**
 
+- **Conferma del sospetto: margine della pergamena ritagliato più
+  stretto** (24/07, stesso giorno, screenshot successivo: "ecco qui
+  secondo me si può stringere ancora un po'" — lo spazio si era
+  effettivamente ridotto, ma non abbastanza): misurato con Pillow/numpy
+  il bounding box del contenuto vero (scudi + bordo strappato) dentro
+  `parchment_panel.png`/`parchment_panel_dark.png` — un margine di
+  colore pieno del 4-6% su ogni lato, invisibile a occhio perché quasi
+  identico allo sfondo dell'app. Ritagliate entrambe le immagini più
+  vicino al contenuto (margine residuo ~1%, scudi ancora interi,
+  verificati visivamente prima di salvare) — stesso nome file, nessuna
+  modifica al codice: `ContentScale.Crop` in `NarrationParchmentPanel`
+  ora scala un'immagine con meno "aria" attorno, quindi la fascia
+  vuota prima della pergamena si riduce ulteriormente. File PNG anche
+  più leggeri (meno pixel da codificare). Compilazione e suite
+  riverificate verdi. **Ancora da confermare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
