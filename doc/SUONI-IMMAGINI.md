@@ -21,7 +21,7 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 
 ---
 
-## Luoghi (`loc_*`) — 24
+## Luoghi (`loc_*`) — 34
 
 - [ ] `loc_black_gate` — portale di pietra con statue di teschi cornuti, in un bosco
 - [x] `loc_caves` — ingresso di grotta tra le montagne
@@ -47,19 +47,22 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 - [ ] `loc_tomb_exterior` — ingresso di tomba, catene e statue demoniache
 - [ ] `loc_tomb_interior` — interno di tomba, sarcofago
 - [ ] `loc_warehouse` — interno di magazzino, casse e pergamene
+- [x] `loc_abandoned_keep` — rocca abbandonata in rovina, mura invase dall'edera
+- [x] `loc_ancient_ruins` — rovine di colonne antiche, invase dalla vegetazione
+- [x] `loc_battlefield` — campo di battaglia devastato, armi spezzate, corvi in volo
+- [x] `loc_dungeon` — corridoio di prigione sotterranea, sbarre e torce
+- [x] `loc_haunted_house` — casa abbandonata in una palude morta
+- [x] `loc_swamp` — palude nebbiosa, casolare diroccato, sentiero di assi
+- [x] `loc_volcano` — vulcano in eruzione, colate di lava
+- [x] `loc_waterfall` — cascata tra le rocce nella foresta
+- [x] `loc_wizard_cove` — studio/laboratorio nascosto di un mago (non un'insenatura sul mare, nome fuorviante)
+- [x] `loc_wizard_tower` — torre solitaria di un mago, rune arcane
 
-**Ricevuti ma SENZA un ID corrispondente nel catalogo** (24/07/2026):
-questi 11 file sono stati aggiunti in `assets/sfx/images/` (nessun
-errore, il vocabolario è aperto), ma `SceneImageCatalog.kt` non ha
-nessuna di queste location, quindi `backgroundImage` di una scena non
-potrà mai valere uno di questi nomi — restano silenziosi finché non si
-aggiunge l'immagine corrispondente al catalogo (o si scopre che il nome
-doveva essere uno di quelli già in lista sopra). Lista completa delle
-immagini mancanti (specifiche e descrizioni per la generazione) in
-`doc/UPGRADE.md`:
-`loc_abandoned_keep`, `loc_ancient_ruins`, `loc_battlefield`,
-`loc_dungeon`, `loc_haunted_house`, `loc_swamp`, `loc_temple`,
-`loc_volcano`, `loc_waterfall`, `loc_wizard_cove`, `loc_wizard_tower`.
+**`loc_temple` ricevuta ma NON agganciata** (24/07/2026): l'illustrazione
+ha un'iconografia cristiana esplicita (Cristo in trono, croce sul
+campanile), fuori tono per l'ambientazione — resta solo in
+`origina_res/loc_temple.jfif`, in attesa di una versione diversa o del
+via libera di Michele. Dettagli in `doc/UPGRADE.md`.
 
 ## Nemici e bestie ostili (`enemy_*`/`beast_*`) — 14
 
