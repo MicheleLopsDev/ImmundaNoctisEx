@@ -49,15 +49,17 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 - [ ] `loc_warehouse` — interno di magazzino, casse e pergamene
 
 **Ricevuti ma SENZA un ID corrispondente nel catalogo** (24/07/2026):
-questi 10 file sono stati aggiunti in `assets/sfx/images/` (nessun
+questi 11 file sono stati aggiunti in `assets/sfx/images/` (nessun
 errore, il vocabolario è aperto), ma `SceneImageCatalog.kt` non ha
 nessuna di queste location, quindi `backgroundImage` di una scena non
 potrà mai valere uno di questi nomi — restano silenziosi finché non si
 aggiunge l'immagine corrispondente al catalogo (o si scopre che il nome
-doveva essere uno di quelli già in lista sopra):
+doveva essere uno di quelli già in lista sopra). Lista completa delle
+immagini mancanti (specifiche e descrizioni per la generazione) in
+`doc/UPGRADE.md`:
 `loc_abandoned_keep`, `loc_ancient_ruins`, `loc_battlefield`,
 `loc_dungeon`, `loc_haunted_house`, `loc_swamp`, `loc_temple`,
-`loc_volcano`, `loc_waterfall`, `loc_wizard_tower`.
+`loc_volcano`, `loc_waterfall`, `loc_wizard_cove`, `loc_wizard_tower`.
 
 ## Nemici e bestie ostili (`enemy_*`/`beast_*`) — 14
 

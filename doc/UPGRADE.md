@@ -226,7 +226,7 @@ stato (`HeroIcon` in `:core:data`). **Mai visto girare sul device.**
   nella stessa famiglia visiva. Stesso file, quindi anche la faccia
   zero del Dado del Destino (`TenSidedDie`) eredita il lupo nuovo.
 
-**Sfondi di scena (`loc_*`) mancanti — 10 location nuove** (24/07/2026)
+**Sfondi di scena (`loc_*`) mancanti — 11 location nuove** (24/07/2026)
 — **DA FARE**: emerse mentre si agganciavano i suoni location
 (`doc/SUONI-IMMAGINI.md`) — Michele aveva già registrato gli mp3 per
 queste 10 location, ma non esistono ancora né come immagine né come ID
@@ -267,6 +267,8 @@ in `SceneImageCatalog.DESCRIPTIONS` + un `when` in più in
   - `loc_volcano` — paesaggio vulcanico, colate di lava, cratere
     fumante.
   - `loc_waterfall` — cascata tra le rocce, foresta intorno.
+  - `loc_wizard_cove` — insenatura/baia nascosta di un mago, scogliere
+    a picco sul mare, imbarcadero o grotta con luci arcane.
   - `loc_wizard_tower` — torre solitaria di un mago, alta e affusolata,
     simboli arcani incisi, finestre luminescenti.
 
