@@ -255,6 +255,36 @@ delle 24 esistenti (che restano fotografiche, non ancora reskinnate).
 specifiche del libro originale — quelle sono protette. Lo stile sì,
 il contenuto esatto no.
 
+**Pergamena dedicata al Diario di Combattimento** (24/07/2026) — **DA
+FARE**: Michele vuole due immagini nuove (chiara/scura), un'unica
+illustrazione a piena dimensione invece della pila a tre fasce attuale
+(`ParchmentBackground.kt`, `topRes`/`middleRes`/`bottomRes`), pensata
+apposta per la finestra del Diario di Combattimento e **senza i 4
+scudi d'angolo** (già tolti dalla pergamena della narrazione lo stesso
+giorno, stessa richiesta).
+
+- Formato **JPG o PNG**, **1200×640 px** (~1.9:1, landscape): misura
+  presa dalle proporzioni reali della card nello screenshot di
+  Michele (stato "in corso", senza esito né modificatori attivi — il
+  caso più comune). La card cresce un po' con più righe di
+  modificatori o a fine combattimento (bottone "Continua"): dato che
+  viene mostrata con `ContentScale.Crop` come tutte le altre pergamene
+  dell'app, un'altezza leggermente diversa dal reale non rompe nulla,
+  solo ritaglia un po' più o meno di bordo strappato in alto/basso.
+  Se vuole essere precisa al pixel dovrebbe partire da una card sullo
+  schermo reale a stato "in corso" e misurarla, ma non è necessario.
+- **Sfondo bianco, stile china/Kai**, stessa famiglia visiva del resto
+  del reskin — bordo strappato su tutti e 4 i lati come le altre
+  pergamene, ma **senza scudi agli angoli**.
+- Una versione chiara (toni pergamena/crema) e una scura (stessi toni
+  bruno/marrone della pergamena scura attuale).
+- **Aggancio successivo, quando i file arrivano**: sostituire
+  `ParchmentBackground` in `CombatDiaryPanel.kt` con lo stesso schema
+  già usato da `NarrationParchmentPanel.kt` (`Image` a piena dimensione
+  con `ContentScale.Crop`) — serve un campo NUOVO in `ParchmentStyle`
+  (es. `combatRes: Int?`, distinto da `fullRes` che è già quello della
+  pergamena di narrazione) per le due immagini dedicate al combattimento.
+
 ### Costo dell'integrazione (una volta pronti gli asset)
 Meccanico ma esteso: font in `res/font` + riferimento nel tema Compose
 per i soli titoli; texture come sfondo via `Modifier.background` sui
