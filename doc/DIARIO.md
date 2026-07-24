@@ -2926,6 +2926,19 @@ sul device.**
   `fillMaxSize(0.85f)` sul riquadro interno. Compilazione e suite
   riverificate verdi. **Ancora da confermare sul device.**
 
+- **Tolti i 4 scudi dagli angoli della pergamena** (24/07, stesso
+  giorno, Michele: "ma se li cancellassimo gli scudini tu potresti
+  farlo?" + conferma con dettagli: "sono 4 agli angoli, sia chiara che
+  scura" — avevo consigliato di tenerli per il carattere decorativo,
+  ma la richiesta è arrivata comunque): rattoppati con un clone
+  sfumato della texture circostante (`parchment_panel.png` e
+  `parchment_panel_dark.png`, script Python/Pillow — bbox del riquadro
+  scudo rilevata via soglia sui pixel scuri, patch presa da un punto
+  pulito verso il centro dello stesso lato, bordo della toppa sfumato
+  con una maschera per non lasciare una cucitura netta). Bordo
+  strappato non toccato. Compilazione e suite riverificate verdi.
+  **Ancora da confermare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
