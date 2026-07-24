@@ -67,10 +67,12 @@ object SceneImageCatalog {
         // Secondo giro di location (24/07/2026, Michele: arrivate insieme ai
         // suoni loc_* già agganciati in SUONI-IMMAGINI.md) — descrizioni
         // scritte guardando le immagini vere consegnate, non il nome nudo.
-        // loc_temple ESCLUSA di proposito: l'illustrazione ricevuta ha
-        // un'iconografia cristiana esplicita (Cristo in trono, croce sul
-        // campanile), fuori tono per un tempio fantasy generico — in
-        // attesa di una versione diversa da Michele prima di agganciarla.
+        // loc_temple: la prima versione aveva un'iconografia cristiana
+        // esplicita (Cristo in trono, croce sul campanile), sostituita da
+        // Michele con un Tempio del Sole di Kai, coerente con l'ambientazione.
+        "loc_temple" to "Kai's Sun Temple, a fantasy stone temple facade with carved suns, " +
+            "guardian lion and ram statues flanking the entrance, an animal skull relief above " +
+            "the doorway",
         "loc_abandoned_keep" to "a ruined stone keep on a rocky outcrop, crumbling towers " +
             "overgrown with ivy, rubble and boulders below",
         "loc_ancient_ruins" to "ancient collapsed temple ruins, broken marble columns overgrown " +

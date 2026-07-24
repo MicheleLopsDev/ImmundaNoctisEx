@@ -227,29 +227,27 @@ stato (`HeroIcon` in `:core:data`). **Mai visto girare sul device.**
   zero del Dado del Destino (`TenSidedDie`) eredita il lupo nuovo.
 
 **Sfondi di scena (`loc_*`) mancanti — 11 location nuove** (24/07/2026)
-— **10 FATTE 24/07/2026**, 1 in sospeso: emerse mentre si agganciavano
-i suoni location (`doc/SUONI-IMMAGINI.md`) — Michele ha consegnato le
+— **TUTTE E 11 FATTE 24/07/2026**: emerse mentre si agganciavano i
+suoni location (`doc/SUONI-IMMAGINI.md`) — Michele ha consegnato le
 immagini (china/Kai, sfondo bianco, 1024×572, esattamente come
 richiesto) per `loc_abandoned_keep`, `loc_ancient_ruins`,
 `loc_battlefield`, `loc_dungeon`, `loc_haunted_house`, `loc_swamp`,
-`loc_volcano`, `loc_waterfall`, `loc_wizard_cove`, `loc_wizard_tower`:
-tutte ritagliate/salvate in `res/drawable-nodpi/*.jpg` e agganciate
-in `SceneImageCatalog.DESCRIPTIONS` + `sceneBackgroundRes`, stesso
-schema delle 24 esistenti (che restano fotografiche, non ancora
-reskinnate).
+`loc_temple`, `loc_volcano`, `loc_waterfall`, `loc_wizard_cove`,
+`loc_wizard_tower`: tutte ritagliate/salvate in
+`res/drawable-nodpi/*.jpg` e agganciate in
+`SceneImageCatalog.DESCRIPTIONS` + `sceneBackgroundRes`, stesso schema
+delle 24 esistenti (che restano fotografiche, non ancora reskinnate).
 
 - `loc_wizard_cove` non è quello che la descrizione originale
   ipotizzava ("insenatura/baia sul mare") — l'immagine consegnata è
   invece lo studio/laboratorio nascosto di un mago scavato nella
   roccia, scaffali di pozioni e libri, calderone sul fuoco, scala a
   chiocciola. Descrizione in catalogo corretta di conseguenza.
-- **`loc_temple` NON agganciata**: l'illustrazione ricevuta ha
-  un'iconografia cristiana esplicita (un rilievo con Cristo in trono
-  tra i santi, una croce sulla sommità del campanile) — fuori tono per
-  un tempio fantasy generico nell'ambientazione di Lupo Solitario.
-  **Da chiedere a Michele**: rigenerarla senza simbologia religiosa
-  reale, o va bene comunque? Il file originale resta in
-  `origina_res/loc_temple.jfif`, non copiato in `assets`/`drawable-nodpi`.
+- `loc_temple`: la prima versione aveva un'iconografia cristiana
+  esplicita (Cristo in trono, croce sul campanile) — segnalata a
+  Michele, che l'ha sostituita con un "Tempio del Sole di Kai" (soli
+  incisi, statue guardiane di leone e ariete, teschio animale sopra
+  l'ingresso): coerente con l'ambientazione, agganciata.
 - Le 24 location fotografiche esistenti restano da rifare nello stesso
   stile china/Kai per coerenza, quando ci sarà tempo (non urgente).
 

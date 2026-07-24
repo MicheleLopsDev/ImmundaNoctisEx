@@ -21,7 +21,7 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 
 ---
 
-## Luoghi (`loc_*`) — 34
+## Luoghi (`loc_*`) — 35
 
 - [ ] `loc_black_gate` — portale di pietra con statue di teschi cornuti, in un bosco
 - [x] `loc_caves` — ingresso di grotta tra le montagne
@@ -57,12 +57,7 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 - [x] `loc_waterfall` — cascata tra le rocce nella foresta
 - [x] `loc_wizard_cove` — studio/laboratorio nascosto di un mago (non un'insenatura sul mare, nome fuorviante)
 - [x] `loc_wizard_tower` — torre solitaria di un mago, rune arcane
-
-**`loc_temple` ricevuta ma NON agganciata** (24/07/2026): l'illustrazione
-ha un'iconografia cristiana esplicita (Cristo in trono, croce sul
-campanile), fuori tono per l'ambientazione — resta solo in
-`origina_res/loc_temple.jfif`, in attesa di una versione diversa o del
-via libera di Michele. Dettagli in `doc/UPGRADE.md`.
+- [x] `loc_temple` — Tempio del Sole di Kai, soli incisi, statue guardiane di leone e ariete (rifatta da Michele: la prima versione aveva iconografia cristiana esplicita, fuori tono)
 
 ## Nemici e bestie ostili (`enemy_*`/`beast_*`) — 14
 
