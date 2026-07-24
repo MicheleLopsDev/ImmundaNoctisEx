@@ -2594,6 +2594,29 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Icona dado al posto delle etichette, nome a caso** (24/07, stesso
+  giorno, Michele: "puoi usare anche un icona dado affianco invece
+  della scritta così non abbiamo etichette e potremmo preparare una
+  serie di nomi casuali che rispettano il canone... dove si usa un
+  random che dici?"):
+  - I due bottoni "Scegli a caso" (`WeaponSkillCard`, `DisciplinesCard`)
+    sono diventati `FilledIconButton` con la sola icona dado
+    (`Icons.Default.Casino`, `contentDescription` per l'accessibilità),
+    niente più testo.
+  - Nuovo `CreationState.randomizeName(candidates)`: sceglie un nome
+    dalla lista passata con lo stesso `DiceRoller` di sempre. Le liste
+    (venti nomi maschili, venti femminili, in stile Sommerlord/guerriero
+    Kai ma inventati, non personaggi dei libri) vivono in `strings.xml`
+    come `string-array` (`creation_random_names_male/female`) — coerente
+    con la regola "nomi localizzati solo in strings.xml". Il campo Nome
+    in `GenderCard` ha ora accanto lo stesso `FilledIconButton` a dado.
+  - Lasciato testuale il bottone "Tira/Ritira le Statistiche": non è
+    un'alternativa rapida a una scelta manuale come gli altri tre, è
+    l'unica azione della card — l'etichetta resta più chiara di un'icona
+    muta.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
