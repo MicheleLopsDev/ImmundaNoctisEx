@@ -7,9 +7,9 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,17 +57,24 @@ fun AdventureBanner(
     // altrimenti Gemma può suggerirlo con vocabolario chiuso).
     backgroundImageName: String? = null,
 ) {
-    Box(modifier = modifier.fillMaxWidth().height(150.dp)) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Image(
             painter = painterResource(id = sceneBackgroundRes(backgroundImageName)),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth().height(110.dp),
         )
+        // Ritratti su fascia nera SOTTO l'illustrazione (24/07/2026,
+        // richiesta Michele: prima erano sovrapposti al bordo inferiore
+        // dell'immagine, "mangiandone" un pezzo) — niente più overlay,
+        // l'immagine resta intera.
         Row(
-            modifier = Modifier.fillMaxWidth().align(Alignment.BottomCenter),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.Black)
+                .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.Bottom,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             PortraitBadge(
                 imageRes = R.drawable.portrait_dm,
