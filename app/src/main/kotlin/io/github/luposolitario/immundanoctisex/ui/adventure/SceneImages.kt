@@ -34,5 +34,17 @@ fun sceneBackgroundRes(name: String?): Int = when (name) {
     "loc_tomb_exterior" -> R.drawable.loc_tomb_exterior
     "loc_tomb_interior" -> R.drawable.loc_tomb_interior
     "loc_warehouse" -> R.drawable.loc_warehouse
+    // Secondo giro di location (24/07/2026) — loc_temple ESCLUSA di
+    // proposito, vedi commento in SceneImageCatalog.kt.
+    "loc_abandoned_keep" -> R.drawable.loc_abandoned_keep
+    "loc_ancient_ruins" -> R.drawable.loc_ancient_ruins
+    "loc_battlefield" -> R.drawable.loc_battlefield
+    "loc_dungeon" -> R.drawable.loc_dungeon
+    "loc_haunted_house" -> R.drawable.loc_haunted_house
+    "loc_swamp" -> R.drawable.loc_swamp
+    "loc_volcano" -> R.drawable.loc_volcano
+    "loc_waterfall" -> R.drawable.loc_waterfall
+    "loc_wizard_cove" -> R.drawable.loc_wizard_cove
+    "loc_wizard_tower" -> R.drawable.loc_wizard_tower
     else -> R.drawable.map_dungeon
 }
