@@ -2,6 +2,8 @@ package io.github.luposolitario.immundanoctisex.music
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.os.Handler
+import android.os.Looper
 import io.github.luposolitario.immundanoctisex.util.BundledMusicCatalog
 import io.github.luposolitario.immundanoctisex.util.BundledTrack
 import io.github.luposolitario.immundanoctisex.util.MusicPreferences
@@ -118,11 +120,42 @@ class MusicPlayer(private val context: Context) {
         runCatching { if (player.isPlaying) player.pause() }
     }
 
+    // Ripresa dopo una pausa "tecnica" (vedi duckFor sotto) — non un
+    // play(track) da capo, solo far ripartire lo stesso MediaPlayer da
+    // dove si era fermato (funziona uguale su traccia fissa e casuale,
+    // è sempre lo stesso player sotto).
+    fun resume() {
+        runCatching { if (!player.isPlaying) player.start() }
+    }
+
+    private val handler = Handler(Looper.getMainLooper())
+    private var duckResumeRunnable: Runnable? = null
+
+    // Pausa "tecnica" per lasciar sentire un suono nominato senza che si
+    // accavalli alla musica (24/07/2026, richiesta Michele: "durante il
+    // play dei suoni o dei loc la musica vada in pausa... così da non
+    // confondere il giocatore"). Riprende da sola dopo circa la durata
+    // del suono — ma SOLO se la musica stava DAVVERO suonando (altrimenti
+    // "riprenderebbe" una musica che l'utente aveva già spento) e solo se
+    // `shouldResume()` è ancora vero al momento buono (l'utente potrebbe
+    // aver spento la musica a mano nel frattempo — controllato da chi
+    // chiama, SoundEffectPlayer non sa nulla delle preferenze musica).
+    fun duckFor(durationMs: Long, shouldResume: () -> Boolean) {
+        duckResumeRunnable?.let { handler.removeCallbacks(it) }
+        val wasPlaying = player.isPlaying
+        pause()
+        if (!wasPlaying || durationMs <= 0) return
+        val runnable = Runnable { if (shouldResume()) resume() }
+        duckResumeRunnable = runnable
+        handler.postDelayed(runnable, durationMs)
+    }
+
     fun setVolume(volume: Float) {
         runCatching { player.setVolume(volume, volume) }
     }
 
     fun release() {
+        duckResumeRunnable?.let { handler.removeCallbacks(it) }
         runCatching { player.release() }
     }
 }
