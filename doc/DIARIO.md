@@ -2663,6 +2663,19 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Ritratti del banner su fascia nera, non più sovrapposti
+  all'illustrazione** (24/07, stesso giorno, Michele: "puoi spostare
+  icona narratore e quella di Maren sullo sfondo nero" — "Maren" è uno
+  dei nomi a caso appena aggiunti, usato in prova): `AdventureBanner`
+  sovrapponeva narratore ed eroe al bordo inferiore dell'immagine di
+  scena con un `Box` (immagine 110dp dentro un contenitore da 150dp, i
+  ritratti agganciati in basso "mangiavano" un pezzo dell'illustrazione).
+  Sostituito il `Box` con un `Column`: l'immagine resta intera
+  (110dp), i due `PortraitBadge` stanno sotto in un `Row` con sfondo
+  nero (`Modifier.background(Color.Black)`), niente più overlay.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
