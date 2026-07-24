@@ -64,15 +64,19 @@ fun AdventureBanner(
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth().height(110.dp),
         )
-        // Ritratti su fascia nera SOTTO l'illustrazione (24/07/2026,
-        // richiesta Michele: prima erano sovrapposti al bordo inferiore
-        // dell'immagine, "mangiandone" un pezzo) — niente più overlay,
-        // l'immagine resta intera.
+        // Ritratti sotto l'illustrazione (24/07/2026, richiesta Michele:
+        // prima erano sovrapposti al bordo inferiore dell'immagine,
+        // "mangiandone" un pezzo) — niente più overlay, l'immagine resta
+        // intera. Sfondo uguale a quello esterno, non più nero fisso
+        // (24/07/2026, stesso giorno: "rendi quella parte nera dello
+        // stesso colore dello sfondo esterno" — si fondeva male in tema
+        // chiaro) e padding ridotto al minimo ("si mangia un sacco di
+        // spazio, va ristretta").
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Black)
-                .padding(vertical = 8.dp),
+                .background(MaterialTheme.colorScheme.background)
+                .padding(vertical = 2.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
