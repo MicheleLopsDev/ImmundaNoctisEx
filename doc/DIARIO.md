@@ -3405,6 +3405,28 @@ sul device.**
   scena, con un override lo sostituisce senza mischiarli). Compilazione
   e suite riverificate verdi.
 
+- **Sfondo chiaro/scuro e icone illustrate nel menu principale**
+  (26/07, Michele: "ti ho fatto preparare uno sfondo per la mia app e
+  3 icone... usiamole per adesso solo per il menu principale") —
+  Michele ha consegnato due varianti di sfondo: prima `sfondo app.png`
+  (foto di scrivania generica), poi `sfond chiaro scuro.png`,
+  un'unica immagine divisa a metà chiaro/scuro con centro libero e
+  "NOCTIS SECRETUM" impresso nella metà scura — nettamente più adatta,
+  scelta al posto della prima (non usata). Tagliata in due asset
+  (`home_background_light`/`_dark`), selezionati con lo stesso
+  `isDarkTheme` già passato alla Home per l'icona sole/luna;
+  `Scaffold`/`TopAppBar` resi trasparenti per lasciarlo visibile dietro
+  ai contenuti. Le 3 icone (bussola+spada, chiavi+ingranaggi, teschio
+  coronato con rune) ritagliate dal foglio unico, sfondo bianco reso
+  trasparente via flood-fill dai bordi (stessa tecnica delle pergamene
+  a inizio Fase 4) — assegnate a Avventura, Impostazioni e Modelli LLM
+  rispettivamente (scelta ragionata: bussola/spada = viaggio e
+  combattimento, chiavi/ingranaggi = meccanismo da regolare, teschio
+  coronato = l'"oracolo" che scrive la storia). `MenuTile` passa da
+  `Icon`+`ImageVector` a `Image`+drawable. Per ora SOLO la Home, non
+  le altre schermate. Compilazione e suite riverificate verdi.
+  **Ancora da confermare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
