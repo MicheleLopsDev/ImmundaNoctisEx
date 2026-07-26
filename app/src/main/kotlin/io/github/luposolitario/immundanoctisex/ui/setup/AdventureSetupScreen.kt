@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -177,8 +178,14 @@ private fun DifficultyCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.outlinedCardColors(
+            // Colore PIENO, non trasparente (26/07/2026, Michele: "la
+            // modalità Iron ha perso il suo filtro rosso" — un alpha
+            // sottile sfumava quasi del tutto sopra il nuovo sfondo
+            // illustrato dietro la card, invece che sul solito colore
+            // piatto). Miscelato con lerp: resta opaco e coerente con le
+            // altre due card qualunque cosa ci sia dietro.
             containerColor = if (isDangerous) {
-                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f)
+                lerp(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.errorContainer, 0.7f)
             } else {
                 MaterialTheme.colorScheme.surfaceVariant
             },
