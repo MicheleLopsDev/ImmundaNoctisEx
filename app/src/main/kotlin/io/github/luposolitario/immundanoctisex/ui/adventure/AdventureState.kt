@@ -10,7 +10,6 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.checkpointBudget
 import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
-import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.JourneyEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
@@ -591,11 +590,12 @@ class AdventureState(
     }
 
     // Suono di finale (Michele 22/07/2026: "una voce di gioia quando
-    // termina l'avventura e un grido quando muore"), diviso per genere
-    // come già la voce TTS. Cartella a parte (endings/) dallo stesso
-    // vocabolario aperto delle immagini — nomi attesi:
-    // ending_victory_male/female, ending_defeat_male/female,
-    // ending_neutral_male/female.
+    // termina l'avventura e un grido quando muore"). Non più diviso per
+    // genere (26/07/2026, Michele: "ho cambiato i suoni che ora sono
+    // solo 3 indipendentemente dal sesso") — un solo file per esito.
+    // Cartella a parte (endings/) dallo stesso vocabolario aperto delle
+    // immagini — nomi attesi: ending_victory, ending_defeat,
+    // ending_neutral.
     private var lastPlayedEnding: EndingOutcome? = null
 
     private fun playEndingSoundIfNew() {
@@ -603,8 +603,7 @@ class AdventureState(
         val outcome = endingOutcome
         if (outcome == lastPlayedEnding) return
         lastPlayedEnding = outcome
-        val genderSuffix = if (gameState.hero.gender == Gender.FEMALE) "female" else "male"
-        val soundName = "ending_${outcome.name.lowercase()}_$genderSuffix"
+        val soundName = "ending_${outcome.name.lowercase()}"
         val scope = this.scope ?: run {
             soundEffectPlayer?.playNamed(soundName, folder = "endings")
             return
@@ -614,16 +613,26 @@ class AdventureState(
         // (24/07/2026, richiesta Michele: "parte appena arrivi alla
         // pagina finale, è brutto — deve aspettare che il TTS abbia
         // finito di leggere, con un ritardo di qualche secondo").
-        // Nessuna attesa infinita se il TTS non parte mai (auto-lettura
-        // spenta e mai toccata a mano): un timeout di sicurezza fa
-        // comunque partire il suono.
+        // Con l'auto-lettura spenta il TTS parte SOLO se toccato a mano:
+        // aspettare il timeout pieno di sicurezza (45s) qui vorrebbe
+        // dire quasi un minuto di silenzio dopo la generazione, per un
+        // evento che nel 99% dei casi non arriverà mai (26/07/2026,
+        // Michele, dopo aver verificato il ritardo dal log: "puoi
+        // aspettare pochi secondi quando l'autolettura è spenta") — un
+        // margine breve basta, resta comunque tempo per un tocco manuale
+        // quasi immediato sull'ultima pagina.
         scope.launch {
             val deadline = System.currentTimeMillis() + ENDING_SOUND_TIMEOUT_MS
             while (isGenerating && System.currentTimeMillis() < deadline) {
                 delay(ENDING_SOUND_POLL_MS)
             }
+            val speechDeadline = if (autoReadEnabled) {
+                deadline
+            } else {
+                System.currentTimeMillis() + ENDING_SOUND_SHORT_WAIT_MS
+            }
             var everSpoke = false
-            while (System.currentTimeMillis() < deadline) {
+            while (System.currentTimeMillis() < speechDeadline) {
                 if (isSpeaking) everSpoke = true
                 if (everSpoke && !isSpeaking) break
                 delay(ENDING_SOUND_POLL_MS)
@@ -692,5 +701,10 @@ class AdventureState(
         const val ENDING_SOUND_TIMEOUT_MS = 45_000L
         const val ENDING_SOUND_POLL_MS = 200L
         const val ENDING_SOUND_GRACE_MS = 3_000L
+
+        // Con l'auto-lettura spenta il TTS non parte mai da solo: qui
+        // basta un margine breve per un eventuale tocco manuale
+        // immediato sull'ultima pagina (26/07/2026, Michele).
+        const val ENDING_SOUND_SHORT_WAIT_MS = 5_000L
     }
 }

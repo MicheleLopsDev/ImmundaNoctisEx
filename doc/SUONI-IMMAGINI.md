@@ -94,19 +94,17 @@ Le `beast_*` compaiono anche qui (stessa immagine, incontro pacifico
 invece che ostile): **stesso file audio** già elencato sopra, non va
 duplicato.
 
-## Finali dell'avventura (`ending_*`) — 6
+## Finali dell'avventura (`ending_*`) — 3
 
 Non sono immagini del catalogo: agganciati a come finisce la storia
-(`EndingOutcome`) e al genere dell'eroe (stessa distinzione già usata
-per la voce TTS). Vanno in `app/src/main/assets/sfx/endings/` (non
+(`EndingOutcome`). Vanno in `app/src/main/assets/sfx/endings/` (non
 `sfx/images/`), stessa regola del resto: file mancante = silenzio.
+Non più divisi per genere (26/07/2026, Michele: "ho cambiato i suoni
+che ora sono solo 3 indipendentemente dal sesso").
 
-- [x] `ending_victory_male` — grido/voce di gioia, eroe maschio
-- [x] `ending_victory_female` — grido/voce di gioia, eroe femmina
-- [x] `ending_defeat_male` — grido di morte, eroe maschio
-- [x] `ending_defeat_female` — grido di morte, eroe femmina
-- [x] `ending_neutral_male` — finale né vittoria né sconfitta netta, eroe maschio
-- [x] `ending_neutral_female` — finale né vittoria né sconfitta netta, eroe femmina
+- [x] `ending_victory` — grido/voce di gioia
+- [x] `ending_defeat` — grido di morte
+- [x] `ending_neutral` — finale né vittoria né sconfitta netta
 
 Michele: "puoi prevederli tutti se non ci sono non si suonano, così
 posso magari mettere delle canzoni se non trovo nulla, l'importante è
