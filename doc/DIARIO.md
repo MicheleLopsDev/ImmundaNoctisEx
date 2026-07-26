@@ -3326,6 +3326,20 @@ sul device.**
   caso auto-lettura attiva (dove il TTS potrebbe davvero partire da
   solo). Compilazione e suite riverificate verdi.
 
+- **Bordo oro/argento della pergamena animato (shimmer)** (26/07,
+  Michele: "si può rendere il colore oro argento contenuto nel box
+  all'interno della pergamena come se fosse animato... una cosa
+  blanda... purché non spreca troppe risorse") — `NarrationParchmentPanel`:
+  il gradiente diagonale a 5 tonalità (oro in tema scuro, argento in
+  chiaro, invariato da prima) ora pulsa lentamente di luminosità verso
+  il bianco e indietro (`lerp`, ±22%, ciclo di 2,6s con
+  `FastOutSlowInEasing` e `RepeatMode.Reverse`), come un riflesso di
+  luce che respira sul metallo. Un solo `Float` animato in loop
+  (`rememberInfiniteTransition`) guida il ricalcolo dei 5 colori a ogni
+  frame — nessuna misura di dimensioni/pixel, nessun ridisegno oltre al
+  bordo stesso, costo trascurabile. Compilazione e suite riverificate
+  verdi. **Ancora da confermare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
