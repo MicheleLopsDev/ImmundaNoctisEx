@@ -84,6 +84,16 @@ class CreationState(private val dice: DiceRoller) {
 
     init {
         rollStats()
+        // Discipline tirate a caso SUBITO all'apertura (24/07/2026,
+        // richiesta Michele: "così se voglio posso iniziare
+        // immediatamente") — stesso principio delle statistiche sopra:
+        // pronte da subito, ma restano liberamente ricambiabili a mano
+        // (toggleDiscipline) o ritirabili a caso (randomizeDisciplines,
+        // il bottone "Scegli a caso" in creazione), nessun limite.
+        // Cambia rotta rispetto alla scelta del 24/07 mattina ("le
+        // discipline NON precompilate, restano l'unica scelta
+        // obbligatoria manuale") — decisione più recente di Michele.
+        randomizeDisciplines()
     }
 
     val needsWeaponSkillChoice: Boolean
