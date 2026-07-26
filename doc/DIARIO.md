@@ -3293,6 +3293,17 @@ sul device.**
   suo sfx di sottofondo. Nessuna modifica al codice, solo l'asset.
   Compilazione e suite riverificate verdi.
 
+- **Pulsante flottante "vai in fondo" in creazione personaggio**
+  (26/07, Michele: "la pagina è molto lunga e può essere noioso se
+  vuoi solo confermare le scelte casuali") — `CharacterCreationScreen`
+  avvolge il `Column` scrollabile in un `Box`; un `FilledIconButton`
+  con freccia giù (`Icons.Default.KeyboardArrowDown`) resta ancorato
+  in alto a destra (`Alignment.TopEnd`), fuori dal flusso scrollabile
+  quindi sempre visibile, e lancia `scrollState.animateScrollTo(
+  scrollState.maxValue)` in una coroutine (`rememberCoroutineScope`)
+  per scendere fino al bottone "Crea" con un'animazione invece di uno
+  scatto secco. Compilazione e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
