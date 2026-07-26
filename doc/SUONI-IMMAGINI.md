@@ -21,8 +21,9 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 
 ---
 
-## Luoghi (`loc_*`) — 35
+## Luoghi (`loc_*`) — 36
 
+- [ ] `loc_alley` — vicolo stretto e decrepito di notte, topi e mendicanti
 - [ ] `loc_black_gate` — portale di pietra con statue di teschi cornuti, in un bosco
 - [x] `loc_caves` — ingresso di grotta tra le montagne
 - [x] `loc_crypt` — ingresso di cripta, rune e teschi sull'arco

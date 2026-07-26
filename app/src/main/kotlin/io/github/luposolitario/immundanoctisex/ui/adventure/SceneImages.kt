@@ -10,6 +10,7 @@ import io.github.luposolitario.immundanoctisex.R
 // runtime che R8 può rompere in minificazione.
 @DrawableRes
 fun sceneBackgroundRes(name: String?): Int = when (name) {
+    "loc_alley" -> R.drawable.loc_alley
     "loc_black_gate" -> R.drawable.loc_black_gate
     "loc_caves" -> R.drawable.loc_caves
     "loc_crypt" -> R.drawable.loc_crypt

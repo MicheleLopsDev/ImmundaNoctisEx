@@ -24,6 +24,9 @@ object SceneImageCatalog {
     // Ordine STABILE (LinkedHashMap implicito di mapOf con chiavi String):
     // serve a prompt e test riproducibili, non solo a un elenco qualsiasi.
     private val DESCRIPTIONS: Map<String, String> = linkedMapOf(
+        "loc_alley" to "a narrow decrepit town alley at night, ramshackle timber buildings " +
+            "pressing close on both sides, rats scavenging among refuse and beggars huddled " +
+            "against the walls, a single lantern lighting the cobblestones",
         "loc_black_gate" to "a dark stone gate flanked by two skull-horned guardian statues, " +
             "a staircase descending into darkness beyond, deep in a forest",
         "loc_caves" to "a cave entrance in rocky mountains, wild vegetation around the opening",

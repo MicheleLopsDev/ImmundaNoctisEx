@@ -109,7 +109,7 @@
             "sceneType": "TRANSITION",
             "genre": "FANTASY",
             "toneHints": ["dark", "suspenseful"],
-            "backgroundImage": "loc_crypt",
+            "backgroundImage": "loc_alley",
             "locationName": "Old Quarter",
             "narrativeText": "The alley narrows as the old quarter swallows the daylight, damp stone walls pressing close on either side. Ahead, the warehouse door stands ajar, and shapes shift in the gloom before it, too still to be idle, too many to be chance. Something about the doorway's silence sets your instincts screaming. You could trust your training to find a safer path, or simply walk forward and meet whatever waits with steel in hand.",
             "choices": [
@@ -207,7 +207,7 @@
             "outcome": "DEFEAT",
             "genre": "FANTASY",
             "toneHints": ["grim"],
-            "backgroundImage": "loc_crypt",
+            "backgroundImage": "loc_alley",
             "narrativeText": "The second thug's blade finds a gap in your guard, and the cold shock of it drops you to your knees on the alley stones. The world tilts, sound fading to a dull roar as your strength drains into the dark, spreading pool beneath you. The letter, the warehouse, whatever waited inside, all of it recedes beyond reach now. Your journey ends here, unfinished, in a nameless alley behind a stranger's warehouse, the sunset you were racing arriving without you.",
             "choices": [],
             "disciplineChoices": [],
