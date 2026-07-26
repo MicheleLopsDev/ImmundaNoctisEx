@@ -3448,6 +3448,28 @@ sul device.**
   `FontWeight.Bold`: più leggibili sopra il nuovo sfondo illustrato
   rispetto a un colore piatto. Compilazione e suite riverificate verdi.
 
+- **Due bug dallo screenshot del device dopo lo sfondo/grassetto**
+  (26/07, Michele): la card "Iron" nel Setup aveva perso il suo
+  filtro rosso (l'alpha sottile su `errorContainer` sfumava quasi del
+  tutto sopra il nuovo sfondo illustrato) — sostituito con un colore
+  pieno (`lerp` tra `surfaceVariant` ed `errorContainer`), opaco e
+  coerente con le altre due card qualunque cosa ci sia dietro.
+  Nell'Equipaggiamento, Michele ha chiesto icone per le armi e "invece
+  di vuoto scrivi pugni o arti marziali" col filtro verde della
+  specializzazione "come nella creazione" — `WeaponSlot` ora mostra
+  sempre un'icona (`weaponTypeIcon`, pugni per lo slot vuoto), lo slot
+  senza arma dice "Arti Marziali" invece di "Vuoto" ed è tappabile per
+  disequipaggiare (`Inventory.unequipWeapon`/`AdventureState.
+  unequipWeapon` esistevano già nel motore ma non erano mai collegati
+  a nessuna UI). Bordo oro sull'impugnata e sfondo verde sulla
+  specializzazione WEAPONSKILL, indipendenti tra loro come in
+  `WeaponCell` della creazione. Con zero armi possedute (scelta "Arti
+  Marziali" già in creazione) solo il PRIMO slot oltre le armi
+  possedute rappresenta le mani nude, per non marcare entrambi gli
+  slot vuoti come "impugnato" — un doppione visivo altrimenti reale.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
