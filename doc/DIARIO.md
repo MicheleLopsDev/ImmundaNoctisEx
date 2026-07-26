@@ -3270,6 +3270,29 @@ sul device.**
   chi vuole saltare ogni scelta manuale. Compilazione e suite
   riverificate verdi. **Ancora da confermare sul device.**
 
+- **Verifica del test audio con log + `loc_warehouse.mp3` mancante**
+  (26/07, Michele: run completo con TTS auto abilitato dalla Scena 1
+  alla Scena 6/Vittoria, log allegato) — riscontro punto per punto:
+  suono loc prima del TTS in Scena 1 (nessun passo, come da regola
+  prima scena), passi+sfx loc quasi in contemporanea col TTS nelle
+  Scene 2/3 (`moveTo()` li innesca subito, il TTS parte comunque dopo
+  perché aspetta la generazione Gemma), nessun passo/sfx in ingresso
+  al combattimento della Scena 4 (corretto: `moveTo()` non suona i
+  passi se `combat != null`, e la scena non ha un proprio
+  `backgroundImage`), suono dado a inizio combattimento, TTS+voce
+  finale maschile ritardata in Scena 6. Confermato da log: la
+  generazione Gemma finisce alle 16:27:55, il decoder della voce
+  finale parte alle 16:28:29 (~34s dopo, compatibile con "TTS che
+  finisce di leggere + 3s di grazia" della fix precedente). Nessun bug
+  nei 6 punti, tutti coerenti con le regole già implementate.
+  Nell'analisi è emerso però che `loc_warehouse.mp3` (location della
+  Scena 6, finale vittoria) non esisteva ancora come asset — Michele
+  lo ha aggiunto in `origina_res/` (Pixabay/Freesound, 25,4s, 24kHz
+  stereo) e ora è copiato in `assets/sfx/images/`: prima la scena
+  degradava sempre silenziosamente per mancanza del file, ora ha il
+  suo sfx di sottofondo. Nessuna modifica al codice, solo l'asset.
+  Compilazione e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
