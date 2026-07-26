@@ -47,7 +47,7 @@ Se aggiungi un ID a uno di quei file, aggiungilo anche qui.
 - [x] `loc_tavern` — interno di taverna affollata
 - [ ] `loc_tomb_exterior` — ingresso di tomba, catene e statue demoniache
 - [ ] `loc_tomb_interior` — interno di tomba, sarcofago
-- [ ] `loc_warehouse` — interno di magazzino, casse e pergamene
+- [x] `loc_warehouse` — interno di magazzino, casse e pergamene
 - [x] `loc_abandoned_keep` — rocca abbandonata in rovina, mura invase dall'edera
 - [x] `loc_ancient_ruins` — rovine di colonne antiche, invase dalla vegetazione
 - [x] `loc_battlefield` — campo di battaglia devastato, armi spezzate, corvi in volo
