@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,7 +64,7 @@ fun HomeScreen(
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text("Immunda Noctis Ex") },
+                    title = { Text("Immunda Noctis Ex", fontWeight = FontWeight.Bold) },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                     actions = {
                         IconButton(onClick = onLoadBookClick) {
@@ -101,15 +102,20 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth().height(220.dp),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
+                // Grassetto su tutti i testi della Home (26/07/2026,
+                // richiesta Michele): più leggibili sopra lo sfondo
+                // illustrato, non più su un semplice colore piatto.
                 Text(
                     "Libro: $currentBookTitle",
                     style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (loadFeedback != null) {
                     Text(
                         loadFeedback,
                         style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold,
                         color = if (loadFeedbackIsError) {
                             MaterialTheme.colorScheme.error
                         } else {
@@ -173,6 +179,7 @@ private fun MenuTile(
         Text(
             text = label,
             style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
         )
     }
