@@ -3340,6 +3340,24 @@ sul device.**
   bordo stesso, costo trascurabile. Compilazione e suite riverificate
   verdi. **Ancora da confermare sul device.**
 
+- **Nuova location `loc_alley`, corretta l'immagine sbagliata di
+  Scena 3/7** (26/07, Michele: "controlla la Scena 3... usa
+  un'immagine sbagliata") — confermato confrontando testo e immagine:
+  la Scena 3 (e la 7, stesso vicolo, finale di sconfitta) mostrava
+  `loc_crypt` (ingresso di cripta, teschi, rune, braccio scheletrico),
+  ma il testo descrive un vicolo stretto del quartiere vecchio dietro
+  al magazzino — nessuna cripta. Controllate anche le altre location
+  del vocabolario chiuso come possibile ripiego (`loc_smithy_exterior`,
+  `loc_infernal_city`, `loc_dungeon`): nessuna un vero vicolo.
+  Michele ha fornito una nuova illustrazione dedicata (vicolo di notte,
+  edifici fatiscenti, topi e mendicanti tra i rifiuti) — ridimensionata
+  a 1024px e convertita in JPG come le altre del catalogo, aggiunta
+  come `loc_alley` in `SceneImageCatalog`/`sceneBackgroundRes`
+  (vocabolario chiuso), `scenes.sample.json` aggiornato sulle Scene 3
+  e 7. SFX dedicato non ancora pronto (Michele lo sta cercando):
+  aggiunto alla checklist `SUONI-IMMAGINI.md`, per ora silenzio come
+  da regola. Compilazione e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
