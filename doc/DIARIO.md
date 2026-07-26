@@ -3304,6 +3304,28 @@ sul device.**
   per scendere fino al bottone "Crea" con un'animazione invece di uno
   scatto secco. Compilazione e suite riverificate verdi.
 
+- **Verifica del ritardo del suono finale con auto-lettura spenta**
+  (26/07, Michele, log alla mano: con TTS auto disabilitato e mai
+  toccato a mano, la voce finale caricava dopo ~48s dalla fine della
+  generazione — "è giusto così?") — spiegato: `playEndingSoundIfNew()`
+  aspettava un ciclo completo `isSpeaking` entro il timeout di
+  sicurezza di 45s, ma se l'auto-lettura è spenta e non si tocca nulla
+  `isSpeaking` non diventa mai vero, quindi si consumava l'intero
+  timeout (+3s di grazia) per un evento che non sarebbe mai arrivato.
+  Confermato dal log: generazione finita alle 16:54:58, voce finale
+  partita alle 16:55:25 (~27s, coerente coi tempi di questa run).
+  Michele ha poi cambiato anche i suoni finali: **da 6 a 3**
+  (`ending_victory/defeat/neutral`, non più divisi per genere:
+  "ho cambiato i suoni che ora sono solo 3 indipendentemente dal
+  sesso") — `playEndingSoundIfNew()` aggiornato di conseguenza (niente
+  più suffisso `_male`/`_female` nel nome del file cercato), e
+  richiesto anche di accorciare l'attesa quando l'auto-lettura è
+  spenta ("puoi aspettare pochi secondi"): nuova costante
+  `ENDING_SOUND_SHORT_WAIT_MS` (5s) usata al posto dei 45s pieni solo
+  in quel caso — il timeout pieno resta per la generazione e per il
+  caso auto-lettura attiva (dove il TTS potrebbe davvero partire da
+  solo). Compilazione e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
