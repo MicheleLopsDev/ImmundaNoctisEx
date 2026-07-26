@@ -3381,6 +3381,14 @@ sul device.**
   sostituiti da 3 che confermano il nuovo (la riga IMAGE non compare
   mai). Compilazione e suite riverificate verdi.
 
+- **Checklist `SUONI-IMMAGINI.md` allineata agli asset reali** (26/07,
+  Michele: "aggiorna il doc con i file audio che mancano") —
+  `loc_warehouse` era ancora segnato mancante ma era già stato
+  aggiunto in un commit precedente (finale di Vittoria): corretto.
+  Tutto il resto già allineato: mancano ancora 13 `loc_*`, tutti i 14
+  `enemy_*`/`beast_*` e gli 11 `npc_*` (0 file esistono per queste due
+  categorie), 10 musiche e 3 finali già completi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
