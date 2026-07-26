@@ -244,58 +244,29 @@ class PromptBuilderTest {
         assertContains(fragments.constraintText, "{user_language}")
     }
 
-    // --- Sfondo di scena (vocabolario chiuso, esperimento 20/07/2026) ---
+    // --- Sfondo di scena: Gemma non sceglie più (DISATTIVATO 26/07/2026) ---
+    // L'esperimento del 20/07/2026 ("Gemma suggerisce lo sfondo quando il
+    // pacchetto non ne ha uno valido") è disattivato su richiesta di
+    // Michele: "rendiamo il prompt più semplice, la riattiveremo se
+    // troviamo un modello più intelligente". La riga IMAGE non va più
+    // chiesta in NESSUN caso: né sfondo mancante, né un placeholder fuori
+    // catalogo ("inn"), né uno sfondo già valido.
 
     @Test
-    fun senzaSfondoDichiarato_siChiedeAGemmaDiSuggerirlo() {
+    fun laRigaImageNonVienePiuChiestaSenzaSfondoDichiarato() {
         val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = null)))
-        assertContains(prompt, "IMAGE|location_id")
-        // Il vocabolario è CHIUSO: i nomi veri devono comparire per intero,
-        // non un placeholder generico.
-        assertContains(prompt, "loc_tavern")
+        assertFalse(prompt.contains("IMAGE|location_id"))
     }
 
-    // Richiesta di Michele 21/07/2026: "un dizionario delle scene
-    // spiegando ogni scena a cosa può corrispondere" — prima Gemma aveva
-    // solo i nomi nudi (es. "loc_black_gate" contro "loc_helgedad_gate",
-    // due portali di pietra quasi indistinguibili dal nome). Verifica che
-    // il DIZIONARIO, non solo l'elenco dei nomi, sia davvero nel prompt —
-    // altrimenti un futuro taglio della descrizione passerebbe inosservato.
     @Test
-    fun ilVocabolarioPortaLaDescrizioneNonSoloIlNome() {
-        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = null)))
-        assertContains(prompt, "loc_tavern: the interior of a crowded tavern")
-        assertContains(prompt, "loc_black_gate: a dark stone gate")
+    fun laRigaImageNonVienePiuChiestaConSfondoFuoriCatalogo() {
+        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "inn")))
+        assertFalse(prompt.contains("IMAGE|location_id"))
     }
 
     @Test
     fun conSfondoGiaDichiarato_nonSiSprecaContestoAChiederlo() {
         val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "loc_market")))
         assertFalse(prompt.contains("IMAGE|location_id"))
-    }
-
-    // Richiesta di Michele 21/07/2026: "deve essere stringente, non deve
-    // inventarne di nuovi". Il parser già scarta un id inventato in
-    // silenzio (vocabolario chiuso), ma questo verifica il VINCOLO NEL
-    // TESTO stesso — un'istruzione debole spreca la scelta di Gemma su
-    // qualcosa che verrà comunque buttato via.
-    @Test
-    fun ilVincoloSuiNomiEStringente() {
-        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = null)))
-        assertContains(prompt, "MUST NOT invent")
-        assertContains(prompt, "CLOSED dictionary")
-        assertContains(prompt, "EXACTLY as written")
-    }
-
-    // BUG del 20/07/2026, trovato da Michele giocando: il sample dichiara
-    // backgroundImage su TUTTE le scene con placeholder storici mai
-    // risolti in un file ("inn", "city"...). La condizione era solo
-    // "!= null", quindi il tag non veniva MAI chiesto — l'esperimento
-    // era silenziosamente morto sul nascere. Un placeholder che non
-    // esiste nel catalogo non è una scelta valida: si chiede comunque.
-    @Test
-    fun sfondoDichiaratoMaFuoriCatalogo_siChiedeComunqueAGemma() {
-        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "inn")))
-        assertContains(prompt, "IMAGE|location_id")
     }
 }

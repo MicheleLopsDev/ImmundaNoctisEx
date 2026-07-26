@@ -64,19 +64,19 @@ class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEF
         return fill(sections.joinToString("\n\n"), context)
     }
 
-    // La riga ENEMY si chiede solo se c'è davvero un nemico da nominare;
-    // la riga IMAGE solo se l'autore non ha già dichiarato uno sfondo
-    // VALIDO — Gemma è il ripiego, mai la sovrascrittura di una scelta
-    // già fatta. BUG del 20/07/2026 (trovato da Michele): la condizione
-    // era solo "!= null", ma il sample dichiara backgroundImage su TUTTE
-    // le scene con placeholder storici ("inn", "city"...) mai risolti in
-    // un file vero (Fase 7). Con "!= null" il tag non scattava MAI: un
-    // placeholder morto non è una scelta, è un buco travestito da
-    // scelta. Ora si controlla il CATALOGO, non la sola presenza.
+    // La riga ENEMY si chiede solo se c'è davvero un nemico da nominare.
+    // La riga IMAGE (Gemma sceglie lo sfondo quando il pacchetto non ne
+    // ha uno valido) è DISATTIVATA (26/07/2026, richiesta Michele:
+    // "rendiamo il prompt più semplice, questa modalità la attiveremo
+    // se troviamo un modello più intelligente"). Resta solo
+    // backgroundImage dichiarato dal pacchetto, se c'è; nessuno sfondo
+    // altrimenti. ResponseParser.parseImageLine e SceneImageCatalog
+    // restano intatti e pronti: riattivare significa solo tornare ad
+    // aggiungere fragments.imageFormatText qui sotto quando il
+    // pacchetto non ha uno sfondo valido, nessun'altra modifica.
     private fun outputFormat(context: PromptContext): String = buildString {
         append(fragments.outputFormatText)
         if (context.scene.combat != null) append("\n${fragments.enemyFormatText}")
-        if (!SceneImageCatalog.isValid(context.scene.backgroundImage)) append("\n${fragments.imageFormatText}")
     }
 
     private fun fill(template: String, context: PromptContext): String {
