@@ -92,6 +92,7 @@ fun AppNavigation(
 
         Route.ADVENTURE_SETUP -> SetupRoute(
             container = container,
+            isDarkTheme = isDarkTheme,
             onContinueSession = { session ->
                 activeSession = session
                 navigateTo(Route.ADVENTURE)
@@ -104,6 +105,7 @@ fun AppNavigation(
 
         Route.CHARACTER_CREATION -> CreationRoute(
             container = container,
+            isDarkTheme = isDarkTheme,
             difficulty = newDifficulty,
             onSessionCreated = { session ->
                 activeSession = session
@@ -131,11 +133,13 @@ fun AppNavigation(
 
         Route.MODELS -> ModelsRoute(
             container = container,
+            isDarkTheme = isDarkTheme,
             onClose = { if (backStack.isNotEmpty()) route = backStack.removeLast() },
         )
 
         Route.OPTIONS -> OptionsRoute(
             container = container,
+            isDarkTheme = isDarkTheme,
             darkOverride = container.themePreferences.darkOverride,
             onThemeOverrideChange = onThemeOverrideChange,
             onAccentColorChange = onAccentColorChange,

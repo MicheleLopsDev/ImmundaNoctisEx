@@ -17,6 +17,7 @@ import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 @Composable
 fun CreationRoute(
     container: AppContainer,
+    isDarkTheme: Boolean,
     difficulty: Difficulty,
     onSessionCreated: (SessionData) -> Unit,
 ) {
@@ -25,6 +26,7 @@ fun CreationRoute(
 
     when (loadResult) {
         is PackageLoadResult.Success -> CharacterCreationScreen(
+            isDarkTheme = isDarkTheme,
             state = state,
             onCreate = {
                 val startSceneId = container.packageRepository.startScene()?.id ?: return@CharacterCreationScreen

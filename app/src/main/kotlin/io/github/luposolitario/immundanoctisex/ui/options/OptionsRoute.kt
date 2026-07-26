@@ -26,6 +26,7 @@ import java.util.Locale
 @Composable
 fun OptionsRoute(
     container: AppContainer,
+    isDarkTheme: Boolean,
     darkOverride: Boolean?,
     onThemeOverrideChange: (Boolean?) -> Unit,
     onAccentColorChange: (AccentColor) -> Unit,
@@ -87,6 +88,7 @@ fun OptionsRoute(
     val availableVoices = if (ttsReady) ttsService.availableVoices(language.locale).map { it.name } else emptyList()
 
     OptionsScreen(
+        isDarkTheme = isDarkTheme,
         darkOverride = themeOverride,
         onThemeSelect = { override ->
             themeOverride = override

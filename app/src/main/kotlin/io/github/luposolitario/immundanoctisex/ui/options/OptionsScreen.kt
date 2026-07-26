@@ -21,13 +21,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.DiceColor
 import io.github.luposolitario.immundanoctisex.util.NarrativeTone
@@ -41,6 +44,7 @@ import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OptionsScreen(
+    isDarkTheme: Boolean,
     darkOverride: Boolean?,
     onThemeSelect: (Boolean?) -> Unit,
     accentColor: AccentColor,
@@ -84,66 +88,70 @@ fun OptionsScreen(
     onModelsClick: () -> Unit,
     onClose: () -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Opzioni") },
-                navigationIcon = {
-                    IconButton(onClick = onClose) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Indietro")
+    ThemedBackground(isDarkTheme = isDarkTheme) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            topBar = {
+                TopAppBar(
+                    title = { Text("Opzioni") },
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                    navigationIcon = {
+                        IconButton(onClick = onClose) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Indietro")
+                        }
+                    },
+                )
+            },
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                ThemeSection(darkOverride, onThemeSelect)
+                AccentColorSection(accentColor, onAccentColorSelect)
+                StatusCardColorSection(statusCardColor, onStatusCardColorSelect)
+                DiceColorSection(diceColor, onDiceColorSelect)
+                ParchmentSection(parchmentStyle, onParchmentStyleSelect)
+                LanguageSection(outputLanguage, onLanguageSelect)
+                ToneSection(narrativeTone, onToneSelect)
+                FontSection(readingFont, onFontSelect, boldText, onBoldTextChange)
+                TtsSection(
+                    ui = ttsUi,
+                    onAutoReadChange = onAutoReadChange,
+                    onSpeechRateChange = onSpeechRateChange,
+                    onSpeechRateCommit = onSpeechRateCommit,
+                    onPitchChange = onPitchChange,
+                    onPitchCommit = onPitchCommit,
+                    onMaleVoiceSelect = onMaleVoiceSelect,
+                    onFemaleVoiceSelect = onFemaleVoiceSelect,
+                    onTestMaleVoice = onTestMaleVoice,
+                    onTestFemaleVoice = onTestFemaleVoice,
+                )
+                MusicSection(
+                    ui = musicUi,
+                    onMusicEnabledChange = onMusicEnabledChange,
+                    onTrackSelect = onTrackSelect,
+                )
+                VolumeSection(
+                    ui = volumeUi,
+                    onTtsVolumeChange = onTtsVolumeChange,
+                    onTtsVolumeCommit = onTtsVolumeCommit,
+                    onMusicVolumeChange = onMusicVolumeChange,
+                    onMusicVolumeCommit = onMusicVolumeCommit,
+                    onEffectsVolumeChange = onEffectsVolumeChange,
+                    onEffectsVolumeCommit = onEffectsVolumeCommit,
+                    onGeneralVolumeChange = onGeneralVolumeChange,
+                    onGeneralVolumeCommit = onGeneralVolumeCommit,
+                )
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp)) {
+                        Text("Modelli LLM", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        TextButton(onClick = onModelsClick) { Text("Gestisci modelli scaricati") }
                     }
-                },
-            )
-        },
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            ThemeSection(darkOverride, onThemeSelect)
-            AccentColorSection(accentColor, onAccentColorSelect)
-            StatusCardColorSection(statusCardColor, onStatusCardColorSelect)
-            DiceColorSection(diceColor, onDiceColorSelect)
-            ParchmentSection(parchmentStyle, onParchmentStyleSelect)
-            LanguageSection(outputLanguage, onLanguageSelect)
-            ToneSection(narrativeTone, onToneSelect)
-            FontSection(readingFont, onFontSelect, boldText, onBoldTextChange)
-            TtsSection(
-                ui = ttsUi,
-                onAutoReadChange = onAutoReadChange,
-                onSpeechRateChange = onSpeechRateChange,
-                onSpeechRateCommit = onSpeechRateCommit,
-                onPitchChange = onPitchChange,
-                onPitchCommit = onPitchCommit,
-                onMaleVoiceSelect = onMaleVoiceSelect,
-                onFemaleVoiceSelect = onFemaleVoiceSelect,
-                onTestMaleVoice = onTestMaleVoice,
-                onTestFemaleVoice = onTestFemaleVoice,
-            )
-            MusicSection(
-                ui = musicUi,
-                onMusicEnabledChange = onMusicEnabledChange,
-                onTrackSelect = onTrackSelect,
-            )
-            VolumeSection(
-                ui = volumeUi,
-                onTtsVolumeChange = onTtsVolumeChange,
-                onTtsVolumeCommit = onTtsVolumeCommit,
-                onMusicVolumeChange = onMusicVolumeChange,
-                onMusicVolumeCommit = onMusicVolumeCommit,
-                onEffectsVolumeChange = onEffectsVolumeChange,
-                onEffectsVolumeCommit = onEffectsVolumeCommit,
-                onGeneralVolumeChange = onGeneralVolumeChange,
-                onGeneralVolumeCommit = onGeneralVolumeCommit,
-            )
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(Modifier.padding(16.dp)) {
-                    Text("Modelli LLM", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    TextButton(onClick = onModelsClick) { Text("Gestisci modelli scaricati") }
                 }
             }
         }
@@ -200,6 +208,7 @@ private fun LanguageSection(selected: OutputLanguage, onSelect: (OutputLanguage)
 private fun OptionsScreenPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
         OptionsScreen(
+            isDarkTheme = true,
             darkOverride = null,
             onThemeSelect = {},
             accentColor = AccentColor.BLUE,

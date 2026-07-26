@@ -19,6 +19,7 @@ import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 @Composable
 fun SetupRoute(
     container: AppContainer,
+    isDarkTheme: Boolean,
     onContinueSession: (SessionData) -> Unit,
     onNewAdventure: (Difficulty) -> Unit,
 ) {
@@ -80,6 +81,7 @@ fun SetupRoute(
     }
 
     AdventureSetupScreen(
+        isDarkTheme = isDarkTheme,
         savedSessions = sessions,
         onContinueSession = { session ->
             val budget = session.difficulty.checkpointBudget()

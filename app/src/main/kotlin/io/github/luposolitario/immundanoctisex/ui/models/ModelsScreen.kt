@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.model.DownloadableModel
 import io.github.luposolitario.immundanoctisex.model.ModelCatalog
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
 
 // Stato osservabile del download, mostrato dalla schermata.
 sealed interface DownloadUiState {
@@ -50,6 +51,7 @@ sealed interface DownloadUiState {
 // Stateless: dati in ingresso, eventi in uscita.
 @Composable
 fun ModelsScreen(
+    isDarkTheme: Boolean,
     models: List<DownloadableModel>,
     customModels: List<DownloadableModel>,
     selectedModelId: String,
@@ -90,50 +92,31 @@ fun ModelsScreen(
     onResetSettings: () -> Unit,
     onClose: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text("Modelli LLM", style = MaterialTheme.typography.headlineMedium)
-        Text(
-            "Il modello gira sul telefono: nessun testo esce da qui. " +
-                "Serve una connessione solo per scaricarlo.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-
-        activateError?.let {
-            Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-        }
-
-        // Un download in corso blocca il bottone "Scarica" su TUTTE le
-        // altre card (24/07/2026 — vedi commento su runningModelId): senza
-        // questo, un tocco su un'altra card CANCELLAVA quello in corso
-        // (WorkManager REPLACE) invece di essere semplicemente ignorato.
-        val anyDownloadRunning = downloadState is DownloadUiState.Running
-
-        Text("Consigliati", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-        models.forEach { model ->
-            ModelCard(
-                model = model,
-                selected = model.id == selectedModelId,
-                active = model.id == activeModelId,
-                downloaded = model.id in downloadedIds,
-                isActivating = isActivating,
-                downloadState = downloadState.takeIf { model.id == runningModelId } ?: DownloadUiState.Idle,
-                downloadBlockedByOther = anyDownloadRunning && model.id != runningModelId,
-                onSelect = { onSelectModel(model) },
-                onActivate = { onActivate(model) },
-                onDownload = { onDownload(model) },
-                onCancel = onCancel,
-                onDelete = { onDelete(model) },
-                onRemove = null,
+    ThemedBackground(isDarkTheme = isDarkTheme) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text("Modelli LLM", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                "Il modello gira sul telefono: nessun testo esce da qui. " +
+                    "Serve una connessione solo per scaricarlo.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
 
-        if (customModels.isNotEmpty()) {
-            Text("I tuoi modelli", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-            customModels.forEach { model ->
+            activateError?.let {
+                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+            }
+
+            // Un download in corso blocca il bottone "Scarica" su TUTTE le
+            // altre card (24/07/2026 — vedi commento su runningModelId): senza
+            // questo, un tocco su un'altra card CANCELLAVA quello in corso
+            // (WorkManager REPLACE) invece di essere semplicemente ignorato.
+            val anyDownloadRunning = downloadState is DownloadUiState.Running
+
+            Text("Consigliati", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            models.forEach { model ->
                 ModelCard(
                     model = model,
                     selected = model.id == selectedModelId,
@@ -147,42 +130,63 @@ fun ModelsScreen(
                     onDownload = { onDownload(model) },
                     onCancel = onCancel,
                     onDelete = { onDelete(model) },
-                    onRemove = { onRemoveCustomModel(model) },
+                    onRemove = null,
                 )
             }
-        }
 
-        AddCustomModelCard(
-            error = addModelError,
-            isImporting = isImportingFromStorage,
-            onAdd = onAddCustomModel,
-            onPickFromStorage = onPickFromStorage,
-        )
+            if (customModels.isNotEmpty()) {
+                Text("I tuoi modelli", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                customModels.forEach { model ->
+                    ModelCard(
+                        model = model,
+                        selected = model.id == selectedModelId,
+                        active = model.id == activeModelId,
+                        downloaded = model.id in downloadedIds,
+                        isActivating = isActivating,
+                        downloadState = downloadState.takeIf { model.id == runningModelId } ?: DownloadUiState.Idle,
+                        downloadBlockedByOther = anyDownloadRunning && model.id != runningModelId,
+                        onSelect = { onSelectModel(model) },
+                        onActivate = { onActivate(model) },
+                        onDownload = { onDownload(model) },
+                        onCancel = onCancel,
+                        onDelete = { onDelete(model) },
+                        onRemove = { onRemoveCustomModel(model) },
+                    )
+                }
+            }
 
-        // Con file da GB, sapere quanto stai occupando è informazione
-        // dovuta (in v1 il percorso si vedeva solo per le scene).
-        storageInfo?.let {
-            Text(
-                it,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            AddCustomModelCard(
+                error = addModelError,
+                isImporting = isImportingFromStorage,
+                onAdd = onAddCustomModel,
+                onPickFromStorage = onPickFromStorage,
             )
+
+            // Con file da GB, sapere quanto stai occupando è informazione
+            // dovuta (in v1 il percorso si vedeva solo per le scene).
+            storageInfo?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            TokenCard(token = token, onTokenChange = onTokenChange)
+
+            AdvancedSettingsCard(
+                settings = advancedSettings,
+                onMaxTokensChange = onMaxTokensChange,
+                onTemperatureChange = onTemperatureChange,
+                onTemperatureCommit = onTemperatureCommit,
+                onTopKChange = onTopKChange,
+                onTopPChange = onTopPChange,
+                onTopPCommit = onTopPCommit,
+                onReset = onResetSettings,
+            )
+
+            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text("Chiudi") }
         }
-
-        TokenCard(token = token, onTokenChange = onTokenChange)
-
-        AdvancedSettingsCard(
-            settings = advancedSettings,
-            onMaxTokensChange = onMaxTokensChange,
-            onTemperatureChange = onTemperatureChange,
-            onTemperatureCommit = onTemperatureCommit,
-            onTopKChange = onTopKChange,
-            onTopPChange = onTopPChange,
-            onTopPCommit = onTopPCommit,
-            onReset = onResetSettings,
-        )
-
-        Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text("Chiudi") }
     }
 }
 
@@ -409,6 +413,7 @@ private fun TokenCard(token: String, onTokenChange: (String) -> Unit) {
 private fun ModelsScreenPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
         ModelsScreen(
+            isDarkTheme = true,
             models = ModelCatalog.all,
             customModels = emptyList(),
             selectedModelId = ModelCatalog.default.id,

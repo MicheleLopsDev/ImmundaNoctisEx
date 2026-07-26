@@ -35,6 +35,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.CharacterRole
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -45,6 +46,7 @@ import java.util.Locale
 // STATO.md Blocco 2). Stateless: sessioni in ingresso, eventi in uscita.
 @Composable
 fun AdventureSetupScreen(
+    isDarkTheme: Boolean,
     savedSessions: List<SessionData>,
     onContinueSession: (SessionData) -> Unit,
     onNewAdventure: (Difficulty) -> Unit,
@@ -75,45 +77,47 @@ fun AdventureSetupScreen(
         )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        if (savedSessions.isNotEmpty()) {
-            Text(stringResource(R.string.setup_continue_title), style = MaterialTheme.typography.headlineMedium)
-            savedSessions.forEach { session ->
-                SavedSessionCard(
-                    session = session,
-                    onContinue = { onContinueSession(session) },
-                    onDelete = { sessionPendingDelete = session },
-                )
+    ThemedBackground(isDarkTheme = isDarkTheme) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            if (savedSessions.isNotEmpty()) {
+                Text(stringResource(R.string.setup_continue_title), style = MaterialTheme.typography.headlineMedium)
+                savedSessions.forEach { session ->
+                    SavedSessionCard(
+                        session = session,
+                        onContinue = { onContinueSession(session) },
+                        onDelete = { sessionPendingDelete = session },
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
             }
-            Spacer(Modifier.height(8.dp))
+
+            Text(stringResource(R.string.setup_title), style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.setup_choose_difficulty), style = MaterialTheme.typography.titleMedium)
+
+            DifficultyCard(
+                nameRes = R.string.difficulty_normal,
+                descriptionRes = R.string.difficulty_normal_desc,
+                onClick = { onNewAdventure(Difficulty.NORMAL) },
+            )
+            DifficultyCard(
+                nameRes = R.string.difficulty_hard,
+                descriptionRes = R.string.difficulty_hard_desc,
+                onClick = { onNewAdventure(Difficulty.HARD) },
+            )
+            DifficultyCard(
+                nameRes = R.string.difficulty_iron,
+                descriptionRes = R.string.difficulty_iron_desc,
+                isDangerous = true,
+                onClick = { onNewAdventure(Difficulty.IRON) },
+            )
         }
-
-        Text(stringResource(R.string.setup_title), style = MaterialTheme.typography.headlineMedium)
-        Text(stringResource(R.string.setup_choose_difficulty), style = MaterialTheme.typography.titleMedium)
-
-        DifficultyCard(
-            nameRes = R.string.difficulty_normal,
-            descriptionRes = R.string.difficulty_normal_desc,
-            onClick = { onNewAdventure(Difficulty.NORMAL) },
-        )
-        DifficultyCard(
-            nameRes = R.string.difficulty_hard,
-            descriptionRes = R.string.difficulty_hard_desc,
-            onClick = { onNewAdventure(Difficulty.HARD) },
-        )
-        DifficultyCard(
-            nameRes = R.string.difficulty_iron,
-            descriptionRes = R.string.difficulty_iron_desc,
-            isDangerous = true,
-            onClick = { onNewAdventure(Difficulty.IRON) },
-        )
     }
 }
 
@@ -196,7 +200,7 @@ private fun DifficultyCard(
 @Composable
 private fun AdventureSetupEmptyPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
-        AdventureSetupScreen(savedSessions = emptyList(), onContinueSession = {}, onNewAdventure = {})
+        AdventureSetupScreen(isDarkTheme = true, savedSessions = emptyList(), onContinueSession = {}, onNewAdventure = {})
     }
 }
 
@@ -205,6 +209,7 @@ private fun AdventureSetupEmptyPreview() {
 private fun AdventureSetupWithSessionPreview() {
     ImmundaNoctisTheme(darkTheme = false) {
         AdventureSetupScreen(
+            isDarkTheme = false,
             savedSessions = listOf(previewSession()),
             onContinueSession = {},
             onNewAdventure = {},

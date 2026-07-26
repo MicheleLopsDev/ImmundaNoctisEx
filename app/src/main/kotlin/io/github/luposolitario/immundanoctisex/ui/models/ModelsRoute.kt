@@ -41,6 +41,7 @@ private const val LITERTLM_EXTENSION = ".litertlm"
 @Composable
 fun ModelsRoute(
     container: AppContainer,
+    isDarkTheme: Boolean,
     onClose: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -134,6 +135,7 @@ fun ModelsRoute(
     }
 
     ModelsScreen(
+        isDarkTheme = isDarkTheme,
         models = ModelCatalog.all,
         customModels = customModels,
         selectedModelId = selectedModelId,

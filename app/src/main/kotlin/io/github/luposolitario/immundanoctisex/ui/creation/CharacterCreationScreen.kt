@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Row
@@ -56,6 +55,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.dice.RandomDiceRoller
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
 import kotlinx.coroutines.launch
 
 // Creazione personaggio (UI.md §schermata 3), v0.1 funzionale: lupo/lupa,
@@ -64,13 +64,14 @@ import kotlinx.coroutines.launch
 // qui il tiro è un bottone.
 @Composable
 fun CharacterCreationScreen(
+    isDarkTheme: Boolean,
     state: CreationState,
     onCreate: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    ThemedBackground(isDarkTheme = isDarkTheme) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -594,6 +595,6 @@ private fun CharacterCreationPreview() {
                 toggleDiscipline("HEALING")
             }
         }
-        CharacterCreationScreen(state = state, onCreate = {})
+        CharacterCreationScreen(isDarkTheme = true, state = state, onCreate = {})
     }
 }

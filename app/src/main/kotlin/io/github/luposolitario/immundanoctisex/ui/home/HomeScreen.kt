@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
 
 // Home a riquadri come v1 (UI.md §schermata 1, senza le tile STDF):
 // Avventura, Modelli LLM, Impostazioni. Componente stateless: dati in
@@ -57,22 +58,7 @@ fun HomeScreen(
     loadFeedback: String? = null,
     loadFeedbackIsError: Boolean = false,
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
-        // Sfondo dell'app (26/07/2026, richiesta Michele: "ti ho fatto
-        // preparare uno sfondo per la mia app... usiamole per adesso solo
-        // per il menu principale") — per ora SOLO la Home, non le altre
-        // schermate. Consegnato come un'unica immagine divisa a metà
-        // chiaro/scuro (con "NOCTIS SECRETUM" impresso nella metà scura):
-        // tagliata in due asset separati, uno per tema, selezionato con lo
-        // stesso isDarkTheme già usato per l'icona sole/luna in alto.
-        Image(
-            painter = painterResource(
-                id = if (isDarkTheme) R.drawable.home_background_dark else R.drawable.home_background_light,
-            ),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize(),
-        )
+    ThemedBackground(isDarkTheme = isDarkTheme) {
         Scaffold(
             containerColor = Color.Transparent,
             topBar = {
