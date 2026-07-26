@@ -1,5 +1,11 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -10,11 +16,13 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -54,7 +62,7 @@ fun NarrationParchmentPanel(
         }
         return
     }
-    val borderBrush = if (isDarkTheme) goldBorderBrush() else silverBorderBrush()
+    val borderBrush = if (isDarkTheme) animatedGoldBorderBrush() else animatedSilverBorderBrush()
     Box(modifier = modifier) {
         Image(
             painter = painterResource(id = fullRes),
@@ -101,10 +109,44 @@ fun NarrationParchmentPanel(
 // riflesso della luce su un bordo metallico, molto più convincente di
 // una linea piatta). Colori PIENI, non pastello (richiesta esplicita:
 // "usa colori solidi").
-private fun goldBorderBrush() = Brush.linearGradient(
-    listOf(Color(0xFFFFE9A8), Color(0xFFB8860B), Color(0xFFFFD700), Color(0xFF8B6508), Color(0xFFFFE9A8)),
-)
+private val GOLD_STOPS = listOf(Color(0xFFFFE9A8), Color(0xFFB8860B), Color(0xFFFFD700), Color(0xFF8B6508), Color(0xFFFFE9A8))
+private val SILVER_STOPS = listOf(Color(0xFFF2F2F2), Color(0xFF8A8A8A), Color(0xFFD9D9D9), Color(0xFF6E6E6E), Color(0xFFF2F2F2))
 
-private fun silverBorderBrush() = Brush.linearGradient(
-    listOf(Color(0xFFF2F2F2), Color(0xFF8A8A8A), Color(0xFFD9D9D9), Color(0xFF6E6E6E), Color(0xFFF2F2F2)),
-)
+// Bordo "vivo" (26/07/2026, Michele: "si può rendere il colore oro
+// argento... come se fosse animato, una cosa blanda... purché non
+// spreca troppe risorse") — niente shader o calcoli su misure/pixel:
+// le 5 tonalità del gradiente diagonale restano fisse in posizione,
+// solo la loro luminosità pulsa lentamente verso il bianco e indietro
+// (`lerp`), come un riflesso di luce che respira sul metallo. Un solo
+// Float animato in loop (`rememberInfiniteTransition`) guida il calcolo
+// dei 5 colori a ogni frame: costo trascurabile, nessuna richiesta di
+// dimensioni del box, nessun ridisegno oltre al bordo stesso.
+private const val SHIMMER_DURATION_MS = 2600
+private const val SHIMMER_HIGHLIGHT_STRENGTH = 0.22f
+
+@Composable
+private fun shimmerGlow(): Float {
+    val transition = rememberInfiniteTransition(label = "borderShimmer")
+    val glow by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(SHIMMER_DURATION_MS, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "borderShimmerGlow",
+    )
+    return glow
+}
+
+@Composable
+private fun animatedGoldBorderBrush(): Brush {
+    val glow = shimmerGlow()
+    return Brush.linearGradient(GOLD_STOPS.map { lerp(it, Color.White, glow * SHIMMER_HIGHLIGHT_STRENGTH) })
+}
+
+@Composable
+private fun animatedSilverBorderBrush(): Brush {
+    val glow = shimmerGlow()
+    return Brush.linearGradient(SILVER_STOPS.map { lerp(it, Color.White, glow * SHIMMER_HIGHLIGHT_STRENGTH) })
+}
