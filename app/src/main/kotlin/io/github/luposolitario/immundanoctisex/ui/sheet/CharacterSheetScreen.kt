@@ -56,6 +56,7 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 fun CharacterSheetScreen(
     hero: Character,
     onEquipWeapon: (String) -> Unit,
+    onUnequipWeapon: () -> Unit,
     onConsumeItem: (String) -> Unit,
     onDiscardItem: (String) -> Unit,
     onClose: () -> Unit,
@@ -72,7 +73,11 @@ fun CharacterSheetScreen(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (tab == 0) StatsTab(hero) else EquipmentTab(hero, onEquipWeapon, onConsumeItem, onDiscardItem)
+            if (tab == 0) {
+                StatsTab(hero)
+            } else {
+                EquipmentTab(hero, onEquipWeapon, onUnequipWeapon, onConsumeItem, onDiscardItem)
+            }
         }
         Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
             Text("Chiudi")
@@ -220,6 +225,7 @@ private fun CharacterSheetPreview() {
                 equippedWeapon = "Sword",
             ),
             onEquipWeapon = {},
+            onUnequipWeapon = {},
             onConsumeItem = {},
             onDiscardItem = {},
             onClose = {},

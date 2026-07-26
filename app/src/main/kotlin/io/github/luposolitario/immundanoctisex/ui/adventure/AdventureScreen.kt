@@ -126,6 +126,7 @@ fun AdventureScreen(
         io.github.luposolitario.immundanoctisex.ui.sheet.CharacterSheetScreen(
             hero = state.hero,
             onEquipWeapon = state::equipWeapon,
+            onUnequipWeapon = state::unequipWeapon,
             onConsumeItem = state::consumeItem,
             onDiscardItem = state::discardItem,
             onClose = { showSheet = false },

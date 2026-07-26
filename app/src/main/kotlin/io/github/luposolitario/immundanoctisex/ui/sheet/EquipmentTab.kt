@@ -1,5 +1,7 @@
 package io.github.luposolitario.immundanoctisex.ui.sheet
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +18,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,12 +31,14 @@ import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
 import io.github.luposolitario.immundanoctisex.core.data.model.StatModifier
 import io.github.luposolitario.immundanoctisex.core.data.model.StatType
+import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.core.engine.stats.itemEnduranceBonus
 import io.github.luposolitario.immundanoctisex.core.engine.stats.weaponskillBonus
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
+import io.github.luposolitario.immundanoctisex.ui.creation.weaponTypeIcon
 import io.github.luposolitario.immundanoctisex.ui.creation.weaponTypeName
 
 // Equipaggiamento (UI.md §Inventario operativo): Combattività/Resistenza
@@ -41,11 +49,12 @@ import io.github.luposolitario.immundanoctisex.ui.creation.weaponTypeName
 fun EquipmentTab(
     hero: Character,
     onEquipWeapon: (String) -> Unit,
+    onUnequipWeapon: () -> Unit,
     onConsumeItem: (String) -> Unit,
     onDiscardItem: (String) -> Unit,
 ) {
     StatsBreakdownCard(hero)
-    WeaponsCard(hero, onEquipWeapon)
+    WeaponsCard(hero, onEquipWeapon, onUnequipWeapon)
     BackpackCard(hero, onConsumeItem, onDiscardItem)
     SpecialItemsCard(hero)
 }
@@ -119,7 +128,7 @@ private fun modifierLabel(modifier: StatModifier): String {
 // impugnato mostra anche il bonus WEAPONSKILL se scatta con quell'arma —
 // la nota sotto spiega la regola una volta sola, come nel cartaceo.
 @Composable
-private fun WeaponsCard(hero: Character, onEquipWeapon: (String) -> Unit) {
+private fun WeaponsCard(hero: Character, onEquipWeapon: (String) -> Unit, onUnequipWeapon: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Armi", style = MaterialTheme.typography.titleLarge)
@@ -129,8 +138,10 @@ private fun WeaponsCard(hero: Character, onEquipWeapon: (String) -> Unit) {
                     WeaponSlot(
                         slotNumber = index + 1,
                         weapon = weapons.getOrNull(index),
+                        weaponCount = weapons.size,
                         hero = hero,
                         onEquip = onEquipWeapon,
+                        onUnequip = onUnequipWeapon,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -144,26 +155,71 @@ private fun WeaponsCard(hero: Character, onEquipWeapon: (String) -> Unit) {
     }
 }
 
+// Slot vuoto = Arti Marziali (26/07/2026, richiesta Michele: "invece di
+// vuoto scrivi pugni o arti marziali" — nome coerente con la creazione,
+// stessa stringa/icona di WeaponType.UNARMED, non un testo ad hoc), ora
+// tappabile per disequipaggiare (Inventory.unequipWeapon esisteva già nel
+// motore ma non era collegato a nessuna UI). Bordo oro sull'impugnata e
+// sfondo verde sulla specializzazione WEAPONSKILL (anche qui indipendenti
+// tra loro, stessa convenzione di WeaponCell in creazione): un'arma può
+// essere la specializzazione senza essere impugnata ora.
 @Composable
-private fun WeaponSlot(slotNumber: Int, weapon: GameItem?, hero: Character, onEquip: (String) -> Unit, modifier: Modifier = Modifier) {
-    val equipped = weapon != null && weapon.name.equals(hero.equippedWeapon, ignoreCase = true)
+private fun WeaponSlot(
+    slotNumber: Int,
+    weapon: GameItem?,
+    // Quante armi possiede DAVVERO (26/07/2026): con zero armi in
+    // inventario (scelta "Arti Marziali" in creazione) ENTRAMBI gli slot
+    // risultano weapon == null — senza questo, i due slot vuoti si
+    // marcherebbero entrambi come "impugnato"/specializzazione, un
+    // doppione visivo. Solo il primo slot oltre le armi possedute
+    // (slotNumber == weaponCount + 1) rappresenta le mani nude.
+    weaponCount: Int,
+    hero: Character,
+    onEquip: (String) -> Unit,
+    onUnequip: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val isUnarmedSlot = weapon == null && slotNumber == weaponCount + 1
+    val equippedHere = if (weapon != null) {
+        weapon.name.equals(hero.equippedWeapon, ignoreCase = true)
+    } else {
+        isUnarmedSlot && hero.equippedWeapon == null
+    }
+    val iconType = weapon?.weaponType ?: WeaponType.UNARMED
+    val isSpecialization = if (weapon != null) {
+        hero.weaponSkillType == iconType
+    } else {
+        isUnarmedSlot && hero.weaponSkillType == WeaponType.UNARMED
+    }
+    val borderColor = if (equippedHere) Color(0xFFFFD700) else MaterialTheme.colorScheme.outline
     OutlinedCard(
-        onClick = { weapon?.let { onEquip(it.name) } },
+        onClick = { if (weapon != null) onEquip(weapon.name) else onUnequip() },
         modifier = modifier,
+        border = BorderStroke(if (equippedHere) 3.dp else 1.dp, borderColor),
         colors = CardDefaults.outlinedCardColors(
-            containerColor = if (equipped) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = when {
+                isSpecialization -> Color(0xFF2E7D32).copy(alpha = 0.35f)
+                equippedHere -> MaterialTheme.colorScheme.tertiaryContainer
+                else -> MaterialTheme.colorScheme.surfaceVariant
+            },
         ),
     ) {
         Column(Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("$slotNumber", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Image(
+                painter = painterResource(id = weaponTypeIcon(iconType)),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.size(40.dp),
+            )
             Text(
-                weapon?.name ?: "Vuoto",
+                weapon?.name ?: stringResource(weaponTypeName(WeaponType.UNARMED)),
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (equipped) {
+            if (equippedHere) {
                 val bonus = weaponskillBonus(hero)
                 Text(
                     if (bonus != 0) "Impugnata · +$bonus" else "Impugnata",
