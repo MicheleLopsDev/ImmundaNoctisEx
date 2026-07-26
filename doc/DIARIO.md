@@ -3202,6 +3202,35 @@ sul device.**
   Compilazione e suite riverificate verdi. **Ancora da confermare sul
   device.**
 
+- **Falso allarme chiarito: sovrapposizione di ambientazioni da 30",
+  non un bug di trigger** (24/07, stesso giorno, secondo log di
+  Michele: "sento anche dei passi... magari il suono della loc
+  contiene anche i passi"). Il log non aveva log di debug sui suoni
+  (non li stampiamo); controllati invece i file audio veri con
+  `mutagen`: `loc_tavern.mp3` e le altre ambientazioni location durano
+  tutte **~28-31 secondi** (non un colpo secco), mentre `footsteps.mp3`
+  dura 3". `SoundPool` permette fino a 4 suoni sovrapposti e niente nel
+  codice ferma un'ambientazione quando ne parte un'altra — quindi
+  cambiando scena più veloce di 30" (praticamente sempre) l'ambientazione
+  precedente resta a suonare sopra passi/ambientazione nuova. Proposto
+  un fix (una nuova ambientazione ferma quella precedente ancora in
+  corso) ma Michele non ha ancora deciso — **nessuna modifica di logica
+  fatta**, resta un'idea aperta.
+  - Verificando il file indicato, Michele ha confermato che **i passi
+    erano davvero incorporati nella traccia** `loc_tavern.mp3` — non
+    legati al vero movimento, si sovrapponevano in modo confuso al
+    suono passi dedicato. Sostituita con una traccia pulita trovata da
+    Michele (Freesound, non Pixabay come detto inizialmente):
+    ritagliata/sfumata (dissolvenza 1,5" in coda) agli stessi 30,77s,
+    192kbps, 44.1kHz, stereo delle altre ambientazioni — stessi
+    parametri, per restare uno standard. File originale scaricato
+    tenuto in `origina_res/` per la provenienza.
+  - **Da fare, non ancora chiesto esplicitamente**: controllare le
+    ALTRE ambientazioni location (mercato, cripta, porto, ecc.) per lo
+    stesso problema — probabilmente generate con lo stesso prompt.
+  Nessuna modifica al codice, solo all'asset audio. Compilazione e
+  suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
