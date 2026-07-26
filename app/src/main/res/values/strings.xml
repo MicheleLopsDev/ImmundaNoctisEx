@@ -83,6 +83,7 @@
 
     <!-- Creazione personaggio -->
     <string name="creation_title">Crea il tuo Eroe</string>
+    <string name="creation_scroll_to_bottom">Vai in fondo alla pagina</string>
     <string name="creation_gender">Chi sei?</string>
     <string name="creation_gender_male">Lupo</string>
     <string name="creation_gender_female">Lupa</string>

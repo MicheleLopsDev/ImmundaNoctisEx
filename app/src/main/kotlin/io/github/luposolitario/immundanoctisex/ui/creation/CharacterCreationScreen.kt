@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,6 +36,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +56,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.dice.RandomDiceRoller
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
+import kotlinx.coroutines.launch
 
 // Creazione personaggio (UI.md §schermata 3), v0.1 funzionale: lupo/lupa,
 // tiro stat, 5 discipline, specializzazione WEAPONSKILL a SCELTA (+ bottone
@@ -63,30 +67,46 @@ fun CharacterCreationScreen(
     state: CreationState,
     onCreate: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Text(stringResource(R.string.creation_title), style = MaterialTheme.typography.headlineLarge)
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
 
-        GenderCard(state)
-        HeroIconCard(state)
-        StatsCard(state)
-        DisciplinesCard(state)
-        WeaponSkillCard(state)
-        WeaponCard(state)
-        SpecialItemCard(state)
-
-        Button(
-            onClick = onCreate,
-            modifier = Modifier.fillMaxWidth().height(50.dp),
-            enabled = state.canProceed,
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(scrollState),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(stringResource(R.string.creation_start))
+            Text(stringResource(R.string.creation_title), style = MaterialTheme.typography.headlineLarge)
+
+            GenderCard(state)
+            HeroIconCard(state)
+            StatsCard(state)
+            DisciplinesCard(state)
+            WeaponSkillCard(state)
+            WeaponCard(state)
+            SpecialItemCard(state)
+
+            Button(
+                onClick = onCreate,
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                enabled = state.canProceed,
+            ) {
+                Text(stringResource(R.string.creation_start))
+            }
+        }
+
+        // Scorciatoia per saltare in fondo (26/07/2026, richiesta Michele:
+        // "pagina è molto lunga... se vuoi solo confermare le scelte
+        // casuali" senza scorrere a mano) — flottante sopra il contenuto,
+        // sempre visibile indipendentemente dalla posizione di scroll.
+        FilledIconButton(
+            onClick = { coroutineScope.launch { scrollState.animateScrollTo(scrollState.maxValue) } },
+            modifier = Modifier.align(Alignment.TopEnd).padding(16.dp),
+        ) {
+            Icon(Icons.Default.KeyboardArrowDown, contentDescription = stringResource(R.string.creation_scroll_to_bottom))
         }
     }
 }
