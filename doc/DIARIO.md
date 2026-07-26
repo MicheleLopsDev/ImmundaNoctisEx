@@ -3427,6 +3427,20 @@ sul device.**
   le altre schermate. Compilazione e suite riverificate verdi.
   **Ancora da confermare sul device.**
 
+- **Sfondo chiaro/scuro esteso a tutte le schermate di menu** (26/07,
+  Michele: "puoi usare gli sfondi per tutte le finestre che abbiamo
+  creato?") — estratto `ThemedBackground` (nuovo file, prima duplicato
+  solo nella Home) e applicato a Setup Avventura, Creazione Personaggio,
+  Opzioni e Modelli LLM, con `Scaffold`/`TopAppBar` trasparenti dove
+  presenti (Opzioni, come già la Home). `isDarkTheme` (il booleano
+  risolto, non la sola preferenza "segui il sistema" — Opzioni aveva
+  già `darkOverride` per il picker ma non il valore risolto) passato
+  da `AppNavigation` attraverso ciascuna Route fino alla Screen.
+  Esclusa di proposito la schermata di avventura (Fase 4): ha già i
+  propri sfondi di scena (`loc_*`), sovrapporne un altro sarebbe
+  rumore oltre che quasi sempre invisibile. Compilazione e suite
+  riverificate verdi. **Ancora da confermare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
