@@ -3255,6 +3255,21 @@ sul device.**
   Nessuna modifica al codice, solo agli asset audio. Compilazione e
   suite riverificate verdi.
 
+- **Discipline Kai tirate a caso subito all'apertura della creazione**
+  (24/07, stesso giorno, Michele: "quando creo un pg tira a caso le
+  discipline Kai così che se voglio posso iniziare immediatamente") —
+  cambia rotta rispetto alla scelta della mattina ("le discipline NON
+  precompilate... restano l'unica scelta obbligatoria manuale"):
+  `CreationState.init` ora chiama anche `randomizeDisciplines()`
+  (già esistente, il bottone "Scegli a caso") oltre a `rollStats()` —
+  stesso principio delle statistiche: pronte da subito, ma restano
+  liberamente ricambiabili a mano o ritirabili a caso senza limiti.
+  Effetto pratico: con tutti i default già in campo (statistiche,
+  discipline, specializzazione, arma, oggetto speciale), il pulsante
+  "Crea" può risultare già abilitato appena si apre la schermata, per
+  chi vuole saltare ogni scelta manuale. Compilazione e suite
+  riverificate verdi. **Ancora da confermare sul device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
