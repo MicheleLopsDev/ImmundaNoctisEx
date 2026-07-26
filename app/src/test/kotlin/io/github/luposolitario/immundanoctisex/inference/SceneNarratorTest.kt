@@ -75,11 +75,11 @@ class SceneNarratorTest {
         scenes = listOf(scene, nextScene),
     )
 
-    private fun narrator(engine: InferenceEngine) =
-        SceneNarrator(engine, PromptBuilder(), manifest)
+    private fun narrator(engine: InferenceEngine, toneOverride: List<String>? = null) =
+        SceneNarrator(engine, PromptBuilder(), manifest, toneOverride = toneOverride)
 
-    private fun run(engine: InferenceEngine) = runBlocking {
-        narrator(engine).narrate(
+    private fun run(engine: InferenceEngine, toneOverride: List<String>? = null) = runBlocking {
+        narrator(engine, toneOverride).narrate(
             scene = scene,
             previousSceneText = "You left the inn.",
             choices = scene.choices,
@@ -159,5 +159,33 @@ class SceneNarratorTest {
         assertTrue(prompt.contains(nextScene.narrativeText))
         // ...e la coda della scena precedente come contesto.
         assertTrue(prompt.contains("You left the inn."))
+    }
+
+    // Tono narrativo (26/07/2026, Michele: "se stabilisco un tono
+    // narrativo questo sovrascrive tutti quelli scelti nel json,
+    // altrimenti legge quelli, non viene aggiunto ma sostituisce se
+    // impostato") — comportamento già implementato (NarrativeTonePreferences,
+    // 21/07/2026), qui blindato con un test: SENZA override si legge il
+    // toneHints della scena, CON un override lo SOSTITUISCE del tutto,
+    // senza mischiarli.
+    @Test
+    fun senzaTonoImpostato_siUsaIlToneHintsDellaScena() {
+        val engine = FakeEngine(chunks = listOf("Prosa."))
+
+        run(engine)
+
+        val prompt = requireNotNull(engine.lastPrompt)
+        assertTrue(prompt.contains("tone: dark"))
+    }
+
+    @Test
+    fun conTonoImpostato_sostituisceIlToneHintsDellaScenaSenzaMischiarli() {
+        val engine = FakeEngine(chunks = listOf("Prosa."))
+
+        run(engine, toneOverride = listOf("adventurous", "bold"))
+
+        val prompt = requireNotNull(engine.lastPrompt)
+        assertTrue(prompt.contains("tone: adventurous, bold"))
+        assertTrue(!prompt.contains("tone: dark"))
     }
 }
