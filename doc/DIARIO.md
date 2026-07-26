@@ -3441,6 +3441,13 @@ sul device.**
   rumore oltre che quasi sempre invisibile. Compilazione e suite
   riverificate verdi. **Ancora da confermare sul device.**
 
+- **Testi in grassetto sulla Home** (26/07, Michele: "rendi i
+  caratteri in grassetto nella prima schermata quella dei menu") —
+  titolo della TopAppBar, "Libro: ...", il messaggio di
+  caricamento/errore e le etichette delle tile (`MenuTile`) ora tutti
+  `FontWeight.Bold`: più leggibili sopra il nuovo sfondo illustrato
+  rispetto a un colore piatto. Compilazione e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
