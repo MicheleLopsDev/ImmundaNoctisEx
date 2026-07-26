@@ -664,6 +664,21 @@ class AdventureState(
         manifest.scenes.firstOrNull { it.id == id }
             ?: manifest.scenes.first { it.id == manifest.deathSceneId }
 
+    // BUG (24/07/2026, Michele: "il rumore dei passi e quello della
+    // taverna sono partiti contemporaneamente"): la scena INIZIALE (sia
+    // una nuova avventura sia una ripresa) non passa mai da `moveTo()` —
+    // il suo suono location restava agganciato SOLO al completamento
+    // della narrazione (`syncImageSounds()` richiamata da
+    // `NarrationEvent.Completed`). Avanzando in fretta alla scena
+    // successiva (i cui passi partono SUBITO, senza attese) i due suoni
+    // potevano scontrarsi in un momento qualunque, sembrando un unico
+    // suono confuso. Ora la sincronizzazione parte anche qui, una volta
+    // sola, alla costruzione dello stato — stesso trattamento immediato
+    // di ogni altra scena, indipendente dal narratore.
+    init {
+        syncImageSounds()
+    }
+
     private companion object {
         // Buffer dello streaming: la UI si aggiorna al massimo ogni tanto,
         // non a ogni token (CRITICITA.md ~80-100ms).
