@@ -3365,6 +3365,22 @@ sul device.**
   checklist `SUONI-IMMAGINI.md` aggiornata. Nessuna modifica al
   codice. Compilazione e suite riverificate verdi.
 
+- **Disattivata la scelta IMAGE di Gemma, prompt più semplice** (26/07,
+  Michele: "disattiviamo il prompt di gemma in cui lui sceglie il file
+  di loc da far vedere, rendiamo il prompt più semplice, questa
+  modalità la attiveremo se troviamo un modello più intelligente") —
+  l'esperimento del 20/07 (Gemma suggerisce lo sfondo quando il
+  pacchetto non ne ha uno valido) è disattivato:
+  `PromptBuilder.outputFormat()` non aggiunge più `imageFormatText` in
+  nessun caso, sfondo mancante o placeholder fuori catalogo compresi.
+  Resta solo `backgroundImage` dichiarato dal pacchetto.
+  `ResponseParser.parseImageLine` e `SceneImageCatalog` restano
+  intatti e pronti: riattivare in futuro significa solo tornare ad
+  aggiungere quella riga in `outputFormat()`. 5 test di
+  `PromptBuilderTest` che verificavano il vecchio comportamento
+  sostituiti da 3 che confermano il nuovo (la riga IMAGE non compare
+  mai). Compilazione e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
