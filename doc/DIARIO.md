@@ -3231,6 +3231,30 @@ sul device.**
   Nessuna modifica al codice, solo all'asset audio. Compilazione e
   suite riverificate verdi.
 
+- **16 ambientazioni location sostituite con veri sfx** (24/07, stesso
+  giorno — seguito diretto del punto sopra): controllando le altre
+  location, Michele ha notato che erano "delle musiche anche se sono
+  nelle loc" e ha proposto di sostituirle con veri suoni d'ambiente da
+  Pixabay/Freesound — confermato che è un abbinamento concettualmente
+  migliore (il suono di un posto, non un brano musicale) ed evita la
+  confusione con la musica di sottofondo vera, un sistema separato.
+  - Confrontati i file nuovi in `origina_res/` con quelli già in
+    `assets/sfx/images/` via md5sum: 16 diversi, sostituiti
+    (`loc_abandoned_keep`, `loc_caves`, `loc_crypt`,
+    `loc_cursed_castle`, `loc_dungeon`, `loc_forest`, `loc_harbor`,
+    `loc_haunted_house`, `loc_mountain_pass`, `loc_smithy_interior`,
+    `loc_storm_tower`, `loc_swamp`, `loc_volcano`, `loc_waterfall`,
+    `loc_wizard_cove`, `loc_wizard_tower`); 5 lasciati invariati di
+    proposito da Michele ("mi piacciono così": `loc_market`,
+    `loc_temple`, `loc_ancient_ruins`, `loc_battlefield`, più
+    `loc_tavern` già sistemata a parte).
+  - **Durate NON standardizzate** stavolta (da 11,5" `loc_wizard_cove`
+    a 129,6" `loc_volcano`): a differenza della taverna (un rimpiazzo
+    1:1 di una traccia musicale), questi sono veri sfx — la durata
+    segue il contenuto reale, non un valore fisso a 30".
+  Nessuna modifica al codice, solo agli asset audio. Compilazione e
+  suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
