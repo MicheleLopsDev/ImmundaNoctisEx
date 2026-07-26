@@ -3358,6 +3358,13 @@ sul device.**
   aggiunto alla checklist `SUONI-IMMAGINI.md`, per ora silenzio come
   da regola. Compilazione e suite riverificate verdi.
 
+- **Aggiunto l'sfx di `loc_alley`** (26/07, Michele: "ti ho aggiunto un
+  suono per il vicolo") — completa la location introdotta poco prima
+  per correggere l'immagine sbagliata di Scena 3/7: file da 34,7s
+  (mono, 44.1kHz) copiato in `assets/sfx/images/loc_alley.mp3`,
+  checklist `SUONI-IMMAGINI.md` aggiornata. Nessuna modifica al
+  codice. Compilazione e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
