@@ -3182,6 +3182,26 @@ sul device.**
   Nessuna modifica al codice, solo al contenuto del libro di esempio.
   Compilazione e suite riverificate verdi.
 
+- **Confermato e corretto: suono scena iniziale in gara coi passi
+  della scena 2** (24/07, stesso giorno, primo test reale di Michele
+  con TTS spento: "il rumore dei passi e quello della taverna sono
+  partiti contemporaneamente... il suono anche se il tts è disabilitato
+  parte dopo che ha finito di scrivere tutto il testo") — confermava
+  esattamente la scoperta di poco prima: non un bug dei passi (che
+  restano corretti, non partono mai in scena 1), ma una gara nel tempo.
+  Il suono della scena iniziale aspettava che il narratore finisse di
+  generare; avanzando in fretta verso la scena 2 (i cui passi partono
+  SUBITO), i due potevano arrivare nello stesso istante e sembrare un
+  suono solo. `AdventureState`: nuovo `init { syncImageSounds() }` in
+  coda alla classe — la sincronizzazione parte anche alla costruzione
+  dello stato (nuova avventura O ripresa), indipendente dal narratore,
+  stesso trattamento immediato di ogni altra scena. Effetto
+  collaterale positivo: anche riprendere una sessione già in corso ora
+  fa sentire subito il suono della location su cui ci si trova, invece
+  di aspettare un'eventuale rigenerazione della narrazione.
+  Compilazione e suite riverificate verdi. **Ancora da confermare sul
+  device.**
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
