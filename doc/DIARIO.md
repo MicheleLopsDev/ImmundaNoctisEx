@@ -3389,6 +3389,22 @@ sul device.**
   `enemy_*`/`beast_*` e gli 11 `npc_*` (0 file esistono per queste due
   categorie), 10 musiche e 3 finali già completi.
 
+- **Tono narrativo: verificato che sostituisce, non si somma** (26/07,
+  Michele: "voglio che se stabilisco un tono narrativo questo
+  sovrascrive tutti quelli scelti nel json, altrimenti legge quelli,
+  non viene aggiunto ma sostituisce se impostato") — controllato il
+  codice: la funzionalità esiste già dal 21/07/2026
+  (`NarrativeTonePreferences`, Opzioni → `ToneSection`, filo fino a
+  `SceneNarrator`), con esattamente questa semantica:
+  `toneHints = toneOverride ?: scene.toneHints.ifEmpty { manifest.toneHints }`
+  — se il giocatore ha impostato un tono in Opzioni (diverso da "Come
+  l'autore"), SOSTITUISCE del tutto i toneHints della scena, mai una
+  somma; altrimenti si legge il JSON come sempre. Nessuna modifica al
+  comportamento — mancava solo un test diretto a blindarlo: aggiunti
+  due casi a `SceneNarratorTest` (senza override si legge il tono della
+  scena, con un override lo sostituisce senza mischiarli). Compilazione
+  e suite riverificate verdi.
+
 **RUN PIÙ LUNGO CON TTS+MUSICA ATTIVI** (22/07, Michele: "finita 3
 volte, sfruttati anche i salvataggi, TTS abilitato, anche musica, il
 cel scalda un po' ma il mio è un foldable quindi è normale"): 16
