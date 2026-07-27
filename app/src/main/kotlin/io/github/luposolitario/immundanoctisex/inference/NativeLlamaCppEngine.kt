@@ -35,6 +35,7 @@ class NativeLlamaCppEngine : InferenceEngine {
 
     override suspend fun load(modelFile: File, config: InferenceConfig): Result<Unit> =
         withContext(Dispatchers.IO) {
+            Log.i(TAG, "load(): richiesta per ${modelFile.name}, isLoaded=$isLoaded")
             if (!modelFile.exists()) {
                 return@withContext Result.failure(
                     IllegalStateException("Modello non trovato: scaricalo da Modelli LLM."),
@@ -49,7 +50,11 @@ class NativeLlamaCppEngine : InferenceEngine {
                 // non un oggetto per istanza. Va scaricato esplicitamente
                 // prima, stesso principio di LlamaCppEngine.load() con
                 // LlamaBridge.
-                if (isLoaded) llamaAndroid.unload()
+                if (isLoaded) {
+                    Log.i(TAG, "load(): scarico il modello precedente prima di continuare")
+                    llamaAndroid.unload()
+                    Log.i(TAG, "load(): modello precedente scaricato")
+                }
                 this@NativeLlamaCppEngine.config = config
                 Log.i(TAG, "load(): avvio caricamento di ${modelFile.name}")
                 llamaAndroid.load(
