@@ -44,6 +44,25 @@ android {
             resources.srcDir(rootDir.resolve("content"))
         }
     }
+
+    // Sperimentale (27/07/2026, branch feature/llama-cpp-adreno): sia
+    // Llamatik (com.llamatik:library) sia :llama sono basati su
+    // ggml/llama.cpp e impacchettano .so con GLI STESSI NOMI
+    // (libggml-base.so, libggml.so, ...) ma build DIVERSE — la nostra ha
+    // il backend OpenCL/Adreno, quella di Llamatik è CPU-only. pickFirst
+    // sceglie quella di :llama (dichiarato per ultimo tra le due nelle
+    // dependencies sotto): verificato confrontando i byte del file nella
+    // build risultante contro l'output di :llama, vedi
+    // doc/LLAMA-CPP-ADRENO-SETUP.md.
+    packaging {
+        jniLibs {
+            pickFirsts += setOf(
+                "**/libggml*.so",
+                "**/libllama.so",
+                "**/libomp.so",
+            )
+        }
+    }
 }
 
 dependencies {
