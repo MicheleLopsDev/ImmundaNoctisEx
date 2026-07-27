@@ -382,6 +382,27 @@ testabile in un pomeriggio, senza toccare l'infrastruttura.
 libreria concreta da valutare, o decide di testare il ritocco del
 prompt.
 
+**CORREZIONE 27/07/2026 — il backend OpenCL/Adreno citato sopra NON è
+quello che usiamo**: il ragionamento sul backend OpenCL dedicato di
+llama.cpp per Adreno resta vero in generale, ma riguarda il progetto
+llama.cpp compilato da soli — non Llamatik, la libreria scelta apposta
+per EVITARE quella compilazione. Il README ufficiale di Llamatik
+documenta `gpuLayers` come "-1 = all layers (Metal / CUDA)": il
+backend GPU della libreria esiste solo su iOS/Desktop, su Android gira
+sempre su CPU, qualunque valore riceva `gpuLayers`. Confermato da un
+test reale di Michele su Gemma 3 12B Heretic (IQ4_XS): 237s al primo
+token, 1,5 token/s — numeri coerenti con un 12B interamente su CPU con
+pochi thread, non con un'accelerazione GPU mancata per un bug di
+codice nostro. **Unica leva di velocità disponibile senza tornare a
+compilare da soli**: `numThreads` che ora usa tutti i core meno 2
+(prima fisso a 4) — non testato ancora sul device dopo questo
+cambiamento. Se la velocità resta un problema reale (non solo
+percepito), le strade restano: modelli più piccoli (i Gemma 3 4B già
+in catalogo), un quant K invece di un quant I (le quantizzazioni IQ
+sono spesso più lente da decomprimere su CPU a parità di dimensione),
+oppure — unica via per la GPU vera — riaprire la porta della
+compilazione nativa che Michele aveva scartato a inizio ricerca.
+
 ## 4. Altre proposte raccolte
 
 ### Già PREDISPOSTE nel design chiuso (i contratti reggono)

@@ -326,6 +326,36 @@ il crash si ripresenta, si torna alla `generate()` bloccante senza
 altro codice da riscrivere (l'unica differenza è quale metodo di
 Llamatik viene chiamato).
 
+**Primo test reale di Gemma 3 12B Heretic sul device, streaming OK,
+ma lentissimo (27/07, stesso giorno)**: Michele, log alla mano
+("ottima la prosa... capire se possiamo guadagnare qualcosa per
+velocizzare un po"): niente crash con Llamatik 1.9.1 (buona notizia,
+lo streaming regge), ma `MISURA primoToken=237,70 s totale=377,90 s
+tokenPrompt~552 tokenGenerati~210 velocita~1,5 token/s`. Cercata la
+causa: **il commento nel codice sul `gpuLayers=99` era sbagliato fin
+dall'inizio**. Il README ufficiale di Llamatik documenta `gpuLayers`
+come "-1 = all layers (Metal / CUDA)" — il backend GPU della libreria
+esiste solo su iOS/Desktop: su **Android questa libreria gira sempre
+su CPU**, qualunque valore riceva `gpuLayers`. Il ragionamento sul
+backend OpenCL/Adreno di llama.cpp fatto nella prima ricerca del 27/07
+(vedi sopra) resta vero in generale, ma riguarda llama.cpp compilato
+da soli — non Llamatik, scelta apposta per evitare quella
+compilazione (vincolo di Michele: "voglio evitare di usare jni"). I
+numeri tornano: un 12B intero su CPU con pochi thread è lento così.
+
+**Corretto lo stesso giorno**: `numThreads` passa da 4 fisso a
+`(Runtime.getRuntime().availableProcessors() - 2).coerceAtLeast(2)` —
+lo Snapdragon 8 Elite ne ha 8, un margine concreto senza cambiare
+libreria. Corretto anche il commento di codice che affermava
+(erroneamente) lo scarico su GPU. Compilazione e suite riverificate
+verdi. **Da confermare sul device**: non sappiamo ancora di quanto
+`numThreads` più alto acceleri davvero — se non basta, le strade
+restano modelli più piccoli (i Gemma 3 4B già in catalogo), un quant K
+al posto di un quant I (le IQ sono spesso più lente da decomprimere su
+CPU a parità di dimensione), oppure riaprire la porta della
+compilazione nativa che Michele aveva scartato: unica via per una vera
+GPU su Android, da valutare lui con questi numeri reali in mano.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
