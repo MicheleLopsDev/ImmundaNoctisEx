@@ -70,7 +70,24 @@ object ModelCatalog {
         note = "Il modello usato in v1. Richiede un token Hugging Face e la licenza accettata.",
     )
 
-    val all = listOf(GEMMA_4_E4B, GEMMA_4_E2B, GEMMA_3N_E4B_GATED)
+    // GGUF via llama.cpp (27/07/2026, Michele l'ha provato in LM Studio:
+    // prosa italiana fluida e in formato corretto, a fronte di una
+    // velocità però mai misurata su device). Quantizzazione IQ4_XS: la
+    // stessa già testata e validata da Michele, non una "migliore" mai
+    // provata. Solo testo (niente file mmproj): qui non serve il
+    // multimodale. Dimensione VERIFICATA con richiesta HEAD il 27/07/2026.
+    val GEMMA_3_12B_HERETIC_GGUF = DownloadableModel(
+        id = "gemma-3-12b-heretic-gguf",
+        displayName = "Gemma 3 12B Heretic Uncensored (GGUF)",
+        url = "https://huggingface.co/mradermacher/gemma-3-12b-it-ultra-uncensored-heretic-GGUF/resolve/main/gemma-3-12b-it-ultra-uncensored-heretic.IQ4_XS.gguf",
+        fileName = "gemma-3-12b-it-ultra-uncensored-heretic.IQ4_XS.gguf",
+        sizeBytes = 6_606_262_336L,
+        requiresToken = false,
+        note = "Motore GGUF (llama.cpp): prosa più ricca del 4B nei test su LM Studio. Solo testo, nessun supporto immagini.",
+        engineType = EngineType.LLAMA_CPP,
+    )
+
+    val all = listOf(GEMMA_4_E4B, GEMMA_4_E2B, GEMMA_3N_E4B_GATED, GEMMA_3_12B_HERETIC_GGUF)
 
     val default = GEMMA_4_E4B
 
