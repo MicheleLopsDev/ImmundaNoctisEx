@@ -150,7 +150,18 @@ capire se carica un GGUF e genera testo sul Razr. Card minimale in
 Modelli LLM per innescarlo dal device (percorso file .gguf incollato
 a mano + pulsante). `compileSdk` alzato a 36 (richiesto dall'AAR),
 `minSdk`/`targetSdk` invariati a 34. Compilazione e suite verdi.
-**Ancora da provare sul device con un file .gguf vero.**
+
+**Corretto lo stesso giorno**: il campo "incolla il percorso" non
+avrebbe funzionato — Michele aveva già caricato 2 GGUF su
+`/sdcard/Download/llm/` (Gemma-4-E4B-Uncensored-HauhauCS-Aggressive
+IQ4_XS, 4,7GB; llama-3.2-1b-instruct Q4_K_M, 770MB) via Device
+Explorer di Android Studio, ma un percorso del genere letto
+direttamente da codice nativo fallisce sotto scoped storage (nessun
+permesso `MANAGE_EXTERNAL_STORAGE` dichiarato, giustamente). Sostituito
+con lo stesso pattern SAF già usato per l'import di modelli `.litertlm`
+personalizzati: selettore file di sistema -> copia nella cache
+dell'app -> Llamatik legge quel path locale. Compilazione e suite
+riverificate verdi. **Ancora da provare sul device.**
 
 ---
 
