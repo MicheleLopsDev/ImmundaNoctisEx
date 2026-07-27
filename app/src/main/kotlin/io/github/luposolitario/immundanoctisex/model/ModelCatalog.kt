@@ -152,6 +152,27 @@ object ModelCatalog {
         engineType = EngineType.LLAMA_CPP_NATIVE,
     )
 
+    // Gemma 4 12B (27/07/2026, cercato dopo il buon risultato dell'offload
+    // parziale sul 4B Q4_0): stessa generazione di Gemma 4 E4B/E2B (i
+    // nostri modelli LiteRT-LM), base "Gemma-4-12B-it-qat-q4_0-unquantized"
+    // di Google (QAT — quantizzazione allenata, non naive), abliterato con
+    // lo strumento Heretic v1.2.0 (ARA sui layer attn.o_proj 24-35):
+    // rifiuti da 99/100 a 7/100, MMLU quasi invariato (74,52% -> 74,18%).
+    // Già in Q4_0 — il formato per cui i kernel Adreno sono ottimizzati,
+    // stessa taglia del 12B IQ4_XS già provato ma potenzialmente più
+    // veloce su questo backend. Dimensione VERIFICATA con richiesta HEAD
+    // il 27/07/2026, repo aperto (nessun token).
+    val GEMMA_4_12B_HERETIC_Q4_0_GGUF = DownloadableModel(
+        id = "gemma-4-12b-heretic-q4_0-gguf",
+        displayName = "Gemma 4 12B Heretic Q4_0 (GGUF, nativo)",
+        url = "https://huggingface.co/llmfan46/gemma-4-12B-it-qat-q4_0-uncensored-heretic-GGUF/resolve/main/gemma-4-12B-it-qat-q4_0-uncensored-heretic-Q4_0.gguf",
+        fileName = "gemma-4-12B-it-qat-q4_0-uncensored-heretic-Q4_0.gguf",
+        sizeBytes = 7_596_302_496L,
+        requiresToken = false,
+        note = "Motore GGUF nativo (llama.cpp, GPU Adreno): Gemma 4 12B, QAT Google + abliterazione Heretic, Q4_0. Non ancora provato su scene vere.",
+        engineType = EngineType.LLAMA_CPP_NATIVE,
+    )
+
     // Stesso file di GEMMA_3_12B_HERETIC_GGUF sopra (stesso url/fileName):
     // se è già scaricato, questa voce risulta già pronta, nessun secondo
     // download da 6,6GB. Cambia solo il motore che lo carica — per il
@@ -177,6 +198,7 @@ object ModelCatalog {
         GEMMA_3_4B_ABLITERATED_GGUF,
         GEMMA_3_12B_ABLITERATED_GGUF,
         GEMMA_3_12B_HERETIC_NATIVE,
+        GEMMA_4_12B_HERETIC_Q4_0_GGUF,
     )
 
     val default = GEMMA_4_E4B
