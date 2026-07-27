@@ -4,7 +4,7 @@ Stato: **CHIUSA** (sessione 17/07/2026). Ultima specifica di design.
 
 Formato: per ogni criticità — analisi, mitigazione di design (decisa),
 cosa misurare in sviluppo e soglia di allarme. Device di riferimento:
-Motorola Razr 70 Ultra (Snapdragon 8 Elite, 16 GB RAM).
+Motorola Razr 60 Ultra (Snapdragon 8 Elite, 16 GB RAM).
 
 Decisioni di piattaforma prese qui:
 - **Modello: Gemma 3 4B** (lo stesso di v1, già provato e funzionante

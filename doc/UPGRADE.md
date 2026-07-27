@@ -333,8 +333,10 @@ guida ufficiale
 Backend GPU su Adreno: llama.cpp ha un backend **OpenCL** dedicato
 (oltre a Vulkan) [testato su Snapdragon 8 Gen 1/2/3 e 8
 Elite](https://proandroiddev.com/introducing-the-new-opencl-gpu-backend-in-llama-cpp-for-qualcomm-adreno-gpus-4093655d334c) —
-il Razr 70 Ultra monta esattamente uno **Snapdragon 8 Elite (Adreno
-830)**, quindi il backend accelerato è supportato sulla carta (Q4_0 è
+il Razr 60 Ultra (nome corretto del device di test, refuso "70 Ultra"
+diffuso nei documenti fino al 27/07/2026, corretto ovunque lo stesso
+giorno) monta esattamente uno **Snapdragon 8 Elite (Adreno 830)**,
+quindi il backend accelerato è supportato sulla carta (Q4_0 è
 la quantizzazione più ottimizzata su Adreno oggi; Q4_K_M indicato in
 generale come miglior compromesso qualità/dimensione su telefono).
 **Resta comunque da fare un prototipo concreto** che carichi un

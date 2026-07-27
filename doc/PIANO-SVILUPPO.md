@@ -27,7 +27,7 @@ locale: libri a scelte strutturate (niente testo libero) dove Gemma 3
 4B (LiteRT-LM, on-device) ARRICCHISCE E TRADUCE la prosa già scritta
 del libro — non genera da zero. Ambientazione Lupo Solitario (regole
 canoniche: CRT, discipline Kai, Resistenza/Combattività). Device
-target: Motorola Razr 70 Ultra. Il progetto è il successore di v1
+target: Motorola Razr 60 Ultra. Il progetto è il successore di v1
 (ImmundaNoctis-master): v1 si è arenato su separazione UI/logica e
 conversione libri — l'intero design di Ex esiste per non ripetere
 quei due blocchi. Sorgenti v1 = miniera di riuso, MAI dipendenza.

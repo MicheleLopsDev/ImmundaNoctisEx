@@ -46,7 +46,7 @@ decorazioni sistemate. Tutto l'aspetto grafico è funzionale (Michele,
    oltre alla guida ufficiale `llama.cpp/docs/android.md`. Backend GPU
    su Adreno: llama.cpp ha un backend **OpenCL** dedicato per Adreno
    (oltre a Vulkan), testato su Snapdragon 8 Gen 1/2/3 e **8 Elite** —
-   il Razr 70 Ultra monta esattamente uno **Snapdragon 8 Elite
+   il Razr 60 Ultra monta esattamente uno **Snapdragon 8 Elite
    (Adreno 830)**, quindi il backend accelerato è supportato sulla
    carta. Resta da fare: un prototipo concreto che carichi un modello
    GGUF quantizzato (Q4_K_M indicato come miglior compromesso
@@ -54,7 +54,14 @@ decorazioni sistemate. Tutto l'aspetto grafico è funzionale (Michele,
    scrittura a confronto diretto con Gemma 4B — nessuna decisione
    prima di quel confronto (`InferenceEngine` è già un'interfaccia,
    un secondo motore si affiancherebbe senza toccare `SceneNarrator`
-   né `ResponseParser`).
+   né `ResponseParser`). **Correzione device (27/07, Michele: "io ho
+   il motorazr 60ultra")**: il nome corretto del device di test è
+   **Razr 60 Ultra**, non "70 Ultra" come scritto fino ad oggi in
+   `README.md`/`PIANO-SVILUPPO.md`/`CRITICITA.md` (refuso diffuso,
+   corretto ovunque lo stesso giorno) — le specifiche (Snapdragon 8
+   Elite, Adreno 830, 16GB RAM) restano ESATTAMENTE quelle già
+   verificate: il ragionamento sul backend OpenCL/Adreno sopra vale
+   invariato.
 3. **Stringhe UI ancora scritte a mano** (Michele, 27/07: "bisognerebbe
    fare un controllo di tutte le etichette"): audit fatto (27/07) —
    solo 3 file su tutta la UI (`AdventureScreen`,

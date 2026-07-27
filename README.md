@@ -83,7 +83,7 @@ traduzione ML Kit, ViewModel monolitico), non per problemi delle singole parti.
 
 ## 3. Hardware di riferimento
 
-Dispositivo di test: **Motorola Razr 70 Ultra** — Snapdragon 8 Elite (2x Oryon
+Dispositivo di test: **Motorola Razr 60 Ultra** — Snapdragon 8 Elite (2x Oryon
 Prime 4,32 GHz + 6x Oryon Performance 3,53 GHz), 16 GB RAM, GPU Adreno 830.
 Flagship pieghevole: schermo interno alto e stretto, perfetto per la scena
 teatrale verticale. Nota: con 16 GB di RAM il candidato primario diventa
@@ -364,7 +364,7 @@ Il seme narrativo (§7) resta il meccanismo di variazione tra le partite.
 7. UI (scena teatrale, scelte a pulsanti, Dado del Destino)
 8. Compagno (bonus + commenti)
 9. TTS
-10. Test prestazionali reali su Motorola Razr 70 Ultra
+10. Test prestazionali reali su Motorola Razr 60 Ultra
 
 ## 15. Changelog
 
