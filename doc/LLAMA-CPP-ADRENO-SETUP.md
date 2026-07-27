@@ -78,12 +78,36 @@ anche nella CMakeCache generata (`llama/.cxx/**/CMakeCache.txt`):
 `GGML_AVAILABLE_BACKENDS` deve elencare `ggml-opencl`, non solo
 `ggml-cpu`.
 
-## Stato: non ancora provato su device
+## 4. Collisione con Llamatik (risolta)
 
-La compilazione qui sopra è verificata (27/07/2026). **Non ancora
-verificato**: caricare un modello vero tramite `LLamaAndroid.kt`, misurare
-token/s reali sul Razr, e confermare che `n_gpu_layers = 999` (impostato in
-`llama-android.cpp`, correzione rispetto a v1) faccia davvero scaricare i
-livelli sulla GPU Adreno a runtime — la compilazione riuscita prova solo
-che il backend OpenCL è STATO INCLUSO nel binario, non che venga usato
-efficacemente all'inferenza.
+`com.llamatik:library` (usato da `LlamaCppEngine`, l'altro motore GGUF
+dell'app) impacchetta anch'esso `.so` basati su ggml/llama.cpp con GLI
+STESSI NOMI dei nostri (`libggml-base.so`, `libggml.so`, ...), ma da una
+build diversa (CPU-only). `app/build.gradle.kts` ha un blocco
+`packaging.jniLibs.pickFirsts` che sceglie la versione di `:llama` —
+verificato confrontando l'hash SHA-256 del file dentro l'APK con l'output
+di `:llama:assembleDebug` (combaciano). Se in futuro l'ordine delle
+dependencies cambia e il confronto va rifatto:
+
+```bash
+unzip -j app-debug.apk "lib/arm64-v8a/libggml-base.so" -d /tmp
+sha256sum /tmp/libggml-base.so
+sha256sum llama/build/intermediates/stripped_native_libs/debug/stripDebugDebugSymbols/out/lib/arm64-v8a/libggml-base.so
+```
+
+## 5. Come attivarlo nell'app
+
+`ModelCatalog.GEMMA_3_12B_HERETIC_NATIVE`: stesso file GGUF già scaricato
+per `GEMMA_3_12B_HERETIC_GGUF` (stesso `fileName`), motore
+`LLAMA_CPP_NATIVE` invece di `LLAMA_CPP` — appare nella lista Modelli LLM
+come voce separata, nessun secondo download.
+
+## Stato: compila e si impacchetta, non ancora provato su device
+
+Verificato (27/07/2026): compilazione con backend OpenCL/Adreno incluso,
+nessuna collisione nell'APK finale. **Non ancora verificato**: caricare
+davvero un modello, misurare token/s sul Razr, e confermare che
+`n_gpu_layers = 999` (impostato in `llama-android.cpp`, correzione
+rispetto a v1) faccia davvero scaricare i livelli sulla GPU a runtime —
+tutto quello fatto finora prova solo che il backend è INCLUSO nel
+binario, non che venga usato efficacemente all'inferenza.
