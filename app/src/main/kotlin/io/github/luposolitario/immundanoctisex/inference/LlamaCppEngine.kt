@@ -60,15 +60,24 @@ class LlamaCppEngine : InferenceEngine {
             }
         }
 
-    // BUG trovato dal primo test di Michele (27/07, log del device):
-    // senza gpuLayers il default è 0 = tutto su CPU, mai la GPU Adreno —
-    // un modello grande sembrava bloccato invece di essere solo lento.
-    // 99 (convenzione comune in llama.cpp) scarica tutti i livelli sulla
-    // GPU. contextLength segue InferenceConfig.maxTokens (il budget di
-    // contesto di CRITICITA.md, stesso concetto di maxNumTokens in
-    // LiteRtLmEngine) — è un campo DIVERSO dal "maxTokens" di Llamatik,
-    // che qui indica invece quante parole genera al massimo IN UN
-    // turno: valore fisso, da ritoccare se la scena arriva tagliata.
+    // CORREZIONE (27/07/2026, dal log di un test di Michele: 1,5 token/s,
+    // 237s al primo token su Gemma 3 12B): il commento precedente qui
+    // era sbagliato. `gpuLayers=99` NON scarica nulla su Adreno — il
+    // README ufficiale di Llamatik documenta gpuLayers come "-1 = all
+    // layers (Metal / CUDA)": il backend GPU esiste solo su iOS/Desktop,
+    // su Android questa libreria gira SEMPRE su CPU, a prescindere dal
+    // valore impostato qui. Non è un bug nostro né una regressione: è
+    // un limite della libreria, coerente con l'aver scelto "niente JNI/
+    // compilazione nostra" — un vero backend OpenCL/Vulkan per Adreno
+    // richiederebbe di compilare llama.cpp da soli. `numThreads` usa
+    // tutti i core meno 2 (lasciati a UI/sistema) invece del 4 fisso di
+    // prima: lo Snapdragon 8 Elite del Razr ne ha 8, un margine concreto
+    // di velocità senza cambiare libreria. contextLength segue
+    // InferenceConfig.maxTokens (il budget di contesto di CRITICITA.md,
+    // stesso concetto di maxNumTokens in LiteRtLmEngine) — è un campo
+    // DIVERSO dal "maxTokens" di Llamatik, che qui indica invece quante
+    // parole genera al massimo IN UN turno: valore fisso, da ritoccare
+    // se la scena arriva tagliata.
     private fun applyParams(config: InferenceConfig) {
         LlamaBridge.updateGenerateParams(
             temperature = config.temperature,
@@ -77,7 +86,7 @@ class LlamaCppEngine : InferenceEngine {
             topK = config.topK,
             repeatPenalty = 1.1f,
             contextLength = config.maxTokens,
-            numThreads = 4,
+            numThreads = (Runtime.getRuntime().availableProcessors() - 2).coerceAtLeast(2),
             useMmap = true,
             flashAttention = false,
             batchSize = 512,
