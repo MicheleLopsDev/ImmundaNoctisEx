@@ -193,8 +193,32 @@ form. `LlamaCppSpike.kt`/`GgufSpikeCard.kt` rimossi: hanno fatto il
 loro lavoro (confermato che Llamatik carica e genera, trovato il bug
 della GPU), ora superati — un modello GGUF importato si attiva e si
 gioca come qualunque altro modello in Modelli LLM. Compilazione e
-suite riverificate verdi. **Ancora da provare sul device con una
-scena vera.**
+suite riverificate verdi.
+
+**Primo test su scena vera (27/07, stesso giorno)**: Michele ha
+attivato Gemma-4-E4B-Uncensored-HauhauCS-Aggressive (GGUF) e giocato
+la Scena 1. Due problemi distinti trovati dal log:
+1. **BUG (nostro)**: `gpu_layers=0` ancora presente nonostante
+   `gpuLayers=99` fosse impostato — `updateGenerateParams` veniva
+   chiamato DOPO `initGenerateModel`, troppo tardi: lo scarico sulla
+   GPU si decide al caricamento dei pesi, non dopo. Spiegava i 47s al
+   primo token e i 4,5 token/s (tutto su CPU). **Corretto**: i
+   parametri si applicano PRIMA di caricare il modello, come
+   nell'esempio originale della libreria.
+2. **Qualità del modello (non un bug nostro)**: il testo mostrato a
+   schermo era la riga inglese grezza del prompt
+   (`CHOICE|2|1|Head down into the town`) invece della prosa italiana
+   — il modello ha rincorso un formato confuso: ha inventato una
+   disciplina Kai che non esisteva nella scena, aggiunto un blocco di
+   auto-critica ("Self-Correction Check…") estraneo al formato
+   richiesto, e sembra aver scritto la propria sezione TAGS prima di
+   arrivare alla prosa vera. Coerente con l'esperienza nota dei
+   fine-tune "uncensored/aggressive": spesso perdono capacità di
+   seguire istruzioni complesse in cambio della censura rimossa. Da
+   riprovare col modello piccolo (llama-3.2-1b) o con un modello
+   italiano dedicato (LLaMAntino) una volta confermata la velocità
+   GPU corretta — questo modello specifico potrebbe semplicemente non
+   essere adatto al compito, a prescindere dal motore.
 
 ---
 
