@@ -344,8 +344,43 @@ modello GGUF quantizzato e misuri token/s + qualità di scrittura a
 confronto diretto con Gemma 4B su LiteRT-LM, prima di qualunque
 decisione.
 
+**AGGIORNAMENTO 27/07/2026 — l'obiettivo NON è la velocità**: chiesto
+a Michele l'incremento prestazionale atteso, la ricerca ha trovato che
+**Google stessa dichiara LiteRT più veloce di llama.cpp**, sia su CPU
+che su GPU, prefill e decode (benchmark su Gemma 3 1B, Galaxy S25
+Ultra — [LiteRT: The Universal Framework for On-Device
+AI](https://developers.googleblog.com/litert-the-universal-framework-for-on-device-ai/)).
+Il motore GGUF probabilmente non renderebbe più veloce lo STESSO
+Gemma. Ma Michele ha chiarito che l'obiettivo era sempre stato un
+altro: **trovare il modello che scrive meglio in italiano** — Gemma 4B
+a volte inventa parole inesistenti (es. "bruffi"), un problema di
+fedeltà lessicale in fase di traduzione, non di velocità. Cambia la
+domanda da porsi al prototipo: non "quanti token/s in più" ma "quante
+parole inventate in meno, a parità di scena tradotta".
+
+**Candidati con italiano nativo/forte trovati (27/07)**:
+- **[Minerva 7B](https://nlp.uniroma1.it/minerva)** (Sapienza NLP) —
+  il più promettente sulla carta: pre-addestrato DA ZERO (non un
+  fine-tune) su 1,5 trilioni di parole italiano+inglese. GGUF non
+  ancora verificato/trovato pronto.
+- **[LLaMAntino-3-ANITA-8B](https://github.com/marcopoli/LLaMAntino-3-ANITA)**
+  — Llama 3 8B instruction-tuned specificamente per l'italiano
+  (progetto ANITA), **GGUF già disponibile** su Hugging Face da più
+  fonti, pronto da provare.
+- **Qwen3.5-4B** — generalista multilingue, stessa taglia del Gemma
+  4B attuale (velocità comparabile, a differenza dei due sopra che
+  sono 7-8B e quindi presumibilmente più lenti — accettabile sul Razr
+  con 16GB RAM, dato che qui non si cerca velocità).
+
+**Strada più economica da provare PRIMA di un secondo motore**: il
+vincolo 1 del prompt oggi dice solo "non inventare nuovi eventi,
+personaggi, oggetti" — non vieta esplicitamente di inventare PAROLE
+che non esistono in italiano. Un ritocco di `PromptFragments`
+testabile in un pomeriggio, senza toccare l'infrastruttura.
+
 **Non schedulato**: nessuna azione finché Michele non porta una
-libreria concreta da valutare.
+libreria concreta da valutare, o decide di testare il ritocco del
+prompt.
 
 ## 4. Altre proposte raccolte
 
