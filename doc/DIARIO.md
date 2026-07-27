@@ -280,6 +280,30 @@ grande della sola preferenza di Michele in questa fase di test, da
 confermare esplicitamente se la vuole. Compilazione e suite
 riverificate verdi.
 
+**Catalogo GGUF ampliato: ufficiale Google + Abliterated (27/07,
+stesso giorno)**: Michele ha confermato la scelta sopra ("lo voglio
+tra i consigliati... puoi lasciare tranquillamente il gemma 4 4b come
+default") e ha chiesto di aggiungere anche un Gemma 3 4B "di serie"
+("carica i modelli di default di google") e delle varianti Abliterated
+("mettici anche gli ablitered"). Tre nuove voci in `ModelCatalog.kt`:
+1. **`GEMMA_3_4B_GOOGLE_GGUF`**: `google/gemma-3-4b-it-qat-q4_0-gguf`
+   (QAT, Quantization Aware Training — qualità vicina al bfloat16
+   nonostante il Q4_0), SENZA fine-tuning di terzi. Stesso repo
+   RISERVATO del vecchio Gemma 3n (401 senza token, verificato con
+   richiesta HEAD) — `sizeBytes = 0L` finché non si scarica con un
+   token valido, stesso trattamento già in uso per
+   `GEMMA_3N_E4B_GATED`.
+2. **`GEMMA_3_4B_ABLITERATED_GGUF`** e **3. `GEMMA_3_12B_ABLITERATED_GGUF`**:
+   tecnica DIVERSA dal fine-tuning "uncensored" di Heretic sopra —
+   l'abliterazione rimuove la direzione di rifiuto nei pesi invece di
+   riaddestrare su un dataset. Di mlabonne (autore di riferimento per
+   questa tecnica su Gemma 3), quantizzati Q4_K_M da bartowski
+   (compromesso qualità/dimensione standard, non IQ4_XS come Heretic:
+   nessuno dei due ancora provato da Michele su una scena vera).
+   Dimensioni VERIFICATE con richiesta HEAD (4B: 2.489.894.304 byte;
+   12B: 7.300.778.656 byte). `ModelCatalog.default` invariato (Gemma 4
+   E4B/LiteRT-LM). Compilazione e suite riverificate verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
