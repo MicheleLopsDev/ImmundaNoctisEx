@@ -11,7 +11,11 @@ plugins {
 
 android {
     namespace = "io.github.luposolitario.immundanoctisex"
-    compileSdk = 35
+    // 36, non più 35 (27/07/2026): richiesto da Llamatik (spike GGUF),
+    // che dichiara AAR metadata con minCompileSdk 36. Non tocca
+    // minSdk/targetSdk (restano 34) — compileSdk più alto del target è
+    // normale e supportato, cambia solo contro quali API si compila.
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "io.github.luposolitario.immundanoctisex"
@@ -54,6 +58,13 @@ dependencies {
 
     // Motore di inferenza on-device (LiteRT-LM).
     implementation(libs.litertlm.android)
+
+    // PROVA (27/07/2026, Michele): motore GGUF via Llamatik — libreria
+    // nativa già pronta (no NDK/CMake nostro), per capire se un modello
+    // con italiano più forte (es. LLaMAntino/Minerva) scrive meglio di
+    // Gemma 4B. Solo per lo spike statico in LlamaCppSpike.kt, non
+    // ancora un secondo InferenceEngine vero.
+    implementation("com.llamatik:library:1.7.0")
 
     // LiteRT-LM dichiara coroutines 1.9.0 nel POM ma è compilato con
     // Kotlin 2.3: chiama `SendChannel.close$default` come metodo statico

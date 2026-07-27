@@ -22,6 +22,7 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
+import io.github.luposolitario.immundanoctisex.inference.LlamaCppSpike
 import io.github.luposolitario.immundanoctisex.model.DownloadableModel
 import io.github.luposolitario.immundanoctisex.model.ModelCatalog
 import io.github.luposolitario.immundanoctisex.model.ModelDownloadWorker
@@ -102,6 +103,13 @@ fun ModelsRoute(
             ),
         )
     }
+
+    // Stato dello spike GGUF (27/07/2026) — solo in memoria, non è una
+    // preferenza: si perde chiudendo la schermata, ed è giusto così per
+    // una prova.
+    var ggufSpikePath by remember { mutableStateOf("") }
+    var ggufSpikeRunning by remember { mutableStateOf(false) }
+    var ggufSpikeResult by remember { mutableStateOf<String?>(null) }
 
     val workInfos by workManager
         .getWorkInfosForUniqueWorkFlow(ModelDownloadWorker.WORK_NAME)
@@ -235,6 +243,19 @@ fun ModelsRoute(
         onAskImageInPromptChange = { enabled ->
             advanced = advanced.copy(askImageInPrompt = enabled)
             inferencePreferences.askImageInPrompt = enabled
+        },
+        ggufSpikePath = ggufSpikePath,
+        onGgufSpikePathChange = { ggufSpikePath = it },
+        ggufSpikeRunning = ggufSpikeRunning,
+        ggufSpikeResult = ggufSpikeResult,
+        onRunGgufSpike = {
+            ggufSpikeRunning = true
+            ggufSpikeResult = null
+            scope.launch {
+                ggufSpikeResult = runCatching { LlamaCppSpike.runStaticExample(ggufSpikePath) }
+                    .fold(onSuccess = { it }, onFailure = { "Errore: ${it.message}" })
+                ggufSpikeRunning = false
+            }
         },
         onResetSettings = {
             inferencePreferences.resetToDefaults()
