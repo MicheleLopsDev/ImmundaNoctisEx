@@ -30,10 +30,24 @@ la fase corrente da `doc/DIARIO.md` e lavora solo su quella (non
 anticipare fasi). Apri le altre specifiche solo quando il piano lo
 richiede per il task in corso.
 
-Fase corrente: **Fase 4 — `inference`** (Fase 3 chiusa il 17/07/2026:
-il libro gira sul Razr senza Gemma — Home, creazione, scena teatrale,
-combat a due modalità, scheda operativa, diario, checkpoint, auto-save
-atomico. Restano rifiniture UI da raccogliere, non bloccanti).
+Fase corrente: **client sostanzialmente completo** (aggiornato
+27/07/2026). Fase 3 chiusa il 17/07 (il libro gira sul Razr senza
+Gemma) e Fase 4 chiusa nei fatti (Gemma genera davvero sul device,
+misure di CRITICITA.md tutte raccolte). Buona parte della Fase 5 (UI
+funzionale) e della Fase 7 (abbellimento: sfondi, icone, animazioni,
+colori) sono state completate fuori dall'ordine rigido del piano,
+guidate sessione per sessione da Michele — nessun bug bloccante noto,
+239 test verdi su tutti i moduli. Restano aperti, non bloccanti: un
+leak di ~140MB/partita di memoria nativa (rinviato consapevolmente,
+non si sente su 15,5GB di RAM anche su partite ripetute), la verifica
+di un motore GGUF alternativo a LiteRT-LM (vedi `doc/UPGRADE.md` §3),
+e l'audit delle ~100 stringhe UI ancora scritte a mano nel codice
+invece che in `strings.xml` (solo 3 file su tutta la UI usano
+`stringResource`, contro 107 voci già pronte in `strings.xml`).
+Prossimo grande capitolo: il tool di conversione/authoring libri
+(`doc/ETL.md`, Fase 6) — piano dettagliato ancora da ricevere da
+Michele, non ancora iniziato (modulo `:tool` esiste solo come
+scheletro Gradle vuoto).
 
 Vincoli non negoziabili (dettaglio in `doc/PIANO-SVILUPPO.md`):
 `:core:engine`/`:core:data` senza dipendenze Android; file ~200 righe

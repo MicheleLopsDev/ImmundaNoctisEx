@@ -7,7 +7,84 @@
 
 ---
 
-## STATO CORRENTE — aggiornato 21/07/2026
+## STATO CORRENTE — aggiornato 27/07/2026
+
+**Il client è sostanzialmente completo.** Fase 3 (il libro gira sul
+Razr senza Gemma) e Fase 4 (Gemma genera davvero sul device, misure di
+CRITICITA.md tutte raccolte — primo token, token/s, termico, batteria)
+sono chiuse nei fatti. Buona parte della Fase 5 (UI funzionale) e della
+Fase 7 (abbellimento: sfondi chiaro/scuro su tutte le schermate di
+menu, icone illustrate, shimmer animato, colori configurabili, scheda
+equipaggiamento con icone armi) sono state completate fuori
+dall'ordine rigido del piano, sessione per sessione, su indicazione
+diretta di Michele. **239 test verdi** su tutti i moduli
+(`:core:engine`, `:core:data`, `:app`), nessun bug bloccante noto dopo
+numerose partite complete ripetute sul device (Michele, 27/07:
+"seguendomi stabilmente come bug non ne vedo più").
+
+**Asset**: completi. Fallback di sicurezza ovunque (immagine/audio
+mancante = degrado silenzioso su un default, mai un errore — vedi
+`doc/SUONI-IMMAGINI.md` per la checklist dei singoli file sonori
+ancora mancanti, non bloccanti). Font scelti e agganciati. Location e
+decorazioni sistemate. Tutto l'aspetto grafico è funzionale (Michele,
+27/07).
+
+**Aperti, noti, NON bloccanti**:
+1. **Leak di memoria nativa**: ~140MB/partita, rinviato
+   consapevolmente da Michele (vedi voce del 20-22/07 più sotto). Su
+   15,5GB di RAM del Razr non si è mai sentito, confermato anche dopo
+   le numerose partite ripetute di questa fase. Ottimizzazione
+   rimandata a fine progetto.
+2. **Motore GGUF alternativo a LiteRT-LM** (Michele, 27/07): oggi
+   `LiteRtLmEngine` gira solo su Gemma 4B/2B via
+   `com.google.ai.edge.litertlm`. Qualità di scrittura: 4B "abbastanza
+   buona", 2B "pessima, sbaglia le parole". Prima ricerca fatta
+   (27/07): esistono librerie Kotlin/Android mature per GGUF/llama.cpp
+   — `kotlinllamacpp` (binding Kotlin dedicati Android), `Llamatik`
+   (Kotlin Multiplatform, llama.cpp/whisper.cpp/stable-diffusion.cpp),
+   `SmolChat-Android` (JNI su llama.cpp, riferimento di architettura),
+   oltre alla guida ufficiale `llama.cpp/docs/android.md`. Backend GPU
+   su Adreno: llama.cpp ha un backend **OpenCL** dedicato per Adreno
+   (oltre a Vulkan), testato su Snapdragon 8 Gen 1/2/3 e **8 Elite** —
+   il Razr 70 Ultra monta esattamente uno **Snapdragon 8 Elite
+   (Adreno 830)**, quindi il backend accelerato è supportato sulla
+   carta. Resta da fare: un prototipo concreto che carichi un modello
+   GGUF quantizzato (Q4_K_M indicato come miglior compromesso
+   qualità/dimensione sul telefono) e misuri token/s e qualità di
+   scrittura a confronto diretto con Gemma 4B — nessuna decisione
+   prima di quel confronto (`InferenceEngine` è già un'interfaccia,
+   un secondo motore si affiancherebbe senza toccare `SceneNarrator`
+   né `ResponseParser`).
+3. **Stringhe UI ancora scritte a mano** (Michele, 27/07: "bisognerebbe
+   fare un controllo di tutte le etichette"): audit fatto (27/07) —
+   solo 3 file su tutta la UI (`AdventureScreen`,
+   `CharacterCreationScreen`, `AdventureSetupScreen`) usano
+   `stringResource(R.string...)`; il resto (Opzioni, Modelli LLM,
+   Scheda personaggio/Equipaggiamento, Diario, Home, gran parte di
+   Avventura/Combattimento) ha ~100 stringhe `Text("...")` scritte
+   dirette in italiano nel codice, mentre `strings.xml` ha già 107
+   voci pronte. Non è un bug (l'app funziona, è già tutta in
+   italiano), ma viola il vincolo non negoziabile #8 di
+   `PIANO-SVILUPPO.md` ("nomi localizzati SOLO in strings.xml") e
+   blocca qualunque localizzazione futura. Migrazione non ancora
+   iniziata: da programmare come task a parte, probabilmente
+   [MICHELE-PROPOSTO] visto che è meccanico ma esteso (tocca quasi
+   ogni schermata).
+
+**Prossimo grande capitolo**: il tool di conversione/authoring libri
+(`doc/ETL.md`, Fase 6) — piano dettagliato ancora da ricevere da
+Michele. Punto aperto dalla sessione del 26-27/07: `ETL.md` oggi è
+centrato sulla CONVERSIONE di libri esistenti (Project Aon + Kai
+Chronicles), ma l'obiettivo che Michele ha ribadito è un client di
+AUTHORING assistito da IA per scrittori (prompt -> bozza JSON
+predigerita -> rifinitura in un ambiente grafico) — la conversione
+resta un uso secondario/di test. Il modulo `:tool` esiste solo come
+scheletro Gradle vuoto (`build.gradle.kts` placeholder, nessun
+sorgente): zero righe di codice scritte finora.
+
+---
+
+### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
 Razr senza IA (Home, creazione, scena, combat a due modalità, scheda,

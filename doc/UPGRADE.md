@@ -23,7 +23,7 @@ device (vedi §Rischio).
 
 Sono **tre feature distinte** che convivono:
 
-### 1c. Suono una tantum agganciato all'immagine risolta (NUOVO, 22/07/2026)
+### 1c. Suono una tantum agganciato all'immagine risolta (FATTO, 22-27/07/2026)
 Idea di Michele, molto più semplice delle due sotto: **non tocca
 Gemma per niente**. `backgroundImage`/`enemyImage`/`npcImage` sono già
 vocabolari chiusi, già risolti in modo affidabile
@@ -32,10 +32,9 @@ riusare LO STESSO id per pescare un file audio con lo stesso nome
 (`loc_market.mp3`), un colpo secco (SoundPool, non loop), riprodotto
 insieme all'immagine, senza toccare la musica di sottofondo. Nessun
 campo nuovo su `Scene`, nessun rischio di vocabolario extra nel
-prompt: il rinvio motivato dal rischio (sotto) non si applica a
-questa. Checklist degli asset da produrre: `doc/SUONI-IMMAGINI.md`.
-**In corso**: struttura ancora da scrivere (caricamento pigro per
-nome, cartella `assets/sfx/images/`), in attesa dei primi file mp3.
+prompt. Checklist degli asset da produrre: `doc/SUONI-IMMAGINI.md`
+(restano alcuni file loc_*/enemy_*/npc_* non urgenti, degrado
+silenzioso già garantito e verificato).
 
 ### 1a. Ambience di scena (tappeto sonoro)
 Un campo opzionale `ambience` sulla scena (simmetrico a
@@ -106,6 +105,16 @@ audio e un player (roba di Fase 7).
 ---
 
 ## 2. Reskin grafico ispirato al registro cartaceo di Lupo Solitario
+
+**AGGIORNAMENTO 27/07/2026 (Michele)**: "tutto l'aspetto grafico è
+funzionale... le font sono state scelte e sono anche belline". Questa
+sezione è da considerarsi sostanzialmente CHIUSA: font agganciate
+(`ReadingFont`, Opzioni), location e decorazioni sistemate, sfondi
+chiaro/scuro estesi a tutte le schermate di menu (26/07). Restano solo
+le 24 location fotografiche più vecchie da rifare nello stesso stile
+china/Kai (non urgente, lo dice lo storico sotto) e qualche
+decorazione opzionale mai agganciata a uno schermo specifico — nessuna
+di queste blocca nulla.
 
 **Origine**: Michele (22/07/2026) ha mandato le foto delle 4 pagine del
 registro ufficiale (Diario di Combattimento, Zaino/Borsa/Pasti/Oggetti
@@ -308,6 +317,31 @@ l'interfaccia. Il contratto regge già.
   due set di parametri avanzati (temperatura/topK/topP potrebbero non
   mappare 1:1) — costo di manutenzione reale, non solo un file in più.
 
+**RICERCA FATTA 27/07/2026** (richiesta di Michele, non ancora una
+riga di codice): esistono librerie Kotlin mature, non solo JNI grezzi
+da mantenere a mano —
+[`kotlinllamacpp`](https://github.com/ljcamargo/kotlinllamacpp)
+(binding Kotlin dedicati per Android, supporta anche modelli vision
+con mmproj),
+[`Llamatik`](https://github.com/ferranpons/llamatik) (Kotlin
+Multiplatform — Android/iOS/Desktop/JVM/WASM — su
+llama.cpp/whisper.cpp/stable-diffusion.cpp),
+[`SmolChat-Android`](https://github.com/shubham0204/SmolChat-Android)
+(riferimento di architettura: classe JNI su llama.cpp), oltre alla
+guida ufficiale
+[`llama.cpp/docs/android.md`](https://github.com/ggml-org/llama.cpp/blob/master/docs/android.md).
+Backend GPU su Adreno: llama.cpp ha un backend **OpenCL** dedicato
+(oltre a Vulkan) [testato su Snapdragon 8 Gen 1/2/3 e 8
+Elite](https://proandroiddev.com/introducing-the-new-opencl-gpu-backend-in-llama-cpp-for-qualcomm-adreno-gpus-4093655d334c) —
+il Razr 70 Ultra monta esattamente uno **Snapdragon 8 Elite (Adreno
+830)**, quindi il backend accelerato è supportato sulla carta (Q4_0 è
+la quantizzazione più ottimizzata su Adreno oggi; Q4_K_M indicato in
+generale come miglior compromesso qualità/dimensione su telefono).
+**Resta comunque da fare un prototipo concreto** che carichi un
+modello GGUF quantizzato e misuri token/s + qualità di scrittura a
+confronto diretto con Gemma 4B su LiteRT-LM, prima di qualunque
+decisione.
+
 **Non schedulato**: nessuna azione finché Michele non porta una
 libreria concreta da valutare.
 
@@ -337,13 +371,51 @@ libreria concreta da valutare.
 - **Scambio a inventario pieno**: oggi l'oggetto oltre soglia non entra
   in silenzio (STATO.md §4.1). v1 aveva un `InventoryFullDialog` che
   chiedeva cosa scartare: pattern già analizzato e riusabile.
-- **Tono narrativo scelto dall'utente**: v1 aveva in Opzioni un menu
-  (originale/horror/epico/…) iniettato nel prompt. In Ex i toni sono
-  dell'autore via `toneHints`: darlo all'utente è una scelta di design
-  diversa, non una svista.
+- ~~**Tono narrativo scelto dall'utente**~~ — **FATTO** (21/07/2026,
+  poi confermato/blindato con test il 26/07): `NarrativeTonePreferences`
+  in Opzioni, il tono scelto SOSTITUISCE (non si somma) i `toneHints`
+  della scena quando impostato, altrimenti si legge il JSON come
+  sempre. Include anche preset non presenti in v1 (Erotico, Brutale)
+  coerenti con la direzione di contenuti adulti del progetto.
 - **Mappa logica del diario più ricca**: oggi v0.1 mostra i soli nomi
   dei luoghi. Annotabile in futuro con combattimenti (già derivabili
   dalle Transition WIN/LOSE), NPC importanti e oggetti trovati (UI.md).
 - **Scudo come oggetto iniziale**: in v1 era solo un valore dell'enum
   `ItemType`, senza nessun oggetto reale dietro. Se lo si vuole serve
   che Michele decida il bonus.
+
+## 5. Debito tecnico: stringhe UI scritte a mano invece che in `strings.xml`
+
+**Origine**: Michele (27/07/2026), durante il punto della situazione:
+"bisognerebbe fare un controllo di tutte le etichette e poi
+riscrivere in italiano" — le etichette sono già tutte in italiano
+(l'app funziona), il problema è che gran parte non passa da
+`strings.xml`.
+
+**Audit fatto (27/07/2026)**: solo 3 file su tutta la UI
+(`AdventureScreen.kt`, `CharacterCreationScreen.kt`,
+`AdventureSetupScreen.kt`) usano `stringResource(R.string...)`. Tutto
+il resto — Opzioni, Modelli LLM, Scheda personaggio/Equipaggiamento,
+Diario, Home, e buona parte di Avventura/Combattimento — ha circa
+**100 stringhe `Text("...")` scritte dirette in italiano nel codice**,
+mentre `strings.xml` ha già **107 voci pronte** (in gran parte usate
+solo dai 3 file sopra).
+
+**Perché conta**: viola il vincolo non negoziabile #8 di
+`PIANO-SVILUPPO.md`/`CLAUDE.md` ("ID canonici nei dati, nomi
+localizzati SOLO in strings.xml") e blocca qualunque localizzazione
+futura (una stringa scritta dentro un `Text()` non si può tradurre
+senza toccare il codice Kotlin).
+
+**Costo**: meccanico ma ESTESO — tocca quasi ogni schermata, uno
+spostamento di stringa alla volta (aggiungere la voce in
+`strings.xml`, sostituire il letterale con `stringResource(...)`,
+verificare che non ci siano placeholder/pluralizzazioni da adattare).
+Nessuna decisione di design richiesta, solo tempo. Candidato buono
+per un task **[MICHELE-PROPOSTO]**: delimitato, senza dipendenze
+intrecciate, con feedback visibile schermata per schermata — ma la
+mole (~100 stringhe) lo rende adatto anche a una sessione dedicata di
+Claude Code se Michele preferisce.
+
+**Non schedulato**: in attesa di una decisione di Michele su
+chi/quando lo fa.
