@@ -1,5 +1,6 @@
 package io.github.luposolitario.immundanoctisex.ui.models
 
+import io.github.luposolitario.immundanoctisex.BuildConfig
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -277,9 +278,17 @@ private fun validateModelFile(fileName: String): String? =
     }
 
 // Il motore si riconosce dall'estensione, non da una scelta manuale in
-// più nel form — un file .gguf non può che essere per LlamaCppEngine.
-private fun engineTypeFor(fileName: String): EngineType =
-    if (fileName.endsWith(GGUF_EXTENSION, ignoreCase = true)) EngineType.LLAMA_CPP else EngineType.LITERT_LM
+// più nel form. BuildConfig.NATIVE_LLAMA_AVAILABLE (27/07/2026): su
+// questo branch sperimentale (buildLlama=true) Llamatik non è
+// impacchettato — un .gguf incollato a mano instradato su LLAMA_CPP
+// fallirebbe in silenzio (motore assente), esattamente il bug capitato
+// a Michele con un modello personalizzato. Quando il motore nativo è
+// disponibile, i .gguf vanno lì di default.
+private fun engineTypeFor(fileName: String): EngineType = when {
+    !fileName.endsWith(GGUF_EXTENSION, ignoreCase = true) -> EngineType.LITERT_LM
+    BuildConfig.NATIVE_LLAMA_AVAILABLE -> EngineType.LLAMA_CPP_NATIVE
+    else -> EngineType.LLAMA_CPP
+}
 
 private fun slugFor(fileName: String): String =
     fileName.substringBeforeLast('.').lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')

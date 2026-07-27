@@ -45,6 +45,15 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "0.1"
+
+        // BUG (27/07/2026, Michele: "il solito bug... non attiva dopo il
+        // click"): un .gguf aggiunto a mano (link Hugging Face) finiva
+        // sempre su EngineType.LLAMA_CPP (Llamatik) — assente quando
+        // buildLlama=true, fallimento silenzioso identico a quello delle
+        // vecchie voci di catalogo. ModelsRoute.engineTypeFor() legge
+        // questo flag per scegliere il motore nativo di default quando
+        // Llamatik non è nemmeno impacchettato.
+        buildConfigField("boolean", "NATIVE_LLAMA_AVAILABLE", buildLlamaNative.toString())
     }
 
     compileOptions {
@@ -53,6 +62,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     sourceSets {
         getByName("main") {
