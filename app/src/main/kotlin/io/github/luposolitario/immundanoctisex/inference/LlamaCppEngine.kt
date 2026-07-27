@@ -1,13 +1,15 @@
 package io.github.luposolitario.immundanoctisex.inference
 
 import android.util.Log
+import com.llamatik.library.platform.GenStream
 import com.llamatik.library.platform.LlamaBridge
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -94,43 +96,76 @@ class LlamaCppEngine : InferenceEngine {
         _tokenInfo.value = TokenInfo(used = 0, maxTokens = config.maxTokens)
     }
 
-    // BLOCCANTE, non streaming (27/07/2026, crash trovato da Michele col
-    // modello piccolo — log del device): `generateStream`/
-    // `nativeGenerateStream` ha un bug nella libreria stessa. Un
-    // carattere accentato italiano (UTF-8 multi-byte: à, è, ì...) può
-    // finire tagliato a metà tra due "delta" del callback nativo, e
-    // `NewStringUTF` va in crash su un byte di continuazione mancante
-    // ("JNI DETECTED ERROR: illegal continuation byte"). `generate()`
-    // decodifica il testo intero in un colpo solo: nessun confine a
-    // metà carattere possibile. Si perde l'effetto token-per-token per
-    // QUESTO motore soltanto (LiteRT-LM lo mantiene, non ha lo stesso
-    // bug) finché Llamatik non sistema lo streaming a monte.
-    override fun generate(prompt: String): Flow<String> = flow {
+    // Streaming RIABILITATO (27/07/2026, Michele: "adesso aspettiamo di
+    // più perché finisca tutto il testo... non capisco perché su
+    // literm funziona e su gguf no?"). Non era un limite del motore
+    // GGUF in sé: era un bug di Llamatik 1.7.0, la stessa libreria usata
+    // da LiteRtLmEngine (che infatti non l'ha mai avuto) non c'entra —
+    // `generateStream`/`nativeGenerateStream` poteva tagliare a metà un
+    // carattere UTF-8 multi-byte (à, è, ì...) tra due "delta" del
+    // callback nativo, e `NewStringUTF` andava in crash (SIGABRT) su un
+    // frammento con byte di continuazione mancante. Riprovato dopo aver
+    // alzato la dipendenza a 1.9.1, il cui changelog ufficiale dichiara
+    // "Solved generateStream emoji crash" — stessa famiglia di bug
+    // (confine di carattere multi-byte), non ancora confermato sul
+    // device per il caso specifico degli accenti italiani: da riverificare
+    // con Michele alla prossima partita, pronti a tornare alla
+    // generate() bloccante se il crash si ripresenta.
+    override fun generate(prompt: String): Flow<String> = callbackFlow {
         if (!loaded) {
             Log.e(TAG, "Nessun modello caricato: generazione saltata.")
-            return@flow
+            close()
+            return@callbackFlow
         }
         val promptTokens = estimateTokens(prompt)
-        _tokenInfo.value = TokenInfo(used = promptTokens, maxTokens = config.maxTokens)
+        var used = promptTokens
+        _tokenInfo.value = TokenInfo(used = used, maxTokens = config.maxTokens)
 
         val startedAt = System.currentTimeMillis()
-        val text = LlamaBridge.generate(prompt)
-        val elapsedSeconds = (System.currentTimeMillis() - startedAt) / 1000.0
-        val generatedTokens = estimateTokens(text)
-        _tokenInfo.value = TokenInfo(used = promptTokens + generatedTokens, maxTokens = config.maxTokens)
+        var firstTokenAt: Long? = null
+        var generatedTokens = 0
 
-        // Non c'è un "primo token" da misurare qui (una sola chiamata
-        // bloccante, non uno stream) — solo il tempo totale, a
-        // differenza della riga MISURA di LiteRtLmEngine.
+        LlamaBridge.generateStream(
+            prompt,
+            object : GenStream {
+                override fun onDelta(text: String) {
+                    if (text.isEmpty()) return
+                    if (firstTokenAt == null) firstTokenAt = System.currentTimeMillis()
+                    generatedTokens += estimateTokens(text)
+                    used += estimateTokens(text)
+                    _tokenInfo.value = TokenInfo(used = used, maxTokens = config.maxTokens)
+                    trySend(text)
+                }
+
+                override fun onComplete() {
+                    logMeasurements(startedAt, firstTokenAt, promptTokens, generatedTokens)
+                    close()
+                }
+
+                override fun onError(message: String) {
+                    Log.e(TAG, "Generazione fallita: $message")
+                    close()
+                }
+            },
+        )
+        awaitClose { }
+    }.flowOn(Dispatchers.IO)
+
+    // Stessa riga MISURA di LiteRtLmEngine, per confrontare i due motori
+    // ad occhio nei log (`adb logcat -s LlamaCppEngine`).
+    private fun logMeasurements(startedAt: Long, firstTokenAt: Long?, promptTokens: Int, generatedTokens: Int) {
+        val now = System.currentTimeMillis()
+        val firstTokenSec = firstTokenAt?.let { (it - startedAt) / 1000.0 }
+        val decodeSeconds = firstTokenAt?.let { (now - it) / 1000.0 } ?: 0.0
+        val tokensPerSecond = if (decodeSeconds > 0) generatedTokens / decodeSeconds else 0.0
         Log.i(
             TAG,
-            "MISURA totale=${"%.2f s".format(elapsedSeconds)} " +
+            "MISURA primoToken=${firstTokenSec?.let { "%.2f s".format(it) } ?: "mai"} " +
+                "totale=${"%.2f s".format((now - startedAt) / 1000.0)} " +
                 "tokenPrompt~$promptTokens tokenGenerati~$generatedTokens " +
-                "velocita~${"%.1f".format(if (elapsedSeconds > 0) generatedTokens / elapsedSeconds else 0.0)} " +
-                "token/s (stima, non-streaming)",
+                "velocita~${"%.1f".format(tokensPerSecond)} token/s (stima)",
         )
-        emit(text)
-    }.flowOn(Dispatchers.IO)
+    }
 
     override suspend fun unload() = withContext(Dispatchers.IO) {
         if (loaded) runCatching { LlamaBridge.shutdown() }

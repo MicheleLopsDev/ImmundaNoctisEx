@@ -59,12 +59,12 @@ dependencies {
     // Motore di inferenza on-device (LiteRT-LM).
     implementation(libs.litertlm.android)
 
-    // PROVA (27/07/2026, Michele): motore GGUF via Llamatik — libreria
-    // nativa già pronta (no NDK/CMake nostro), per capire se un modello
-    // con italiano più forte (es. LLaMAntino/Minerva) scrive meglio di
-    // Gemma 4B. Solo per lo spike statico in LlamaCppSpike.kt, non
-    // ancora un secondo InferenceEngine vero.
-    implementation("com.llamatik:library:1.7.0")
+    // Motore GGUF via Llamatik (libreria nativa già pronta, no NDK/CMake
+    // nostro) — secondo InferenceEngine vero, LlamaCppEngine.kt.
+    // 1.9.1 (27/07/2026): changelog ufficiale "Solved generateStream
+    // emoji crash" — verificare se risolve anche il crash UTF-8 su
+    // caratteri accentati italiani trovato con 1.7.0 (vedi DIARIO.md).
+    implementation("com.llamatik:library:1.9.1")
 
     // LiteRT-LM dichiara coroutines 1.9.0 nel POM ma è compilato con
     // Kotlin 2.3: chiama `SendChannel.close$default` come metodo statico
