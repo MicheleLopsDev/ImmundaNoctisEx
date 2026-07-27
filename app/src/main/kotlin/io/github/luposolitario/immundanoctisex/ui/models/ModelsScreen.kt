@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +38,11 @@ import io.github.luposolitario.immundanoctisex.model.DownloadableModel
 import io.github.luposolitario.immundanoctisex.model.ModelCatalog
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
+
+// Verde per "Attiva" (27/07/2026): non collide col rosso di "Attivato"
+// né col blu di MaterialTheme.colorScheme.primary già usato ovunque
+// per i bottoni generici (es. "Scarica").
+private val ACTIVATE_BUTTON_GREEN = Color(0xFF2E7D32)
 
 // Stato osservabile del download, mostrato dalla schermata.
 sealed interface DownloadUiState {
@@ -282,7 +288,10 @@ private fun ModelCard(
                         // disabledContainerColor/disabledContentColor
                         // espliciti, altrimenti Material spegne comunque
                         // il rosso con la sua trasparenza di default sui
-                        // bottoni disabilitati).
+                        // bottoni disabilitati). Non ancora attivo = verde
+                        // pieno (27/07/2026, Michele: il blu di default era
+                        // lo stesso di "Scarica" e di troppi altri bottoni,
+                        // non si distingueva come azione pronta).
                         Button(
                             onClick = onActivate,
                             enabled = !active && !isActivating,
@@ -294,7 +303,12 @@ private fun ModelCard(
                                     disabledContentColor = MaterialTheme.colorScheme.onError,
                                 )
                             } else {
-                                ButtonDefaults.buttonColors()
+                                ButtonDefaults.buttonColors(
+                                    containerColor = ACTIVATE_BUTTON_GREEN,
+                                    contentColor = Color.White,
+                                    disabledContainerColor = ACTIVATE_BUTTON_GREEN,
+                                    disabledContentColor = Color.White,
+                                )
                             },
                         ) {
                             Text(
