@@ -356,6 +356,97 @@ CPU a parità di dimensione), oppure riaprire la porta della
 compilazione nativa che Michele aveva scartato: unica via per una vera
 GPU su Android, da valutare lui con questi numeri reali in mano.
 
+**Branch sperimentale `feature/llama-cpp-adreno`: llama.cpp compilato
+da noi, GPU Adreno vera (27/07, stesso giorno)**: Michele, coi numeri
+CPU-only sopra in mano: "possiamo fare un freeze di questa versione e
+creare un branch dove usiamo llamaccpp e mettiamo su una versione
+compilata per adreno così che se non va bene al massimo buttiamo il
+branch?" — riapre deliberatamente la porta della compilazione nativa
+scartata a inizio ricerca, isolata su un branch buttabile. Tag
+`gguf-cpu-baseline-27-07-2026` su `develop` come punto di ritorno.
+
+Michele: "l'ho già fatto e funziona" — indicata la cartella `llama/`
+di v1 (repo GitHub separato, non versionato qui,
+`github.com/MicheleLopsDev/ImmundaNoctis-master`) e il suo fork di
+llama.cpp (`github.com/MicheleLopsDev/llama.cpp`). Ispezionato (sparse
+checkout, escludendo `stdf/cpp/3rdparty` che ha percorsi troppo lunghi
+per Windows): `llama/` è un adattamento del sample ufficiale
+`llama.cpp/examples/llama.android` con la catena di sampler C++ di
+Michele, MA con due bug mai notati prima, trovati rileggendo il
+codice — non un giudizio su v1, solo cose che sarebbero saltate fuori
+al primo vero test su device:
+1. CMake impostava i sotto-flag Adreno
+   (`GGML_OPENCL_EMBED_KERNELS`/`GGML_OPENCL_USE_ADRENO_KERNELS`) ma
+   MAI il flag master `-DGGML_OPENCL=ON` (OFF di default in
+   llama.cpp) — senza, il binario compilava comunque ma restava
+   CPU-only.
+2. `load_model()` non impostava mai `model_params.n_gpu_layers`,
+   quindi anche un binario con OpenCL dentro avrebbe caricato il
+   modello sempre su CPU.
+(Chiarito anche un equivoco: `stdf`, l'altro modulo nativo di v1, non
+è testo — è Stable Diffusion via Qualcomm QNN/Hexagon NPU, non
+Adreno. Non c'entra con questo lavoro.)
+
+Portato `llama/` in un nuovo modulo `:llama` (stesso package
+`android.llama.cpp`/nome classe, per non toccare i simboli JNI),
+corretti i due bug sopra, compilazione nativa spenta di default
+(`buildLlama`/`llamaCppDir`/`pythonExecutable` in `local.properties`,
+gitignored — percorso del fork non più fisso come in v1).
+
+**Primo tentativo di compilazione reale, tre ostacoli, tutti risolti
+lo stesso giorno**:
+1. Placeholder di path non sostituito — clonato il fork in
+   `C:/DEV/llama.cpp`.
+2. `Could NOT find OpenCL`: CMake cerca un SDK OpenCL per la
+   cross-compilazione che un PC normale non ha. Installati gli header
+   Khronos e un ICD loader (`libOpenCL.so`) compilato con lo stesso
+   NDK, dentro il sysroot dell'NDK stesso — procedura ufficiale di
+   llama.cpp per Android (`docs/backend/OPENCL.md`), non un
+   escamotage nostro.
+3. `Could NOT find Python3`: necessario per incorporare i kernel
+   `.cl` nel binario (`GGML_OPENCL_EMBED_KERNELS`); il Python di
+   Michele è installato dal Microsoft Store e CMake non lo cerca in
+   quel percorso — aggiunto `pythonExecutable` esplicito.
+
+`./gradlew :llama:assembleDebug` verde, `GGML_AVAILABLE_BACKENDS`
+nella CMakeCache conferma `ggml-cpu;ggml-opencl` — il backend è
+davvero incluso, non solo richiesto. Procedura tutta scritta in
+`doc/LLAMA-CPP-ADRENO-SETUP.md`, ripetibile se l'NDK viene
+reinstallato.
+
+**Correzione aggiuntiva**: `n_ctx` era fisso a 2048 in v1 — troppo
+poco per il budget di contesto del progetto (10240,
+`InferenceConfig.DEFAULT_MAX_TOKENS`). Parametrizzato
+(`new_context(model, nCtx)`), passato da Kotlin.
+
+**Collegato all'app, terzo motore (27/07, Michele: "usiamo gemma
+3-12b")**: `NativeLlamaCppEngine` (nuovo `InferenceEngine`, terzo
+dopo `LiteRtLmEngine`/`LlamaCppEngine`) sopra `LLamaAndroid`.
+`AppContainer` gestisce tre motori invece di due, stesso principio
+degli altri due (un modello alla volta). Nuova voce di catalogo
+`GEMMA_3_12B_HERETIC_NATIVE`: stesso file GGUF già scaricato per
+`GEMMA_3_12B_HERETIC_GGUF` (stesso `fileName`), motore
+`LLAMA_CPP_NATIVE` invece di `LLAMA_CPP` — nessun secondo download da
+6,6GB.
+
+**Ultimo ostacolo, la build completa dell'app**: `com.llamatik:library`
+(l'altro motore GGUF) impacchetta anch'esso `.so` ggml/llama.cpp con
+GLI STESSI NOMI dei nostri, ma da una build CPU-only — collisione
+`mergeDebugNativeLibs`. Risolto con
+`packaging.jniLibs.pickFirsts`, **verificato non a occhio ma
+confrontando gli hash SHA-256**: il file `libggml-base.so` dentro
+`app-debug.apk` combacia byte per byte con l'output di `:llama`, non
+con quello di Llamatik. `./gradlew :app:assembleDebug` verde.
+
+**Stato a fine giornata**: tutto compila e si impacchetta, backend
+OpenCL/Adreno confermato incluso nel binario finale. **Non ancora
+provato su device**: caricare davvero il modello, misurare token/s
+reali sul Razr, e confermare che `n_gpu_layers = 999` faccia scaricare
+i livelli sulla GPU A RUNTIME — la compilazione riuscita prova solo
+che il backend è disponibile, non che venga usato efficacemente.
+Prossimo passo naturale: installare l'APK e attivare "Gemma 3 12B
+Heretic — llama.cpp nativo" da Modelli LLM.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
