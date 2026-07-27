@@ -48,7 +48,10 @@ class LLamaAndroid private constructor() { // Costruttore privato per forzare il
     private external fun log_to_android()
     private external fun load_model(filename: String): Long
     private external fun free_model(model: Long)
-    private external fun new_context(model: Long): Long
+    // CORREZIONE (27/07/2026): in v1 n_ctx era fisso a 2048 lato C++, ora
+    // arriva da qui (InferenceConfig.maxTokens nel motore che usa questa
+    // classe).
+    private external fun new_context(model: Long, nCtx: Int): Long
     private external fun free_context(context: Long)
     private external fun backend_init(numa: Boolean)
     private external fun backend_free()
@@ -74,14 +77,15 @@ class LLamaAndroid private constructor() { // Costruttore privato per forzare il
         temperature: Float,
         repeatPenalty: Float,
         topK: Int,
-        topP: Float
+        topP: Float,
+        nCtx: Int = 4096
     ) {
         withContext(runLoop) {
             if (!isLoad) {
                 val model = load_model(pathToModel)
                 if (model == 0L)  throw IllegalStateException("load_model() failed")
 
-                val context = new_context(model)
+                val context = new_context(model, nCtx)
                 if (context == 0L) throw IllegalStateException("new_context() failed")
 
                 val batch = new_batch(512, 0, 1)

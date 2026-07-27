@@ -87,7 +87,7 @@ Java_android_llama_cpp_LLamaAndroid_free_1model(JNIEnv *, jobject, jlong model) 
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_android_llama_cpp_LLamaAndroid_new_1context(JNIEnv *env, jobject, jlong jmodel) {
+Java_android_llama_cpp_LLamaAndroid_new_1context(JNIEnv *env, jobject, jlong jmodel, jint n_ctx) {
     auto model = reinterpret_cast<llama_model *>(jmodel);
     if (!model) {
         LOGe("new_context(): model cannot be null");
@@ -95,9 +95,12 @@ Java_android_llama_cpp_LLamaAndroid_new_1context(JNIEnv *env, jobject, jlong jmo
         return 0;
     }
     int n_threads = std::max(1, std::min(8, (int) sysconf(_SC_NPROCESSORS_ONLN) - 2));
-    LOGi("Using %d threads", n_threads);
+    LOGi("Using %d threads, n_ctx=%d", n_threads, n_ctx);
     llama_context_params ctx_params = llama_context_default_params();
-    ctx_params.n_ctx = 2048;
+    // CORREZIONE (27/07/2026): in v1 n_ctx era fisso a 2048 — troppo poco
+    // per il budget di contesto del progetto (10240, CRITICITA.md). Ora
+    // arriva da Kotlin (InferenceConfig.maxTokens).
+    ctx_params.n_ctx = n_ctx;
     ctx_params.n_threads = n_threads;
     ctx_params.n_threads_batch = n_threads;
     llama_context * context = llama_new_context_with_model(model, ctx_params);
