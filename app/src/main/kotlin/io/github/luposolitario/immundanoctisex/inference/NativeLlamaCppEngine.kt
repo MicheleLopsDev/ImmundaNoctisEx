@@ -41,7 +41,17 @@ class NativeLlamaCppEngine : InferenceEngine {
                 )
             }
             runCatching {
+                // BUG (27/07/2026, secondo modello caricato da Michele:
+                // nessun log, nessun errore, il vecchio restava attivo):
+                // LLamaAndroid.load() ha un guard `if (!isLoad)` che, una
+                // volta caricato UN modello, blocca silenziosamente
+                // qualunque caricamento successivo — è un singleton nativo,
+                // non un oggetto per istanza. Va scaricato esplicitamente
+                // prima, stesso principio di LlamaCppEngine.load() con
+                // LlamaBridge.
+                if (isLoaded) llamaAndroid.unload()
                 this@NativeLlamaCppEngine.config = config
+                Log.i(TAG, "load(): avvio caricamento di ${modelFile.name}")
                 llamaAndroid.load(
                     pathToModel = modelFile.absolutePath,
                     temperature = config.temperature,

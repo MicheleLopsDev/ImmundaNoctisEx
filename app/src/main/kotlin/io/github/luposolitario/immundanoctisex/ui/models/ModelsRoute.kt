@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.ui.models
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -156,6 +157,11 @@ fun ModelsRoute(
         isActivating = isActivating,
         activateError = activateError,
         onActivate = { model ->
+            // Log al tocco (27/07/2026, Michele: "premo Attiva e non parte
+            // nulla"): senza questo, un'attivazione che fallisce prima di
+            // entrare nel motore (o un motore che non logga nulla, vedi il
+            // bug di LLamaAndroid.isLoad) non lascia traccia in logcat.
+            Log.i("ModelsRoute", "onActivate: tocco su ${model.id} (${model.displayName})")
             isActivating = true
             activateError = null
             scope.launch {
