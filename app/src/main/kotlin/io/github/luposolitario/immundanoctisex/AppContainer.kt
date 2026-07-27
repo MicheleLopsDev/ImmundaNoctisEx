@@ -12,6 +12,7 @@ import io.github.luposolitario.immundanoctisex.inference.InferenceEngine
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
 import io.github.luposolitario.immundanoctisex.inference.LlamaCppEngine
+import io.github.luposolitario.immundanoctisex.inference.NativeLlamaCppEngine
 import io.github.luposolitario.immundanoctisex.model.DownloadableModel
 import io.github.luposolitario.immundanoctisex.model.EngineType
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
@@ -82,19 +83,21 @@ class AppContainer(context: Context) {
 
     val diceColorPreferences = DiceColorPreferences(context)
 
-    // Due motori, non uno (27/07/2026, Michele: "introdurrei la
-    // possibilità di caricare i gguf" — un motore vero e selezionabile).
-    // Istanze uniche a scope applicazione (ARCHITETTURA §istanze): il
-    // modello costa GB e secondi di caricamento, si caricano una volta
-    // ciascuno. Solo UNO dei due è mai "attivo" per davvero: caricare un
-    // modello nell'altro scarica quello in uso, non si tengono due
+    // Tre motori, non due (27/07/2026, branch sperimentale
+    // feature/llama-cpp-adreno: llama.cpp compilato da noi con backend
+    // OpenCL/Adreno vero, contro Llamatik che su Android gira sempre su
+    // CPU). Istanze uniche a scope applicazione (ARCHITETTURA §istanze):
+    // il modello costa GB e secondi di caricamento, si caricano una volta
+    // ciascuno. Solo UNO dei tre è mai "attivo" per davvero: caricare un
+    // modello in un altro scarica quello in uso, non si tengono due
     // modelli multi-GB in memoria insieme.
     private val liteRtLmEngine = LiteRtLmEngine(context)
     private val llamaCppEngine = LlamaCppEngine()
+    private val nativeLlamaCppEngine = NativeLlamaCppEngine()
 
     // Quale motore serve DAVVERO adesso: il resto dell'app (SceneNarrator
     // e giù) continua a parlare solo con InferenceEngine, non sa che ne
-    // esistono due — stessa promessa di ARCHITETTURA.md, qui pagata due
+    // esistono tre — stessa promessa di ARCHITETTURA.md, qui pagata tre
     // volte invece di una.
     private var activeEngineType: EngineType = EngineType.LITERT_LM
 
@@ -102,6 +105,7 @@ class AppContainer(context: Context) {
         get() = when (activeEngineType) {
             EngineType.LITERT_LM -> liteRtLmEngine
             EngineType.LLAMA_CPP -> llamaCppEngine
+            EngineType.LLAMA_CPP_NATIVE -> nativeLlamaCppEngine
         }
 
     // Quale modello e' DAVVERO caricato nel motore in questo momento —
@@ -145,6 +149,7 @@ class AppContainer(context: Context) {
     private fun engineFor(type: EngineType): InferenceEngine = when (type) {
         EngineType.LITERT_LM -> liteRtLmEngine
         EngineType.LLAMA_CPP -> llamaCppEngine
+        EngineType.LLAMA_CPP_NATIVE -> nativeLlamaCppEngine
     }
 
     private suspend fun switchToEngine(type: EngineType): InferenceEngine {

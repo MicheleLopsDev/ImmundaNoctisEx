@@ -66,6 +66,14 @@ dependencies {
     // caratteri accentati italiani trovato con 1.7.0 (vedi DIARIO.md).
     implementation("com.llamatik:library:1.9.1")
 
+    // Terzo InferenceEngine, sperimentale (branch feature/llama-cpp-adreno,
+    // 27/07/2026): llama.cpp compilato da noi con backend OpenCL/Adreno
+    // vero, contro il CPU-only di Llamatik sopra. Se :llama non è
+    // compilato nativamente (buildLlama=false in local.properties, il
+    // default), NativeLlamaCppEngine fallisce solo se attivato — non
+    // rompe le build di chi non lavora su questo esperimento.
+    implementation(project(":llama"))
+
     // LiteRT-LM dichiara coroutines 1.9.0 nel POM ma è compilato con
     // Kotlin 2.3: chiama `SendChannel.close$default` come metodo statico
     // dell'interfaccia, forma che 1.9.0 (compilato con Kotlin più

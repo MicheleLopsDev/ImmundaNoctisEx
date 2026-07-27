@@ -8,8 +8,14 @@ import kotlinx.serialization.Serializable
 // serializzati nelle preferenze di chi usava l'app prima di questo giro
 // non hanno questo campo nel JSON salvato, kotlinx.serialization lo
 // riempie col default senza rompere nulla.
+// LLAMA_CPP_NATIVE (27/07/2026, branch sperimentale feature/llama-cpp-adreno):
+// llama.cpp compilato da noi (:llama) con backend OpenCL/Adreno vero,
+// contro LLAMA_CPP che gira su Llamatik (sempre CPU su Android). Vedi
+// doc/LLAMA-CPP-ADRENO-SETUP.md per la compilazione nativa (spenta di
+// default, buildLlama in local.properties) — un modello con questo tipo
+// fallisce al caricamento se non è stata compilata.
 @Serializable
-enum class EngineType { LITERT_LM, LLAMA_CPP }
+enum class EngineType { LITERT_LM, LLAMA_CPP, LLAMA_CPP_NATIVE }
 
 // Un modello scaricabile (erede di Downloadable di v1, con in più la
 // dimensione attesa e il flag "serve un token").
@@ -131,6 +137,22 @@ object ModelCatalog {
         engineType = EngineType.LLAMA_CPP,
     )
 
+    // Stesso file di GEMMA_3_12B_HERETIC_GGUF sopra (stesso url/fileName):
+    // se è già scaricato, questa voce risulta già pronta, nessun secondo
+    // download da 6,6GB. Cambia solo il motore che lo carica — per il
+    // primo confronto reale CPU (Llamatik) vs GPU Adreno (:llama),
+    // Michele, 27/07: "usiamo gemma 3-12b".
+    val GEMMA_3_12B_HERETIC_NATIVE = DownloadableModel(
+        id = "gemma-3-12b-heretic-native",
+        displayName = "Gemma 3 12B Heretic — llama.cpp nativo (GPU Adreno, sperimentale)",
+        url = GEMMA_3_12B_HERETIC_GGUF.url,
+        fileName = GEMMA_3_12B_HERETIC_GGUF.fileName,
+        sizeBytes = GEMMA_3_12B_HERETIC_GGUF.sizeBytes,
+        requiresToken = false,
+        note = "Come sopra, ma tramite :llama compilato con backend OpenCL/Adreno vero invece di Llamatik (CPU-only). Richiede buildLlama=true in local.properties.",
+        engineType = EngineType.LLAMA_CPP_NATIVE,
+    )
+
     val all = listOf(
         GEMMA_4_E4B,
         GEMMA_4_E2B,
@@ -139,6 +161,7 @@ object ModelCatalog {
         GEMMA_3_4B_GOOGLE_GGUF,
         GEMMA_3_4B_ABLITERATED_GGUF,
         GEMMA_3_12B_ABLITERATED_GGUF,
+        GEMMA_3_12B_HERETIC_NATIVE,
     )
 
     val default = GEMMA_4_E4B
