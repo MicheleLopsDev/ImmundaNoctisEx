@@ -106,10 +106,34 @@ fun ModelsRoute(
 
     // Stato dello spike GGUF (27/07/2026) — solo in memoria, non è una
     // preferenza: si perde chiudendo la schermata, ed è giusto così per
-    // una prova.
-    var ggufSpikePath by remember { mutableStateOf("") }
+    // una prova. Selettore file di sistema (non un percorso incollato a
+    // mano): stesso motivo del picker per i modelli .litertlm
+    // personalizzati sotto — Android blocca l'accesso diretto a
+    // /sdcard/Download/... senza un permesso di storage esteso che
+    // l'app non ha. Il file scelto si copia nella cache dell'app (dove
+    // Llamatik può leggerlo con un path normale) prima di generare.
     var ggufSpikeRunning by remember { mutableStateOf(false) }
     var ggufSpikeResult by remember { mutableStateOf<String?>(null) }
+    val ggufSpikePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        ggufSpikeRunning = true
+        ggufSpikeResult = null
+        scope.launch {
+            ggufSpikeResult = runCatching {
+                val destination = withContext(Dispatchers.IO) {
+                    val file = java.io.File(context.cacheDir, "gguf_spike.gguf")
+                    context.contentResolver.openInputStream(uri)?.use { input ->
+                        file.outputStream().use { output -> input.copyTo(output) }
+                    } ?: error("Impossibile leggere il file scelto.")
+                    file
+                }
+                LlamaCppSpike.runStaticExample(destination.absolutePath)
+            }.fold(onSuccess = { it }, onFailure = { "Errore: ${it.message}" })
+            ggufSpikeRunning = false
+        }
+    }
 
     val workInfos by workManager
         .getWorkInfosForUniqueWorkFlow(ModelDownloadWorker.WORK_NAME)
@@ -244,19 +268,9 @@ fun ModelsRoute(
             advanced = advanced.copy(askImageInPrompt = enabled)
             inferencePreferences.askImageInPrompt = enabled
         },
-        ggufSpikePath = ggufSpikePath,
-        onGgufSpikePathChange = { ggufSpikePath = it },
         ggufSpikeRunning = ggufSpikeRunning,
         ggufSpikeResult = ggufSpikeResult,
-        onRunGgufSpike = {
-            ggufSpikeRunning = true
-            ggufSpikeResult = null
-            scope.launch {
-                ggufSpikeResult = runCatching { LlamaCppSpike.runStaticExample(ggufSpikePath) }
-                    .fold(onSuccess = { it }, onFailure = { "Errore: ${it.message}" })
-                ggufSpikeRunning = false
-            }
-        },
+        onPickGgufSpikeFile = { ggufSpikePickerLauncher.launch(arrayOf("*/*")) },
         onResetSettings = {
             inferencePreferences.resetToDefaults()
             advanced = AdvancedSettingsUi(

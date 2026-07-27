@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -19,32 +18,29 @@ import androidx.compose.ui.unit.dp
 // GGUF e genera testo sul Razr, prompt fisso (LlamaCppSpike.kt). Non è
 // pensata per restare: se lo spike regge, si sostituisce con un vero
 // motore selezionabile come gli altri modelli.
+//
+// Selettore file di SISTEMA, non un campo per incollare il percorso
+// (prima versione, sbagliata): Android blocca l'accesso diretto a
+// percorsi come /sdcard/Download/... senza un permesso di storage
+// esteso che l'app non ha — stesso motivo per cui l'import di un
+// modello .litertlm personalizzato usa già il selettore.
 @Composable
 fun GgufSpikeCard(
-    modelPath: String,
-    onModelPathChange: (String) -> Unit,
     isRunning: Boolean,
     result: String?,
-    onRun: () -> Unit,
+    onPickFile: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Prova GGUF (spike)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(
-                "Metti un file .gguf sul telefono (es. in Download) e incolla qui il percorso " +
-                    "completo. Genera due frasi con un prompt fisso, solo per vedere se carica.",
+                "Scegli un file .gguf dal telefono. Genera due frasi con un prompt " +
+                    "fisso, solo per vedere se carica ed è veloce.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            OutlinedTextField(
-                value = modelPath,
-                onValueChange = onModelPathChange,
-                label = { Text("Percorso file .gguf") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-            )
-            Button(onClick = onRun, enabled = modelPath.isNotBlank() && !isRunning) {
-                Text(if (isRunning) "Generazione…" else "Genera (prova)")
+            Button(onClick = onPickFile, enabled = !isRunning) {
+                Text(if (isRunning) "Generazione…" else "Scegli file .gguf e genera")
             }
             result?.let {
                 Text(it, style = MaterialTheme.typography.bodyMedium)
