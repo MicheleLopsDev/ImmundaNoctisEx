@@ -34,7 +34,13 @@ data class InferenceConfig(
 ) {
     companion object {
         const val DEFAULT_MAX_TOKENS = 10240
-        const val DEFAULT_TEMPERATURE = 0.7f
+        // Abbassata da 0,7 (27/07/2026, Michele: meno inventiva, in
+        // accompagnamento alla regola 7 di PromptFragments.constraintText
+        // contro le parole inventate — es. "bruffi" su Gemma 4B). Non
+        // tocca chi ha già un valore personale salvato in
+        // InferencePreferences, solo il default per chi non l'ha mai
+        // toccato.
+        const val DEFAULT_TEMPERATURE = 0.5f
         const val DEFAULT_TOP_K = 40
         const val DEFAULT_TOP_P = 0.9f
     }

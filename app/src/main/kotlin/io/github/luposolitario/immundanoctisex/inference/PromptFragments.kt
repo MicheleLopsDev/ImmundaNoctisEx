@@ -66,6 +66,9 @@ data class PromptFragments(
                 "used, give it weight — the sense of something beyond common ability, uncanny to " +
                 "anyone watching. Keep this to the telling: do NOT invent effects, powers or " +
                 "outcomes beyond what the source text states.",
+            // Regola 7 (27/07/2026, Michele: Gemma 4B a volte inventa parole
+            // inesistenti, es. "bruffi" — vincolo esplicito invece che
+            // sperare nel solo abbassamento della temperatura).
             constraintText = "Follow these instructions EXACTLY:\n" +
                 "1. Rewrite the CURRENT SCENE text in {user_language}, enriching it with details " +
                 "consistent with the '{genre}' genre and this tone: {tone_hints}. Keep all facts, " +
@@ -76,7 +79,9 @@ data class PromptFragments(
                 "3. Character speech goes between single quotes ' ', never between \".\n" +
                 "4. Never use the | character in the narrative text.\n" +
                 "5. NEVER generate game mechanics tags such as <ADD_ITEM> or <STAT_MOD>.\n" +
-                "6. The player character is {player_gender}: use the correct grammatical agreement.",
+                "6. The player character is {player_gender}: use the correct grammatical agreement.\n" +
+                "7. Use only real words that exist in {user_language}. Do NOT invent, distort or " +
+                "make up words that do not exist in that language.",
             syntheticEndingConstraintText = "Follow these instructions EXACTLY:\n" +
                 "1. Write the final scene in {user_language}. Match the '{genre}' genre and " +
                 "above all this tone: {tone_hints} — the ending must sound like the rest of " +
