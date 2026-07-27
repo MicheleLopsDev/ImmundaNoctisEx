@@ -20,7 +20,9 @@
 
 #include "llama.h"
 #include "common.h"
-#include "llama-sampling.h" // <-- L'include necessario
+// llama-sampling.h non esiste più in questo checkout (aggiornato il
+// 27/07/2026 per il supporto a gemma4) — non serve: tutte le funzioni
+// llama_sampler_* usate qui sono nell'API pubblica di llama.h.
 
 #define TAG "llama-android.cpp"
 #define LOGi(...) __android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__)

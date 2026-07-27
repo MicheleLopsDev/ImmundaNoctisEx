@@ -33,15 +33,21 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC
-        # Per common.h e gli altri header pubblici
+        # Per gli header pubblici
         "${LLAMA_CPP_DIR}"
         # Per llama-sampling.h e altri header interni
         "${LLAMA_CPP_DIR}/src"
+        # common.h è stato spostato qui in una riorganizzazione di
+        # llama.cpp successiva al fork originale (27/07/2026, checkout
+        # aggiornato per il supporto all'architettura gemma4)
+        "${LLAMA_CPP_DIR}/common"
 )
 
 target_link_libraries(${CMAKE_PROJECT_NAME}
         llama
-        common
+        # Rinominata da "common" a "llama-common" nella stessa
+        # riorganizzazione (27/07/2026, checkout aggiornato per gemma4).
+        llama-common
         android
         log
 )
