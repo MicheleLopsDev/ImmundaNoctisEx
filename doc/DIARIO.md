@@ -115,6 +115,43 @@ invece del ramo di codice tolto il 26/07 — comodo per confrontare
 modelli diversi (es. i candidati GGUF sopra) senza dover toccare
 codice ogni volta. Compilazione e suite riverificate verdi.
 
+**Il ricordo di v1 su GGUF, e perché non basta a decidere (27/07)**:
+Michele ricordava un confronto "mostruoso" a favore di llama.cpp/GGUF
+in v1. Controllato `ANALISI-RIUSO-V1.md`/`README.md`: v1 non usava
+LiteRT-LM, aveva un **doppio motore** — `GemmaEngine.kt` su
+**MediaPipe LLM Inference API** ("maintenance-only" già nella nostra
+analisi di luglio) + `LlamaCppEngine.kt` via bridge JNI. Il confronto
+di allora era quasi certamente llama.cpp contro quell'API vecchia, non
+contro LiteRT-LM (arrivato dopo, apposta per risolvere quei limiti) —
+non contraddice il benchmark di Google trovato ieri, riguarda un lato
+diverso. Punto più importante: **il README cita esplicitamente
+l'architettura a doppio motore (MediaPipe + llama.cpp con bridge C++)
+come una delle cause del collasso di v1** per "eccesso di complessità
+simultanea" — non colpa di un motore, ma della somma. Michele ha
+precisato: per lui la parte più difficile di v1 (lavorando da solo,
+senza assistenza) era stata la GRAFICA più che il motore di inferenza
+— ma resta la lezione da rispettare: un secondo motore va tenuto
+isolato/opzionale, non lasciato crescere in complessità.
+
+**Spike GGUF via Llamatik (27/07)**: Michele, per verificare senza
+rischiare la stessa complessità di v1: "voglio evitare JNI... se
+abbiamo librerie stabili ok altrimenti lasciamo stare". Trovata
+[Llamatik](https://github.com/ferranpons/llamatik) (168 stelle, MIT,
+Maven Central, "no manual native toolchain setup", KMP) — verificata
+per davvero scaricando l'AAR e ispezionandolo (non fidandosi del solo
+riassunto trovato in rete): il pacchetto reale è
+`com.llamatik.library.platform.LlamaBridge`, non quello che la
+documentazione sembrava suggerire, e `updateGenerateParams` vuole
+TUTTI gli 11 parametri nominati (temperature, maxTokens, topP, topK,
+repeatPenalty, contextLength, numThreads, useMmap, flashAttention,
+batchSize), nessun default. `LlamaCppSpike.kt`: una funzione sola,
+prompt fisso in italiano, NON un secondo `InferenceEngine` — solo per
+capire se carica un GGUF e genera testo sul Razr. Card minimale in
+Modelli LLM per innescarlo dal device (percorso file .gguf incollato
+a mano + pulsante). `compileSdk` alzato a 36 (richiesto dall'AAR),
+`minSdk`/`targetSdk` invariati a 34. Compilazione e suite verdi.
+**Ancora da provare sul device con un file .gguf vero.**
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
