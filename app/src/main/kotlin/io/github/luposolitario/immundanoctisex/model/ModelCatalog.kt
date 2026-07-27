@@ -87,7 +87,59 @@ object ModelCatalog {
         engineType = EngineType.LLAMA_CPP,
     )
 
-    val all = listOf(GEMMA_4_E4B, GEMMA_4_E2B, GEMMA_3N_E4B_GATED, GEMMA_3_12B_HERETIC_GGUF)
+    // Gemma 3 4B "di serie" in GGUF, direttamente da Google (QAT: Quantization
+    // Aware Training, la qualità resta vicina al bfloat16 nonostante il
+    // Q4_0). Stesso repo GATED del vecchio Gemma 3n (401 senza token, verificato
+    // il 27/07/2026 con richiesta HEAD) — dimensione sconosciuta finché non si
+    // scarica con un token valido, stesso trattamento di GEMMA_3N_E4B_GATED.
+    val GEMMA_3_4B_GOOGLE_GGUF = DownloadableModel(
+        id = "gemma-3-4b-google-gguf",
+        displayName = "Gemma 3 4B (GGUF, ufficiale Google)",
+        url = "https://huggingface.co/google/gemma-3-4b-it-qat-q4_0-gguf/resolve/main/gemma-3-4b-it-q4_0.gguf",
+        fileName = "gemma-3-4b-it-q4_0.gguf",
+        sizeBytes = 0L, // sconosciuta: il repo non risponde senza token
+        requiresToken = true,
+        note = "Motore GGUF (llama.cpp), modello Google senza fine-tuning di terzi. Richiede un token Hugging Face e la licenza Gemma accettata.",
+        engineType = EngineType.LLAMA_CPP,
+    )
+
+    // Abliterated: tecnica diversa dal fine-tuning "uncensored" di Heretic
+    // sopra (rimuove la direzione di rifiuto nei pesi invece di riaddestrare
+    // su un dataset) — di mlabonne, autore di riferimento per questa tecnica,
+    // quantizzati da bartowski. Q4_K_M: compromesso qualità/dimensione
+    // standard di bartowski, non ancora provato da Michele su scene vere.
+    // Dimensioni VERIFICATE con richiesta HEAD il 27/07/2026.
+    val GEMMA_3_4B_ABLITERATED_GGUF = DownloadableModel(
+        id = "gemma-3-4b-abliterated-gguf",
+        displayName = "Gemma 3 4B Abliterated (GGUF)",
+        url = "https://huggingface.co/bartowski/mlabonne_gemma-3-4b-it-abliterated-GGUF/resolve/main/mlabonne_gemma-3-4b-it-abliterated-Q4_K_M.gguf",
+        fileName = "mlabonne_gemma-3-4b-it-abliterated-Q4_K_M.gguf",
+        sizeBytes = 2_489_894_304L,
+        requiresToken = false,
+        note = "Motore GGUF (llama.cpp): censura rimossa per abliterazione, non per fine-tuning. Non ancora provato su scene vere.",
+        engineType = EngineType.LLAMA_CPP,
+    )
+
+    val GEMMA_3_12B_ABLITERATED_GGUF = DownloadableModel(
+        id = "gemma-3-12b-abliterated-gguf",
+        displayName = "Gemma 3 12B Abliterated (GGUF)",
+        url = "https://huggingface.co/bartowski/mlabonne_gemma-3-12b-it-abliterated-GGUF/resolve/main/mlabonne_gemma-3-12b-it-abliterated-Q4_K_M.gguf",
+        fileName = "mlabonne_gemma-3-12b-it-abliterated-Q4_K_M.gguf",
+        sizeBytes = 7_300_778_656L,
+        requiresToken = false,
+        note = "Motore GGUF (llama.cpp): censura rimossa per abliterazione, non per fine-tuning. Non ancora provato su scene vere.",
+        engineType = EngineType.LLAMA_CPP,
+    )
+
+    val all = listOf(
+        GEMMA_4_E4B,
+        GEMMA_4_E2B,
+        GEMMA_3N_E4B_GATED,
+        GEMMA_3_12B_HERETIC_GGUF,
+        GEMMA_3_4B_GOOGLE_GGUF,
+        GEMMA_3_4B_ABLITERATED_GGUF,
+        GEMMA_3_12B_ABLITERATED_GGUF,
+    )
 
     val default = GEMMA_4_E4B
 
