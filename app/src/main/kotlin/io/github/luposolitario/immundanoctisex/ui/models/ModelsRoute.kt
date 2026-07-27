@@ -287,7 +287,7 @@ private fun slugFor(fileName: String): String =
 // Dal link incollato costruisce un modello "su misura": il nome del file
 // è l'ultimo pezzo del percorso (come fa Hugging Face per il download
 // diretto), la dimensione resta ignota finché il download non la scopre
-// da sé (stesso trattamento già in uso per GEMMA_3N_E4B_GATED).
+// da sé (stesso trattamento già in uso per i repo riservati del catalogo).
 private fun buildCustomModel(url: String, fileName: String, name: String, requiresToken: Boolean): DownloadableModel =
     DownloadableModel(
         id = "custom-${slugFor(fileName)}",

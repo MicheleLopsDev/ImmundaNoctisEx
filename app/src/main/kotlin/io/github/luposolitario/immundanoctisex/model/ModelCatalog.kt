@@ -38,10 +38,13 @@ data class DownloadableModel(
 
 // Il catalogo dei modelli offerti dall'app. Dimensioni e stato di gating
 // VERIFICATI con richieste HEAD il 19/07/2026, non stimati.
-// Nota: v1 usava google/gemma-3n-E4B (repo GATED: senza token risponde
-// 401 e si scaricherebbe una pagina d'errore al posto del modello).
-// I due litert-community sono aperti, così l'app funziona anche a chi non
-// ha un account Hugging Face.
+// Ripulito il 27/07/2026 (Michele: "fai pulizia dei modelli vecchi e
+// lascia solo i nuovi"): tolti i tentativi GGUF non più rilevanti per il
+// branch feature/llama-cpp-adreno — restano i due LiteRT-LM di base e i
+// due candidati nativi attivamente in prova (12B IQ4_XS, 4B/12B Q4_0).
+// Rimossi: Gemma 3n E4B (v1, gated), Gemma 3 12B Heretic su Llamatik
+// (motore assente su questo branch), Gemma 3 4B ufficiale Google,
+// Gemma 3 4B/12B Abliterated (mai provati, superati dal Q4_0 di Gemma 4).
 object ModelCatalog {
 
     val GEMMA_4_E4B = DownloadableModel(
@@ -64,104 +67,35 @@ object ModelCatalog {
         note = "Più piccolo e veloce: la scelta se il telefono scotta o la memoria stringe.",
     )
 
-    // Il modello di v1. Resta nel catalogo per continuità, ma serve un
-    // token Hugging Face con la licenza Gemma accettata.
-    val GEMMA_3N_E4B_GATED = DownloadableModel(
-        id = "gemma-3n-e4b-it",
-        displayName = "Gemma 3n E4B (repo riservato)",
-        url = "https://huggingface.co/google/gemma-3n-E4B-it-litert-preview/resolve/main/gemma-3n-E4B-it-int4.task",
-        fileName = "gemma-3n-E4B-it-int4.task",
-        sizeBytes = 0L, // sconosciuta: il repo non risponde senza token
-        requiresToken = true,
-        note = "Il modello usato in v1. Richiede un token Hugging Face e la licenza accettata.",
-    )
-
-    // GGUF via llama.cpp (27/07/2026, Michele l'ha provato in LM Studio:
-    // prosa italiana fluida e in formato corretto, a fronte di una
-    // velocità però mai misurata su device). Quantizzazione IQ4_XS: la
-    // stessa già testata e validata da Michele, non una "migliore" mai
-    // provata. Solo testo (niente file mmproj): qui non serve il
-    // multimodale. Dimensione VERIFICATA con richiesta HEAD il 27/07/2026.
-    val GEMMA_3_12B_HERETIC_GGUF = DownloadableModel(
-        id = "gemma-3-12b-heretic-gguf",
-        displayName = "Gemma 3 12B Heretic Uncensored (GGUF)",
+    // Motore GGUF nativo (:llama, backend OpenCL/Adreno vero). Prima
+    // GGUF provata su device: carica e gira, ma con n_gpu_layers=999
+    // (tutti i 49 livelli) risultava più lenta della CPU (0,7 token/s) —
+    // ipotesi principale, IQ4_XS non ha kernel Adreno ottimizzati come
+    // Q4_0. Con l'offload parziale (16 livelli, vedi
+    // NativeLlamaCppEngine) carica comunque, velocità ancora da
+    // confermare in quella configurazione. Dimensione VERIFICATA con
+    // richiesta HEAD il 27/07/2026.
+    val GEMMA_3_12B_HERETIC_NATIVE = DownloadableModel(
+        id = "gemma-3-12b-heretic-native",
+        displayName = "Gemma 3 12B Heretic — llama.cpp nativo (GPU Adreno, sperimentale)",
         url = "https://huggingface.co/mradermacher/gemma-3-12b-it-ultra-uncensored-heretic-GGUF/resolve/main/gemma-3-12b-it-ultra-uncensored-heretic.IQ4_XS.gguf",
         fileName = "gemma-3-12b-it-ultra-uncensored-heretic.IQ4_XS.gguf",
         sizeBytes = 6_606_262_336L,
         requiresToken = false,
-        note = "Motore GGUF (llama.cpp): prosa più ricca del 4B nei test su LM Studio. Solo testo, nessun supporto immagini.",
-        engineType = EngineType.LLAMA_CPP,
-    )
-
-    // Gemma 3 4B "di serie" in GGUF, direttamente da Google (QAT: Quantization
-    // Aware Training, la qualità resta vicina al bfloat16 nonostante il
-    // Q4_0). Stesso repo GATED del vecchio Gemma 3n (401 senza token, verificato
-    // il 27/07/2026 con richiesta HEAD) — dimensione sconosciuta finché non si
-    // scarica con un token valido, stesso trattamento di GEMMA_3N_E4B_GATED.
-    val GEMMA_3_4B_GOOGLE_GGUF = DownloadableModel(
-        id = "gemma-3-4b-google-gguf",
-        displayName = "Gemma 3 4B (GGUF, ufficiale Google)",
-        url = "https://huggingface.co/google/gemma-3-4b-it-qat-q4_0-gguf/resolve/main/gemma-3-4b-it-q4_0.gguf",
-        fileName = "gemma-3-4b-it-q4_0.gguf",
-        sizeBytes = 0L, // sconosciuta: il repo non risponde senza token
-        requiresToken = true,
-        note = "Motore GGUF (llama.cpp), modello Google senza fine-tuning di terzi. Richiede un token Hugging Face e la licenza Gemma accettata.",
-        // BUG (27/07/2026, Michele: "si blocca sempre"): questa voce è
-        // nata PRIMA del branch feature/llama-cpp-adreno, con l'unico
-        // motore GGUF che esisteva allora (Llamatik). Su questo branch
-        // Llamatik è compileOnly (non impacchettato quando buildLlama=true,
-        // vedi app/build.gradle.kts) — attivarla con EngineType.LLAMA_CPP
-        // instradava su un motore assente a runtime, fallendo in silenzio
-        // (NoClassDefFoundError catturato da runCatching, nessun log).
-        // Q4_0 è proprio il formato per cui vogliamo provare il motore
-        // nativo con GPU Adreno.
-        engineType = EngineType.LLAMA_CPP_NATIVE,
-    )
-
-    // Abliterated: tecnica diversa dal fine-tuning "uncensored" di Heretic
-    // sopra (rimuove la direzione di rifiuto nei pesi invece di riaddestrare
-    // su un dataset) — di mlabonne, autore di riferimento per questa tecnica,
-    // quantizzati da bartowski. Q4_K_M: compromesso qualità/dimensione
-    // standard di bartowski, non ancora provato da Michele su scene vere.
-    // Dimensioni VERIFICATE con richiesta HEAD il 27/07/2026.
-    val GEMMA_3_4B_ABLITERATED_GGUF = DownloadableModel(
-        id = "gemma-3-4b-abliterated-gguf",
-        displayName = "Gemma 3 4B Abliterated (GGUF)",
-        url = "https://huggingface.co/bartowski/mlabonne_gemma-3-4b-it-abliterated-GGUF/resolve/main/mlabonne_gemma-3-4b-it-abliterated-Q4_K_M.gguf",
-        fileName = "mlabonne_gemma-3-4b-it-abliterated-Q4_K_M.gguf",
-        sizeBytes = 2_489_894_304L,
-        requiresToken = false,
-        note = "Motore GGUF (llama.cpp): censura rimossa per abliterazione, non per fine-tuning. Non ancora provato su scene vere.",
-        // Stesso bug/correzione di GEMMA_3_4B_GOOGLE_GGUF sopra: su questo
-        // branch Llamatik non è impacchettato, LLAMA_CPP fallirebbe in
-        // silenzio.
-        engineType = EngineType.LLAMA_CPP_NATIVE,
-    )
-
-    val GEMMA_3_12B_ABLITERATED_GGUF = DownloadableModel(
-        id = "gemma-3-12b-abliterated-gguf",
-        displayName = "Gemma 3 12B Abliterated (GGUF)",
-        url = "https://huggingface.co/bartowski/mlabonne_gemma-3-12b-it-abliterated-GGUF/resolve/main/mlabonne_gemma-3-12b-it-abliterated-Q4_K_M.gguf",
-        fileName = "mlabonne_gemma-3-12b-it-abliterated-Q4_K_M.gguf",
-        sizeBytes = 7_300_778_656L,
-        requiresToken = false,
-        note = "Motore GGUF (llama.cpp): censura rimossa per abliterazione, non per fine-tuning. Non ancora provato su scene vere.",
-        // Stesso bug/correzione di GEMMA_3_4B_GOOGLE_GGUF sopra: su questo
-        // branch Llamatik non è impacchettato, LLAMA_CPP fallirebbe in
-        // silenzio.
+        note = "Motore GGUF nativo (llama.cpp, GPU Adreno): IQ4_XS, più lento della CPU con offload completo — in prova con offload parziale.",
         engineType = EngineType.LLAMA_CPP_NATIVE,
     )
 
     // Gemma 4 12B (27/07/2026, cercato dopo il buon risultato dell'offload
-    // parziale sul 4B Q4_0): stessa generazione di Gemma 4 E4B/E2B (i
-    // nostri modelli LiteRT-LM), base "Gemma-4-12B-it-qat-q4_0-unquantized"
-    // di Google (QAT — quantizzazione allenata, non naive), abliterato con
-    // lo strumento Heretic v1.2.0 (ARA sui layer attn.o_proj 24-35):
-    // rifiuti da 99/100 a 7/100, MMLU quasi invariato (74,52% -> 74,18%).
-    // Già in Q4_0 — il formato per cui i kernel Adreno sono ottimizzati,
-    // stessa taglia del 12B IQ4_XS già provato ma potenzialmente più
-    // veloce su questo backend. Dimensione VERIFICATA con richiesta HEAD
-    // il 27/07/2026, repo aperto (nessun token).
+    // parziale sul 4B Q4_0): stessa generazione di Gemma 4 E4B/E2B sopra,
+    // base "Gemma-4-12B-it-qat-q4_0-unquantized" di Google (QAT —
+    // quantizzazione allenata, non naive), abliterato con lo strumento
+    // Heretic v1.2.0 (ARA sui layer attn.o_proj 24-35): rifiuti da
+    // 99/100 a 7/100, MMLU quasi invariato (74,52% -> 74,18%). Già in
+    // Q4_0 — il formato per cui i kernel Adreno sono ottimizzati, stessa
+    // taglia del 12B IQ4_XS sopra ma potenzialmente più veloce su questo
+    // backend. Dimensione VERIFICATA con richiesta HEAD il 27/07/2026,
+    // repo aperto (nessun token).
     val GEMMA_4_12B_HERETIC_Q4_0_GGUF = DownloadableModel(
         id = "gemma-4-12b-heretic-q4_0-gguf",
         displayName = "Gemma 4 12B Heretic Q4_0 (GGUF, nativo)",
@@ -173,30 +107,9 @@ object ModelCatalog {
         engineType = EngineType.LLAMA_CPP_NATIVE,
     )
 
-    // Stesso file di GEMMA_3_12B_HERETIC_GGUF sopra (stesso url/fileName):
-    // se è già scaricato, questa voce risulta già pronta, nessun secondo
-    // download da 6,6GB. Cambia solo il motore che lo carica — per il
-    // primo confronto reale CPU (Llamatik) vs GPU Adreno (:llama),
-    // Michele, 27/07: "usiamo gemma 3-12b".
-    val GEMMA_3_12B_HERETIC_NATIVE = DownloadableModel(
-        id = "gemma-3-12b-heretic-native",
-        displayName = "Gemma 3 12B Heretic — llama.cpp nativo (GPU Adreno, sperimentale)",
-        url = GEMMA_3_12B_HERETIC_GGUF.url,
-        fileName = GEMMA_3_12B_HERETIC_GGUF.fileName,
-        sizeBytes = GEMMA_3_12B_HERETIC_GGUF.sizeBytes,
-        requiresToken = false,
-        note = "Come sopra, ma tramite :llama compilato con backend OpenCL/Adreno vero invece di Llamatik (CPU-only). Richiede buildLlama=true in local.properties.",
-        engineType = EngineType.LLAMA_CPP_NATIVE,
-    )
-
     val all = listOf(
         GEMMA_4_E4B,
         GEMMA_4_E2B,
-        GEMMA_3N_E4B_GATED,
-        GEMMA_3_12B_HERETIC_GGUF,
-        GEMMA_3_4B_GOOGLE_GGUF,
-        GEMMA_3_4B_ABLITERATED_GGUF,
-        GEMMA_3_12B_ABLITERATED_GGUF,
         GEMMA_3_12B_HERETIC_NATIVE,
         GEMMA_4_12B_HERETIC_Q4_0_GGUF,
     )
