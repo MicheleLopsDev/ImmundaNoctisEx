@@ -220,6 +220,25 @@ la Scena 1. Due problemi distinti trovati dal log:
    GPU corretta — questo modello specifico potrebbe semplicemente non
    essere adatto al compito, a prescindere dal motore.
 
+**CRASH col modello piccolo (27/07, stesso giorno)**: log del device,
+causa precisa — `JNI DETECTED ERROR IN APPLICATION: input is not
+valid Modified UTF-8: illegal continuation byte` dentro
+`nativeGenerateStream`, poi `Fatal signal 6 (SIGABRT)`. **Bug della
+libreria Llamatik, non nostro**: un carattere accentato italiano
+(UTF-8 multi-byte: à, è, ì, ò, ù) può finire tagliato a metà tra due
+"delta" del callback di streaming nativo — `NewStringUTF` prova a
+convertire un frammento con un byte di continuazione mancante e va in
+crash. Probabile più spesso in italiano che in inglese, per la densità
+di accenti. **Fix**: `LlamaCppEngine.generate()` non usa più
+`generateStream`/`GenStream` (streaming, buggato) ma la `generate()`
+bloccante di Llamatik, che decodifica il testo intero in un colpo
+solo — nessun confine a metà carattere possibile. Si perde l'effetto
+token-per-token SOLO per questo motore (LiteRT-LM lo mantiene, non ha
+lo stesso bug) finché Llamatik non sistema lo streaming a monte.
+Michele nel frattempo valuta anche modelli italiani su PC via LM
+Studio (Cerbero-7B su base Mistral, LLaMAntino-3-ANITA-8B, Modello
+Italia 9B) prima di portarli sul device.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
