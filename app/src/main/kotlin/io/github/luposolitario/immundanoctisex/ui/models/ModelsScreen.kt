@@ -333,8 +333,9 @@ private fun AddCustomModelCard(
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Aggiungi un modello", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(
-                "Solo formato LiteRT-LM (estensione .litertlm): è l'unico che questo motore " +
-                    "sa caricare. Altri formati (es. .task di MediaPipe) vengono rifiutati.",
+                "Formato LiteRT-LM (estensione .litertlm) o GGUF (estensione .gguf, motore " +
+                    "llama.cpp) — riconosciuto da solo dall'estensione. Altri formati " +
+                    "(es. .task di MediaPipe) vengono rifiutati.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -377,7 +378,7 @@ private fun AddCustomModelCard(
                 onClick = { onPickFromStorage(name.trim()) },
                 enabled = !isImporting,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text(if (isImporting) "Importazione…" else "Scegli file .litertlm") }
+            ) { Text(if (isImporting) "Importazione…" else "Scegli file .litertlm o .gguf") }
 
             error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
