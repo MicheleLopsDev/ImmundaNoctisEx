@@ -138,13 +138,16 @@ class AppContainer(context: Context) {
     // modello scelto usa un ENGINE diverso da quello in uso (27/07/2026:
     // LiteRT-LM <-> GGUF), si scarica prima l'altro — un modello alla
     // volta, mai due processi nativi multi-GB insieme.
-    suspend fun activateModel(model: DownloadableModel): Result<Unit> =
-        switchToEngine(model.engineType)
-            .load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
+    suspend fun activateModel(model: DownloadableModel): Result<Unit> {
+        android.util.Log.i("AppContainer", "activateModel: ${model.id}, activeEngineType=$activeEngineType")
+        val engine = switchToEngine(model.engineType)
+        android.util.Log.i("AppContainer", "activateModel: switchToEngine tornato, chiamo load()")
+        return engine.load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
             .onSuccess {
                 modelPreferences.selectedModelId = model.id
                 loadedModelId = model.id
             }
+    }
 
     private fun engineFor(type: EngineType): InferenceEngine = when (type) {
         EngineType.LITERT_LM -> liteRtLmEngine
@@ -154,7 +157,9 @@ class AppContainer(context: Context) {
 
     private suspend fun switchToEngine(type: EngineType): InferenceEngine {
         if (type != activeEngineType) {
+            android.util.Log.i("AppContainer", "switchToEngine: scarico $activeEngineType prima di passare a $type")
             runCatching { engineFor(activeEngineType).unload() }
+            android.util.Log.i("AppContainer", "switchToEngine: $activeEngineType scaricato")
             activeEngineType = type
             loadedModelId = null
         }
