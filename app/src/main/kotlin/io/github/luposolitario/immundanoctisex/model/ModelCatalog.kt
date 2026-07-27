@@ -106,7 +106,16 @@ object ModelCatalog {
         sizeBytes = 0L, // sconosciuta: il repo non risponde senza token
         requiresToken = true,
         note = "Motore GGUF (llama.cpp), modello Google senza fine-tuning di terzi. Richiede un token Hugging Face e la licenza Gemma accettata.",
-        engineType = EngineType.LLAMA_CPP,
+        // BUG (27/07/2026, Michele: "si blocca sempre"): questa voce è
+        // nata PRIMA del branch feature/llama-cpp-adreno, con l'unico
+        // motore GGUF che esisteva allora (Llamatik). Su questo branch
+        // Llamatik è compileOnly (non impacchettato quando buildLlama=true,
+        // vedi app/build.gradle.kts) — attivarla con EngineType.LLAMA_CPP
+        // instradava su un motore assente a runtime, fallendo in silenzio
+        // (NoClassDefFoundError catturato da runCatching, nessun log).
+        // Q4_0 è proprio il formato per cui vogliamo provare il motore
+        // nativo con GPU Adreno.
+        engineType = EngineType.LLAMA_CPP_NATIVE,
     )
 
     // Abliterated: tecnica diversa dal fine-tuning "uncensored" di Heretic
@@ -123,7 +132,10 @@ object ModelCatalog {
         sizeBytes = 2_489_894_304L,
         requiresToken = false,
         note = "Motore GGUF (llama.cpp): censura rimossa per abliterazione, non per fine-tuning. Non ancora provato su scene vere.",
-        engineType = EngineType.LLAMA_CPP,
+        // Stesso bug/correzione di GEMMA_3_4B_GOOGLE_GGUF sopra: su questo
+        // branch Llamatik non è impacchettato, LLAMA_CPP fallirebbe in
+        // silenzio.
+        engineType = EngineType.LLAMA_CPP_NATIVE,
     )
 
     val GEMMA_3_12B_ABLITERATED_GGUF = DownloadableModel(
@@ -134,7 +146,10 @@ object ModelCatalog {
         sizeBytes = 7_300_778_656L,
         requiresToken = false,
         note = "Motore GGUF (llama.cpp): censura rimossa per abliterazione, non per fine-tuning. Non ancora provato su scene vere.",
-        engineType = EngineType.LLAMA_CPP,
+        // Stesso bug/correzione di GEMMA_3_4B_GOOGLE_GGUF sopra: su questo
+        // branch Llamatik non è impacchettato, LLAMA_CPP fallirebbe in
+        // silenzio.
+        engineType = EngineType.LLAMA_CPP_NATIVE,
     )
 
     // Stesso file di GEMMA_3_12B_HERETIC_GGUF sopra (stesso url/fileName):
