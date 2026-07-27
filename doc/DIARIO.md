@@ -89,6 +89,32 @@ resta un uso secondario/di test. Il modulo `:tool` esiste solo come
 scheletro Gradle vuoto (`build.gradle.kts` placeholder, nessun
 sorgente): zero righe di codice scritte finora.
 
+**Ricerca sul motore GGUF, seconda puntata (27/07)**: chiesto un
+incremento prestazionale atteso — trovato che Google stessa, in un
+benchmark su Gemma 3 1B (Galaxy S25 Ultra), dichiara che **LiteRT
+batte llama.cpp sia su CPU che su GPU**, prefill e decode. Quindi il
+motore GGUF probabilmente NON darebbe un guadagno di velocità sullo
+stesso Gemma — ma Michele ha chiarito che l'obiettivo non è mai stato
+la velocità: è trovare il modello che scrive meglio in italiano (Gemma
+4B talvolta inventa parole inesistenti, es. "bruffi"). Candidati
+italiani trovati: **Minerva 7B** (Sapienza NLP, pre-addestrato da zero
+su italiano+inglese, GGUF non ancora verificato), **LLaMAntino-3-ANITA-8B**
+(Llama 3 fine-tuned per l'italiano, GGUF già pronto su Hugging Face),
+Qwen3.5-4B (generalista, stessa taglia del Gemma attuale). Prima
+strada più economica proposta: irrigidire il vincolo del prompt contro
+le parole inventate, testabile senza cambiare motore.
+
+**La scelta IMAGE di Gemma torna disponibile, ma come preferenza**
+(27/07, Michele, rivedendo il prompt: "vorrei che fosse una cosa
+configurabile e magari deselezionabile dal menu LLM") —
+`InferencePreferences.askImageInPrompt` (SharedPreferences, spenta di
+default), interruttore in "Impostazioni avanzate" di Modelli LLM,
+letta da `AdventureRoute` come nuova chiave di `remember` (effetto
+dalla scena successiva). `PromptBuilder` prende il flag a costruttore
+invece del ramo di codice tolto il 26/07 — comodo per confrontare
+modelli diversi (es. i candidati GGUF sopra) senza dover toccare
+codice ogni volta. Compilazione e suite riverificate verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
