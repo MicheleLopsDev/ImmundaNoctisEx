@@ -28,7 +28,16 @@ data class PromptContext(
 // Compone il prompt riempiendo i placeholder dei frammenti (v1:
 // buildGemmaPromptForScene, provato su Gemma 3 — qui con lingue
 // parametriche e toni dalla scena invece che hardcoded).
-class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEFAULTS) {
+class PromptBuilder(
+    private val fragments: PromptFragments = PromptFragments.DEFAULTS,
+    // Se Gemma può scegliere lo sfondo quando il pacchetto non ne ha uno
+    // valido (InferencePreferences.askImageInPrompt, Opzioni avanzate
+    // Modelli LLM) — SPENTO di default dal 26/07/2026 (prompt più
+    // semplice), ora una preferenza dell'utente invece di un ramo di
+    // codice tolto: utile per confrontare modelli diversi senza dover
+    // toccare il codice ogni volta.
+    private val askImageInPrompt: Boolean = false,
+) {
 
     fun build(context: PromptContext): String {
         val sections = buildList {
@@ -65,18 +74,15 @@ class PromptBuilder(private val fragments: PromptFragments = PromptFragments.DEF
     }
 
     // La riga ENEMY si chiede solo se c'è davvero un nemico da nominare.
-    // La riga IMAGE (Gemma sceglie lo sfondo quando il pacchetto non ne
-    // ha uno valido) è DISATTIVATA (26/07/2026, richiesta Michele:
-    // "rendiamo il prompt più semplice, questa modalità la attiveremo
-    // se troviamo un modello più intelligente"). Resta solo
-    // backgroundImage dichiarato dal pacchetto, se c'è; nessuno sfondo
-    // altrimenti. ResponseParser.parseImageLine e SceneImageCatalog
-    // restano intatti e pronti: riattivare significa solo tornare ad
-    // aggiungere fragments.imageFormatText qui sotto quando il
-    // pacchetto non ha uno sfondo valido, nessun'altra modifica.
+    // La riga IMAGE si chiede solo se askImageInPrompt è attivo (Opzioni
+    // avanzate Modelli LLM) E il pacchetto non ha già uno sfondo valido —
+    // l'autore ha sempre priorità, Gemma è il ripiego.
     private fun outputFormat(context: PromptContext): String = buildString {
         append(fragments.outputFormatText)
         if (context.scene.combat != null) append("\n${fragments.enemyFormatText}")
+        if (askImageInPrompt && !SceneImageCatalog.isValid(context.scene.backgroundImage)) {
+            append("\n${fragments.imageFormatText}")
+        }
     }
 
     private fun fill(template: String, context: PromptContext): String {

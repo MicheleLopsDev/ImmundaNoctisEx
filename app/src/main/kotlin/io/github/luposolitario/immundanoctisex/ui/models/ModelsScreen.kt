@@ -89,6 +89,7 @@ fun ModelsScreen(
     onTopKChange: (String) -> Unit,
     onTopPChange: (Float) -> Unit,
     onTopPCommit: () -> Unit,
+    onAskImageInPromptChange: (Boolean) -> Unit,
     onResetSettings: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -182,6 +183,7 @@ fun ModelsScreen(
                 onTopKChange = onTopKChange,
                 onTopPChange = onTopPChange,
                 onTopPCommit = onTopPCommit,
+                onAskImageInPromptChange = onAskImageInPromptChange,
                 onReset = onResetSettings,
             )
 
@@ -427,6 +429,7 @@ private fun ModelsScreenPreview() {
                 temperature = 0.7f,
                 topK = "40",
                 topP = 0.9f,
+                askImageInPrompt = false,
             ),
             onSelectModel = {},
             activeModelId = null,
@@ -448,6 +451,7 @@ private fun ModelsScreenPreview() {
             onTopKChange = {},
             onTopPChange = {},
             onTopPCommit = {},
+            onAskImageInPromptChange = {},
             onResetSettings = {},
             onClose = {},
         )

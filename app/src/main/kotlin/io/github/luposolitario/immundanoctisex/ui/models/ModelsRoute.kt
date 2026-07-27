@@ -98,6 +98,7 @@ fun ModelsRoute(
                 temperature = inferencePreferences.temperature,
                 topK = inferencePreferences.topK.toString(),
                 topP = inferencePreferences.topP,
+                askImageInPrompt = inferencePreferences.askImageInPrompt,
             ),
         )
     }
@@ -231,6 +232,10 @@ fun ModelsRoute(
         },
         onTopPChange = { advanced = advanced.copy(topP = it) },
         onTopPCommit = { inferencePreferences.topP = advanced.topP },
+        onAskImageInPromptChange = { enabled ->
+            advanced = advanced.copy(askImageInPrompt = enabled)
+            inferencePreferences.askImageInPrompt = enabled
+        },
         onResetSettings = {
             inferencePreferences.resetToDefaults()
             advanced = AdvancedSettingsUi(
@@ -238,6 +243,7 @@ fun ModelsRoute(
                 temperature = inferencePreferences.temperature,
                 topK = inferencePreferences.topK.toString(),
                 topP = inferencePreferences.topP,
+                askImageInPrompt = inferencePreferences.askImageInPrompt,
             )
         },
         onClose = onClose,

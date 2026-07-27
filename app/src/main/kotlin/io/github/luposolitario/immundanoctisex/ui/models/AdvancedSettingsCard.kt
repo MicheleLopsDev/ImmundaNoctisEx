@@ -7,14 +7,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,6 +34,7 @@ data class AdvancedSettingsUi(
     val temperature: Float,
     val topK: String,
     val topP: Float,
+    val askImageInPrompt: Boolean,
 )
 
 // "Impostazioni avanzate" ereditate da ModelActivity di v1, incluse le
@@ -47,6 +51,7 @@ fun AdvancedSettingsCard(
     onTopKChange: (String) -> Unit,
     onTopPChange: (Float) -> Unit,
     onTopPCommit: () -> Unit,
+    onAskImageInPromptChange: (Boolean) -> Unit,
     onReset: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -124,6 +129,26 @@ fun AdvancedSettingsCard(
                 modifier = Modifier.fillMaxWidth(),
             )
 
+            Spacer(Modifier.height(12.dp))
+            HorizontalDivider()
+            Spacer(Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    SettingLabel(
+                        title = "Il modello sceglie lo sfondo",
+                        explanation = "Quando una scena non ha uno sfondo dichiarato dal libro, " +
+                            "chiedi al modello di suggerirne uno da un elenco chiuso — allunga " +
+                            "il prompt. Spento di default: si usa solo quanto dichiarato dal " +
+                            "libro. Utile per confrontare modelli diversi.",
+                    )
+                }
+                Switch(checked = settings.askImageInPrompt, onCheckedChange = onAskImageInPromptChange)
+            }
+
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = onReset) {
                 Text("Ripristina i valori consigliati")
@@ -162,6 +187,7 @@ private fun AdvancedSettingsPreview() {
                 temperature = InferenceConfig.DEFAULT_TEMPERATURE,
                 topK = InferenceConfig.DEFAULT_TOP_K.toString(),
                 topP = InferenceConfig.DEFAULT_TOP_P,
+                askImageInPrompt = false,
             ),
             onMaxTokensChange = {},
             onTemperatureChange = {},
@@ -169,6 +195,7 @@ private fun AdvancedSettingsPreview() {
             onTopKChange = {},
             onTopPChange = {},
             onTopPCommit = {},
+            onAskImageInPromptChange = {},
             onReset = {},
         )
     }

@@ -28,6 +28,17 @@ class InferencePreferences(context: Context) {
         get() = prefs.getFloat(KEY_TOP_P, InferenceConfig.DEFAULT_TOP_P)
         set(value) = prefs.edit().putFloat(KEY_TOP_P, value.coerceIn(0f, 1f)).apply()
 
+    // Se Gemma sceglie lo sfondo quando il pacchetto non ne ha uno valido
+    // (PromptBuilder.imageFormatText) — DISATTIVATO di default (26/07/2026:
+    // "riattiveremo se troviamo un modello più intelligente"). Ora è una
+    // preferenza vera, non più un ramo di codice tolto (27/07/2026, Michele:
+    // "vorrei che fosse una cosa configurabile e magari deselezionabile dal
+    // menu LLM") — utile per confrontare modelli diversi (es. GGUF) senza
+    // che serva una modifica di codice ogni volta.
+    var askImageInPrompt: Boolean
+        get() = prefs.getBoolean(KEY_ASK_IMAGE, false)
+        set(value) = prefs.edit().putBoolean(KEY_ASK_IMAGE, value).apply()
+
     // La fotografia da passare al motore al caricamento.
     fun toConfig(): InferenceConfig = InferenceConfig(
         maxTokens = maxTokens,
@@ -51,5 +62,6 @@ class InferencePreferences(context: Context) {
         private const val KEY_TEMPERATURE = "temperature"
         private const val KEY_TOP_K = "top_k"
         private const val KEY_TOP_P = "top_p"
+        private const val KEY_ASK_IMAGE = "ask_image_in_prompt"
     }
 }

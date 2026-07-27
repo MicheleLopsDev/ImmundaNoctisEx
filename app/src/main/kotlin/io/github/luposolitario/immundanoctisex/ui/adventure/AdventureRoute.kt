@@ -65,10 +65,15 @@ fun AdventureRoute(
             // navigazione che ha portato al cambio.
             val userLanguage = container.languagePreferences.outputLanguage.promptValue
             val toneOverride = container.narrativeTonePreferences.narrativeTone.hints
-            val narrator = remember(manifest, userLanguage, toneOverride) {
+            // askImageInPrompt (27/07/2026, Michele: "vorrei che fosse una
+            // cosa configurabile e magari deselezionabile dal menu LLM") è
+            // una chiave esplicita come le altre: cambiarla in Modelli LLM
+            // ricrea il narratore, effetto dalla prossima scena.
+            val askImageInPrompt = container.inferencePreferences.askImageInPrompt
+            val narrator = remember(manifest, userLanguage, toneOverride, askImageInPrompt) {
                 SceneNarrator(
                     engine = container.inferenceEngine,
-                    promptBuilder = PromptBuilder(promptFragments(context)),
+                    promptBuilder = PromptBuilder(promptFragments(context), askImageInPrompt),
                     manifest = manifest,
                     userLanguage = userLanguage,
                     // AUTHOR (default) -> null, l'autore decide come sempre.

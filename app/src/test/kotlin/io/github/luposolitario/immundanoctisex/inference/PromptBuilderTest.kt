@@ -244,29 +244,48 @@ class PromptBuilderTest {
         assertContains(fragments.constraintText, "{user_language}")
     }
 
-    // --- Sfondo di scena: Gemma non sceglie più (DISATTIVATO 26/07/2026) ---
+    // --- Sfondo di scena: askImageInPrompt (27/07/2026) ---
     // L'esperimento del 20/07/2026 ("Gemma suggerisce lo sfondo quando il
-    // pacchetto non ne ha uno valido") è disattivato su richiesta di
-    // Michele: "rendiamo il prompt più semplice, la riattiveremo se
-    // troviamo un modello più intelligente". La riga IMAGE non va più
-    // chiesta in NESSUN caso: né sfondo mancante, né un placeholder fuori
-    // catalogo ("inn"), né uno sfondo già valido.
+    // pacchetto non ne ha uno valido") era stato disattivato il 26/07
+    // ("rendiamo il prompt più semplice"), ora è una PREFERENZA
+    // (InferencePreferences.askImageInPrompt, Opzioni avanzate Modelli
+    // LLM) invece che un ramo di codice tolto — Michele: "vorrei che
+    // fosse una cosa configurabile e magari deselezionabile dal menu
+    // LLM". Di default resta spenta (stesso comportamento del 26/07).
 
     @Test
-    fun laRigaImageNonVienePiuChiestaSenzaSfondoDichiarato() {
-        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = null)))
-        assertFalse(prompt.contains("IMAGE|location_id"))
+    fun conAskImageSpento_laRigaImageNonSiChiedeMai() {
+        assertFalse(
+            PromptBuilder(askImageInPrompt = false)
+                .build(context(scene = scene(backgroundImage = null)))
+                .contains("IMAGE|location_id"),
+        )
+        assertFalse(
+            PromptBuilder(askImageInPrompt = false)
+                .build(context(scene = scene(backgroundImage = "inn")))
+                .contains("IMAGE|location_id"),
+        )
     }
 
     @Test
-    fun laRigaImageNonVienePiuChiestaConSfondoFuoriCatalogo() {
-        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "inn")))
-        assertFalse(prompt.contains("IMAGE|location_id"))
+    fun conAskImageAcceso_senzaSfondoDichiarato_siChiedeAGemmaDiSuggerirlo() {
+        val prompt = PromptBuilder(askImageInPrompt = true).build(context(scene = scene(backgroundImage = null)))
+        assertContains(prompt, "IMAGE|location_id")
+        // Il vocabolario è CHIUSO: i nomi veri devono comparire per intero.
+        assertContains(prompt, "loc_tavern")
     }
 
     @Test
-    fun conSfondoGiaDichiarato_nonSiSprecaContestoAChiederlo() {
-        val prompt = PromptBuilder().build(context(scene = scene(backgroundImage = "loc_market")))
+    fun conAskImageAcceso_sfondoFuoriCatalogo_siChiedeComunqueAGemma() {
+        // BUG del 20/07/2026: un placeholder morto ("inn") non è una
+        // scelta valida, si chiede comunque.
+        val prompt = PromptBuilder(askImageInPrompt = true).build(context(scene = scene(backgroundImage = "inn")))
+        assertContains(prompt, "IMAGE|location_id")
+    }
+
+    @Test
+    fun conAskImageAcceso_sfondoGiaValido_nonSiSprecaContestoAChiederlo() {
+        val prompt = PromptBuilder(askImageInPrompt = true).build(context(scene = scene(backgroundImage = "loc_market")))
         assertFalse(prompt.contains("IMAGE|location_id"))
     }
 }
