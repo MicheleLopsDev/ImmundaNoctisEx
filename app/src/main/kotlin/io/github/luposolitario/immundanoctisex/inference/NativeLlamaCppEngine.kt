@@ -64,6 +64,13 @@ class NativeLlamaCppEngine : InferenceEngine {
                     topK = config.topK,
                     topP = config.topP,
                     nCtx = config.maxTokens,
+                    // SPERIMENTALE (27/07/2026): 999 (tutti i livelli) fa
+                    // fallire il caricamento di alcuni modelli (Q4_0) —
+                    // superano il tetto di allocazione singola OpenCL
+                    // dell'Adreno (1024 MiB). 16 è un primo tentativo di
+                    // offload parziale, da aggiustare in base al log
+                    // (ggml_backend_opencl_buffer_type_alloc_buffer).
+                    nGpuLayers = NGPU_LAYERS_PARTIAL,
                 )
                 _tokenInfo.value = TokenInfo(used = 0, maxTokens = config.maxTokens)
             }
@@ -121,5 +128,6 @@ class NativeLlamaCppEngine : InferenceEngine {
 
     private companion object {
         const val TAG = "NativeLlamaCppEngine"
+        const val NGPU_LAYERS_PARTIAL = 16
     }
 }

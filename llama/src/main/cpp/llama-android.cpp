@@ -60,13 +60,18 @@ static void log_callback(ggml_log_level level, const char * fmt, void * data) {
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_android_llama_cpp_LLamaAndroid_load_1model(JNIEnv *env, jobject, jstring filename) {
+Java_android_llama_cpp_LLamaAndroid_load_1model(JNIEnv *env, jobject, jstring filename, jint n_gpu_layers) {
     llama_model_params model_params = llama_model_default_params();
     // CORREZIONE (27/07/2026): in v1 questa riga non c'era, il modello si
     // caricava sempre con gpu_layers=0 (default) qualunque fosse il
     // backend compilato. 999 = convenzione comune in llama.cpp per
-    // "scarica tutti i livelli disponibili".
-    model_params.n_gpu_layers = 999;
+    // "scarica tutti i livelli disponibili" — ora parametrizzato da
+    // Kotlin: con 999 alcuni modelli (Q4_0, blocchi di layer più grandi)
+    // superano il tetto di allocazione singola OpenCL dell'Adreno
+    // (1024 MiB, letto dal driver: "max mem alloc size"), un offload
+    // parziale può restare sotto quel tetto.
+    model_params.n_gpu_layers = n_gpu_layers;
+    LOGi("load_model: n_gpu_layers=%d", n_gpu_layers);
     auto path_to_model = env->GetStringUTFChars(filename, 0);
     LOGi("Loading model from %s", path_to_model);
     auto model = llama_model_load_from_file(path_to_model, model_params);

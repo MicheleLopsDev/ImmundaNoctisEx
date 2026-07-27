@@ -46,7 +46,11 @@ class LLamaAndroid private constructor() { // Costruttore privato per forzare il
 
 
     private external fun log_to_android()
-    private external fun load_model(filename: String): Long
+    // CORREZIONE (27/07/2026): in v1 gpu_layers era fisso a 999 (tutti i
+    // livelli) lato C++. Con alcuni modelli (Q4_0) supera il tetto di
+    // allocazione singola OpenCL dell'Adreno (1024 MiB) e il caricamento
+    // fallisce — ora regolabile da qui per provare un offload parziale.
+    private external fun load_model(filename: String, nGpuLayers: Int): Long
     private external fun free_model(model: Long)
     // CORREZIONE (27/07/2026): in v1 n_ctx era fisso a 2048 lato C++, ora
     // arriva da qui (InferenceConfig.maxTokens nel motore che usa questa
@@ -78,11 +82,12 @@ class LLamaAndroid private constructor() { // Costruttore privato per forzare il
         repeatPenalty: Float,
         topK: Int,
         topP: Float,
-        nCtx: Int = 4096
+        nCtx: Int = 4096,
+        nGpuLayers: Int = 999
     ) {
         withContext(runLoop) {
             if (!isLoad) {
-                val model = load_model(pathToModel)
+                val model = load_model(pathToModel, nGpuLayers)
                 if (model == 0L)  throw IllegalStateException("load_model() failed")
 
                 val context = new_context(model, nCtx)
