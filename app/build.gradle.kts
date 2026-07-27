@@ -1,4 +1,6 @@
 // :app — Android: UI Compose, inferenza LiteRT-LM, TTS, storage.
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -8,6 +10,26 @@ plugins {
     // viene generato e Json.encodeToString fallisce a runtime (crash 22/07).
     alias(libs.plugins.kotlin.serialization)
 }
+
+// Sperimentale (27/07/2026, branch feature/llama-cpp-adreno): Llamatik e
+// :llama impacchettano ENTRAMBI .so ggml/llama.cpp con gli stessi nomi ma
+// da build DIVERSE (versioni di llama.cpp diverse) — non solo un
+// conflitto di nomi al build, ma un'INCOMPATIBILITÀ BINARIA vera: col
+// primo tentativo di convivenza (pickFirst) l'app compilava, ma
+// LlamaBridge di Llamatik crashava a runtime
+// (UnsatisfiedLinkError: "cannot locate symbol llama_model_n_embd_inp")
+// perché si ritrovava linkato contro IL NOSTRO libggml, non il suo.
+// Le due dipendenze sono quindi MUTUAMENTE ESCLUSIVE, non convivono nello
+// stesso APK: con buildLlama=true si perde temporaneamente il motore
+// Llamatik (LlamaCppEngine) per guadagnare quello nativo con GPU Adreno
+// vera (NativeLlamaCppEngine) — tradeoff accettabile solo su questo
+// branch sperimentale, per isolare il confronto CPU/Llamatik vs
+// GPU/nativo un motore alla volta.
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) file.inputStream().use { load(it) }
+}
+val buildLlamaNative = localProperties.getProperty("buildLlama")?.toBoolean() ?: false
 
 android {
     namespace = "io.github.luposolitario.immundanoctisex"
@@ -45,24 +67,6 @@ android {
         }
     }
 
-    // Sperimentale (27/07/2026, branch feature/llama-cpp-adreno): sia
-    // Llamatik (com.llamatik:library) sia :llama sono basati su
-    // ggml/llama.cpp e impacchettano .so con GLI STESSI NOMI
-    // (libggml-base.so, libggml.so, ...) ma build DIVERSE — la nostra ha
-    // il backend OpenCL/Adreno, quella di Llamatik è CPU-only. pickFirst
-    // sceglie quella di :llama (dichiarato per ultimo tra le due nelle
-    // dependencies sotto): verificato confrontando i byte del file nella
-    // build risultante contro l'output di :llama, vedi
-    // doc/LLAMA-CPP-ADRENO-SETUP.md.
-    packaging {
-        jniLibs {
-            pickFirsts += setOf(
-                "**/libggml*.so",
-                "**/libllama.so",
-                "**/libomp.so",
-            )
-        }
-    }
 }
 
 dependencies {
@@ -78,20 +82,23 @@ dependencies {
     // Motore di inferenza on-device (LiteRT-LM).
     implementation(libs.litertlm.android)
 
-    // Motore GGUF via Llamatik (libreria nativa già pronta, no NDK/CMake
-    // nostro) — secondo InferenceEngine vero, LlamaCppEngine.kt.
-    // 1.9.1 (27/07/2026): changelog ufficiale "Solved generateStream
-    // emoji crash" — verificare se risolve anche il crash UTF-8 su
-    // caratteri accentati italiani trovato con 1.7.0 (vedi DIARIO.md).
-    implementation("com.llamatik:library:1.9.1")
-
-    // Terzo InferenceEngine, sperimentale (branch feature/llama-cpp-adreno,
-    // 27/07/2026): llama.cpp compilato da noi con backend OpenCL/Adreno
-    // vero, contro il CPU-only di Llamatik sopra. Se :llama non è
-    // compilato nativamente (buildLlama=false in local.properties, il
-    // default), NativeLlamaCppEngine fallisce solo se attivato — non
-    // rompe le build di chi non lavora su questo esperimento.
-    implementation(project(":llama"))
+    // Llamatik SEMPRE disponibile a compile-time (compileOnly): così
+    // LlamaCppEngine.kt/AppContainer.kt compilano invariati in entrambi i
+    // casi, senza codice condizionale sparso. A runtime/pacchetto invece
+    // è mutuamente esclusivo con :llama (vedi `buildLlamaNative` sopra):
+    // runtimeOnly lo aggiunge SOLO quando :llama non è quello attivo,
+    // altrimenti i due .so ggml incompatibili finiscono insieme
+    // nell'APK e Llamatik crasha al primo uso
+    // (UnsatisfiedLinkError: "cannot locate symbol llama_model_n_embd_inp").
+    compileOnly("com.llamatik:library:1.9.1")
+    if (buildLlamaNative) {
+        implementation(project(":llama"))
+    } else {
+        // 1.9.1 (27/07/2026): changelog ufficiale "Solved generateStream
+        // emoji crash" — verificare se risolve anche il crash UTF-8 su
+        // caratteri accentati italiani trovato con 1.7.0 (vedi DIARIO.md).
+        runtimeOnly("com.llamatik:library:1.9.1")
+    }
 
     // LiteRT-LM dichiara coroutines 1.9.0 nel POM ma è compilato con
     // Kotlin 2.3: chiama `SendChannel.close$default` come metodo statico
