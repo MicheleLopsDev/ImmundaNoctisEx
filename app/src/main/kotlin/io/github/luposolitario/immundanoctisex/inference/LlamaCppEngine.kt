@@ -43,10 +43,18 @@ class LlamaCppEngine : InferenceEngine {
             }
             runCatching {
                 if (loaded) LlamaBridge.shutdown()
+                this@LlamaCppEngine.config = config
+                // BUG (27/07/2026, secondo test di Michele: gpu_layers=0
+                // ancora nel log nonostante gpuLayers=99): lo scarico
+                // sulla GPU si decide al CARICAMENTO dei pesi del
+                // modello, quindi va impostato PRIMA di initGenerateModel,
+                // non dopo — troppo tardi per spostare pesi già letti in
+                // RAM di sistema. Nell'esempio originale della libreria
+                // updateGenerateParams viene per primo: qui invertivamo
+                // l'ordine.
+                applyParams(config)
                 val ok = LlamaBridge.initGenerateModel(modelFile.absolutePath)
                 check(ok) { "Impossibile caricare il modello." }
-                this@LlamaCppEngine.config = config
-                applyParams(config)
                 loaded = true
                 _tokenInfo.value = TokenInfo(used = 0, maxTokens = config.maxTokens)
             }
