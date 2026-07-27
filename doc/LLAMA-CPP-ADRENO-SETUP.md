@@ -22,11 +22,17 @@ llamaCppDir=C:/DEV/llama.cpp
 pythonExecutable=C:/Users/<utente>/AppData/Local/Microsoft/WindowsApps/python3.exe
 ```
 
-- **`llamaCppDir`**: checkout locale del fork
-  `https://github.com/MicheleLopsDev/llama.cpp` (shallow clone va bene,
+- **`llamaCppDir`**: checkout locale di llama.cpp (shallow clone va bene,
   `git clone --depth 1 ...`). Va FUORI dal repo di ImmundaNoctisEx (nessun
   submodule): evita di portarsi dietro tutta la storia di llama.cpp nel
-  nostro git.
+  nostro git. **Aggiornato il 27/07/2026**: usato inizialmente il fork
+  `github.com/MicheleLopsDev/llama.cpp`, ma era una copia di settembre
+  2025 — non conosceva ancora l'architettura `gemma4` (Gemma 4 di
+  Google, merged a monte solo ad aprile 2026). Sostituito con un clone
+  fresco di `https://github.com/ggml-org/llama.cpp` (il progetto
+  originale): se rifai il checkout più avanti nel tempo e trovi ancora
+  "unknown model architecture", vale la pena riclonare da capo invece
+  di dare per scontato che il checkout esistente sia aggiornato.
 - **`pythonExecutable`**: solo se `find_package(Python3)` di CMake non
   trova un python di sistema. Su Windows con Python installato dal
   Microsoft Store, l'eseguibile reale sta in
