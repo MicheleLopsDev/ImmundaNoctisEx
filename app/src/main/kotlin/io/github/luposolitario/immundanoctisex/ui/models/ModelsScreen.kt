@@ -91,9 +91,6 @@ fun ModelsScreen(
     onTopPCommit: () -> Unit,
     onAskImageInPromptChange: (Boolean) -> Unit,
     onResetSettings: () -> Unit,
-    ggufSpikeRunning: Boolean,
-    ggufSpikeResult: String?,
-    onPickGgufSpikeFile: () -> Unit,
     onClose: () -> Unit,
 ) {
     ThemedBackground(isDarkTheme = isDarkTheme) {
@@ -188,12 +185,6 @@ fun ModelsScreen(
                 onTopPCommit = onTopPCommit,
                 onAskImageInPromptChange = onAskImageInPromptChange,
                 onReset = onResetSettings,
-            )
-
-            GgufSpikeCard(
-                isRunning = ggufSpikeRunning,
-                result = ggufSpikeResult,
-                onPickFile = onPickGgufSpikeFile,
             )
 
             Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text("Chiudi") }
@@ -462,9 +453,6 @@ private fun ModelsScreenPreview() {
             onTopPCommit = {},
             onAskImageInPromptChange = {},
             onResetSettings = {},
-            ggufSpikeRunning = false,
-            ggufSpikeResult = null,
-            onPickGgufSpikeFile = {},
             onClose = {},
         )
     }

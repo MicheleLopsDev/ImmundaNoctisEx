@@ -2,6 +2,15 @@ package io.github.luposolitario.immundanoctisex.model
 
 import kotlinx.serialization.Serializable
 
+// Quale InferenceEngine sa caricare questo modello (27/07/2026, Michele:
+// "introdurrei la possibilità di caricare i gguf" — un motore vero e
+// selezionabile, non solo lo spike). Default LITERT_LM: i modelli già
+// serializzati nelle preferenze di chi usava l'app prima di questo giro
+// non hanno questo campo nel JSON salvato, kotlinx.serialization lo
+// riempie col default senza rompere nulla.
+@Serializable
+enum class EngineType { LITERT_LM, LLAMA_CPP }
+
 // Un modello scaricabile (erede di Downloadable di v1, con in più la
 // dimensione attesa e il flag "serve un token").
 // @Serializable: i modelli aggiunti da Michele con un link Hugging Face
@@ -16,6 +25,7 @@ data class DownloadableModel(
     val requiresToken: Boolean,
     val note: String,
     val custom: Boolean = false,
+    val engineType: EngineType = EngineType.LITERT_LM,
 ) {
     val sizeGigabytes: Double get() = sizeBytes / 1_000_000_000.0
 }

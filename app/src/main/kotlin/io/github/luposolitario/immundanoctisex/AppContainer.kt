@@ -11,7 +11,9 @@ import io.github.luposolitario.immundanoctisex.core.engine.dice.RandomDiceRoller
 import io.github.luposolitario.immundanoctisex.inference.InferenceEngine
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
+import io.github.luposolitario.immundanoctisex.inference.LlamaCppEngine
 import io.github.luposolitario.immundanoctisex.model.DownloadableModel
+import io.github.luposolitario.immundanoctisex.model.EngineType
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import io.github.luposolitario.immundanoctisex.music.MusicPlayer
 import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
@@ -80,9 +82,27 @@ class AppContainer(context: Context) {
 
     val diceColorPreferences = DiceColorPreferences(context)
 
-    // Istanza unica a scope applicazione (ARCHITETTURA §istanze): il
-    // modello costa GB e secondi di caricamento, si carica una volta.
-    val inferenceEngine: InferenceEngine = LiteRtLmEngine(context)
+    // Due motori, non uno (27/07/2026, Michele: "introdurrei la
+    // possibilità di caricare i gguf" — un motore vero e selezionabile).
+    // Istanze uniche a scope applicazione (ARCHITETTURA §istanze): il
+    // modello costa GB e secondi di caricamento, si caricano una volta
+    // ciascuno. Solo UNO dei due è mai "attivo" per davvero: caricare un
+    // modello nell'altro scarica quello in uso, non si tengono due
+    // modelli multi-GB in memoria insieme.
+    private val liteRtLmEngine = LiteRtLmEngine(context)
+    private val llamaCppEngine = LlamaCppEngine()
+
+    // Quale motore serve DAVVERO adesso: il resto dell'app (SceneNarrator
+    // e giù) continua a parlare solo con InferenceEngine, non sa che ne
+    // esistono due — stessa promessa di ARCHITETTURA.md, qui pagata due
+    // volte invece di una.
+    private var activeEngineType: EngineType = EngineType.LITERT_LM
+
+    val inferenceEngine: InferenceEngine
+        get() = when (activeEngineType) {
+            EngineType.LITERT_LM -> liteRtLmEngine
+            EngineType.LLAMA_CPP -> llamaCppEngine
+        }
 
     // Quale modello e' DAVVERO caricato nel motore in questo momento —
     // diverso da modelPreferences.selectedModelId, che e' solo la scelta
@@ -95,10 +115,11 @@ class AppContainer(context: Context) {
     // false senza rumore se non c'è: il gioco parte comunque, col testo
     // originale del pacchetto.
     suspend fun ensureModelLoaded(): Boolean {
-        if (inferenceEngine.isLoaded) return true
         val model = modelPreferences.selectedModel
+        val engine = engineFor(model.engineType)
+        if (engine.isLoaded && loadedModelId == model.id) return true
         if (!modelPreferences.isDownloaded(model)) return false
-        return inferenceEngine
+        return switchToEngine(model.engineType)
             .load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
             .isSuccess
             .also { if (it) loadedModelId = model.id }
@@ -109,14 +130,31 @@ class AppContainer(context: Context) {
     // uno e provare"): load() fa già l'unload del precedente da sé
     // (LiteRtLmEngine), quindi si può cambiare modello anche a partita
     // in corso — ogni scena apre comunque una sessione nuova, senza
-    // memoria, quindi non c'è contesto da perdere nel cambio.
+    // memoria, quindi non c'è contesto da perdere nel cambio. Se il
+    // modello scelto usa un ENGINE diverso da quello in uso (27/07/2026:
+    // LiteRT-LM <-> GGUF), si scarica prima l'altro — un modello alla
+    // volta, mai due processi nativi multi-GB insieme.
     suspend fun activateModel(model: DownloadableModel): Result<Unit> =
-        inferenceEngine
+        switchToEngine(model.engineType)
             .load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
             .onSuccess {
                 modelPreferences.selectedModelId = model.id
                 loadedModelId = model.id
             }
+
+    private fun engineFor(type: EngineType): InferenceEngine = when (type) {
+        EngineType.LITERT_LM -> liteRtLmEngine
+        EngineType.LLAMA_CPP -> llamaCppEngine
+    }
+
+    private suspend fun switchToEngine(type: EngineType): InferenceEngine {
+        if (type != activeEngineType) {
+            runCatching { engineFor(activeEngineType).unload() }
+            activeEngineType = type
+            loadedModelId = null
+        }
+        return engineFor(type)
+    }
 
     val sessionStore: SessionStore =
         FileSessionStore(File(context.filesDir, "saves"))

@@ -22,8 +22,8 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
-import io.github.luposolitario.immundanoctisex.inference.LlamaCppSpike
 import io.github.luposolitario.immundanoctisex.model.DownloadableModel
+import io.github.luposolitario.immundanoctisex.model.EngineType
 import io.github.luposolitario.immundanoctisex.model.ModelCatalog
 import io.github.luposolitario.immundanoctisex.model.ModelDownloadWorker
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
@@ -31,11 +31,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-// L'unico formato che LiteRtLmEngine sa caricare (REGOLE tecniche in
+// I due formati che i due motori sanno caricare (REGOLE tecniche in
 // DIARIO.md): un modello .task di MediaPipe o qualunque altra cosa
 // compilerebbe ma fallirebbe al primo caricamento, silenziosamente sul
 // device di Michele. Meglio rifiutarlo subito, con un messaggio chiaro.
 private const val LITERTLM_EXTENSION = ".litertlm"
+// GGUF (27/07/2026, Michele: "introdurrei la possibilità di caricare i
+// gguf") — LlamaCppEngine via Llamatik.
+private const val GGUF_EXTENSION = ".gguf"
 
 // Raccordo della schermata Modelli: avvia il worker, osserva il progresso
 // e tiene aggiornata la lista dei modelli già scaricati.
@@ -102,37 +105,6 @@ fun ModelsRoute(
                 askImageInPrompt = inferencePreferences.askImageInPrompt,
             ),
         )
-    }
-
-    // Stato dello spike GGUF (27/07/2026) — solo in memoria, non è una
-    // preferenza: si perde chiudendo la schermata, ed è giusto così per
-    // una prova. Selettore file di sistema (non un percorso incollato a
-    // mano): stesso motivo del picker per i modelli .litertlm
-    // personalizzati sotto — Android blocca l'accesso diretto a
-    // /sdcard/Download/... senza un permesso di storage esteso che
-    // l'app non ha. Il file scelto si copia nella cache dell'app (dove
-    // Llamatik può leggerlo con un path normale) prima di generare.
-    var ggufSpikeRunning by remember { mutableStateOf(false) }
-    var ggufSpikeResult by remember { mutableStateOf<String?>(null) }
-    val ggufSpikePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        ggufSpikeRunning = true
-        ggufSpikeResult = null
-        scope.launch {
-            ggufSpikeResult = runCatching {
-                val destination = withContext(Dispatchers.IO) {
-                    val file = java.io.File(context.cacheDir, "gguf_spike.gguf")
-                    context.contentResolver.openInputStream(uri)?.use { input ->
-                        file.outputStream().use { output -> input.copyTo(output) }
-                    } ?: error("Impossibile leggere il file scelto.")
-                    file
-                }
-                LlamaCppSpike.runStaticExample(destination.absolutePath)
-            }.fold(onSuccess = { it }, onFailure = { "Errore: ${it.message}" })
-            ggufSpikeRunning = false
-        }
     }
 
     val workInfos by workManager
@@ -215,7 +187,7 @@ fun ModelsRoute(
         onAddCustomModel = { url, name, requiresToken ->
             if (url.isNotBlank()) {
                 val fileName = url.substringBefore('?').substringAfterLast('/').ifBlank { "modello_custom" }
-                val error = validateLitertlm(fileName)
+                val error = validateModelFile(fileName)
                 if (error != null) {
                     addModelError = error
                 } else {
@@ -268,9 +240,6 @@ fun ModelsRoute(
             advanced = advanced.copy(askImageInPrompt = enabled)
             inferencePreferences.askImageInPrompt = enabled
         },
-        ggufSpikeRunning = ggufSpikeRunning,
-        ggufSpikeResult = ggufSpikeResult,
-        onPickGgufSpikeFile = { ggufSpikePickerLauncher.launch(arrayOf("*/*")) },
         onResetSettings = {
             inferencePreferences.resetToDefaults()
             advanced = AdvancedSettingsUi(
@@ -291,13 +260,20 @@ private fun occupiedBytes(container: AppContainer, customModels: List<Downloadab
         .filter { it.exists() }
         .sumOf { it.length() }
 
-private fun validateLitertlm(fileName: String): String? =
-    if (!fileName.endsWith(LITERTLM_EXTENSION, ignoreCase = true)) {
-        "\"$fileName\" non è un modello LiteRT-LM: serve un file con estensione " +
-            "$LITERTLM_EXTENSION, l'unico formato che questo motore sa caricare."
+private fun validateModelFile(fileName: String): String? =
+    if (!fileName.endsWith(LITERTLM_EXTENSION, ignoreCase = true) &&
+        !fileName.endsWith(GGUF_EXTENSION, ignoreCase = true)
+    ) {
+        "\"$fileName\" non è un formato riconosciuto: serve un file " +
+            "$LITERTLM_EXTENSION (LiteRT-LM) o $GGUF_EXTENSION (GGUF)."
     } else {
         null
     }
+
+// Il motore si riconosce dall'estensione, non da una scelta manuale in
+// più nel form — un file .gguf non può che essere per LlamaCppEngine.
+private fun engineTypeFor(fileName: String): EngineType =
+    if (fileName.endsWith(GGUF_EXTENSION, ignoreCase = true)) EngineType.LLAMA_CPP else EngineType.LITERT_LM
 
 private fun slugFor(fileName: String): String =
     fileName.substringBeforeLast('.').lowercase().replace(Regex("[^a-z0-9]+"), "-").trim('-')
@@ -316,6 +292,7 @@ private fun buildCustomModel(url: String, fileName: String, name: String, requir
         requiresToken = requiresToken,
         note = "Modello personalizzato, aggiunto da un link Hugging Face.",
         custom = true,
+        engineType = engineTypeFor(fileName),
     )
 
 private fun queryDisplayName(context: Context, uri: Uri): String? =
@@ -335,7 +312,7 @@ private suspend fun importModelFromUri(
 ): Result<DownloadableModel> = withContext(Dispatchers.IO) {
     runCatching {
         val originalName = queryDisplayName(context, uri) ?: uri.lastPathSegment ?: "modello_custom.litertlm"
-        validateLitertlm(originalName)?.let { throw IllegalArgumentException(it) }
+        validateModelFile(originalName)?.let { throw IllegalArgumentException(it) }
 
         val model = DownloadableModel(
             id = "custom-${slugFor(originalName)}",
@@ -346,6 +323,7 @@ private suspend fun importModelFromUri(
             requiresToken = false,
             note = "Modello personalizzato, importato da un file sul telefono.",
             custom = true,
+            engineType = engineTypeFor(originalName),
         )
         val destination = preferences.fileFor(model)
         context.contentResolver.openInputStream(uri)?.use { input ->
