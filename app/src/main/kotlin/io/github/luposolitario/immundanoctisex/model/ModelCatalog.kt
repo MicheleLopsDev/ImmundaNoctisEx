@@ -142,14 +142,27 @@ object ModelCatalog {
         engineType = EngineType.LLAMA_CPP_NATIVE,
     )
 
-    val all = listOf(
-        GEMMA_4_E4B,
-        GEMMA_4_E2B,
+    // Fissi (28/07/2026, Michele: "un file json che contiene i link... e
+    // si può ripristinare con i modelli di default"): questi due restano
+    // SEMPRE nella lista, un import di ModelPreferences.candidateModels
+    // non li tocca mai — sono i due motori LiteRT-LM di base, non fanno
+    // parte del catalogo GGUF sperimentale che si scambia tra file.
+    val protected = listOf(GEMMA_4_E4B, GEMMA_4_E2B)
+
+    // Il set di partenza di ModelPreferences.candidateModels (mai
+    // toccato scaricando/importando: "ripristina predefiniti" torna
+    // sempre a questi quattro).
+    val defaultCandidates = listOf(
         GEMMA_3_12B_HERETIC_NATIVE,
         GEMMA_4_12B_HERETIC_Q4_0_GGUF,
         GEMMA_3_4B_HERETIC_Q4_0_GGUF,
         GEMMA_4_E4B_Q4_0_GGUF,
     )
+
+    // Tenuto per compatibilità (preview, ricerche byId senza contesto di
+    // preferenze): protetti + candidati di fabbrica, MAI i candidati
+    // importati da un file — per quelli serve ModelPreferences.activeModels.
+    val all = protected + defaultCandidates
 
     val default = GEMMA_4_E4B
 

@@ -25,9 +25,12 @@ class ModelPreferences(private val context: Context) {
     // selezionato non ci sta mai dentro -> ModelCatalog.byId() tornava
     // null -> si ricadeva silenziosamente su ModelCatalog.default (sempre
     // Gemma 4 E4B ufficiale), qualunque cosa l'utente avesse scelto.
+    // AGGIORNATO (28/07/2026): ModelCatalog.byId() cerca solo nel catalogo
+    // di fabbrica, non nei candidati importati da un file — stesso bug
+    // riproposto se non si cerca anche in activeModels.
     val selectedModel: DownloadableModel
         get() = customModels.firstOrNull { it.id == selectedModelId }
-            ?: ModelCatalog.byId(selectedModelId)
+            ?: activeModels.firstOrNull { it.id == selectedModelId }
             ?: ModelCatalog.default
 
     // Token personale dell'utente: si salva solo se lo inserisce lui.
@@ -72,10 +75,34 @@ class ModelPreferences(private val context: Context) {
         customModels = customModels.filterNot { it.id == id }
     }
 
+    // Catalogo GGUF sperimentale scambiabile (28/07/2026, Michele: "un
+    // file json che contiene i link... così possiamo creare dei file con
+    // i vari modelli da provare"): a differenza di customModels (un
+    // modello alla volta, aggiunto a mano), questo è l'INTERO elenco dei
+    // "Consigliati" oltre ai due fissi di ModelCatalog.protected — si
+    // sostituisce tutto insieme importando un file, non si somma pezzo
+    // per pezzo. Nessun valore salvato = i quattro di fabbrica
+    // (ModelCatalog.defaultCandidates), non una lista vuota.
+    var candidateModels: List<DownloadableModel>
+        get() = prefs.getString(KEY_CANDIDATE_MODELS, null)
+            ?.let { runCatching { Json.decodeFromString<List<DownloadableModel>>(it) }.getOrNull() }
+            ?: ModelCatalog.defaultCandidates
+        set(value) = prefs.edit().putString(KEY_CANDIDATE_MODELS, Json.encodeToString(value)).apply()
+
+    // Il catalogo "Consigliati" mostrato in Modelli LLM: i due fissi
+    // (mai toccati da import/reset) più i candidati, di fabbrica o
+    // importati.
+    val activeModels: List<DownloadableModel> get() = ModelCatalog.protected + candidateModels
+
+    fun resetCandidatesToDefaults() {
+        prefs.edit().remove(KEY_CANDIDATE_MODELS).apply()
+    }
+
     private companion object {
         const val PREFS_NAME = "model_preferences"
         const val KEY_SELECTED_MODEL = "selected_model_id"
         const val KEY_HF_TOKEN = "hugging_face_token"
         const val KEY_CUSTOM_MODELS = "custom_models"
+        const val KEY_CANDIDATE_MODELS = "candidate_models"
     }
 }

@@ -89,6 +89,16 @@ fun ModelsScreen(
     addModelError: String?,
     isImportingFromStorage: Boolean,
     onPickFromStorage: (name: String) -> Unit,
+    // Catalogo GGUF come file JSON scambiabile (28/07/2026, Michele: "un
+    // file json che contiene i link... così possiamo creare dei file con
+    // i vari modelli da provare"): esporta/importa la lista intera di
+    // "Consigliati" (esclusi i due fissi Gemma 4 E4B/E2B), più un
+    // ripristino ai quattro di fabbrica.
+    catalogError: String?,
+    isImportingCatalog: Boolean,
+    onExportCatalog: () -> Unit,
+    onImportCatalog: () -> Unit,
+    onResetCatalog: () -> Unit,
     onMaxTokensChange: (String) -> Unit,
     onTemperatureChange: (Float) -> Unit,
     onTemperatureCommit: () -> Unit,
@@ -140,6 +150,14 @@ fun ModelsScreen(
                     onRemove = null,
                 )
             }
+
+            CatalogManagementCard(
+                error = catalogError,
+                isImporting = isImportingCatalog,
+                onExport = onExportCatalog,
+                onImport = onImportCatalog,
+                onReset = onResetCatalog,
+            )
 
             if (customModels.isNotEmpty()) {
                 Text("I tuoi modelli", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
@@ -332,6 +350,43 @@ private fun ModelCard(
     }
 }
 
+// Catalogo "Consigliati" come file JSON scambiabile (28/07/2026,
+// Michele: "un file json che contiene i link... così possiamo creare dei
+// file con i vari modelli da provare"). I due modelli fissi (Gemma 4
+// E4B/E2B) non sono in questo file: importare o ripristinare non li
+// tocca mai.
+@Composable
+private fun CatalogManagementCard(
+    error: String?,
+    isImporting: Boolean,
+    onExport: () -> Unit,
+    onImport: () -> Unit,
+    onReset: () -> Unit,
+) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Catalogo modelli", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                "I \"Consigliati\" sopra (esclusi Gemma 4 E4B/E2B) si possono esportare in un " +
+                    "file, o sostituire importandone uno — comodo per creare set diversi di " +
+                    "modelli da provare senza modificare l'app.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onExport, enabled = !isImporting) { Text("Esporta") }
+                OutlinedButton(onClick = onImport, enabled = !isImporting) {
+                    Text(if (isImporting) "Importazione…" else "Importa")
+                }
+            }
+            TextButton(onClick = onReset, enabled = !isImporting) { Text("Ripristina predefiniti") }
+            error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
 @Composable
 private fun AddCustomModelCard(
     error: String?,
@@ -460,6 +515,11 @@ private fun ModelsScreenPreview() {
             addModelError = null,
             isImportingFromStorage = false,
             onPickFromStorage = {},
+            catalogError = null,
+            isImportingCatalog = false,
+            onExportCatalog = {},
+            onImportCatalog = {},
+            onResetCatalog = {},
             onMaxTokensChange = {},
             onTemperatureChange = {},
             onTemperatureCommit = {},

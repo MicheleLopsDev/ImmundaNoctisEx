@@ -32,6 +32,9 @@ import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 // I due formati che i due motori sanno caricare (REGOLE tecniche in
 // DIARIO.md): un modello .task di MediaPipe o qualunque altra cosa
@@ -60,13 +63,21 @@ fun ModelsRoute(
     var selectedModelId by remember { mutableStateOf(preferences.selectedModelId) }
     var token by remember { mutableStateOf(preferences.huggingFaceToken.orEmpty()) }
     var customModels by remember { mutableStateOf(preferences.customModels) }
+    // Catalogo "Consigliati" (28/07/2026, Michele: "un file json con i
+    // link... così possiamo creare dei file con i vari modelli da
+    // provare"): i due fissi (ModelCatalog.protected) più i candidati,
+    // di fabbrica o importati da un file — sostituisce ModelCatalog.all
+    // com'era usato qui prima, che non vedeva mai un catalogo importato.
+    var catalogModels by remember { mutableStateOf(preferences.activeModels) }
     var downloadedIds by remember {
         mutableStateOf(
-            (ModelCatalog.all + customModels).filter { preferences.isDownloaded(it) }.map { it.id }.toSet(),
+            (catalogModels + customModels).filter { preferences.isDownloaded(it) }.map { it.id }.toSet(),
         )
     }
     var addModelError by remember { mutableStateOf<String?>(null) }
     var isImportingFromStorage by remember { mutableStateOf(false) }
+    var catalogError by remember { mutableStateOf<String?>(null) }
+    var isImportingCatalog by remember { mutableStateOf(false) }
     // Quale modello e' DAVVERO nel motore ora (non solo selezionato):
     // null finche' non si e' ancora giocata/attivata una scena in questa
     // esecuzione dell'app.
@@ -94,6 +105,43 @@ fun ModelsRoute(
                 downloadedIds = downloadedIds + model.id
             }.onFailure { error ->
                 addModelError = error.message ?: "Importazione non riuscita."
+            }
+        }
+    }
+
+    // Import dell'INTERO catalogo GGUF (JSON): sostituisce
+    // ModelPreferences.candidateModels tutto insieme, non si somma un
+    // modello alla volta come customModels sopra.
+    val catalogImportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        isImportingCatalog = true
+        catalogError = null
+        scope.launch {
+            val result = importCatalogFromUri(context, uri)
+            isImportingCatalog = false
+            result.onSuccess { imported ->
+                preferences.candidateModels = imported
+                catalogModels = preferences.activeModels
+                downloadedIds = (catalogModels + customModels).filter { preferences.isDownloaded(it) }
+                    .map { it.id }.toSet()
+            }.onFailure { error ->
+                catalogError = error.message ?: "Importazione del catalogo non riuscita."
+            }
+        }
+    }
+
+    // Export: JSON dei soli candidati (non i due fissi, che non
+    // cambiano mai da un file all'altro).
+    val catalogExportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json"),
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        catalogError = null
+        scope.launch {
+            exportCatalogToUri(context, uri, preferences.candidateModels).onFailure { error ->
+                catalogError = error.message ?: "Esportazione non riuscita."
             }
         }
     }
@@ -130,7 +178,7 @@ fun ModelsRoute(
     // (bug 22/07: senza questo un download troncato/sbagliato restava
     // segnato "già scaricato" per sempre).
     if (downloadState is DownloadUiState.Done) {
-        val justDownloaded = (ModelCatalog.all + customModels).firstOrNull { it.id == selectedModelId }
+        val justDownloaded = (catalogModels + customModels).firstOrNull { it.id == selectedModelId }
         if (justDownloaded != null && justDownloaded.custom && justDownloaded.sizeBytes <= 0L) {
             val realSize = preferences.fileFor(justDownloaded).length()
             if (realSize > 0L) {
@@ -138,12 +186,12 @@ fun ModelsRoute(
                 customModels = preferences.customModels
             }
         }
-        downloadedIds = (ModelCatalog.all + customModels).filter { preferences.isDownloaded(it) }.map { it.id }.toSet()
+        downloadedIds = (catalogModels + customModels).filter { preferences.isDownloaded(it) }.map { it.id }.toSet()
     }
 
     ModelsScreen(
         isDarkTheme = isDarkTheme,
-        models = ModelCatalog.all,
+        models = catalogModels,
         customModels = customModels,
         selectedModelId = selectedModelId,
         downloadedIds = downloadedIds,
@@ -221,7 +269,21 @@ fun ModelsRoute(
             addModelError = null
             filePickerLauncher.launch(arrayOf("*/*"))
         },
-        storageInfo = storageInfo(downloadedIds.size, occupiedBytes(container, customModels)),
+        storageInfo = storageInfo(downloadedIds.size, occupiedBytes(container, catalogModels + customModels)),
+        catalogError = catalogError,
+        isImportingCatalog = isImportingCatalog,
+        onExportCatalog = { catalogExportLauncher.launch("modelli-immundanoctisex.json") },
+        onImportCatalog = {
+            catalogError = null
+            catalogImportLauncher.launch(arrayOf("application/json"))
+        },
+        onResetCatalog = {
+            preferences.resetCandidatesToDefaults()
+            catalogModels = preferences.activeModels
+            catalogError = null
+            downloadedIds = (catalogModels + customModels).filter { preferences.isDownloaded(it) }
+                .map { it.id }.toSet()
+        },
         advancedSettings = advanced,
         // I campi numerici accettano solo cifre e si salvano solo quando
         // il valore è sensato: un campo vuoto durante la digitazione non
@@ -261,8 +323,8 @@ fun ModelsRoute(
     )
 }
 
-private fun occupiedBytes(container: AppContainer, customModels: List<DownloadableModel>): Long =
-    (ModelCatalog.all + customModels)
+private fun occupiedBytes(container: AppContainer, allModels: List<DownloadableModel>): Long =
+    allModels
         .map { container.modelPreferences.fileFor(it) }
         .filter { it.exists() }
         .sumOf { it.length() }
@@ -348,6 +410,44 @@ private suspend fun importModelFromUri(
         // Ora la dimensione è nota per davvero: è quella copiata, non
         // una stima. isDownloaded() la userà per il controllo integrità.
         model.copy(sizeBytes = destination.length())
+    }
+}
+
+// Catalogo GGUF sperimentale come JSON scambiabile (28/07/2026, Michele:
+// "un file json che contiene i link dei vari modelli... così possiamo
+// creare dei file con i vari modelli da provare"). Un id che collide con
+// uno dei due modelli fissi (ModelCatalog.protected) viene scartato: quei
+// due non si toccano mai da un import, altrimenti finiremmo con due card
+// per lo stesso Gemma 4 E4B/E2B.
+private val catalogJson = Json { prettyPrint = true }
+
+private suspend fun importCatalogFromUri(
+    context: Context,
+    uri: Uri,
+): Result<List<DownloadableModel>> = withContext(Dispatchers.IO) {
+    runCatching {
+        val text = context.contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
+            ?: throw IllegalStateException("Impossibile leggere il file scelto.")
+        val parsed = catalogJson.decodeFromString<List<DownloadableModel>>(text)
+        if (parsed.isEmpty()) throw IllegalArgumentException("Il file non contiene modelli.")
+        val protectedIds = ModelCatalog.protected.map { it.id }.toSet()
+        val cleaned = parsed.filterNot { it.id in protectedIds }
+        cleaned.firstOrNull { it.id.isBlank() || it.url.isBlank() || it.fileName.isBlank() }?.let {
+            throw IllegalArgumentException("Una voce del file non ha id, url o nome file.")
+        }
+        cleaned
+    }
+}
+
+private suspend fun exportCatalogToUri(
+    context: Context,
+    uri: Uri,
+    candidates: List<DownloadableModel>,
+): Result<Unit> = withContext(Dispatchers.IO) {
+    runCatching {
+        context.contentResolver.openOutputStream(uri)?.use { output ->
+            output.write(catalogJson.encodeToString(candidates).toByteArray())
+        } ?: throw IllegalStateException("Impossibile scrivere il file scelto.")
     }
 }
 
