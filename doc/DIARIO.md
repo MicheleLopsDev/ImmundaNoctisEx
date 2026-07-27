@@ -447,6 +447,70 @@ che il backend è disponibile, non che venga usato efficacemente.
 Prossimo passo naturale: installare l'APK e attivare "Gemma 3 12B
 Heretic — llama.cpp nativo" da Modelli LLM.
 
+**Primo test reale su device, GPU confermata ma più lenta della CPU
+(27/07, stesso giorno)**: Michele attiva "Gemma 3 12B Heretic —
+llama.cpp nativo" e gioca la Scena 1. Il log del driver conferma tutto:
+`ggml_opencl: device: 'QUALCOMM Adreno(TM) 830'`,
+`load_tensors: offloaded 49/49 layers to GPU`, pesi e KV-cache su
+buffer OpenCL, `n_ctx=10240` (il fix di prima funziona). **Ma
+`MISURA` dice velocita~0,7 token/s, primoToken=175,81s** — più lento
+di Llamatik CPU-only (1,5 token/s). Ipotesi più probabile: il modello
+è quantizzato IQ4_XS, mentre `GGML_OPENCL_USE_ADRENO_KERNELS` ottimizza
+soprattutto Q4_0 (lo stesso formato dei modelli Google "ufficiali per
+Adreno") — IQ4_XS probabilmente gira su un percorso OpenCL generico,
+non ottimizzato. Prossimo test naturale: **provare lo stesso motore
+con un modello Q4_0** (già in catalogo: Gemma 3 4B ufficiale Google).
+
+**Tre bug trovati provando il secondo modello, in sequenza, stesso
+giorno**:
+1. **Voce di catalogo sbagliata**: `GEMMA_3_4B_GOOGLE_GGUF` (e le due
+   Abliterated) erano nate PRIMA di questo branch con
+   `engineType = LLAMA_CPP` (Llamatik) — su questo branch Llamatik è
+   `compileOnly`, non impacchettato: attivarle falliva in silenzio
+   (`NoClassDefFoundError` catturato da `runCatching`, nessun log).
+   Trovato aggiungendo log a `onActivate`/`activateModel`/
+   `switchToEngine` (Michele: "premo Attiva e non parte nulla") — il
+   log mostrava lo switch verso `LLAMA_CPP`, non `LLAMA_CPP_NATIVE`.
+   Corretto: tutte e tre ora usano `LLAMA_CPP_NATIVE`.
+2. **`LLamaAndroid.isLoad` blocca il secondo caricamento**: singleton
+   nativo, non un oggetto per istanza — una volta caricato un primo
+   modello, `if (!isLoad)` impediva silenziosamente qualunque
+   caricamento successivo. `NativeLlamaCppEngine.load()` non lo
+   scaricava mai prima di caricarne un altro (a differenza di
+   `LlamaCppEngine`/Llamatik, che lo fa). Corretto aggiungendo
+   `llamaAndroid.unload()` prima del nuovo `load()`.
+3. **Tetto di allocazione OpenCL dell'Adreno**: col bug 2 risolto, il
+   Q4_0 4B falliva comunque:
+   `ggml_backend_opencl_buffer_type_alloc_buffer: failed to allocate
+   1280.00 MiB` — il driver Adreno ha un tetto di allocazione SINGOLA
+   di 1024 MiB (`max mem alloc size`, già visto nel log del 12B). Con
+   `n_gpu_layers=999` (tutti i 34 livelli) il blocco dei pesi supera
+   il tetto. **Non un bug nostro**: limite del driver/backend.
+
+**`n_gpu_layers` reso configurabile, offload parziale come
+soluzione**: parametrizzato da Kotlin (`new_context`/`load_model`
+prendevano valori fissi, ora arrivano da `NativeLlamaCppEngine`).
+Primo tentativo: 16 livelli su 34 invece di tutti. **Risultato,
+confermato da Michele**: carica, gira, **velocita~8,5 token/s,
+primoToken=17,14s** — il risultato migliore di tutto l'esperimento,
+più veloce anche di LiteRT-LM (osservazione diretta di Michele). Prezzo
+da pagare: qualità più bassa del 12B (atteso, è un 4B) — visibile anche
+nel formato, non solo nella prosa: il log mostra due righe `CHOICE`
+invece di una (`CHOICE|2|1|...` e una seconda, `CHOICE|1|1|...`,
+inventata e non richiesta dalla scena sorgente).
+
+**Quadro completo dell'esperimento GPU Adreno a questo punto**:
+| Modello | Quant | n_gpu_layers | Esito |
+|---|---|---|---|
+| Gemma 3 12B Heretic | IQ4_XS | 999 (tutti) | Carica, gira, ma 0,7 tok/s — più lento della CPU |
+| Gemma 3 4B Google | Q4_0 | 999 (tutti) | Non carica: tetto di allocazione OpenCL superato |
+| Gemma 3 4B Google | Q4_0 | 16 (parziale) | Carica, **8,5 tok/s** — il migliore, ma qualità da 4B |
+
+Non ancora provato: offload parziale sul 12B (probabile che non aiuti,
+il collo di bottiglia lì sembra il kernel IQ4_XS non ottimizzato, non
+l'allocazione), o un Q4_0 di taglia più vicina al 12B se esiste.
+Decisione ancora aperta con Michele su quale direzione seguire.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
