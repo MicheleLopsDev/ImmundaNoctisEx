@@ -161,7 +161,40 @@ permesso `MANAGE_EXTERNAL_STORAGE` dichiarato, giustamente). Sostituito
 con lo stesso pattern SAF già usato per l'import di modelli `.litertlm`
 personalizzati: selettore file di sistema -> copia nella cache
 dell'app -> Llamatik legge quel path locale. Compilazione e suite
-riverificate verdi. **Ancora da provare sul device.**
+riverificate verdi.
+
+**Primo test di Michele sul device**: motore piccolo (llama-3.2-1b,
+770MB) "funziona bene"; il grande (Gemma-4-E4B-Uncensored, 4,7GB)
+"lento però funziona". Dal log: `gpu_layers=0` — il parametro mancava,
+default a CPU pura, spiega la lentezza del modello grande (sembrava
+bloccato, non lo era). **Fix**: `gpuLayers = 99` (convenzione comune
+in llama.cpp, scarica tutti i livelli sulla GPU). Osservazione ancora
+aperta: `maxTokens = 200` impostato ma il log mostra
+`max_new_tokens=2048` — non torna, da verificare se persiste.
+
+**Motore GGUF vero e selezionabile (27/07, stesso giorno)**: Michele,
+visto che "se troviamo un buon modello per il testo abbiamo risolto":
+"a questo punto introdurrei la possibilità di caricare i gguf" — data
+la scelta tra "solo migliorare lo spike" e "motore vero e
+selezionabile", ha scelto il secondo: serve giudicare la qualità di
+scrittura su SCENE VERE, non su una frase fissa.
+
+`LlamaCppEngine` implementa `InferenceEngine` su Llamatik, stesso
+schema di `LiteRtLmEngine` (degrada sempre, riga MISURA nei log,
+`gpuLayers=99` fisso dal bug trovato sopra). `AppContainer` ora tiene
+DUE motori e ne espone uno solo alla volta in base a
+`DownloadableModel.engineType` (nuovo campo, default `LITERT_LM` —
+non rompe i modelli custom già salvati): un modello alla volta in
+memoria, cambiare motore scarica quello in uso, stesso principio del
+cambio modello a caldo del 22/07. Il motore si riconosce
+dall'estensione del file (`.gguf` vs `.litertlm`), sia importando da
+storage sia da un link incollato — nessuna scelta manuale in più nel
+form. `LlamaCppSpike.kt`/`GgufSpikeCard.kt` rimossi: hanno fatto il
+loro lavoro (confermato che Llamatik carica e genera, trovato il bug
+della GPU), ora superati — un modello GGUF importato si attiva e si
+gioca come qualunque altro modello in Modelli LLM. Compilazione e
+suite riverificate verdi. **Ancora da provare sul device con una
+scena vera.**
 
 ---
 
