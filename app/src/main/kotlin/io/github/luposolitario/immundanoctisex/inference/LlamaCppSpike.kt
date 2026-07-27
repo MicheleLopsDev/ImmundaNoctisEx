@@ -30,6 +30,12 @@ object LlamaCppSpike {
             useMmap = true,
             flashAttention = false,
             batchSize = 512,
+            // BUG trovato dal primo test di Michele (27/07, log del
+            // device): senza questo parametro il default è 0 = tutto su
+            // CPU, mai la GPU Adreno — spiega perché il modello grande
+            // sembrava lento/bloccato. 99 (convenzione comune in
+            // llama.cpp) = scarica tutti i livelli sulla GPU.
+            gpuLayers = 99,
         )
         LlamaBridge.generate(STATIC_PROMPT)
     }
