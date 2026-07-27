@@ -22,6 +22,12 @@ val localProperties = Properties().apply {
 
 val buildLlama = localProperties.getProperty("buildLlama")?.toBoolean() ?: false
 val llamaCppDir = localProperties.getProperty("llamaCppDir")
+// Necessario perché GGML_OPENCL_EMBED_KERNELS incorpora i kernel .cl via
+// script Python. Opzionale: se il python di sistema è su PATH, CMake lo
+// trova da solo. Su Windows con Python installato dal Microsoft Store,
+// l'alias in WindowsApps non viene rilevato da find_package(Python3) —
+// va indicato esplicitamente qui.
+val pythonExecutable = localProperties.getProperty("pythonExecutable")
 
 android {
     namespace = "android.llama.cpp"
@@ -54,6 +60,10 @@ android {
                     arguments += "-DGGML_OPENCL_F16=1"
                     arguments += "-DGGML_OPENCL_EMBED_KERNELS=ON"
                     arguments += "-DGGML_OPENCL_USE_ADRENO_KERNELS=ON"
+
+                    if (!pythonExecutable.isNullOrBlank()) {
+                        arguments += "-DPython3_EXECUTABLE=$pythonExecutable"
+                    }
                 }
             }
         }
