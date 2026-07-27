@@ -239,6 +239,47 @@ Michele nel frattempo valuta anche modelli italiani su PC via LM
 Studio (Cerbero-7B su base Mistral, LLaMAntino-3-ANITA-8B, Modello
 Italia 9B) prima di portarli sul device.
 
+**Prompt reale estratto per il confronto su LM Studio (27/07, stesso
+giorno)**: per dare a Michele il prompt ESATTO (non ricostruito a
+memoria) da incollare nei vari motori candidati, aggiunto un test
+usa-e-getta a `PromptBuilderTest` che stampa il prompt della Scena 1
+tramite un fallimento controllato, letto dal report JUnit, poi tolto
+con `git checkout --` (mai committato). Michele testa così più motori
+su PC (iterazione molto più rapida che flashare il telefono ogni
+volta) prima di scegliere cosa provare sul device.
+
+**Primo risultato scartato**: un motore ha prodotto
+`CHOICE|2015784396|progressive|Inizia la tua missione` — `scene_id`
+completamente inventato e la parola "progressive" al posto di un
+numero vero. Scartato: l'id deve corrispondere a una scena reale del
+grafo, non è negoziabile.
+
+**gemma-3-12b-it-ultra-uncensored-heretic (IQ4_XS) promosso a
+candidato buono (27/07, stesso giorno)**: prosa italiana fluente e
+atmosferica, formato perfetto (`--- TAGS ---` poi
+`CHOICE|2|1|Scendere nel cuore della città`, `scene_id` corretto).
+Unico difetto lieve: una frase in più non presente nel testo originale
+("l'eco di antiche battaglie dimenticate") — un'invenzione atmosferica
+molto più contenuta dei fallimenti precedenti. Prestazioni su PC
+bassissime (1,29 token/s) ma irrilevanti in questa fase: LM Studio su
+quel PC non ha lo scarico GPU corretto per questo test, la velocità
+vera si misura solo sul device una volta scelto il modello.
+
+Michele, visto il buon esito: "potremmo metterlo come motore gguf di
+default... superiore al 4 poiché questo fa solo testo e a noi non
+interessa il multimodale" — aggiunta la voce
+`GEMMA_3_12B_HERETIC_GGUF` in `ModelCatalog.kt`
+(`engineType = LLAMA_CPP`, stessa quantizzazione IQ4_XS già validata,
+non una "migliore" mai provata), dimensione byte-precisa verificata
+con richiesta HEAD (6.606.262.336 byte), stesso metodo di verifica già
+in uso per gli altri modelli del catalogo. **Scelta fatta**: aggiunta
+come opzione consigliata accanto a Gemma 4 E4B, SENZA cambiare
+`ModelCatalog.default` (resta Gemma 4 E4B/LiteRT-LM) — cambiare il
+motore di default per ogni installazione nuova è una decisione più
+grande della sola preferenza di Michele in questa fase di test, da
+confermare esplicitamente se la vuole. Compilazione e suite
+riverificate verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
