@@ -304,6 +304,28 @@ default") e ha chiesto di aggiungere anche un Gemma 3 4B "di serie"
    12B: 7.300.778.656 byte). `ModelCatalog.default` invariato (Gemma 4
    E4B/LiteRT-LM). Compilazione e suite riverificate verdi.
 
+**Streaming GGUF riabilitato (27/07, stesso giorno)**: Michele, notando
+l'attesa più lunga rispetto a LiteRT-LM: "si puo riabilitare la parte
+che faceva lo streaming... non capisco perché su literm funziona e su
+gguf no?". Chiarito: non è un limite del motore GGUF, era il bug UTF-8
+di Llamatik 1.7.0 (vedi voce del crash più sopra) — `LiteRtLmEngine`
+non l'ha mai avuto perché usa una libreria diversa
+(`com.google.ai.edge.litertlm`), non per un merito del motore in sé.
+Controllato il changelog ufficiale di Llamatik: **1.9.1** dichiara
+"Solved generateStream emoji crash" — stessa famiglia di bug (un
+carattere UTF-8 multi-byte tagliato a metà tra due delta dello
+streaming), anche se il changelog parla di emoji e non esplicitamente
+di accenti italiani. Alzata la dipendenza da 1.7.0 a 1.9.1 in
+`build.gradle.kts`, `LlamaCppEngine.generate()` tornato da `generate()`
+bloccante a `generateStream()`/`GenStream` via `callbackFlow` (stesso
+codice di prima del fix del 27/07 mattina, ripreso da
+`git show 20e6c60`). Compilazione e suite riverificate verdi. **Da
+confermare sul device**: nessuna verifica nostra che 1.9.1 risolva
+davvero il caso italiano (solo il changelog lo lascia intendere) — se
+il crash si ripresenta, si torna alla `generate()` bloccante senza
+altro codice da riscrivere (l'unica differenza è quale metodo di
+Llamatik viene chiamato).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
