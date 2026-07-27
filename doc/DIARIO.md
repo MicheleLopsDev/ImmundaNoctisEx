@@ -511,6 +511,39 @@ il collo di bottiglia lì sembra il kernel IQ4_XS non ottimizzato, non
 l'allocazione), o un Q4_0 di taglia più vicina al 12B se esiste.
 Decisione ancora aperta con Michele su quale direzione seguire.
 
+**Catalogo pulito di nuovo, poi ampliato con Q4_0 4B (27-28/07,
+sessione lunga)**: dopo i tre bug sopra, Michele ha chiesto di
+eliminare i modelli ormai superati dal catalogo (rimasti solo i due
+LiteRT-LM base + i due candidati nativi attivi) e poi di aggiungere
+due voci Q4_0 vere a 4B, "quelle ottimizzate Adreno se possibile":
+**Gemma 3 4B Heretic Q4_0** (mradermacher, abliterated Extreme, unico
+uncensored con Q4_0 vero trovato a questa taglia) e **Gemma 4 E4B
+Q4_0** (ufficiale Google — nessuna variante uncensored ha ancora un
+Q4_0 vero per Gemma 4 E4B, solo K-quant). Sei modelli nel catalogo ora.
+
+**Regola 7 nel prompt + temperatura più bassa (stesso giorno)**:
+Michele, per contenere le parole inventate (Gemma 4B talvolta scrive
+parole inesistenti, es. "bruffi") — aggiunta una regola esplicita a
+`PromptFragments.constraintText` ("usa solo parole reali della lingua
+di destinazione") in `PromptFragments.kt` E `content/config.json`
+(tenuti allineati), e `InferenceConfig.DEFAULT_TEMPERATURE` abbassata
+da 0,7 a 0,5 — non tocca chi ha già un valore personale salvato.
+
+**Catalogo esportabile/importabile come JSON (28/07/2026, Michele: "un
+file json che contiene i link dei vari modelli... così possiamo creare
+dei file con i vari modelli da provare")**: `ModelPreferences
+.candidateModels` (JSON in SharedPreferences, stesso principio di
+`customModels` ma per l'INTERO elenco "Consigliati" invece che un
+modello alla volta). `ModelCatalog` diviso in `protected` (Gemma 4
+E4B/E2B, sempre presenti, MAI toccati da un import) e
+`defaultCandidates` (i quattro GGUF attuali, il punto di ritorno di
+"Ripristina predefiniti"). Importare un file SOSTITUISCE l'intero set
+di candidati, non si somma — scelta esplicita di Michele, per cambiare
+set di prova in un tocco. Nuova card "Catalogo modelli" in Modelli LLM
+(Esporta/Importa/Ripristina), stesso meccanismo SAF
+(CreateDocument/OpenDocument) già in uso per l'import di modelli
+singoli. Compilazione e suite verdi, installato sul device.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
