@@ -93,7 +93,16 @@ class LLamaAndroid private constructor() { // Costruttore privato per forzare il
                 val context = new_context(model, nCtx)
                 if (context == 0L) throw IllegalStateException("new_context() failed")
 
-                val batch = new_batch(512, 0, 1)
+                // BUG (28/07/2026, crash SIGABRT in common_batch_add su scena
+                // lunga): capacità fissa a 512 token ereditata da v1. Un
+                // prompt narrativo reale (istruzioni + scena + continuazioni)
+                // supera facilmente i 512 token — completion_init prova a
+                // inserirli tutti in un colpo solo nello stesso batch, lo
+                // slot oltre la capacità è nullo e common_batch_add abortisce.
+                // La capacità deve coprire l'intero prompt in un colpo solo:
+                // usiamo nCtx, già lo stesso limite che completion_init
+                // controlla per n_kv_req.
+                val batch = new_batch(nCtx, 0, 1)
                 if (batch == 0L) throw IllegalStateException("new_batch() failed")
 
                 // Adesso usa i parametri passati dall'esterno!

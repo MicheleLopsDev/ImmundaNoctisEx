@@ -544,6 +544,36 @@ set di prova in un tocco. Nuova card "Catalogo modelli" in Modelli LLM
 (CreateDocument/OpenDocument) già in uso per l'import di modelli
 singoli. Compilazione e suite verdi, installato sul device.
 
+**Bug del batch fisso a 512 token (28/07/2026)**: primo test di una
+scena narrata vera (non un prompt corto di prova) su Gemma 3 12B
+Heretic nativo con offload parziale — crash secco, SIGABRT nel thread
+nativo. Traccia: abort in `common_batch_add` (libllama-common.so),
+chiamato da `completion_init` (libllama-android.cpp). Causa: il batch
+nativo per il prompt veniva allocato una volta sola in `LLamaAndroid
+.load()` con capacità fissa `new_batch(512, 0, 1)` — eredità diretta
+del porting da v1, mai messa in discussione perché i test precedenti
+avevano sempre prompt più corti. Un prompt narrativo reale (istruzioni
++ scena + continuazioni) tokenizza facilmente sopra i 512 (in questo
+caso 536): `completion_init` prova a inserirli tutti in un solo
+`llama_decode`, lo slot oltre la capacità del batch è nullo,
+`common_batch_add` abortisce. Corretto legando la capacità del batch a
+`nCtx` (già configurabile, non più fissa a 2048 come in v1) invece del
+512 fisso — qualunque prompt fino alla dimensione del contesto ora
+entra in un solo batch, coerente con il controllo `n_kv_req > n_ctx`
+già presente in `completion_init`.
+
+**Chiusura del branch sperimentale (28/07/2026)**: Michele conclude il
+giro di prove su llama.cpp/OpenCL Adreno — per ora resta su **Gemma 4
+E4B versione LiteRT-LM** (il motore di base, non i candidati GGUF
+nativi), riservandosi di riprendere le prove sui vari modelli GGUF più
+avanti. Il lavoro di questo branch (motore `:llama` nativo con backend
+OpenCL Adreno, catalogo GGUF esportabile, regola anti-parole-inventate,
+temperatura più bassa) viene considerato definitivo e riportato in
+`develop` con un merge — non più un esperimento isolato ma parte del
+client. Il tag `gguf-cpu-baseline-27-07-2026` resta come punto di
+ritorno storico se in futuro servisse confrontare "prima"/"dopo"
+l'introduzione del motore nativo.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
