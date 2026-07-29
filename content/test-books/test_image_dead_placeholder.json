@@ -12,7 +12,7 @@
             "sceneType": "START",
             "genre": "FANTASY",
             "toneHints": ["quiet", "warm"],
-            "backgroundImage": "tavern_old",
+            "backgroundImage": "static:tavern_old",
             "narrativeText": "You push through the tavern door into noise and firelight. Patrons crowd the long tables, mugs thumping wood in time with a fiddler's tune, while the innkeeper shouts orders toward the kitchen.",
             "choices": [
                 {

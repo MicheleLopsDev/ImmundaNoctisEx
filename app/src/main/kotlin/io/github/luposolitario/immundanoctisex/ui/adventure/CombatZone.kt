@@ -1,6 +1,5 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,10 +14,10 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
 import io.github.luposolitario.immundanoctisex.util.DiceColor
@@ -89,12 +88,15 @@ fun CombatActiveZone(state: AdventureState, diceColor: DiceColor = DiceColor.GRA
 // Dichiarato dall'autore (Combat.enemyImage): stessa illustrazione a piena
 // larghezza usata per Scene.npcImage — un ritratto piccolo "si perdeva"
 // (Michele 22/07/2026). Se assente o non riconosciuto, niente immagine.
+// Stesso slot usato anche per un url: (29/07/2026, vedi CatalogOrUrlImage).
 @Composable
 private fun EnemyPortrait(enemyImage: String?) {
-    enemyImageRes(enemyImage)?.let { res ->
-        Image(
-            painter = painterResource(id = res),
-            contentDescription = null,
+    val staticRes = enemyImageRes(enemyImage)
+    val isUrl = enemyImage?.let(ImageReference::parse) is ImageReference.Url
+    if (staticRes != null || isUrl) {
+        CatalogOrUrlImage(
+            name = enemyImage,
+            staticRes = staticRes,
             contentScale = ContentScale.Crop,
             // 120dp, stessa misura di Scene.npcImage (Michele 22/07/2026:
             // 100 -> 110 -> 120, "un altro 10% e ci siamo").

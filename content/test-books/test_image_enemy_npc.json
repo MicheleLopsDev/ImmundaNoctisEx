@@ -12,7 +12,7 @@
             "sceneType": "START",
             "genre": "FANTASY",
             "toneHints": ["calm", "curious"],
-            "npcImage": "beast_stallion",
+            "npcImage": "static:beast_stallion",
             "narrativeText": "A wild stallion grazes at the edge of the meadow, ears flicking toward you but showing no fear. It watches with calm, intelligent eyes as you approach, in no hurry to run.",
             "choices": [
                 {
@@ -27,7 +27,7 @@
             "sceneType": "TRANSITION",
             "genre": "FANTASY",
             "toneHints": ["mysterious"],
-            "npcImage": "npc_traveler",
+            "npcImage": "static:npc_traveler",
             "narrativeText": "A hooded traveler sits at the crossroads, a small fire burning low beside them. They look up as you draw near, neither friend nor threat yet decided in their eyes. Somewhere beyond the trees, a low howling drifts on the wind.",
             "choices": [
                 {
@@ -65,7 +65,7 @@
             "choices": [],
             "combat": {
                 "enemyName": "Wolf Pack",
-                "enemyImage": "beast_wolves",
+                "enemyImage": "static:beast_wolves",
                 "enemyCombatSkill": 15,
                 "enemyEndurance": 20,
                 "winSceneId": "5",

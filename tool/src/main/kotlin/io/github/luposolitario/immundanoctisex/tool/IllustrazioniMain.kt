@@ -1,6 +1,7 @@
 package io.github.luposolitario.immundanoctisex.tool
 
 import io.github.luposolitario.immundanoctisex.tool.etl.ProjectAonHtmlParser
+import io.github.luposolitario.immundanoctisex.tool.etl.illustrationUrl
 import java.io.File
 import kotlin.system.exitProcess
 
@@ -68,12 +69,11 @@ fun runIllustrazioni(args: Array<String>) {
                 ?: "(scena non trovata)"
             val paddedId = marker.sceneId.toIntOrNull()?.let { "%03d".format(it) } ?: marker.sceneId
             val filename = "${id}_${paddedId}.jpg"
-            val romano = marker.label.removePrefix("[").removeSuffix("]").removePrefix("Illustration").trim()
-            val numero = romanoInArabo(romano)
-            val originale = if (numero != null) {
-                "[ill$numero.png](https://www.projectaon.org/en/xhtml/lw/$id/ill$numero.png)"
+            val url = illustrationUrl(id, marker)
+            val originale = if (url != null) {
+                "[${url.substringAfterLast('/')}]($url)"
             } else {
-                "(numero non riconosciuto: '$romano')"
+                "(numero non riconosciuto: '${marker.label}')"
             }
             sb.appendLine("| ${marker.sceneId} | $excerpt | $originale | `$filename` | [ ] |")
         }
@@ -87,29 +87,4 @@ fun runIllustrazioni(args: Array<String>) {
     outputFile.parentFile?.mkdirs()
     outputFile.writeText(sb.toString())
     println("Scritto $outputPath ($totale illustrazioni totali su ${libri.size} libri)")
-}
-
-// Il nome file reale su Project Aon (ill{N}.png) usa il numero arabo, ma
-// l'etichetta HTML riporta il numero romano — necessaria la conversione.
-// L'ordine dei numeri romani nel testo NON è un contatore affidabile:
-// almeno un libro (01fftd, sezione 267) ha una "Illustration XV" nel suo
-// indice ma nessun marcatore inline in questo file, quindi un contatore
-// avrebbe sfasato tutti i numeri successivi (XVI in poi).
-private val romanValues = listOf(
-    1000 to "M", 900 to "CM", 500 to "D", 400 to "CD",
-    100 to "C", 90 to "XC", 50 to "L", 40 to "XL",
-    10 to "X", 9 to "IX", 5 to "V", 4 to "IV", 1 to "I",
-)
-
-private fun romanoInArabo(romano: String): Int? {
-    if (romano.isEmpty()) return null
-    var resto = romano.uppercase()
-    var totale = 0
-    for ((valore, simbolo) in romanValues) {
-        while (resto.startsWith(simbolo)) {
-            totale += valore
-            resto = resto.removePrefix(simbolo)
-        }
-    }
-    return if (resto.isEmpty()) totale else null
 }

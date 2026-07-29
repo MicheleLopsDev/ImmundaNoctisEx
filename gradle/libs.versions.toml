@@ -11,6 +11,7 @@ workManager = "2.10.0"
 litertlm = "0.14.0"
 coroutines = "1.11.0"
 jsoup = "1.17.2"
+coil = "2.7.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -29,6 +30,7 @@ androidx-material-icons-extended = { group = "androidx.compose.material", name =
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

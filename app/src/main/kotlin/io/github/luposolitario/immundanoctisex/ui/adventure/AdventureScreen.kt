@@ -1,6 +1,7 @@
 package io.github.luposolitario.immundanoctisex.ui.adventure
 
 import androidx.compose.foundation.Image
+import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -257,11 +258,15 @@ fun AdventureScreen(
         // beast se sono amichevoli vanno sotto il testo"), non un
         // avversario — quello ha il suo posto in CombatEntryZone. Solo
         // quando l'autore l'ha dichiarato (Scene.npcImage); altrimenti
-        // niente, come prima di questa funzione.
-        npcImageRes(state.currentScene.npcImage)?.let { res ->
-            Image(
-                painter = painterResource(id = res),
-                contentDescription = null,
+        // niente, come prima di questa funzione. Stesso slot usato anche
+        // per un url: (29/07/2026): le illustrazioni di libri personali
+        // linkate invece che ricreate nel catalogo static:.
+        val npcImageName = state.currentScene.npcImage
+        val npcStaticRes = npcImageRes(npcImageName)
+        if (npcStaticRes != null || npcImageName?.let(ImageReference::parse) is ImageReference.Url) {
+            CatalogOrUrlImage(
+                name = npcImageName,
+                staticRes = npcStaticRes,
                 contentScale = ContentScale.Crop,
                 // 120dp (Michele 22/07/2026: 100 -> 110 -> "un altro 10% in
                 // più e ci siamo" — arrotondato da 121 per un numero pulito).

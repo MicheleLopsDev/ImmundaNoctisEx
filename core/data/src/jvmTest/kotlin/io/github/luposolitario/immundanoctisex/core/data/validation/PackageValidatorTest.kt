@@ -133,4 +133,50 @@ class PackageValidatorTest {
         assertTrue(result.errors.isEmpty())
         assertTrue(result.warnings.any { it.contains("ENDING") })
     }
+
+    @Test
+    fun unBackgroundImageSenzaPrefissoVieneRigettato() {
+        val start = scene("1", SceneType.START).copy(backgroundImage = "loc_tavern")
+
+        val result = PackageValidator.validate(manifest(listOf(start)))
+
+        assertTrue(result.errors.any { it.contains("backgroundImage") && it.contains("prefisso") })
+    }
+
+    @Test
+    fun unNpcImageStaticNonDaNeErroriNeAvvisi() {
+        val start = scene("1", SceneType.START).copy(npcImage = "static:npc_traveler")
+
+        val result = PackageValidator.validate(manifest(listOf(start)))
+
+        assertTrue(result.errors.isEmpty())
+        assertTrue(result.warnings.isEmpty())
+    }
+
+    @Test
+    fun unEnemyImageUrlHttpsDaSoloWarningNonErrore() {
+        val start = scene("1", SceneType.START).copy(
+            combat = Combat(
+                enemyName = "Test",
+                enemyImage = "url:https://example.invalid/illustrazione.png",
+                enemyCombatSkill = 10,
+                enemyEndurance = 10,
+                winSceneId = "1",
+            ),
+        )
+
+        val result = PackageValidator.validate(manifest(listOf(start)))
+
+        assertTrue(result.errors.isEmpty())
+        assertTrue(result.warnings.any { it.contains("combat.enemyImage") && it.contains("link esterno") })
+    }
+
+    @Test
+    fun unUrlConSchemaNonHttpVieneRigettato() {
+        val start = scene("1", SceneType.START).copy(backgroundImage = "url:file:///etc/passwd")
+
+        val result = PackageValidator.validate(manifest(listOf(start)))
+
+        assertTrue(result.errors.any { it.contains("schema non supportato") })
+    }
 }

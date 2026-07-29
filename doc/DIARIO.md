@@ -938,6 +938,86 @@ l'indice del libro) che il nostro parser non cattura, perché il file
 XHTML di questa specifica sezione non ha il `<div class="illustration">`
 inline — non è un bug del parser, è un'incongruenza nella fonte stessa.
 
+## Fase 6 — immagini `static:`/`url:` nello schema (29/07/2026)
+
+Discussione con Michele su come evitare di dover generare arte nuova per
+ogni scena dei libri personali: invece del solo catalogo bundle
+nell'APK, `backgroundImage`/`npcImage`/`combat.enemyImage` possono ora
+linkare direttamente un file esterno. Valutate insieme più forme
+(prefisso singolo `url:` con scheme interno `file`/`http` annidato,
+poi scartata: rende il grep "questo libro ha dipendenze esterne?" più
+complicato, non più semplice, e chiamare "url" un riferimento bundle
+è fuorviante) — scelto il prefisso doppio più semplice:
+
+- **`static:<id>`** — invariato nella sostanza, solo col prefisso
+  esplicito ora obbligatorio: ID del catalogo bundle nell'APK.
+- **`url:<http/https>`** — link diretto (solo http/https, mai
+  `file://`), per libri di uso personale mai distribuiti: niente arte
+  da creare, si linka l'illustrazione originale o una generata altrove.
+
+**Nuovo `ImageReference.kt`** (`core/data/model`, sealed class
+`Static`/`Url`, `parse()`) come unico punto di verità del prefisso, e
+**`ImageReferenceValidator.kt`** (nuovo validatore, agganciato a
+`PackageValidator`): errore se manca il prefisso o se un `url:` usa
+uno schema diverso da http/https, **avviso sempre** su ogni `url:`
+trovato (anche se il link è valido) — un libro con zero avvisi è
+garantito autosufficiente, pronto a essere distribuito.
+
+**Migrazione**: tutti i JSON esistenti con questi campi (`content/
+scenes.sample.json`, 4 fixture di `content/test-books/`, la fixture
+JVM di `core/data`) aggiornati con uno script perl mirato solo alle
+chiavi esatte (non tocca menzioni nei campi `description`). I 5 libri
+convertiti da Project Aon (`doc/LIBRI/*.json`) non dichiarano immagini
+affatto — nessuna migrazione necessaria lì.
+
+**Caricamento in UI**: `sceneBackgroundRes`/`npcImageRes`/
+`enemyImageRes` ora spogliano il prefisso `static:` prima del lookup
+nel catalogo esistente (un `url:` o un valore sconosciuto degradano
+sul default/null come sempre, nessuna rottura). Aggiunto **Coil**
+(`coil-compose` 2.7.0, permesso INTERNET già presente in
+AndroidManifest.xml per il download modelli) e un composable condiviso
+**`CatalogOrUrlImage.kt`**: `static:` passa da `painterResource` come
+prima, `url:` carica con `AsyncImage`. Riusato nei tre punti che già
+mostravano immagini a piena larghezza — sfondo scena
+(`AdventureBanner.kt`), ritratto NPC sotto il testo
+(`AdventureScreen.kt`), ritratto nemico (`CombatZone.kt`,
+`EnemyPortrait`) — stesso slot/posizionamento di sempre, quindi le
+illustrazioni linkate per i libri personali vanno **sotto il testo**
+come un NPC qualunque (coerente con la regola di Michele del
+22/07/2026). Non toccata l'iconcina piccola del nemico in
+`CombatDiaryPanel.kt` (36dp, degrada già bene sul placeholder
+generico) — resta un possibile seguito, non richiesto ora.
+
+Nuovi test: 5 in `PackageValidatorTest.kt` (prefisso mancante rigettato,
+`static:` pulito senza errori né avvisi, `url:` https dà solo avviso,
+schema non-http rigettato) e una fixture `content/test-books/
+test_image_url.json` con un `url:` su dominio `example.invalid` (RFC
+2606, garantito non risolvibile) — **deliberatamente non un link
+Project Aon vero**, perché questo file finisce negli asset dell'APK
+(`content/` è montato per intero) e un hotlink reale a Project Aon lì
+dentro sarebbe l'esatto errore che questa funzione vuole evitare. Per
+un test visivo con un'immagine che si carica per davvero, Michele può
+puntare temporaneamente e in locale (mai committato) un `npcImage` di
+`content/scenes.sample.json` a uno dei link in `doc/LIBRI/
+ILLUSTRAZIONI.md`. Suite di regressione (`core:data`/`core:engine`
+jvmTest, `app` compile+test, `tool` compile) tutta verde.
+
+Provato sul device (Michele): il caricamento `url:` funziona.
+**Arricchiti i 5 libri già convertiti** con gli url reali, non solo la
+fixture di test: `ConvertMain.kt` ora chiama una nuova
+`enrichWithIllustrationLinks()` che, dopo il parsing, valorizza
+`npcImage` con `url:https://www.projectaon.org/en/xhtml/lw/{libro}/
+ill{N}.png` su ogni scena che aveva un `IllustrationMarker` (mai
+sovrascrive un `npcImage` che il parser avesse già impostato — non
+succede mai oggi, ma resta la garanzia). La conversione romano→arabo
+(prima duplicata solo in `IllustrazioniMain.kt`) è stata estratta in
+`etl/IllustrationLinks.kt` (`romanoInArabo`, `illustrationUrl`),
+condivisa dai due comandi — una sola regola dietro entrambi i casi.
+Riconvertiti tutti e 5 i libri: stesso numero di scene di prima (362,
+368, 362, 364, 406), tutti **VALIDO**, con un avviso `url:` per ogni
+illustrazione arricchita (19+19+20+21+24 = 103, combacia col report).
+Suite di regressione rilanciata: tutta verde. Giornata chiusa qui.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

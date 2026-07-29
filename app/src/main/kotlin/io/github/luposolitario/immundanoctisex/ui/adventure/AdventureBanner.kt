@@ -58,9 +58,9 @@ fun AdventureBanner(
     backgroundImageName: String? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
-        Image(
-            painter = painterResource(id = sceneBackgroundRes(backgroundImageName)),
-            contentDescription = null,
+        CatalogOrUrlImage(
+            name = backgroundImageName,
+            staticRes = sceneBackgroundRes(backgroundImageName),
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxWidth().height(110.dp),
         )

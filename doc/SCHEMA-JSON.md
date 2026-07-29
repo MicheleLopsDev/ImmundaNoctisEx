@@ -133,8 +133,8 @@ Campi comuni a ogni scena, indipendentemente dal tipo:
 | `sceneType` | enum | sì | — | `START` \| `TRANSITION` \| `ENDING` (vedi §4.1). |
 | `genre` | stringa | sì | — | Genere per questa scena (di norma uguale a quello del manifest). |
 | `toneHints` | array di stringhe | no | `[]` | Tono specifico di questa scena (es. `["dark", "suspenseful"]`), passato al narratore. |
-| `backgroundImage` | stringa o `null` | no | `null` | ID canonico di un'immagine di ambientazione (catalogo chiuso, vedi §4.2). |
-| `npcImage` | stringa o `null` | no | `null` | ID canonico di un ritratto NPC (catalogo chiuso, vedi §4.2) — per incontri **non ostili**. Un NPC che poi combatte usa invece `combat.enemyImage` (§6), non questo campo. |
+| `backgroundImage` | stringa o `null` | no | `null` | Riferimento a un'immagine di ambientazione, con prefisso `static:`/`url:` (vedi §4.2). |
+| `npcImage` | stringa o `null` | no | `null` | Riferimento a un ritratto NPC, con prefisso `static:`/`url:` (vedi §4.2) — per incontri **non ostili**. Un NPC che poi combatte usa invece `combat.enemyImage` (§6), non questo campo. |
 | `locationName` | stringa o `null` | no | `null` | Nome del luogo mostrato in UI. **"Appiccicoso"**: se assente, la scena eredita il `locationName` dell'ultima scena che lo aveva dichiarato lungo il percorso del giocatore. Scrivilo solo quando il luogo CAMBIA davvero. |
 | `narrativeText` | stringa | sì | — | Il testo sorgente della scena, nella lingua di `manifest.language`. Il narratore lo riscrive/traduce per il giocatore — questo campo resta il testo originale, invariato. |
 | `choices` | array di `Choice` | no | `[]` | Scelte ordinarie (vedi §5.1). |
@@ -150,47 +150,42 @@ Campi comuni a ogni scena, indipendentemente dal tipo:
 - `ENDING` — chiude l'avventura. Nessuna scelta ha senso qui (`choices`
   vuoto), ma il campo non è vietato a livello di schema.
 
-### 4.2 Immagini: cataloghi chiusi, non testo libero
+### 4.2 Immagini: `static:` (catalogo bundle) o `url:` (link esterno)
 
-`backgroundImage`, `npcImage` e `combat.enemyImage` (§6) NON sono
-percorsi di file o testo libero: sono **ID presi da un catalogo chiuso
-già incluso nell'app** (`SceneImageCatalog.kt`, `NpcImageCatalog.kt`,
-`EnemyImageCatalog.kt`). Un ID che non è nel catalogo **non causa un
-errore**: semplicemente non compare nessuna immagine (degrado
-silenzioso, il gioco non si blocca mai).
+`backgroundImage`, `npcImage` e `combat.enemyImage` (§6) non sono ID
+nudi né testo libero: portano **sempre** uno dei due prefissi
+(29/07/2026, vedi `ImageReference.kt` in `core/data`):
 
-Un sottoinsieme dei location id esistenti oggi (per farsi un'idea —
-l'elenco completo, con la descrizione usata anche per farli scegliere
-a Gemma, è in `SceneImageCatalog.kt`):
+- **`static:<id>`** — `<id>` è un ID preso da un **catalogo chiuso già
+  incluso nell'app** (`SceneImageCatalog.kt`, `NpcImageCatalog.kt`,
+  `EnemyImageCatalog.kt`). L'elenco completo di tutti gli ID esistenti,
+  con descrizione, è in **`doc/SUONI-IMMAGINI.md`** (organizzato per
+  categoria: luoghi, nemici/bestie, NPC) — non duplicato qui. Un `id`
+  che non è nel catalogo **non causa un errore**: semplicemente non
+  compare nessuna immagine (degrado silenzioso, il gioco non si blocca
+  mai). **Forma raccomandata**: bundle nell'APK, funziona offline,
+  nessuna dipendenza esterna.
+- **`url:<http/https>`** — link diretto a un file immagine esterno
+  (solo `http://`/`https://`, mai `file://` o altri schemi). Pensato
+  per libri di uso personale mai distribuiti (`doc/LIBRI/`), dove creare
+  arte nuova per ogni scena non è pratico e si vuole invece linkare
+  l'illustrazione originale (o una generata) senza doverla impacchettare
+  nell'app. Il `PackageValidator` segnala **sempre** un avviso quando
+  incontra un `url:`, anche se il link è valido e raggiungibile: è una
+  dipendenza di rete che va rivista prima di pubblicare o distribuire il
+  libro — un libro con zero avvisi è garantito autosufficiente.
 
-```
-loc_tavern, loc_market, loc_alley, loc_harbor, loc_warehouse,
-loc_forest, loc_mountain, loc_caves, loc_crypt, loc_graveyard,
-loc_dungeon, loc_swamp, loc_battlefield, loc_wizard_tower,
-loc_kai_monastery, loc_ancient_ruins, loc_standing_stones, ...
-```
-
-NPC id esistenti oggi:
-
-```
-npc_countess, npc_fortune_teller, npc_king, npc_peasant_female,
-npc_peasant_male, npc_princess, npc_royal_mage, npc_traveler,
-npc_valkyrie, npc_mage, npc_battlemage
-```
-
-Nemici id esistenti oggi (per `combat.enemyImage`):
-
-```
-enemy_bandits_city, enemy_bandits_forest, enemy_bears,
-enemy_doomwolf, enemy_flying_beasts, enemy_giak, enemy_helgast,
-enemy_toads
-```
-
-Se l'autore non sa quale scegliere o il libro ne ha bisogno di uno
-nuovo, si può lasciare `null`: niente immagine, solo testo. (Il
+Se l'autore non sa quale scegliere o il libro ne ha bisogno di una
+nuova, si può lasciare `null`: niente immagine, solo testo. (Il
 narratore IA, quando genera la scena, prova anche da solo a indovinare
-un `backgroundImage` da questo stesso catalogo se l'autore non l'ha
-scritto — meccanismo separato, non riguarda l'autoring manuale.)
+un `backgroundImage` dal catalogo `static:` se l'autore non l'ha
+scritto — meccanismo separato, non riguarda l'autoring manuale, e non
+propone mai un `url:`.)
+
+```json
+"backgroundImage": "static:loc_tavern",
+"npcImage": "url:https://example.com/mio-npc.png"
+```
 
 ### 4.3 `outcome` (solo scene `ENDING`)
 
@@ -293,7 +288,7 @@ questi dati.
 | Campo | Tipo | Obbligatorio | Default | Note |
 |---|---|---|---|---|
 | `enemyName` | stringa | sì | — | Nome sorgente del nemico. Viene tradotto dal narratore come il resto del testo (riga `ENEMY\|testo tradotto` nel formato d'uscita); se la traduzione fallisce, resta il nome originale. |
-| `enemyImage` | stringa o `null` | no | `null` | ID canonico dal catalogo nemici (§4.2). |
+| `enemyImage` | stringa o `null` | no | `null` | Riferimento immagine con prefisso `static:`/`url:` (§4.2). |
 | `enemyCombatSkill` | intero | sì | — | Combattività base del nemico. |
 | `enemyEndurance` | intero | sì | — | Resistenza del nemico. |
 | `immuneToMindblast` | booleano | no | `false` | Se `true`, il giocatore non può usare la disciplina MINDBLAST contro questo nemico (non-morti e simili). |
@@ -305,7 +300,7 @@ questi dati.
 ```json
 "combat": {
   "enemyName": "Warehouse Thugs",
-  "enemyImage": "enemy_bandits_city",
+  "enemyImage": "static:enemy_bandits_city",
   "enemyCombatSkill": 16,
   "enemyEndurance": 24,
   "immuneToMindblast": false,
@@ -495,11 +490,19 @@ caricamento** (errore bloccante):
 - **Gli intervalli di `rollOnItemTable`** (`outcomes[].minRoll/maxRoll`)
   devono coprire **esattamente** i valori 0-9, senza buchi e senza
   sovrapposizioni.
+- **Ogni `backgroundImage`/`npcImage`/`combat.enemyImage` valorizzato**
+  deve avere il prefisso `static:` o `url:` (§4.2) — un valore senza
+  prefisso riconosciuto è rifiutato.
+- **Un `url:` accetta solo schema `http://` o `https://`** — mai
+  `file://` o altri schemi.
 
 Solo un **avviso**, non blocca il caricamento:
 
 - La destinazione di una `globalRule` dovrebbe essere una scena
   `ENDING` (di norma lo è, ma non è un obbligo rigido).
+- **Ogni `url:` in un'immagine** genera sempre un avviso, anche se il
+  link è ben formato e raggiungibile — è una dipendenza di rete da
+  rivedere prima di pubblicare o distribuire il libro (§4.2).
 
 ---
 
@@ -521,3 +524,6 @@ Solo un **avviso**, non blocca il caricamento:
 - `content/test-books/` — libri minimi, uno per ogni caratteristica
   dello schema (oggetti/armi, pasto obbligatorio, immagini
   location/nemico/npc, combattimento, discipline).
+- `doc/SUONI-IMMAGINI.md` — elenco completo di tutti gli ID immagine
+  del catalogo `static:` (luoghi, nemici/bestie, NPC), con lo stato
+  dell'effetto sonoro abbinato.

@@ -1,0 +1,35 @@
+{
+    "id": "test-image-url",
+    "version": "1.0.0",
+    "title": "TEST: immagine url: e avviso del validatore",
+    "description": "Verifica il riferimento url: aggiunto il 29/07/2026 (vedi ImageReference/CatalogOrUrlImage): la scena 1 ha un npcImage url: che deve generare un AVVISO in validazione (mai un errore) — il dominio example.invalid (RFC 2606) non risolve mai davvero, quindi in app l'immagine semplicemente non appare, come un ID sconosciuto qualunque. Per un test visivo con un'immagine VERA che si carica per davvero, serve un link raggiungibile: non se ne mette uno qui perché questo file finisce nell'APK (content/ è negli asset) e un link a un'illustrazione Project Aon non deve mai finire distribuito nell'app.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": ["adventurous"],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "npcImage": "url:https://example.invalid/illustrazione.png",
+            "narrativeText": "A stranger waits by the well, their face unreadable in the fading light.",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Approach the stranger",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "outcome": "NEUTRAL",
+            "genre": "FANTASY",
+            "toneHints": ["calm"],
+            "narrativeText": "The stranger nods once and walks away without a word.",
+            "choices": []
+        }
+    ]
+}

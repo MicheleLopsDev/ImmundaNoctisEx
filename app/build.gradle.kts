@@ -127,6 +127,12 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
 
+    // Caricamento delle immagini url: (29/07/2026, vedi ImageReference):
+    // solo per libri di uso personale mai distribuiti (doc/LIBRI/), che
+    // linkano l'illustrazione originale invece di impacchettarne una
+    // nuova nel catalogo static:.
+    implementation(libs.coil.compose)
+
     // Le classi pure di :app (PromptBuilder, ResponseParser) si testano
     // da terminale come i moduli core: stesso stile kotlin.test.
     testImplementation(libs.junit)

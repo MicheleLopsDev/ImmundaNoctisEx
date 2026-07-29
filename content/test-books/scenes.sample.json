@@ -65,7 +65,7 @@
             "sceneType": "START",
             "genre": "FANTASY",
             "toneHints": ["calm", "mysterious"],
-            "backgroundImage": "loc_tavern",
+            "backgroundImage": "static:loc_tavern",
             "locationName": "The Sundered Anchor Inn",
             "narrativeText": "You wake in a narrow room above a border-town inn, the shutters rattling with a wind that smells of rain and distant smoke. Sunlight has barely touched the sill when you notice a folded parchment slipped beneath the door sometime in the night. Cracking the wax, you find a hurried hand: reach the old warehouse in the western district before the sun sets, and come alone. No name signs it. You dress quickly, buckle on your blade, and step out into a morning that already feels too watchful for comfort.",
             "choices": [
@@ -87,7 +87,7 @@
             "sceneType": "TRANSITION",
             "genre": "FANTASY",
             "toneHints": ["lively", "tense"],
-            "backgroundImage": "loc_market",
+            "backgroundImage": "static:loc_market",
             "locationName": "Market Square",
             "narrativeText": "The market square roars with life: merchants bark prices over crates of spice and cloth, a juggler draws a ring of children, and somewhere a dog barks at nothing. Yet beneath the noise you feel eyes tracking your steps, a prickle at the back of your neck that never quite resolves into a face. Near the fountain, a hunched beggar catches your gaze and jerks his chin toward a gap between two shuttered stalls, murmuring directions to the old quarter before melting back into the crowd.",
             "choices": [
@@ -191,7 +191,7 @@
             "outcome": "VICTORY",
             "genre": "FANTASY",
             "toneHints": ["solemn", "rewarding"],
-            "backgroundImage": "loc_warehouse",
+            "backgroundImage": "static:loc_warehouse",
             "locationName": "The Old Warehouse",
             "narrativeText": "Inside, dust hangs thick in a shaft of failing light. Stacked crates and coiled rope line the walls, and at the center, on an upturned barrel, sits exactly what the letter promised: a sealed chest bearing a mark you half recognize from old stories. You lift the lid slowly, half expecting the whole day to have been some elaborate jest. It was not. Whatever comes next, you have kept faith with a stranger's word, and the town's oldest debts have a way of finding those who do.",
             "choices": [],

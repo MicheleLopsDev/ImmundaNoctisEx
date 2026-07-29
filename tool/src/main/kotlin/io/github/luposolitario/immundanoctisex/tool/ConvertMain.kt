@@ -5,6 +5,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.tool.etl.ProjectAonHtmlParser
+import io.github.luposolitario.immundanoctisex.tool.etl.illustrationUrl
 import kotlinx.serialization.json.Json
 import java.io.File
 import kotlin.system.exitProcess
@@ -40,12 +41,13 @@ fun runConvert(args: Array<String>) {
         genre = "FANTASY",
         disciplineDescriptions = defaultDisciplineDescriptors(),
     )
+    val manifest = enrichWithIllustrationLinks(result.manifest, id, result.illustrations)
 
     val outputFile = File(outputPath)
     outputFile.parentFile?.mkdirs()
     val json = Json { prettyPrint = true }
-    outputFile.writeText(json.encodeToString(Manifest.serializer(), result.manifest))
-    println("Scritto $outputPath (${result.manifest.scenes.size} scene)")
+    outputFile.writeText(json.encodeToString(Manifest.serializer(), manifest))
+    println("Scritto $outputPath (${manifest.scenes.size} scene)")
 
     if (result.notes.isEmpty()) {
         println("Nessun caso da rivedere.")
@@ -65,6 +67,29 @@ fun runConvert(args: Array<String>) {
             validated.errors.forEach { println("  errore: $it") }
         }
     }
+}
+
+// Collega ogni scena che aveva un'illustrazione nel libro cartaceo
+// (ProjectAonHtmlParser.IllustrationMarker) alla PNG originale su Project
+// Aon, come npcImage url: (29/07/2026, Michele: "arricchiamo... i file
+// dei libri convertiti con gli url" — così le prove sul device mostrano
+// subito il disegno vero, sotto il testo come un NPC, senza dover creare
+// arte prima). Il parser non valorizza mai npcImage da solo: qui non si
+// sovrascrive nulla, si aggiunge soltanto dove prima c'era null.
+private fun enrichWithIllustrationLinks(
+    manifest: Manifest,
+    bookId: String,
+    illustrations: List<ProjectAonHtmlParser.IllustrationMarker>,
+): Manifest {
+    val urlBySceneId = illustrations
+        .mapNotNull { marker -> illustrationUrl(bookId, marker)?.let { marker.sceneId to it } }
+        .toMap()
+
+    val scenes = manifest.scenes.map { scene ->
+        val url = urlBySceneId[scene.id]
+        if (url != null && scene.npcImage == null) scene.copy(npcImage = "url:$url") else scene
+    }
+    return manifest.copy(scenes = scenes)
 }
 
 // Stesso testo di content/scenes.sample.json — le 10 discipline canoniche
