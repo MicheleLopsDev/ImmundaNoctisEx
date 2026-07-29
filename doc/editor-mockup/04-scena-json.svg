@@ -1,0 +1,22 @@
+<svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="700" height="380" fill="#fff" stroke="#999"/>
+  <rect x="0" y="0" width="700" height="34" fill="#e0e0e0" stroke="#999"/>
+  <text x="14" y="22" font-size="13" fill="#333">Scena 42</text>
+  <rect x="500" y="6" width="90" height="22" rx="3" fill="#eee" stroke="#999"/>
+  <text x="545" y="21" font-size="11" text-anchor="middle" fill="#555">Maschera</text>
+  <rect x="595" y="6" width="90" height="22" rx="3" fill="#333"/>
+  <text x="640" y="21" font-size="11" text-anchor="middle" fill="#fff">JSON</text>
+
+  <rect x="16" y="44" width="668" height="230" rx="3" fill="#1e1e1e"/>
+  <text x="28" y="64" font-size="11" font-family="monospace" fill="#9cdcfe">{ "id": "42",</text>
+  <text x="28" y="82" font-size="11" font-family="monospace" fill="#9cdcfe">  "sceneType": "TRANSITION",</text>
+  <text x="28" y="100" font-size="11" font-family="monospace" fill="#9cdcfe">  "narrativeText": "Il vecchio...",</text>
+  <text x="28" y="118" font-size="11" font-family="monospace" fill="#ce9178">  "choices": [ { "nextSceneId": "99" } ]</text>
+  <text x="28" y="136" font-size="11" font-family="monospace" fill="#9cdcfe">}</text>
+
+  <rect x="16" y="286" width="668" height="34" rx="3" fill="#ffebee" stroke="#e53935"/>
+  <text x="26" y="307" font-size="11" fill="#c62828">1 errore: choices[0].nextSceneId "99" non esiste ancora — salvataggio bloccato (§7.3)</text>
+
+  <rect x="590" y="340" width="90" height="26" rx="3" fill="#999"/>
+  <text x="635" y="357" font-size="11" text-anchor="middle" fill="#fff">Salva scena</text>
+</svg>

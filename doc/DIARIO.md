@@ -1018,6 +1018,97 @@ Riconvertiti tutti e 5 i libri: stesso numero di scene di prima (362,
 illustrazione arricchita (19+19+20+21+24 = 103, combacia col report).
 Suite di regressione rilanciata: tutta verde. Giornata chiusa qui.
 
+## Fase 6 — specifica del tool grafico di authoring (29/07/2026, sessione 2)
+
+Michele apre il "secondo capitolo grande" annunciato in CLAUDE.md: non
+solo ETL, ma un vero editor visuale per la mappa delle scene, dentro lo
+stesso modulo `:tool`. Sessione interamente di analisi/specifica (nessun
+codice), stesso metodo delle altre 6 specifiche — domande mirate, una
+alla volta, prima di scrivere.
+
+**Decisioni chiave** (dettaglio completo in `doc/EDITOR.md`, nuovo
+documento):
+- **Compose Multiplatform Desktop**, sullo stesso modulo `:tool`
+  (`kotlin("jvm")`, non serve convertirlo in Kotlin Multiplatform vero):
+  basta aggiungere i plugin Compose e `compose.desktop.currentOs`.
+  Confermato via ricerca web che gira dentro Android Studio senza
+  problemi, il plugin "Kotlin Multiplatform" che Michele ha installato
+  aiuta l'ergonomia IDE ma non è un requisito tecnico (la vecchia
+  "Compose Multiplatform for Desktop IDE Support" non è più sviluppata,
+  confluita in quello). Un solo modulo, nessun progetto nuovo — la CLI
+  (`validate`/`convert`/`illustrazioni`) resta e convive con la GUI.
+- **Perimetro v1**: sia editing di libri esistenti sia creazione da
+  zero (obiettivo dichiarato: un tool "funzionale in tutto e per
+  tutto", collaudabile subito sui 5 libri già convertiti). Editor dei
+  frammenti di prompt (`content/config.json`) esplicitamente **fuori**
+  da questa prima specifica — proposta di Claude, confermata da
+  Michele, per non appesantire il documento.
+- **Editing di scena a due viste**, maschera + JSON grezzo con un
+  pulsante per passare dall'una all'altra (stesso pattern dell'editor
+  XML/Design di Android Studio) — la maschera resta l'esperienza
+  principale (pensata anche per chi non conosce lo schema a memoria),
+  il JSON è la via di fuga per i casi che la maschera non copre ancora.
+- **Validazione a due livelli**: locale (per-scena, blocca l'uscita dal
+  pannello se mancano campi obbligatori) e globale (pulsante "valida
+  tutto il libro", riusa `PackageValidator` così com'è). Punto
+  delicato risolto in dialogo: una scelta può puntare a una scena non
+  ancora creata (pattern di scrittura normale, si scrive in avanti) —
+  la validazione locale NON blocca questo caso, lo segnala solo
+  visivamente.
+- **Colori sulla mappa**: sfondo del nodo (verde/rosso, salute della
+  singola scena in base ai propri riferimenti in uscita) e contorno del
+  percorso (verde/rosso, un solo nodo rosso lungo il cammino sporca
+  tutto il percorso) — due segnali distinti invece di una
+  proliferazione di colori per "ogni cammino possibile" (scartata
+  perché su un libro di centinaia di scene sarebbe combinatoriamente
+  illeggibile). Riusa `GraphValidator` nodo per nodo, zero logica
+  nuova di validazione.
+- **Creazione di un libro nuovo**: form per i campi globali del
+  manifest, poi scelta tra tre scaffold (Base: START+ENDING; Lineare:
+  4-5 scene in sequenza; Ramificato: una biforcazione a due percorsi
+  che confluisce) — esempi funzionanti di come si struttura un libro a
+  scelte, non solo un foglio bianco. Tutti e tre includono già
+  `deathSceneId` collegato a una scena DEFEAT (rete di sicurezza
+  sempre presente fin dall'inizio, mai un'aggiunta successiva).
+- **Backup e versioning**: backup automatico su disco prima di ogni
+  modifica a una scena (rotazione da definire in implementazione),
+  **nessuna integrazione Git** — il tool non esegue né gestisce comandi
+  Git, lavora solo su file JSON.
+- **Limite dimensionale**: tetto auto-imposto di ~350 scene per libro
+  (i 5 libri Project Aon, 362-406 scene, restano utili proprio perché
+  stressano già questo limite in fase di collaudo).
+
+**Rifiniture finali alla specifica (stessa sessione)**: aggiunta
+`§7.4 Editing del JSON completo del libro` — oltre alla vista JSON di
+una singola scena, un modo per modificare l'intero `Manifest` come
+testo grezzo dalla barra strumenti, ma anche qui nessuna scrittura su
+disco senza passare dalla stessa validazione globale (§8) — richiesta
+di Michele: "deve essere tutto validato". Aggiunte anche 4 bozze
+grafiche (wireframe SVG incorporati direttamente nel documento, §13):
+schermata di avvio, mappa con la colorazione verde/rosso, pannello di
+editing scena nelle due viste Maschera/JSON — deliberatamente semplici
+("il più semplice possibile", richiesta esplicita), non un design
+definitivo ma solo per dare l'idea della disposizione.
+
+**Distribuzione a suo figlio, senza GitHub (stessa sessione)**: Michele
+vuole passare l'editor a suo figlio senza dargli accesso al repository.
+Verificato via ricerca web: il plugin `org.jetbrains.compose` (lo
+stesso già scelto per la UI) include il packaging nativo via
+**jpackage** (tool del JDK, nessuna tecnologia nuova da introdurre), che
+imbustano anche la JVM — chi riceve il pacchetto non installa Java a
+parte. Nuova `§12 Distribuzione e pacchettizzazione` in `doc/EDITOR.md`:
+due opzioni dallo stesso plugin — **cartella portatile**
+(`createDistributable`, zip-scompatta-doppio clic, zero tool aggiuntivi,
+scelta di partenza consigliata) o **installer Windows vero**
+(`packageMsi`/`packageExe`, serve il WiX Toolset ma solo sul PC che
+genera il pacchetto, non per chi lo riceve) da valutare in un secondo
+momento se si vuole un'esperienza da "programma installato" vera e
+propria. Rinumerate di conseguenza le sezioni successive del documento
+(Fuori perimetro §13, Bozze grafiche §14, Riferimenti §15).
+
+Prossimo passo (non ancora iniziato): implementazione, a partire dal
+setup Gradle di Compose Desktop su `:tool`.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

@@ -1,0 +1,35 @@
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+  <rect x="0" y="0" width="700" height="420" fill="#fafafa" stroke="#999"/>
+  <rect x="0" y="0" width="700" height="34" fill="#e0e0e0" stroke="#999"/>
+  <rect x="12" y="7" width="180" height="20" rx="4" fill="#fff" stroke="#999"/>
+  <text x="22" y="21" font-size="11" fill="#888">Cerca scena per ID o testo...</text>
+  <text x="640" y="21" font-size="13" fill="#555">− ⊕ +</text>
+
+  <!-- percorso valido: contorno verde -->
+  <rect x="45" y="70" width="330" height="90" rx="10" fill="none" stroke="#4CAF50" stroke-width="3" stroke-dasharray="4 3"/>
+  <rect x="60" y="90" width="70" height="40" rx="4" fill="#e8f5e9" stroke="#4CAF50"/>
+  <text x="95" y="114" font-size="11" text-anchor="middle">START</text>
+  <line x1="130" y1="110" x2="180" y2="110" stroke="#4CAF50"/>
+  <rect x="180" y="90" width="70" height="40" rx="4" fill="#e8f5e9" stroke="#4CAF50"/>
+  <text x="215" y="114" font-size="11" text-anchor="middle">12</text>
+  <line x1="250" y1="110" x2="300" y2="110" stroke="#4CAF50"/>
+  <rect x="300" y="90" width="70" height="40" rx="4" fill="#e8f5e9" stroke="#4CAF50"/>
+  <text x="335" y="114" font-size="11" text-anchor="middle">ENDING</text>
+
+  <!-- diramazione con un nodo rosso -->
+  <rect x="60" y="220" width="70" height="40" rx="4" fill="#e8f5e9" stroke="#4CAF50"/>
+  <text x="95" y="244" font-size="11" text-anchor="middle">40</text>
+  <line x1="130" y1="240" x2="180" y2="240" stroke="#999"/>
+  <rect x="180" y="220" width="70" height="40" rx="4" fill="#ffebee" stroke="#e53935" stroke-width="2"/>
+  <text x="215" y="244" font-size="11" text-anchor="middle">→ 41 (?)</text>
+  <text x="185" y="278" font-size="10" fill="#e53935">scelta punta a una scena non ancora creata</text>
+
+  <rect x="470" y="60" width="200" height="330" fill="#fff" stroke="#ccc"/>
+  <text x="490" y="90" font-size="12" fill="#888">Seleziona una scena</text>
+  <text x="490" y="108" font-size="12" fill="#888">per modificarla →</text>
+
+  <rect x="20" y="360" width="14" height="14" fill="#e8f5e9" stroke="#4CAF50"/>
+  <text x="40" y="371" font-size="11" fill="#555">scena valida</text>
+  <rect x="150" y="360" width="14" height="14" fill="#ffebee" stroke="#e53935"/>
+  <text x="170" y="371" font-size="11" fill="#555">punta a una scena non ancora creata</text>
+</svg>
