@@ -63,9 +63,10 @@ class AppContainer(context: Context) {
     val soundEffectPreferences = SoundEffectPreferences(context)
 
     // musicPlayer + shouldResumeMusic (24/07/2026): mette la musica in
-    // pausa durante i suoni "a nome libero" (loc/enemy/npc/finali) e la
-    // fa ripartire da sola, ma solo se l'utente non l'ha spenta a mano
-    // nel frattempo — vedi SoundEffectPlayer.playNamed/MusicPlayer.duckFor.
+    // pausa durante i suoni "a nome libero" (loc/enemy/npc/finali,
+    // 28/07/2026 in loop finché parla il TTS) e la fa ripartire da sola
+    // quando smettono, ma solo se l'utente non l'ha spenta a mano nel
+    // frattempo — vedi SoundEffectPlayer.playNamed/stopBackgroundSounds.
     val soundEffectPlayer = SoundEffectPlayer(
         context,
         soundEffectPreferences,

@@ -477,3 +477,45 @@ Claude Code se Michele preferisce.
 
 **Non schedulato**: in attesa di una decisione di Michele su
 chi/quando lo fa.
+
+## 6. Accelerazione NPU (Hexagon, via QNN) — in osservazione
+
+**Origine**: la decisione di NON integrare l'NPU era già stata presa
+(vedi DIARIO.md, round in cui Michele ha provato
+`gemma-4-E2B-it_qualcomm_sm8750.litertlm`, build compilata apposta per
+lo Snapdragon 8 Elite del suo Razr): `LiteRtLmEngine.load()` prova solo
+`Backend.GPU()`/`Backend.CPU()`, mai NPU, e non imposta mai
+`litert_dispatch_lib_dir`. Il blocco reale: LiteRT-LM richiede un
+collante Google (`libLiteRtDispatch_Qualcomm.so`) che l'AAR Android non
+include — si otterrebbe solo compilandolo da sorgente con **Bazel**,
+toolchain nuovo e diverso da CMake/NDK. Michele allora: *"concordo che
+non voglio reintrodurre C++ in questa versione... non stiamo generando
+immagini ma testo, e se devo aspettare un po' va bene così"* —
+decisione presa, non un rinvio, con nota esplicita di non riaprirla
+senza una ragione nuova.
+
+**Riportata a galla (28/07/2026)**: Michele ha segnalato
+`DuoNeural/Gemma-4-Abliterated-LiteRT` su Hugging Face come possibile
+modello NPU per il suo Snapdragon. Verificato: NON è una build
+chip-specifica come la `_qualcomm_sm8750` di prima — è un `.litertlm`
+INT4 generico (stesso formato di Gemma 4 E4B/E2B già in catalogo),
+abliterazione uncensored, con supporto NPU dichiarato solo
+genericamente ("if available") senza binari dedicati. Non risolve
+comunque il blocco tecnico sopra, che resta lo stesso.
+
+**Decisione di Michele questa volta**: non un rifiuto e non
+un'implementazione ora — vuole **tenerla d'occhio**. Va ripresa in
+considerazione come prossima feature papabile appena:
+- diventa più semplice da integrare (es. Google include
+  `libLiteRtDispatch_Qualcomm.so` nell'AAR Android di LiteRT-LM invece
+  di richiedere una compilazione Bazel da sorgente — c'è un'issue
+  aperta su google-ai-edge/LiteRT su questo, da ricontrollare ogni
+  tanto), OPPURE
+- esce qualcosa di ufficiale (non un fine-tune di terzi con claim
+  vaghi) — un vero modello/toolchain NPU-ready per Snapdragon
+  distribuito da Google/Qualcomm, pronto all'uso senza reinventare un
+  bridge C++ a mano.
+
+**Non schedulato**: nessuna azione di codice. Da ricontrollare quando
+Michele segnala uno sviluppo, o a inizio di una futura sessione se
+emergono novità su LiteRT-LM/QNN degne di nota.

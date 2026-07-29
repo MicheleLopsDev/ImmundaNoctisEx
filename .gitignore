@@ -23,3 +23,9 @@ local.properties
 
 # Contenuti Project Aon, solo uso personale locale — non vanno nel repo né nell'APK
 content/scenes.json
+
+# Libri convertiti da Project Aon per prove personali (29/07/2026, Michele:
+# "uso mio personale e di mio figlio... non deve contenere libri"): sorgenti
+# HTML e JSON convertiti, mai nel repo né nell'app — solo content/test-books/
+# (fixture piccole scritte a mano) è versionato e finisce nei test.
+doc/LIBRI/

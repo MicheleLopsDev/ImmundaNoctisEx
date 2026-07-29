@@ -174,9 +174,47 @@ class AdventureState(
     var isSpeaking: Boolean by mutableStateOf(false)
         private set
 
+    // Rete di sicurezza (28/07/2026, Michele: passando a un'altra app il
+    // TTS smetteva davvero di parlare ma il sottofondo SFX continuava
+    // all'infinito, finché non chiudeva l'app): TtsService.onSpeakingFinished
+    // dipende dai callback di UtteranceProgressListener, che possono non
+    // arrivare MAI se il sistema operativo interrompe l'audio in background
+    // (perdita di focus) senza passare da una stop() esplicita — coerente
+    // col fatto che avesse pensato al polling fin dall'inizio. Finché
+    // isSpeaking risulta true, si ricontrolla periodicamente lo stato VERO
+    // del motore (TtsService.isCurrentlySpeaking, non il nostro flag): se
+    // dice che non sta più parlando, si tratta il narratore come finito
+    // anche senza il callback.
+    private var ttsWatchdogJob: Job? = null
+
+    private fun startTtsWatchdog() {
+        val scope = this.scope ?: return
+        ttsWatchdogJob?.cancel()
+        ttsWatchdogJob = scope.launch {
+            while (isSpeaking) {
+                delay(TTS_WATCHDOG_POLL_MS)
+                if (isSpeaking && ttsService?.isCurrentlySpeaking() == false) {
+                    isSpeaking = false
+                    soundEffectPlayer?.setDuckedByTts(false)
+                }
+            }
+        }
+    }
+
     init {
-        ttsService?.onSpeakingStarted = { isSpeaking = true }
-        ttsService?.onSpeakingFinished = { isSpeaking = false }
+        // Il ducking (SoundEffectPlayer.setDuckedByTts) segue esattamente
+        // isSpeaking: stesso segnale, non uno stato separato da tenere
+        // sincronizzato a mano.
+        ttsService?.onSpeakingStarted = {
+            isSpeaking = true
+            soundEffectPlayer?.setDuckedByTts(true)
+            startTtsWatchdog()
+        }
+        ttsService?.onSpeakingFinished = {
+            ttsWatchdogJob?.cancel()
+            isSpeaking = false
+            soundEffectPlayer?.setDuckedByTts(false)
+        }
     }
 
     // Icona "leggi" manuale (UI.md: attiva solo se l'auto-lettura è
@@ -514,6 +552,13 @@ class AdventureState(
         // La voce della scena che si lascia non deve continuare a leggere
         // sopra quella nuova che sta per generarsi.
         ttsService?.stop()
+        // Rete di sicurezza (28/07/2026): il sottofondo SFX della scena
+        // lasciata normalmente si ferma da sé quando il TTS finisce di
+        // leggere, ma se l'auto-lettura è spenta e nessuno ha toccato
+        // "leggi" il TTS non parla mai in quella scena — senza questo
+        // giro andrebbe in loop per sempre, sopravvivendo anche nella
+        // scena successiva.
+        soundEffectPlayer?.stopBackgroundSounds()
         lastChoiceRoll = null // ogni scena nuova riarma il dado (reset di v1)
         // Nel diario finisce il testo che il giocatore HA LETTO (quello
         // arricchito, se c'era): si salva e non si rigenera mai
@@ -603,43 +648,13 @@ class AdventureState(
         val outcome = endingOutcome
         if (outcome == lastPlayedEnding) return
         lastPlayedEnding = outcome
-        val soundName = "ending_${outcome.name.lowercase()}"
-        val scope = this.scope ?: run {
-            soundEffectPlayer?.playNamed(soundName, folder = "endings")
-            return
-        }
-        // Aspetta che la narrazione finisca di generarsi e che il TTS,
-        // se parte, finisca di leggere l'ultima pagina, PIÙ un margine
-        // (24/07/2026, richiesta Michele: "parte appena arrivi alla
-        // pagina finale, è brutto — deve aspettare che il TTS abbia
-        // finito di leggere, con un ritardo di qualche secondo").
-        // Con l'auto-lettura spenta il TTS parte SOLO se toccato a mano:
-        // aspettare il timeout pieno di sicurezza (45s) qui vorrebbe
-        // dire quasi un minuto di silenzio dopo la generazione, per un
-        // evento che nel 99% dei casi non arriverà mai (26/07/2026,
-        // Michele, dopo aver verificato il ritardo dal log: "puoi
-        // aspettare pochi secondi quando l'autolettura è spenta") — un
-        // margine breve basta, resta comunque tempo per un tocco manuale
-        // quasi immediato sull'ultima pagina.
-        scope.launch {
-            val deadline = System.currentTimeMillis() + ENDING_SOUND_TIMEOUT_MS
-            while (isGenerating && System.currentTimeMillis() < deadline) {
-                delay(ENDING_SOUND_POLL_MS)
-            }
-            val speechDeadline = if (autoReadEnabled) {
-                deadline
-            } else {
-                System.currentTimeMillis() + ENDING_SOUND_SHORT_WAIT_MS
-            }
-            var everSpoke = false
-            while (System.currentTimeMillis() < speechDeadline) {
-                if (isSpeaking) everSpoke = true
-                if (everSpoke && !isSpeaking) break
-                delay(ENDING_SOUND_POLL_MS)
-            }
-            delay(ENDING_SOUND_GRACE_MS)
-            soundEffectPlayer?.playNamed(soundName, folder = "endings")
-        }
+        // Parte SUBITO, non più in attesa che il TTS finisca di leggere
+        // (28/07/2026, Michele): con gli SFX a nome libero ora ridotti di
+        // volume mentre il narratore parla (SoundEffectPlayer
+        // .setDuckedByTts), la sovrapposizione che l'attesa serviva a
+        // evitare è diventata l'effetto voluto — un sottofondo, non più
+        // un suono a piena voce sopra il narratore.
+        soundEffectPlayer?.playNamed("ending_${outcome.name.lowercase()}", folder = "endings")
     }
 
     // Ogni mutazione dello stato di gioco passa di qui: è il punto giusto
@@ -693,18 +708,10 @@ class AdventureState(
         // non a ogni token (CRITICITA.md ~80-100ms).
         const val STREAM_BUFFER_MS = 90L
 
-        // Attesa del suono di finale (24/07/2026): quanto aspettare al
-        // massimo generazione+TTS prima di far partire comunque il suono
-        // (timeout di sicurezza, non un'attesa infinita), ogni quanto
-        // ricontrollare, e il margine "di qualche secondo" richiesto da
-        // Michele dopo che il TTS ha finito di leggere.
-        const val ENDING_SOUND_TIMEOUT_MS = 45_000L
-        const val ENDING_SOUND_POLL_MS = 200L
-        const val ENDING_SOUND_GRACE_MS = 3_000L
-
-        // Con l'auto-lettura spenta il TTS non parte mai da solo: qui
-        // basta un margine breve per un eventuale tocco manuale
-        // immediato sull'ultima pagina (26/07/2026, Michele).
-        const val ENDING_SOUND_SHORT_WAIT_MS = 5_000L
+        // Intervallo del watchdog TTS (28/07/2026): solo una rete di
+        // sicurezza per il caso in cui manchi il callback, non il percorso
+        // principale — non serve granularità fine, un paio di secondi di
+        // sottofondo in più nel caso raro non si sente.
+        const val TTS_WATCHDOG_POLL_MS = 2_000L
     }
 }

@@ -52,6 +52,18 @@ class TtsService(
                 override fun onError(utteranceId: String?) {
                     onSpeakingFinished?.invoke()
                 }
+                // BUG (28/07/2026, scoperto implementando il sottofondo SFX
+                // in loop legato al TTS): stop() interrompe un'utterance
+                // ancora in corso — onDone/onError NON arrivano mai in quel
+                // caso, arriva SOLO onStop. Senza questo override, isSpeaking
+                // restava bloccato a true per sempre dopo la primissima
+                // interruzione manuale (moveTo() chiama ttsService.stop() ad
+                // ogni cambio scena) — e con esso, il volume degli SFX
+                // restava sempre "abbassato per il TTS" e nessun sottofondo
+                // in loop si sarebbe più fermato da solo.
+                override fun onStop(utteranceId: String?, interrupted: Boolean) {
+                    onSpeakingFinished?.invoke()
+                }
             },
         )
         onReadyCallback?.invoke()
@@ -92,6 +104,15 @@ class TtsService(
     fun stop() {
         tts?.stop()
     }
+
+    // Rete di sicurezza (28/07/2026, Michele: passando a un'altra app il
+    // TTS smetteva davvero di parlare ma il sottofondo SFX continuava
+    // all'infinito): interroga il motore direttamente invece di fidarsi
+    // solo dei callback di UtteranceProgressListener, che a quanto pare
+    // possono non arrivare mai se il sistema operativo interrompe l'audio
+    // sotto il livello dei callback (perdita di focus/audio in background)
+    // invece che tramite una stop() esplicita.
+    fun isCurrentlySpeaking(): Boolean = tts?.isSpeaking ?: false
 
     // Per la schermata Opzioni: le voci disponibili per una lingua, da
     // proporre come scelta esplicita (maschile/femminile).

@@ -2,7 +2,6 @@ package io.github.luposolitario.immundanoctisex.sfx
 
 import android.content.Context
 import android.media.AudioAttributes
-import android.media.MediaMetadataRetriever
 import android.media.SoundPool
 import io.github.luposolitario.immundanoctisex.music.MusicPlayer
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
@@ -84,16 +83,23 @@ class SoundEffectPlayer(
     // non si ritenta ad ogni chiamata (vedi playNamed).
     private val namedSoundIds = mutableMapOf<String, Int?>()
 
-    // Non sovrapporre due volte lo stesso suono (24/07/2026, richiesta
-    // Michele per gli mp3 di introduzione location, ~30" l'uno: "se un
-    // file sta suonando e avvio lo stesso file questo non riparte ma
-    // aspetta che finisca"). SoundPool non ha un OnCompletionListener
-    // come MediaPlayer: si stima quando finisce dalla durata VERA del
-    // file (MediaMetadataRetriever, letta una sola volta e messa in
-    // cache) invece di un valore fisso, così regge anche se un file dura
-    // un po' di più o di meno dei 30" tipici.
-    private val namedSoundDurationMs = mutableMapOf<String, Long>()
-    private val namedSoundPlayingUntil = mutableMapOf<String, Long>()
+    // Sottofondo al TTS (28/07/2026, Michele: "vorrei che gli audio sfx
+    // facessero da audio di sottofondo al tts con un valore di volume
+    // basso", poi "se il suono di sottofondo è corto mettilo in loop fino
+    // a che il tts si spegne"): i suoni "a nome libero" (ambientazioni
+    // delle location, finali) ora vanno in loop indefinito invece che una
+    // volta sola, a volume ridotto mentre il narratore legge, e restano
+    // attivi finché il TTS non finisce di parlare — non più legati a una
+    // durata stimata. Lo stream id di ogni suono ancora in loop è la
+    // fonte di verità di "sta ancora suonando" (sostituisce la vecchia
+    // stima via MediaMetadataRetriever, non più necessaria): niente
+    // seconda copia sopra la prima (playNamed), e permette di
+    // abbassare/fermare il volume AL VOLO (setDuckedByTts,
+    // stopBackgroundSounds). I brevi SoundEffect dell'enum
+    // (dado/passi/mangiare/combattimento) restano invariati: durano meno
+    // di un secondo, non vanno mai in loop e non si abbassano mai.
+    private var duckedByTts = false
+    private val namedSoundStreamIds = mutableMapOf<String, Int>()
 
     init {
         pool.setOnLoadCompleteListener { _, sampleId, status ->
@@ -111,8 +117,40 @@ class SoundEffectPlayer(
         }
     }
 
-    private fun effectiveVolume(): Float =
-        (soundEffectPreferences.volume * audioPreferences.generalVolume).coerceIn(0f, 1f)
+    private fun effectiveVolume(ducked: Boolean = false): Float {
+        val base = (soundEffectPreferences.volume * audioPreferences.generalVolume).coerceIn(0f, 1f)
+        return if (ducked) base * NAMED_SOUND_DUCK_FACTOR else base
+    }
+
+    // Chiamato da AdventureState sugli stessi eventi che pilotano
+    // isSpeaking (TtsService.onSpeakingStarted/onSpeakingFinished). Il TTS
+    // che parte abbassa AL VOLO il volume di ogni loop già in corso; il
+    // TTS che finisce li ferma del tutto — "in loop fino a che il tts si
+    // spegne", non solo più piano dopo.
+    fun setDuckedByTts(speaking: Boolean) {
+        if (duckedByTts == speaking) return
+        duckedByTts = speaking
+        if (speaking) {
+            val volume = effectiveVolume(ducked = true)
+            namedSoundStreamIds.values.forEach { streamId ->
+                runCatching { pool.setVolume(streamId, volume, volume) }
+            }
+        } else {
+            stopBackgroundSounds()
+        }
+    }
+
+    // Ferma tutti i loop di sottofondo attivi e riprende la musica se era
+    // stata messa in pausa per lasciarli sentire. Chiamato sia da qui (TTS
+    // che finisce di parlare) sia da AdventureState ad ogni cambio scena
+    // (moveTo), per non lasciarne mai uno a girare per sempre nel caso il
+    // TTS non parli affatto in quella scena (auto-lettura spenta).
+    fun stopBackgroundSounds() {
+        if (namedSoundStreamIds.isEmpty()) return
+        namedSoundStreamIds.values.forEach { streamId -> runCatching { pool.stop(streamId) } }
+        namedSoundStreamIds.clear()
+        if (shouldResumeMusic()) musicPlayer?.resume()
+    }
 
     fun play(effect: SoundEffect) {
         val id = soundIds[effect] ?: return
@@ -139,39 +177,38 @@ class SoundEffectPlayer(
             loadedId
         } ?: return
 
-        // Già in corso: si lascia finire, niente seconda copia sopra.
-        val now = System.currentTimeMillis()
-        if ((namedSoundPlayingUntil[name] ?: 0L) > now) return
+        // Già in loop: lo si lascia continuare, niente seconda copia sopra.
+        if (name in namedSoundStreamIds) return
 
-        val duration = namedSoundDurationMs.getOrPut(name) {
-            runCatching {
-                context.assets.openFd("sfx/$folder/$name.mp3").use { afd ->
-                    val retriever = MediaMetadataRetriever()
-                    try {
-                        retriever.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                        retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
-                    } finally {
-                        retriever.release()
-                    }
-                }
-            }.getOrDefault(0L)
+        // Musica in pausa finché dura questo sottofondo — non più un timer
+        // sulla durata stimata del file (ora è in loop, potrebbe durare
+        // ben più a lungo del singolo giro), ma la ripresa esplicita in
+        // stopBackgroundSounds() quando il loop finisce davvero.
+        musicPlayer?.pause()
+
+        val volume = effectiveVolume(ducked = duckedByTts)
+        val playAction: () -> Unit = {
+            // loop = -1: gira all'infinito finché non arriva uno stop
+            // esplicito (setDuckedByTts quando il TTS finisce di parlare,
+            // o stopBackgroundSounds al cambio scena).
+            runCatching { pool.play(id, volume, volume, 1, -1, 1f) }
+                .onSuccess { streamId -> if (streamId != 0) namedSoundStreamIds[name] = streamId }
         }
-        namedSoundPlayingUntil[name] = now + duration
-
-        // Musica in pausa per la durata del suono, poi riprende da sola
-        // (solo se stava davvero suonando e l'utente non l'ha spenta nel
-        // frattempo — vedi MusicPlayer.duckFor).
-        musicPlayer?.duckFor(duration, shouldResumeMusic)
-
-        val volume = effectiveVolume()
         if (id !in loaded) {
-            pendingPlayOnLoad[id] = { runCatching { pool.play(id, volume, volume, 1, 0, 1f) } }
+            pendingPlayOnLoad[id] = playAction
             return
         }
-        runCatching { pool.play(id, volume, volume, 1, 0, 1f) }
+        playAction()
     }
 
     fun release() {
         runCatching { pool.release() }
+    }
+
+    private companion object {
+        // "Basso" (Michele 28/07/2026): un terzo del volume normale basta
+        // a farlo restare un sottofondo riconoscibile senza coprire la
+        // voce del narratore.
+        const val NAMED_SOUND_DUCK_FACTOR = 0.35f
     }
 }

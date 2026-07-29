@@ -28,3 +28,11 @@ android {
         minSdk = 34
     }
 }
+
+// Percorso reale di content/ (non una copia sotto jvmTest/resources, che è
+// già andata fuori sincrono una volta — vedi ContenutiRealiValidiTest):
+// così il test jvmTest legge sempre gli stessi file che spediamo davvero,
+// qualunque sia la working directory con cui gira Gradle.
+tasks.withType<Test>().configureEach {
+    systemProperty("immundanoctisex.contentDir", rootProject.layout.projectDirectory.dir("content").asFile.absolutePath)
+}

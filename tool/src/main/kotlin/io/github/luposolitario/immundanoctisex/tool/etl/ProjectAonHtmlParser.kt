@@ -1,0 +1,462 @@
+package io.github.luposolitario.immundanoctisex.tool.etl
+
+import io.github.luposolitario.immundanoctisex.core.data.model.Choice
+import io.github.luposolitario.immundanoctisex.core.data.model.Combat
+import io.github.luposolitario.immundanoctisex.core.data.model.Discipline
+import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
+import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineDescriptor
+import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
+import io.github.luposolitario.immundanoctisex.core.data.model.GameMechanic
+import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
+import io.github.luposolitario.immundanoctisex.core.data.model.Scene
+import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import java.io.File
+
+// Conversione deterministica delle XHTML "Internet Edition" di Project Aon
+// (es. lo zip https://www.projectaon.org/en/xhtml/lw/01fftd/01fftd.zip, il
+// file titolo.htm dentro) nel nostro Manifest/Scene — vedi doc/SCHEMA-JSON.md
+// per lo schema di destinazione. Nessuna IA: struttura e regole del gioco
+// sono già scritte in prosa fissa e ripetuta in tutto il libro (stessa
+// frase per ogni combattimento, stessa frase per ogni scelta di
+// disciplina...), si riconoscono con pattern deterministici (29/07/2026,
+// mappatura concordata con Michele dopo un'ispezione di 01fftd.htm — vedi
+// doc/DIARIO.md). Uso PERSONALE (Michele, stessa sessione: "non voglio
+// distribuire queste parti"), coerente con la licenza Project Aon già
+// documentata in doc/ETL.md.
+//
+// Quello che il testo NON marca in modo riconoscibile (tipicamente
+// ritrovamenti di oggetti/oro narrati in prosa libera) non viene indovinato:
+// finisce in `notes`, non in un GameMechanic inventato — coerente con
+// ItemMechanics/Params.kt (com/core/engine): meglio un comando assente che
+// uno sbagliato in silenzio.
+object ProjectAonHtmlParser {
+
+    // Una scena che nel libro cartaceo originale aveva un'illustrazione
+    // (30/07/2026, Michele: vuole un elenco per generarne di nuove,
+    // indipendenti, con l'IA — le Internet Edition segnano SOLO dove
+    // c'era un disegno, "[Illustration N]", senza dire cosa raffigurasse).
+    data class IllustrationMarker(val sceneId: String, val label: String)
+
+    data class ParseResult(
+        val manifest: Manifest,
+        val notes: List<String>,
+        val illustrations: List<IllustrationMarker>,
+    )
+
+    fun parse(
+        file: File,
+        id: String,
+        title: String,
+        description: String,
+        genre: String,
+        disciplineDescriptions: List<DisciplineDescriptor>,
+    ): ParseResult {
+        val doc = Jsoup.parse(file, "UTF-8")
+        // Alcuni libri (es. "Shadow on the Sand") hanno PIÙ di un
+        // div.numbered — "Part I"/"Part II" separati, ciascuno con le sue
+        // sezioni — bug trovato il 29/07/2026: prendendo solo il primo, le
+        // sezioni della Parte II sparivano in silenzio (referenziate da
+        // choice.nextSceneId ma mai generate, errore di validazione a
+        // valle). Vanno processati TUTTI.
+        val numberedDivs = doc.select("div.numbered")
+        if (numberedDivs.isEmpty()) {
+            error(
+                "div.numbered non trovato in ${file.name}: non sembra una Internet Edition Project Aon " +
+                    "(atteso il file titolo.htm dentro lo zip del libro)",
+            )
+        }
+
+        val notes = mutableListOf<String>()
+        val illustrations = mutableListOf<IllustrationMarker>()
+        val scenes = numberedDivs.flatMap { splitIntoRawScenes(it) }.flatMap { toScenes(it, notes, illustrations) }
+
+        val manifest = Manifest(
+            id = id,
+            version = "1.0.0",
+            title = title,
+            description = description,
+            language = "en",
+            genre = genre,
+            disciplineChoices = disciplineDescriptions,
+            scenes = scenes,
+        )
+        return ParseResult(manifest, notes, illustrations)
+    }
+
+    // --- Divisione in scene grezze --------------------------------------
+
+    private data class RawScene(val id: String, val elements: List<Element>)
+
+    // Ogni sezione numerata è <h3><a id="sectN">N</a></h3> seguito da
+    // paragrafi fino al prossimo <h3> di sezione — non ci sono contenitori
+    // per singola scena nell'HTML originale, solo una sequenza piatta.
+    private fun splitIntoRawScenes(numberedDiv: Element): List<RawScene> {
+        val scenes = mutableListOf<RawScene>()
+        var currentId: String? = null
+        var currentElements = mutableListOf<Element>()
+        for (child in numberedDiv.children()) {
+            val sectId = sectionIdOf(child)
+            if (sectId != null) {
+                currentId?.let { scenes += RawScene(it, currentElements) }
+                currentId = sectId
+                currentElements = mutableListOf()
+            } else {
+                currentElements += child
+            }
+        }
+        currentId?.let { scenes += RawScene(it, currentElements) }
+        return scenes
+    }
+
+    private fun sectionIdOf(element: Element): String? {
+        if (element.tagName() != "h3") return null
+        val rawId = element.selectFirst("a[id]")?.id() ?: return null
+        if (!rawId.startsWith("sect")) return null
+        return rawId.removePrefix("sect").takeIf { it.toIntOrNull() != null }
+    }
+
+    // --- Riconoscimento pattern (stessa prosa fissa in tutto il libro) --
+
+    // "Discipline of " seguito subito da uno dei 10 nomi canonici veri
+    // (29/07/2026, bug trovato: un capture-fino-alla-punteggiatura prendeva
+    // anche il resto della frase, es. "Healing on this man" invece di solo
+    // "Healing" — controllare contro i nomi VERI invece di indovinare dove
+    // finisce il nome è più robusto).
+    private val disciplineOfRegex = Regex("""(?:Kai )?Discipline of """, RegexOption.IGNORE_CASE)
+    // "win"/"kill"/"defeat"/"slay": varianti reali trovate nel libro per lo
+    // stesso concetto (vittoria in combattimento) — es. "If you win the
+    // fight" ma anche "If you kill all three of them", "If you kill the
+    // creature".
+    private val winRegex = Regex("""\bif you (?:win|kill|defeat|slay)\b""", RegexOption.IGNORE_CASE)
+    private val evadeRegex = Regex("""\bevade\b""", RegexOption.IGNORE_CASE)
+    private val evadeRoundsRegex = Regex("""after (\w+) rounds? of combat""", RegexOption.IGNORE_CASE)
+    private val pickedRangeRegex = Regex("""picked?(?: a number)? (\d)(?:\s*[-–]\s*(\d))?""", RegexOption.IGNORE_CASE)
+    private val combatLineRegex = Regex("""^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(\d+)""", RegexOption.IGNORE_CASE)
+    private val deductRegex = Regex("""Deduct (\d+) points? from your COMBAT SKILL""", RegexOption.IGNORE_CASE)
+    private val exactSectHrefRegex = Regex("""^#sect(\d+)$""")
+    private val numberWords = mapOf(
+        "one" to 1, "first" to 1, "two" to 2, "second" to 2,
+        "three" to 3, "third" to 3, "four" to 4, "fourth" to 4, "five" to 5,
+    )
+
+    private data class EnemyStats(val name: String, val combatSkill: Int, val endurance: Int)
+
+    // Restituisce PIÙ scene quando l'unica sezione originale non si
+    // rappresenta con un solo `combat` (29/07/2026, dopo aver incrociato
+    // mechanics-1.xml di Kai Chronicles — solo per capire la struttura,
+    // nessun codice/dato loro riusato, vedi doc/DIARIO.md):
+    //
+    // 1. Più nemici in sequenza nella stessa sezione ("fight them one at a
+    //    time"): una catena di scene sintetiche "{id}-nemico2",
+    //    "{id}-nemico3"... ciascuna con un solo combat, l'ultima con la
+    //    vera destinazione di vittoria — mai un nemico perso o inventato.
+    // 2. Vittoria che porta a più uscite invece di una sola (un tiro di
+    //    dado, o una scelta libera "adesso decidi tu"): quelle uscite
+    //    (già estratte correttamente come Choice/DisciplineChoice) si
+    //    spostano in UNA scena sintetica "{id}-vittoria", `combat
+    //    .winSceneId` punta lì.
+    //
+    // In entrambi i casi: nessun testo o numero inventato, solo dati già
+    // estratti dalla prosa spostati in nodi di grafo aggiuntivi — e ogni
+    // volta che succede, `notes` lo segnala esplicitamente.
+    private fun toScenes(raw: RawScene, notes: MutableList<String>, illustrations: MutableList<IllustrationMarker>): List<Scene> {
+        val narrative = StringBuilder()
+        val choices = mutableListOf<Choice>()
+        val disciplineChoices = mutableListOf<DisciplineChoice>()
+        val gameMechanics = mutableListOf<GameMechanic>()
+        val enemies = mutableListOf<EnemyStats>()
+        var winSceneId: String? = null
+        var evadeSceneId: String? = null
+        var evadeAfterRound = 0
+        var isDeadend = false
+        var choiceCounter = 0
+
+        fun label() = "Scena ${raw.id}"
+
+        for (element in raw.elements) {
+            if (element.tagName() == "div" && element.hasClass("illustration")) {
+                // "[Illustration N]" — nessuna descrizione di cosa
+                // raffiguri, solo la conferma che QUESTA scena ne aveva
+                // una nel libro cartaceo (30/07/2026, Michele: elenco per
+                // generarne di nuove e indipendenti con l'IA).
+                illustrations += IllustrationMarker(raw.id, element.text().trim())
+                continue
+            }
+            if (element.tagName() != "p") continue
+
+            val text = element.text().trim()
+            if (text.isEmpty()) continue
+
+            if (element.hasClass("combat")) {
+                val match = combatLineRegex.find(text)
+                if (match == null) {
+                    notes += "${label()}: paragrafo 'combat' non riconosciuto: \"$text\""
+                } else {
+                    val cs = match.groupValues[2].toIntOrNull()
+                    val end = match.groupValues[3].toIntOrNull()
+                    if (cs == null || end == null) {
+                        notes += "${label()}: paragrafo 'combat' con statistiche non numeriche: \"$text\""
+                    } else {
+                        enemies += EnemyStats(match.groupValues[1].trim(), cs, end)
+                    }
+                }
+                continue
+            }
+
+            if (element.hasClass("deadend")) {
+                isDeadend = true
+                narrative.append(text).append("\n\n")
+                continue
+            }
+
+            // Match ESATTO su "#sectN": alcuni paragrafi narrativi contengono
+            // link di nota a piè di pagina tipo "#sect113-1-foot" (bug
+            // trovato il 29/07/2026 — con un prefix-match questi venivano
+            // scambiati per un "turn to" verso la scena "113-1-foot").
+            val sceneLinks = element.select("a[href]").mapNotNull { a ->
+                exactSectHrefRegex.find(a.attr("href"))?.groupValues?.get(1)
+            }
+            if (sceneLinks.size > 1) {
+                notes += "${label()}: paragrafo con più link a scene (${sceneLinks.size}) — preso solo il primo: \"$text\""
+            }
+            val linkedSceneId = sceneLinks.firstOrNull()
+
+            if (linkedSceneId == null) {
+                applyInlineStatModifierIfAny(text, gameMechanics, notes) { label() }
+                narrative.append(text).append("\n\n")
+                continue
+            }
+
+            when {
+                winRegex.containsMatchIn(text) -> winSceneId = linkedSceneId
+
+                evadeRegex.containsMatchIn(text) -> {
+                    evadeSceneId = linkedSceneId
+                    val roundWord = evadeRoundsRegex.find(text)?.groupValues?.get(1)?.lowercase()
+                    evadeAfterRound = roundWord?.let { numberWords[it] ?: it.toIntOrNull() } ?: 0
+                }
+
+                disciplineOfRegex.containsMatchIn(text) -> {
+                    // "Discipline of either X or Y" (trovato nel libro 3):
+                    // il nostro schema non ha un OR di discipline su una
+                    // sola scelta, ma permette più DisciplineChoice verso
+                    // la STESSA destinazione — una per disciplina, stesso
+                    // effetto ("basta averne una delle due").
+                    val disciplineIds = findDisciplineMentions(text)
+                    choiceCounter++
+                    if (disciplineIds.isEmpty()) {
+                        notes += "${label()}: disciplina non riconosciuta in \"$text\""
+                        choices += Choice(id = "choice_${raw.id}_$choiceCounter", choiceText = text, nextSceneId = linkedSceneId)
+                    } else {
+                        if (disciplineIds.size > 1) {
+                            notes += "${label()}: scelta con più discipline alternative (${disciplineIds.joinToString(" o ")}) — create ${disciplineIds.size} DisciplineChoice separate verso la stessa destinazione"
+                        }
+                        disciplineIds.forEachIndexed { index, disciplineId ->
+                            disciplineChoices += DisciplineChoice(
+                                id = "dchoice_${raw.id}_${choiceCounter}_$index",
+                                disciplineId = disciplineId,
+                                choiceText = text,
+                                nextSceneId = linkedSceneId,
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+                    choiceCounter++
+                    val range = pickedRangeRegex.find(text)
+                    if (range == null) {
+                        choices += Choice(id = "choice_${raw.id}_$choiceCounter", choiceText = text, nextSceneId = linkedSceneId)
+                    } else {
+                        val min = range.groupValues[1].toInt()
+                        val max = range.groupValues[2].toIntOrNull() ?: min
+                        choices += Choice(
+                            id = "choice_${raw.id}_$choiceCounter",
+                            choiceText = text,
+                            nextSceneId = linkedSceneId,
+                            minRoll = min,
+                            maxRoll = max,
+                        )
+                    }
+                }
+            }
+        }
+
+        val hasLeftoverChoices = choices.isNotEmpty() || disciplineChoices.isNotEmpty()
+        val extraScenes = mutableListOf<Scene>()
+
+        // La vera destinazione dopo l'ULTIMO nemico della catena: quella
+        // già trovata in prosa ("if you win/kill...") se c'è, altrimenti —
+        // se restano scelte/discipline senza una singola destinazione — una
+        // scena sintetica con quelle uscite (nessun testo o numero
+        // inventato, solo spostato).
+        val finalWinSceneId: String = when {
+            enemies.isEmpty() -> winSceneId ?: ""
+            winSceneId != null -> winSceneId
+            hasLeftoverChoices -> {
+                val syntheticId = "${raw.id}-vittoria"
+                notes += "${label()}: la vittoria porta a più uscite (scelta o tiro) invece che a una sola destinazione — creata la scena sintetica '$syntheticId' con quelle uscite"
+                extraScenes += Scene(
+                    id = syntheticId,
+                    sceneType = SceneType.TRANSITION,
+                    genre = "FANTASY",
+                    narrativeText = "You have won the fight.",
+                    choices = choices.toList(),
+                    disciplineChoices = disciplineChoices.toList(),
+                )
+                choices.clear()
+                disciplineChoices.clear()
+                syntheticId
+            }
+            else -> {
+                notes += "${label()}: blocco combat senza una riga \"if you win\" riconosciuta — winSceneId mancante, da correggere a mano"
+                ""
+            }
+        }
+
+        if (enemies.size > 1) {
+            notes += "${label()}: ${enemies.size} nemici in sequenza nella stessa sezione " +
+                "(${enemies.joinToString(", ") { it.name }}) — creata una catena di scene sintetiche, un nemico alla volta"
+        }
+
+        // Catena "{id}" -> "{id}-nemico2" -> "{id}-nemico3" -> ... -> finalWinSceneId.
+        // La stessa evasione (evadeSceneId/evadeAfterRound) si applica a
+        // ogni anello: nel libro si può fuggire in qualunque momento della
+        // sequenza, non solo dal primo nemico.
+        fun chainIdFor(enemyIndex: Int) = if (enemyIndex == 0) raw.id else "${raw.id}-nemico${enemyIndex + 1}"
+
+        for (index in 1 until enemies.size) {
+            val nextWin = if (index == enemies.lastIndex) finalWinSceneId else chainIdFor(index + 1)
+            extraScenes += Scene(
+                id = chainIdFor(index),
+                sceneType = SceneType.TRANSITION,
+                genre = "FANTASY",
+                narrativeText = "The next opponent steps forward.",
+                combat = Combat(
+                    enemyName = enemies[index].name,
+                    enemyCombatSkill = enemies[index].combatSkill,
+                    enemyEndurance = enemies[index].endurance,
+                    evadeAfterRound = evadeAfterRound,
+                    winSceneId = nextWin,
+                    evadeSceneId = evadeSceneId,
+                ),
+            )
+        }
+
+        val combat = enemies.firstOrNull()?.let { first ->
+            Combat(
+                enemyName = first.name,
+                enemyCombatSkill = first.combatSkill,
+                enemyEndurance = first.endurance,
+                evadeAfterRound = evadeAfterRound,
+                winSceneId = if (enemies.size > 1) chainIdFor(1) else finalWinSceneId,
+                evadeSceneId = evadeSceneId,
+            )
+        }
+
+        val hasAnyExit = choices.isNotEmpty() || disciplineChoices.isNotEmpty() || combat != null
+        val sceneType = when {
+            raw.id == "1" -> SceneType.START
+            !hasAnyExit -> SceneType.ENDING
+            else -> SceneType.TRANSITION
+        }
+        val outcome = when {
+            sceneType != SceneType.ENDING -> null
+            isDeadend -> EndingOutcome.DEFEAT
+            else -> {
+                notes += "${label()}: finale senza scelte ma senza marcatore 'deadend' — esito assunto NEUTRAL, " +
+                    "correggi a VICTORY se è la conclusione vittoriosa del libro"
+                EndingOutcome.NEUTRAL
+            }
+        }
+
+        val mainScene = Scene(
+            id = raw.id,
+            sceneType = sceneType,
+            genre = "FANTASY",
+            narrativeText = narrative.toString().trim(),
+            choices = choices,
+            disciplineChoices = disciplineChoices,
+            combat = combat,
+            gameMechanics = gameMechanics,
+            outcome = outcome,
+        )
+        return listOf(mainScene) + extraScenes
+    }
+
+    // "Deduct N points from your COMBAT SKILL[ unless you have the Kai
+    // Discipline of X]" — frase fissa che precede quasi ogni combattimento,
+    // in un paragrafo puramente narrativo (nessun link di scena).
+    private inline fun applyInlineStatModifierIfAny(
+        text: String,
+        gameMechanics: MutableList<GameMechanic>,
+        notes: MutableList<String>,
+        label: () -> String,
+    ) {
+        val match = deductRegex.find(text) ?: return
+        val amount = match.groupValues[1].toIntOrNull() ?: return
+        val statMod = GameMechanic(
+            command = "applyStatModifier",
+            params = buildJsonObject {
+                put("statName", "COMBAT_SKILL")
+                put("amount", (-amount).toString())
+            },
+        )
+        // "unless you have [the Kai] Discipline of X" — condizione opzionale
+        // sulla stessa frase del deduct.
+        if (!text.contains("unless", ignoreCase = true)) {
+            gameMechanics += statMod
+            return
+        }
+        val disciplineId = findDisciplineMentions(text).firstOrNull()
+        if (disciplineId == null) {
+            notes += "${label()}: \"unless\" con disciplina non riconosciuta in \"$text\""
+            gameMechanics += statMod
+            return
+        }
+        gameMechanics += GameMechanic(
+            command = "handleConditionalAction",
+            params = buildJsonObject {
+                put("condition", "NOT_HAS_DISCIPLINE")
+                put("disciplineName", disciplineId)
+                put(
+                    "action",
+                    buildJsonObject {
+                        put("command", statMod.command)
+                        put("params", statMod.params)
+                    },
+                )
+            },
+        )
+    }
+
+    // Nomi inglesi canonici più lunghi prima: "mind over matter" deve
+    // essere provato prima di eventuali sotto-match più corti (nessuno dei
+    // 10 è prefisso di un altro oggi, ma l'ordine resta una garanzia
+    // economica contro future aggiunte).
+    private val disciplineByEnglishName = Discipline.entries
+        .associateBy { it.name.replace('_', ' ').lowercase() }
+        .entries.sortedByDescending { it.key.length }
+
+    // Cerca "Discipline of " e cerca i nomi canonici ESATTI dentro la sola
+    // clausola che segue (fino alla prossima virgola/punto) — non "cattura
+    // fino alla punteggiatura", che prendeva anche il resto della frase
+    // quando il libro continua con "to fare qualcosa" prima della virgola
+    // (bug trovato il 29/07/2026 su 5 scene di 01fftd.htm). Restituisce PIÙ
+    // di un nome per "Discipline of either X or Y" (libro 3: basta averne
+    // una delle due) — quasi sempre una lista con un solo elemento.
+    private fun findDisciplineMentions(text: String): List<String> {
+        val match = disciplineOfRegex.find(text) ?: return emptyList()
+        val remainder = text.substring(match.range.last + 1)
+        val clauseEnd = remainder.indexOfFirst { it == ',' || it == '.' }.let { if (it == -1) remainder.length else it }
+        val clause = remainder.substring(0, clauseEnd)
+        return disciplineByEnglishName
+            .filter { (englishName, _) -> clause.contains(englishName, ignoreCase = true) }
+            .map { it.value.name }
+            .distinct()
+    }
+}

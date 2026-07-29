@@ -107,41 +107,6 @@ object ModelCatalog {
         engineType = EngineType.LLAMA_CPP_NATIVE,
     )
 
-    // Gemma 3 4B (27/07/2026, Michele: "voglio gemma 3/4 12b e versione
-    // 4b, quelle ottimizzate Adreno se possibile"): a differenza del 12B
-    // Heretic sopra, per questa taglia esiste un vero Q4_0 uncensored —
-    // mradermacher, tecnica "abliterated Extreme". Dimensione VERIFICATA
-    // con richiesta HEAD il 27/07/2026, repo aperto.
-    val GEMMA_3_4B_HERETIC_Q4_0_GGUF = DownloadableModel(
-        id = "gemma-3-4b-heretic-q4_0-gguf",
-        displayName = "Gemma 3 4B Heretic Q4_0 (GGUF, nativo)",
-        url = "https://huggingface.co/mradermacher/gemma-3-4b-it-heretic-uncensored-abliterated-Extreme-i1-GGUF/resolve/main/gemma-3-4b-it-heretic-uncensored-abliterated-Extreme.i1-Q4_0.gguf",
-        fileName = "gemma-3-4b-it-heretic-uncensored-abliterated-Extreme.i1-Q4_0.gguf",
-        sizeBytes = 2_370_066_400L,
-        requiresToken = false,
-        note = "Motore GGUF nativo (llama.cpp, GPU Adreno): Q4_0 vero, uncensored (abliterated Extreme). Non ancora provato su scene vere.",
-        engineType = EngineType.LLAMA_CPP_NATIVE,
-    )
-
-    // Gemma 4 E4B (27/07/2026, stessa richiesta): nessuna variante
-    // "heretic"/uncensored ha ancora un vero file Q4_0 per questa taglia
-    // (solo Q4_K_M e superiori) — cercato in più repo (llmfan46,
-    // mradermacher, SC117, igorls), nessuno ce l'ha. Questo è quindi
-    // l'ufficiale di Google, SENZA fine-tuning di terzi, ma è l'unico
-    // Q4_0 vero verificato per Gemma 4 4B. Dimensione VERIFICATA con
-    // richiesta HEAD il 27/07/2026, repo aperto (nessun token,
-    // diversamente dal Gemma 3 4B ufficiale visto prima).
-    val GEMMA_4_E4B_Q4_0_GGUF = DownloadableModel(
-        id = "gemma-4-e4b-q4_0-gguf",
-        displayName = "Gemma 4 E4B Q4_0 (GGUF, nativo, ufficiale Google)",
-        url = "https://huggingface.co/google/gemma-4-E4B-it-qat-q4_0-gguf/resolve/main/gemma-4-E4B_q4_0-it.gguf",
-        fileName = "gemma-4-E4B_q4_0-it.gguf",
-        sizeBytes = 5_154_941_280L,
-        requiresToken = false,
-        note = "Motore GGUF nativo (llama.cpp, GPU Adreno): Q4_0 vero, modello Google senza fine-tuning di terzi (nessuna variante uncensored ha ancora un Q4_0 vero a questa taglia). Non ancora provato su scene vere.",
-        engineType = EngineType.LLAMA_CPP_NATIVE,
-    )
-
     // Fissi (28/07/2026, Michele: "un file json che contiene i link... e
     // si può ripristinare con i modelli di default"): questi due restano
     // SEMPRE nella lista, un import di ModelPreferences.candidateModels
@@ -151,12 +116,20 @@ object ModelCatalog {
 
     // Il set di partenza di ModelPreferences.candidateModels (mai
     // toccato scaricando/importando: "ripristina predefiniti" torna
-    // sempre a questi quattro).
+    // sempre a questi due). Rimossi (28/07/2026): Gemma 4 E4B Q4_0
+    // ufficiale Google ("rimuoviamolo direttamente" — due prove, stesso
+    // fallimento strutturale: salta il testo della scena) e Gemma 3 4B
+    // Heretic Q4_0 ("cancella questo modello sbagliato" — separatore
+    // `--- TAGS ---` duplicato, il testo vero incollato nel posto
+    // sbagliato). Confronto prestazioni fatto prima di decidere: anche
+    // il miglior nativo (8,5 tok/s, primo token 17s) perde su entrambi
+    // gli assi contro LiteRT-LM (~12 tok/s, primo token ~1-2s), e nessuno
+    // dei quattro nativi provati ha mai rispettato la struttura del
+    // prompt in modo affidabile — non conviene investire ulteriormente
+    // se non per l'accesso a modelli uncensored assenti in .litertlm.
     val defaultCandidates = listOf(
         GEMMA_3_12B_HERETIC_NATIVE,
         GEMMA_4_12B_HERETIC_Q4_0_GGUF,
-        GEMMA_3_4B_HERETIC_Q4_0_GGUF,
-        GEMMA_4_E4B_Q4_0_GGUF,
     )
 
     // Tenuto per compatibilità (preview, ricerche byId senza contesto di

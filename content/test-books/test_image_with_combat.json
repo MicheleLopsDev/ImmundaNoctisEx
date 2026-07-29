@@ -9,7 +9,7 @@
     "scenes": [
         {
             "id": "1",
-            "sceneType": "TRANSITION",
+            "sceneType": "START",
             "genre": "FANTASY",
             "toneHints": ["dark", "dangerous"],
             "narrativeText": "The cave mouth swallows the daylight as you step inside, wild vegetation giving way to damp rock. A low growl echoes from the darkness ahead, and two glinting eyes catch what little light remains before the creature lunges.",

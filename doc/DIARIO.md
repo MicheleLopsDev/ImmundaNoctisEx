@@ -574,6 +574,370 @@ client. Il tag `gguf-cpu-baseline-27-07-2026` resta come punto di
 ritorno storico se in futuro servisse confrontare "prima"/"dopo"
 l'introduzione del motore nativo.
 
+**SFX ambientali/finali come sottofondo al TTS (28/07/2026, Michele:
+"vorrei che gli audio sfx facessero da audio di sottofondo al tts con
+un valore di volume basso")**: fino ad ora i suoni "a nome libero" di
+`SoundEffectPlayer.playNamed` (ambientazioni location, es.
+`loc_warehouse`/`vicolo`, e i tre finali vittoria/sconfitta/neutro)
+suonavano allo stesso volume del narratore, competendo con la voce
+invece di accompagnarla. `SoundEffectPlayer` ora tiene un flag
+`duckedByTts`, pilotato dagli stessi eventi `onSpeakingStarted`/
+`onSpeakingFinished` di `TtsService` già usati per lo stato `isSpeaking`
+(`AdventureState.kt`): quando il narratore parla, questi suoni scendono
+a 0,35× il loro volume normale — non solo per i nuovi che partono da
+quel momento, ma anche per uno già in corso, il cui `streamId` restava
+salvato apposta per poterne cambiare il volume al volo
+(`pool.setVolume`). I brevi `SoundEffect` dell'enum (dado, passi,
+mangiare/bere, inizio combattimento) restano a volume pieno: durano
+meno di un secondo, non si sovrappongono davvero al parlato.
+
+Conseguenza diretta: il suono di finale, che dal 24/07/2026 ASPETTAVA
+che il TTS finisse di leggere per non sovrapporsi (`playEndingSoundIfNew`,
+`AdventureState.kt`), ora parte SUBITO alla scena finale — con gli SFX
+ridotti di volume durante il parlato, la sovrapposizione che l'attesa
+serviva a evitare è diventata l'effetto voluto. Rimossa tutta la
+logica di polling (deadline, timeout, margine di grazia) e le relative
+costanti, non più necessarie.
+
+**Sottofondo SFX in loop fino a fine TTS (28/07/2026, Michele: "se il
+suono di sottofondo è corto mettilo in loop fino a che il tts si
+spegne")**: i suoni "a nome libero" (`SoundEffectPlayer.playNamed`)
+andavano una volta sola per tutta la loro durata reale, stimata con
+`MediaMetadataRetriever` — un file corto restava zitto per il resto
+della lettura. Ora vanno in loop indefinito (`pool.play(..., loop =
+-1, ...)`) e si fermano SOLO quando il TTS finisce di parlare
+(`setDuckedByTts(false)`, chiamato da `AdventureState` sugli stessi
+eventi `onSpeakingStarted`/`onSpeakingFinished` del ducking) — non più
+legati a una durata stimata, quindi tolta anche la lettura della
+durata reale via `MediaMetadataRetriever`, non più necessaria.
+`namedSoundStreamIds` (già introdotto per il ducking) è ora anche
+l'unica fonte di verità di "sta ancora suonando", al posto della
+vecchia stima a tempo.
+
+Effetto a cascata sulla musica: la pausa "tecnica" durante questi
+sottofondi (`MusicPlayer.duckFor`, un timer sulla durata stimata) non
+aveva più senso con una durata non più nota in anticipo — sostituita
+da `pause()`/`resume()` diretti, chiamati da `SoundEffectPlayer`
+quando il loop parte e quando si ferma davvero (`stopBackgroundSounds`).
+`duckFor` rimosso, era l'unico chiamante.
+
+Bug scoperto implementandolo: `TtsService` non gestiva `onStop` (solo
+`onDone`/`onError`) — interrompere un'utterance a mano (`stop()`, ad
+ogni cambio scena in `moveTo()`) non fa mai arrivare `onDone`, SOLO
+`onStop`. Senza gestirlo, `isSpeaking` restava bloccato a `true` per
+sempre dopo la prima interruzione manuale, e con esso il ducking/loop
+degli SFX non si sarebbe più fermato da solo. Corretto aggiungendo
+l'override mancante. Rete di sicurezza aggiuntiva in `moveTo()`:
+`soundEffectPlayer?.stopBackgroundSounds()` esplicito ad ogni cambio
+scena, per il caso in cui il TTS non parli affatto (auto-lettura
+spenta, nessun tocco manuale) — altrimenti un sottofondo partito
+in quella scena girerebbe per sempre, sopravvivendo anche in quella
+successiva.
+
+**Watchdog TTS (28/07/2026, Michele: "sono andato su un'altra app, il
+TTS ha smesso di parlare ma il sottofondo continuava finché non ho
+chiuso l'app")**: il caso reale in cui il fix di `onStop` sopra non
+bastava — passando a un'altra app il sistema tronca l'audio del TTS
+senza passare da NESSUNO dei callback di `UtteranceProgressListener`
+(né `onDone`, né `onStop`, né `onError`), lasciando `isSpeaking`
+bloccato a `true` per sempre. Aveva ragione Michele a pensare al
+polling fin dall'inizio (proposta scartata la prima volta perché
+applicata al caso sbagliato — "TTS rallentato" — ma corretta per
+QUESTO caso). Aggiunta `TtsService.isCurrentlySpeaking()`
+(`TextToSpeech.isSpeaking()`, lo stato vero del motore) e un watchdog
+in `AdventureState` (`startTtsWatchdog`, poll ogni 2s SOLO mentre
+`isSpeaking` risulta true): se il motore dice di non parlare più ma il
+nostro flag non se n'è accorto, si tratta il narratore come finito
+anche senza il callback. Resta comunque il percorso a eventi come
+principale (preciso, zero overhead) — il polling è solo la rete di
+sicurezza per quando gli eventi si perdono.
+
+**Rimosso Gemma 4 E4B Q4_0 (GGUF, nativo, ufficiale Google) dal
+catalogo (28/07/2026)**: due prove reali su scena, entrambe fallite
+nello stesso modo strutturale — il modello salta interamente il testo
+della scena e genera solo il blocco `--- TAGS ---` (una volta con un
+misterioso `**START GENERATION NOW**` finale mai richiesto dal nostro
+prompt, una volta duplicando la riga `CHOICE`). Le PAROLE cambiavano
+tra un tentativo e l'altro (temperatura 0,5), la STRUTTURA no — segno
+di un problema sistematico col nostro prompt lungo e articolato
+(`formatChat=false`, nessun chat template), non sfortuna. Michele:
+"rimuoviamolo direttamente" — tolto da `ModelCatalog.defaultCandidates`
+e dalla singola dichiarazione, restano tre candidati nativi
+(12B IQ4_XS, 12B e 4B Heretic Q4_0).
+
+**Gemma 3 4B Heretic Q4_0 nativo: separatore duplicato, rimosso
+(28/07/2026)**: prova su scena vera — il modello ha scritto la
+struttura del prompt DUE volte nella stessa risposta: prima un
+`Ecco la scena.` fittizio seguito da un `--- TAGS ---` prematuro con
+una riga `CHOICE` malformata (un pipe di troppo), poi — incollato lì
+dentro per errore — il vero testo della scena (tradotto discretamente,
+qualche parola storta) seguito da un token multimodale
+`<start_of_image>` (questo Gemma 3 ha capacità visive, spuntato da
+solo senza che gli fosse chiesto) e SOLO A QUEL PUNTO un secondo
+`--- TAGS ---`, nella posizione giusta ma senza nessuna riga CHOICE
+dopo (generazione finita lì). Il nostro parser prende il testo prima
+del PRIMO separatore che trova — comportamento corretto da parte
+nostra, da qui `"Ecco la scena."` a schermo invece del vero contenuto.
+
+Prima di decidere se investire nel probabile fix (un chat template
+Gemma vero per il motore nativo, oggi manda il prompt grezzo con
+`formatChat=false`), confronto prestazioni chiesto da Michele e fatto:
+anche il MIGLIOR risultato nativo (8,5 tok/s, primo token ~17s, sul 4B
+Q4_0 non-Heretic provato prima) perde su entrambi gli assi contro
+LiteRT-LM (~12 tok/s regime stabile, primo token ~1-2s) — e nessuno dei
+quattro modelli nativi provati finora ha mai rispettato la struttura
+del prompt in modo affidabile, mentre LiteRT-LM non ha mai fallito.
+Michele: "non ci investirei alla fine il modello litrm è decente,
+cancella questo modello sbagliato" — tolto da `ModelCatalog
+.defaultCandidates` e dalla dichiarazione, restano due candidati nativi
+(12B IQ4_XS, 12B Heretic Q4_0) — nessun altro test nativo pianificato
+per ora, a meno che l'interesse per contenuti uncensored non presenti
+in formato `.litertlm` non giustifichi in futuro il lavoro sul chat
+template.
+
+**Gemma 4 12B custom (.litertlm) — kill di sistema, non un crash
+nostro (28/07/2026)**: ultimo modello provato nel giro di test odierno,
+un 12B personalizzato aggiunto da link Hugging Face (non nel catalogo).
+Riproducibile due volte identico: la compilazione del delegate GPU
+OpenCL per un grafo così grande (~8000 nodi totali tra prefill e
+decode) impegna la GPU per 30-54 secondi, il thread principale non
+riesce più a disegnare un frame (`Skipped 82 frames!`, `Davey!
+duration=4489ms`), e Android perde la pazienza e chiude il processo
+(`Channel is unrecoverably broken and will be disposed!`, kill di
+sistema, non un'eccezione nel nostro codice). Coerente con l'esito già
+visto sul 12B nativo GGUF (0,7 tok/s): **12B sembra sopra la soglia
+gestibile su questo device**, sia su GPU LiteRT-LM che su GGUF nativo.
+Michele ha cancellato il modello lui stesso (personalizzato, non nel
+catalogo — nulla da toccare lato codice).
+
+**Verdetto della giornata di test (28/07/2026)**: dopo aver provato
+TranslateGemma (traduzione, non narrazione), DeepSeek-R1-Distill-Qwen-7B
+(formato non rispettato), quattro varianti GGUF native (velocità
+insufficiente o struttura del prompt non rispettata) e un 12B LiteRT-LM
+personalizzato (troppo pesante per la GPU del device), Michele: "per
+adesso Gemma 4 4B è il migliore" — **Gemma 4 E4B su LiteRT-LM resta la
+scelta di riferimento**, confermata dopo un confronto ampio e non solo
+per mancanza di alternative provate.
+
+## Fase 6 (ETL/authoring) — lavoro preparatorio (29/07/2026)
+
+Chiuso il capitolo client Android (a parte manutenzione ordinaria),
+Michele apre il prossimo: prima uno scope più ampio di `doc/ETL.md`
+per il futuro `:tool` (non solo conversione Project Aon, anche editor
+grafico per libri scritti da zero ed editor dei prompt — vedi memoria
+di sessione, piano dettagliato ancora da ricevere), poi scritto
+`doc/SCHEMA-JSON.md` (documentazione completa e verificata riga per
+riga del formato JSON manifest+scene: campi, comandi `gameMechanics`
+con parametri esatti, regole di validazione — la base su cui poggerà
+qualunque editor).
+
+**Primo pezzo di codice reale (Michele: "un processo che per adesso
+sarà lanciato da un main kotlin che valida un json... ci servirà
+sempre e dovrà essere integrato nei nostri test")**:
+
+- `:tool` (finora scheletro Gradle vuoto) ha ora il suo primo
+  contenuto: `ValidateMain.kt`, un `main()` a riga di comando
+  (`./gradlew :tool:run --args="file1.json file2.json ..."`) che
+  valida uno o più file e stampa VALIDO/NON VALIDO con gli errori,
+  exit code 0/1. Nessuna logica di validazione nuova: riusa
+  `PackageRepository`/`PackageValidator` di `:core:data`, lo stesso
+  codice che carica un libro nell'app — un file compatibile con l'app
+  lo è anche col tool, per costruzione. `FilePackageSource` (nuova,
+  in `:tool`) apre un file locale qualunque, stesso pattern di
+  `AssetPackageSource`/`UriPackageSource` in `AppContainer.kt`.
+- **Integrato nei test**: nuovo `ContenutiRealiValidiTest` in
+  `:core:data` (jvmTest) che valida OGNI file JSON reale in
+  `content/` (esclude solo `config.json`, il registro tag, non un
+  libro) — non una copia sotto `src/jvmTest/resources` come le
+  fixture esistenti, che può disallinearsi dai file veri (già successo
+  una volta: la vecchia fixture `scenes.sample.json` lì dentro aveva
+  `backgroundImage` non canonici e mancava `outcome`/`enemyImage`).
+  Percorso di `content/` passato al task `jvmTest` via system property
+  configurata in `core/data/build.gradle.kts`
+  (`rootProject.layout.projectDirectory`), indipendente dalla working
+  directory con cui gira Gradle.
+- **Il test ha trovato subito un bug vero**, non ipotetico:
+  `content/test-books/test_image_with_combat.json` aveva la scena 1
+  (l'unico punto d'ingresso del libro) come `TRANSITION` invece di
+  `START` — nessuna scena `START` nel libro, validatore lo respingeva
+  a ragione. Corretto (`sceneType: "START"`), test verde.
+- Verificato manualmente anche il caso negativo: passare
+  `content/config.json` (il registro tag, non un `Manifest`) al CLI
+  produce correttamente `NON VALIDO` con l'errore di deserializzazione
+  — conferma che il validatore respinge davvero ciò che non deve
+  passare, non solo che accetta ciò che deve.
+
+**Nota d'uso**: `./gradlew :tool:run` gira con la working directory di
+`tool/`, non la radice del repo — i percorsi relativi vanno dati di
+conseguenza (es. `../content/...`) o si usano percorsi assoluti.
+
+## Fase 6 — primo convertitore Project Aon → JSON (29/07/2026)
+
+**Fonti trovate**: Michele ricordava un repo SVN di Project Aon — non
+verificato (l'URL storico del downloader di Kai Chronicles dà 404
+oggi). Trovato invece qualcosa di meglio: le XHTML "Internet Edition"
+dei libri 1-5 già scaricate a mano da Michele tempo fa
+(`.../DOC/LIBRI/*.htm` nel vecchio repo v1, ora copiate in
+`doc/LIBRI/` di questo repo — **gitignorato**, mai committato, mai
+nell'APK). Confermato anche l'URL di download diretto e funzionante
+per tutti i 29 libri: `https://www.projectaon.org/en/xhtml/lw/{codice}
+/{codice}.zip` (verificato scaricando `01fftd.zip`, 3,6 MB reali) —
+trovato nel README di un altro vecchio progetto di Michele,
+`LoneWolfRedux` (anch'esso esplorato: usa una WebView con traduzione
+in-place via ML Kit/Gemma invece di un parser — scartato da Michele
+stesso per lentezza della traduzione, e comunque "nessun parsing HTML
+in Kotlin" per design, quindi nessun codice di parsing riusabile da
+lì — solo il catalogo libri e la logica di download/unzip erano
+buoni).
+
+**`:tool` ora ha un vero convertitore** (`ProjectAonHtmlParser.kt` +
+`ConvertMain.kt`, comando `./gradlew :tool:run --args="convert libro
+.htm output.json id titolo"`): parsing HTML deterministico (Jsoup, non
+regex a mano) della struttura fissa e ripetuta delle Internet Edition
+— `<h3><a id="sectN">` per ogni sezione, `<p class="choice">` per le
+scelte, `<p class="combat">Nome: COMBAT SKILL N ENDURANCE M</p>` per i
+combattimenti, `<p class="deadend">` per i finali di sconfitta. Scritto
+in output il risultato JSON, i casi "da rivedere a mano" (`notes` del
+parser — mai un `gameMechanic` inventato quando il testo non è
+riconoscibile, coerente con `ItemMechanics`/`Params.kt`), e infine
+validato con lo STESSO `PackageRepository`/`PackageValidator` del
+comando `validate` di ieri.
+
+**Due bug trovati e corretti sul libro 1 pilota** ("Flight from the
+Dark", 350 sezioni):
+1. Un link di nota a piè di pagina (`<sup><a href="#sect113-1-foot">`)
+   veniva scambiato per un "turn to" verso la scena "113-1-foot" —
+   il selettore prendeva qualunque `href` che INIZIASSE con `#sect`
+   invece di pretendere un match ESATTO `#sectN`.
+2. Il riconoscimento delle discipline Kai (`"Discipline of X"`)
+   catturava tutto il testo fino alla punteggiatura invece di
+   fermarsi al nome vero (es. "Healing on this man" invece di
+   "Healing") — corretto cercando i 10 nomi canonici ESATTI subito
+   dopo "Discipline of", non indovinando dove finisce la frase.
+
+**Due casi strutturali reali, non bug**: alcuni combattimenti hanno
+più nemici in sequenza nella stessa sezione ("fight them one at a
+time" — 7 casi nel libro 1: Giak×2, Leader+2 soldati, 4 Doomwolf), e
+alcune vittorie portano a più uscite invece che a una sola (un tiro di
+dado, o una scelta libera "adesso decidi tu" — 2 casi). Il nostro
+schema (`combat.winSceneId`: una stringa sola) non li rappresenta
+direttamente. Risolti con una **catena di scene sintetiche**
+(`{id}-nemico2`, `{id}-vittoria`, ecc.) — tecnica puramente meccanica,
+nessun testo o numero inventato, solo i dati già estratti dalla prosa
+spostati in nodi di grafo aggiuntivi. Ogni volta che scatta, `notes`
+lo segnala.
+
+**Incrocio con Kai Chronicles (github.com/tonib/kaichronicles)**:
+Michele ha segnalato che il progetto ha già `mechanics-1.xml`…
+`mechanics-12.xml` (regole dei libri 1-12 codificate a mano da un'altra
+community) più un motore TypeScript che le interpreta
+(`mechanicsEngine.ts`, `combatMechanics.ts`). **Verificata la licenza
+nel fork locale di Michele (`C:\DEV\kaichronicles\LICENSE`): è GPL v3,
+non MIT** — una ricerca web precedente nella stessa sessione aveva
+detto (erroneamente) MIT, corretto qui. Questo conferma che il
+commento già presente in `CombatResultsTable.kt` ("Fonte: Kai
+Chronicles GPL v3") era giusto fin dall'inizio. Decisione con Michele:
+usare `mechanics-1.xml` **solo per capire/incrociare** la struttura
+(es. confermato che la sezione 180 ha davvero 3 nemici in sequenza con
+`<combat index="0/1/2">`, e la sezione 17 ha davvero un
+`randomTable` dopo la vittoria con gli stessi tre range 0/1-2/3-9 già
+estratti dalla nostra prosa) — **nessun codice o dato di Kai
+Chronicles copiato o portato**, la nostra logica Kotlin resta scritta
+da zero. La GPL non pone comunque alcun limite qui: uso privato/di
+comprensione, mai un'opera derivata distribuita.
+
+**Esito finale sul libro 1**: 350 scene reali + 12 sintetiche = 362,
+**VALIDO, 0 errori, 0 avvisi**. Restano 10 note informative (7
+combattimenti multi-nemico/vittoria-con-scelta, gestiti correttamente
+dalla catena sintetica; 1 finale — sezione 350, "you are about to meet
+the King" — senza marcatore `deadend`, assunto `NEUTRAL` di default,
+da confermare a mano come `VICTORY` se è davvero la conclusione buona
+del libro).
+
+**Estesi ai libri 2-5 (29/07/2026, stesso giorno)**: obiettivo di
+Michele — convertire i primi 5 libri, poi passare a definire la parte
+di creazione di libri nuovi. Convertiti in sequenza "Fire on the
+Water" (368 scene), "The Caverns of Kalte" (362), "The Chasm of Doom"
+(364), "Shadow on the Sand" (406) — **tutti VALIDI, 0 errori, 0
+avvisi**, stesso parser, nessuna modifica specifica per libro.
+
+Due fix generali emersi provando libri diversi (mai patch mirate su un
+singolo libro — sempre la regola generale dietro il caso specifico):
+- **"Discipline of either X or Y"** (libro 3, poi ricomparso in altri):
+  il nostro schema non ha un OR di discipline su una sola scelta, ma
+  permette più `DisciplineChoice` verso la STESSA destinazione — una
+  per disciplina. `findDisciplineMentions` (prima singolare) ora
+  restituisce tutte le discipline nominate nella clausola, non solo la
+  prima.
+- **Più `div.numbered` nello stesso file** ("Shadow on the Sand" ha
+  "Part I" e "Part II" separati, ognuno il suo contenitore): il parser
+  prendeva solo il primo, le sezioni della Parte II sparivano in
+  silenzio — non generate ma comunque referenziate da un `choice`,
+  quindi il validatore lo scopriva (`nextSceneId` punta a "201", che
+  non esiste). Corretto processando tutti i `div.numbered` trovati, non
+  solo il primo — 202 scene diventate 406 una volta inclusa la Parte
+  II.
+
+**Tutti e 5 i libri validati insieme con lo stesso comando `validate`**
+di ieri, poi rilanciata l'intera suite (`core:data`/`core:engine`
+jvmTest + `tool`/`app` compile) per la regressione — tutto verde.
+
+I file restano in `doc/LIBRI/` (gitignorato, mai nell'APK). Prossimo
+capitolo, quando Michele lo apre: definire la parte di CREAZIONE di
+libri nuovi (editor grafico scene + editor prompt, vedi memoria di
+sessione "tool-authoring-scope-ampliato") — ancora nessuna specifica
+scritta.
+
+## Fase 6 — elenco illustrazioni originali (29/07/2026)
+
+Michele vuole rifare le immagini dei libri con un'IA generativa
+indipendente, ma i file XHTML segnano solo `[Illustration N]` (numero
+romano, nessuna descrizione del disegno) — serve prima sapere QUALI
+scene ne avevano una, per poterle guardare di persona sul sito di
+Project Aon e descriverle al modello.
+
+`ProjectAonHtmlParser` ora raccoglie anche questi marcatori
+(`IllustrationMarker(sceneId, label)`, terzo campo di `ParseResult`,
+prima scartati con un `continue` silenzioso). Nuovo comando
+`./gradlew :tool:run --args="illustrazioni output.md libro1.htm id1
+titolo1 [...]"` (`IllustrazioniMain.kt`): per ogni libro incrocia i
+marcatori con `Scene.narrativeText` (lo stesso testo già ripulito dal
+parser, non l'HTML grezzo) e produce una tabella Markdown per libro —
+scena, estratto di ~140 caratteri, nome file segnaposto
+`{idLibro}_{scenaPaddata}.jpg`, casella `[ ]` per segnare quando è
+stata rifatta.
+
+Lanciato sui 5 libri già convertiti: **103 illustrazioni totali**
+(19+19+20+21+24, combacia con l'audit manuale fatto a mano prima di
+scrivere il codice). Output in `doc/LIBRI/ILLUSTRAZIONI.md` — stesso
+regime di `doc/LIBRI/*.htm`/`*.json`: gitignorato, mai nell'APK, uso
+personale di Michele per riconoscere gli originali e farsene generare
+di nuovi. Suite di regressione (`core:data`/`core:engine` jvmTest +
+`tool`/`app` compile) rilanciata dopo la modifica al parser: tutto
+verde.
+
+**Link diretti all'illustrazione originale (stesso giorno)**: Michele
+ha chiesto di poter cliccare e vedere subito il disegno vero. Trovato
+lo schema reale sul sito Project Aon: `xhtml/lw/{libro}/ill{N}.png`
+(N = numero arabo), confermato con `curl -I` (200 OK). Il marcatore
+HTML porta però il numero in **romano** (`[Illustration XV]`), non un
+contatore progressivo — e infatti NON è affidabile usare un contatore:
+sezione 267 del libro 1 ha "Illustration XV" nell'indice del libro
+(`<a id="illstrat">Table of Illustrations</a>`) ma nessun marcatore
+inline in questo file scaricato, quindi un semplice `+1` avrebbe
+sfasato tutti i numeri successivi (XVI in poi diventavano XV, XVI...).
+Aggiunta conversione romano→arabo dedicata (`romanoInArabo` in
+`IllustrazioniMain.kt`) che legge il numero vero dall'etichetta invece
+di contare le occorrenze — verificato sul caso critico: scena 246 →
+`ill14.png`, scena 284 (la prossima dopo il buco) → `ill16.png`, salto
+corretto. Tutti e 103 i numeri romani del report riconosciuti, zero
+casi non risolti. Colonna "Originale" aggiunta alla tabella con link
+Markdown cliccabile. Nota a margine per Michele, non ancora
+affrontata: la sezione 267/libro 1 ha un'illustrazione reale (secondo
+l'indice del libro) che il nostro parser non cattura, perché il file
+XHTML di questa specifica sezione non ha il `<div class="illustration">`
+inline — non è un bug del parser, è un'incongruenza nella fonte stessa.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
