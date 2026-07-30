@@ -2286,6 +2286,45 @@ propri confini, un nodo che sconfina sopra il bordo viene tagliato
 invece di disegnarsi sopra la barra strumenti. Compilazione pulita, 32
 test invariati.
 
+**Feedback sul pannello risorse url: (§15.7)**: provato, funziona per
+aggiungere — ma Michele vuole vedere anche l'elenco delle risorse GIÀ
+presenti (immagini/audio), non solo un modulo vuoto per aggiungerne di
+nuove, e chiede di "trasformare il popup" (in qualcosa di più ampio di
+un `AlertDialog`). Chiede anche se prima convenga "bonificare" i 5
+libri veri in `doc/LIBRI/` per usarli come dato reale nel futuro
+pannello — confermato via domanda diretta: intende **popolare
+`customResources.images` dai link `url:` già usati nelle scene**, non
+il prefisso (già tutto a posto, verificato: 100% delle immagini nei 5
+libri ha già `url:`/`static:` corretto, sono usciti dal convertitore
+DOPO l'introduzione dello schema).
+
+**Nuovo comando CLI `bonifica`** (`BonificaRisorse.kt`,
+`BonificaMain.kt`): funzione pura `bonificaRisorseImmagine(manifest)`
+scansiona `backgroundImage`/`npcImage`/`combat.enemyImage` di ogni
+scena, registra ogni `url:` distinto in `customResources.images` con
+un ID leggibile (ultimo pezzo del percorso, es. "ill17" da
+".../ill17.png") — additiva, non tocca le scene, non duplica voci già
+registrate. Deliberatamente NON rigenera il libro dall'HTML sorgente
+(come farebbe `convert`): lavora sul JSON già scritto, per non
+rischiare di perdere modifiche fatte a mano dopo la conversione.
+**Eseguito sui 5 libri reali**: 19/19/20/21/24 voci registrate
+rispettivamente in 01fftd/02fotw/03tcok/04tcod/05sots — tutti restano
+`VALIDO` dopo (verificato con `:tool:cli validate`). `enrichWithIllustrationLinks`
+(il convertitore) applica la bonifica già in fase di conversione, così
+i libri futuri escono già pronti senza un passaggio a parte. **6 nuovi
+test**, 38 totali nel modulo.
+
+Nota tecnica: il task Gradle `:tool:cli` gira con working directory
+`tool/`, non la radice del repository — i percorsi negli `--args`
+vanno scritti relativi a lì (es. `../doc/LIBRI/01fftd.json`), diverso
+da come si naviga nell'editor grafico (che usa percorsi assoluti scelti
+da un selettore di file).
+
+**Prossimo passo, non ancora fatto**: trasformare il popup "Risorse
+url:" in un pannello più ampio che mostri anche le risorse già in uso
+(non solo quelle registrate a mano) — i 5 libri bonificati sopra
+serviranno da dato reale per collaudarlo.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
