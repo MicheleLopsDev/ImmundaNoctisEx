@@ -1763,6 +1763,49 @@ Compilazione pulita, **19/19 test verdi** invariati. Commit separato,
 non ancora pushato — in attesa della prova di Michele su doppio
 click/trascinamento.
 
+**Quarto giro (stesso giorno)**: doppio click/trascinamento confermati
+funzionanti, ma due nuove segnalazioni con screenshot su "The Warehouse
+Letter": (1) col mouse sulla scena 6, il collegamento 6-5 resta verde
+acceso — "non capisco perché"; (2) passando a orientamento orizzontale
+e trascinando le scene 3 e 4 "un pochino più in basso", il risultato
+è uno spostamento enorme, molto oltre quanto trascinato.
+
+- **Collegamento 6-5**: VERIFICATO sui dati reali
+  (`content/scenes.sample.json`) — non è un bug, è un collegamento
+  vero. La scena 3 ha due scelte di disciplina (Sesto Senso,
+  Mimetismo) che portano entrambe alla 5 (un modo di evitare il
+  combattimento della scena 4), e la 5 ha una propria scelta verso la
+  6 — quindi 5 e 6 SONO collegate direttamente, anche se il percorso
+  "esemplare" da START (quello disegnato in viola) passa per la 4, non
+  per la 5. Il vero problema era di design, non di dati: il vicinato
+  restava illuminato per DUE criteri sovrapposti (nodi sul percorso
+  viola + vicini diretti del nodo sotto il mouse) senza modo di capire
+  a vista quale dei due si applicasse — è la stessa famiglia di
+  confusione segnalata due volte prima. **Semplificato a un solo
+  criterio**: resta illuminato solo il nodo sotto il mouse e i nodi sul
+  percorso viola da START; un collegamento vero ma fuori da quel
+  percorso resta disegnato (l'arco non sparisce) ma attenuato, coerente
+  con la legenda ("grigio = fuori da quel percorso"). Tolto il calcolo
+  dei "vicini diretti" da `MapScreen.kt` — non serve più una struttura
+  a parte, `vicinato` ora è semplicemente `nodiPercorso + nodoSottoMouse`.
+- **Spostamento enorme in orizzontale**: causa più probabile — il pan
+  dello sfondo e il trascinamento del nodo sono due `pointerInput`
+  indipendenti sullo STESSO gesto fisico; l'ipotesi è che si
+  attivassero entrambi insieme (il nodo si sposta E la mappa fa pan
+  nella stessa direzione, gli effetti si sommano visivamente). Prima ci
+  si affidava solo al meccanismo implicito "evento già consumato" tra
+  coroutine indipendenti per escludere il pan quando si trascina un
+  nodo — non abbastanza affidabile, a giudicare dai bug precedenti
+  sempre in quest'area. Aggiunto un flag esplicito
+  (`trascinamentoNodoAttivo`, passato da `onDragStart`/`onDragEnd`/
+  `onDragCancel` del nodo) che blocca il pan dello sfondo mentre un
+  nodo è sotto trascinamento, invece di sperare che la sola
+  consumazione dell'evento basti. **Da confermare da Michele** se
+  risolve per davvero l'entità dello spostamento.
+
+Compilazione pulita, **19/19 test verdi** invariati. Commit separato,
+non ancora pushato.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

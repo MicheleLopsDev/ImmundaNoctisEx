@@ -149,6 +149,17 @@ fun MapScreen(
     var zoom by mapViewState.zoom
     var panX by mapViewState.panX
     var panY by mapViewState.panY
+    // Spostamento enorme segnalato da Michele trascinando un nodo in
+    // orientamento orizzontale ("un pochino più in basso" -> il nodo
+    // finiva molto più in basso del previsto): il pan dello sfondo e il
+    // trascinamento del nodo sono due rilevatori indipendenti sullo
+    // stesso gesto — probabile che si attivassero entrambi insieme (il
+    // nodo si sposta E la mappa fa pan nella stessa direzione,
+    // sommandosi). Questo flag blocca esplicitamente il pan mentre un
+    // nodo è sotto trascinamento, invece di affidarsi soltanto al
+    // meccanismo implicito di "evento già consumato" tra coroutine
+    // indipendenti.
+    var trascinamentoNodoAttivo by remember { mutableStateOf(false) }
     // Evidenziazione del vicinato (§6.1): al passaggio del mouse su un
     // nodo (non al click, che apre già il pannello di editing), i suoi
     // collegamenti diretti restano a piena opacità e il resto della
@@ -177,20 +188,22 @@ fun MapScreen(
     val nodiPercorso = remember(archiPercorso) {
         archiPercorso.flatMap { (a, b) -> listOf(a, b) }.toSet()
     }
-    val vicinato = remember(nodoSottoMouse, graph, nodiPercorso) {
+    // Vicinato SEMPLIFICATO (30/07/2026, dopo la terza segnalazione di
+    // Michele sulla stessa confusione — "non capisco perché il
+    // collegamento tra 6 -> 5 anche se sto selezionando il 6"): prima
+    // restavano illuminati sia i nodi sul percorso viola SIA i vicini
+    // diretti del nodo sotto il mouse, due criteri sovrapposti senza un
+    // modo per distinguerli a vista — la scena 5 è davvero collegata
+    // alla 6 (una scelta della 5 porta alla 6), quindi restava verde e
+    // non attenuata pur non facendo parte del percorso da START mostrato
+    // in viola, e sembrava un errore. Un solo criterio ora: illuminato
+    // solo il nodo sotto il mouse e i nodi sul percorso viola: un
+    // collegamento reale ma fuori da quel percorso si vede comunque
+    // (l'arco resta disegnato) ma attenuato, coerente con "grigio = fuori
+    // da quel percorso" della legenda.
+    val vicinato = remember(nodoSottoMouse, nodiPercorso) {
         val centro = nodoSottoMouse
-        if (centro == null) {
-            emptySet()
-        } else {
-            buildSet {
-                add(centro)
-                addAll(nodiPercorso)
-                graph.edges.forEach { edge ->
-                    if (edge.fromSceneId == centro) add(edge.toSceneId)
-                    if (edge.toSceneId == centro) add(edge.fromSceneId)
-                }
-            }
-        }
+        if (centro == null) emptySet() else nodiPercorso + centro
     }
     // Ricerca (§6.1, prima solo nel mockup): per ID o per testo nel
     // codiceScena/narrativeText. Tutte le corrispondenze restano
@@ -314,7 +327,7 @@ fun MapScreen(
                 Text(
                     "🟩 collegamento valido  🟥 collegamento a scena inesistente  " +
                         "🟪 percorso da START alla scena sotto il mouse  " +
-                        "grigio = fuori da quel percorso/vicinato",
+                        "grigio = fuori da quel percorso (anche se il collegamento esiste)",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -428,9 +441,11 @@ fun MapScreen(
                 .onGloballyPositioned { viewportSize = it.size }
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
-                        change.consume()
-                        panX += dragAmount.x
-                        panY += dragAmount.y
+                        if (!trascinamentoNodoAttivo) {
+                            change.consume()
+                            panX += dragAmount.x
+                            panY += dragAmount.y
+                        }
                     }
                 },
         ) {
@@ -531,12 +546,17 @@ fun MapScreen(
                                 detectTapGestures(onDoubleTap = { onSceneSelected(nodo.sceneId) })
                             }
                             .pointerInput(nodo.sceneId) {
-                                detectDragGestures(onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    val base = posizioneEffettiva(nodo.sceneId) ?: return@detectDragGestures
-                                    posizioniManuali = posizioniManuali +
-                                        (nodo.sceneId to Offset(base.x + dragAmount.x, base.y + dragAmount.y))
-                                })
+                                detectDragGestures(
+                                    onDragStart = { trascinamentoNodoAttivo = true },
+                                    onDragEnd = { trascinamentoNodoAttivo = false },
+                                    onDragCancel = { trascinamentoNodoAttivo = false },
+                                    onDrag = { change, dragAmount ->
+                                        change.consume()
+                                        val base = posizioneEffettiva(nodo.sceneId) ?: return@detectDragGestures
+                                        posizioniManuali = posizioniManuali +
+                                            (nodo.sceneId to Offset(base.x + dragAmount.x, base.y + dragAmount.y))
+                                    },
+                                )
                             },
                         contentAlignment = Alignment.Center,
                     ) {
