@@ -26,3 +26,15 @@ fun scegliPercorsoSalvataggio(nomeSuggerito: String): File? {
     val fileName = dialog.file ?: return null
     return File(directory, fileName)
 }
+
+// §19.8 (Michele: "esportare la mappa come immagine"): stesso dialogo
+// nativo di salvataggio, titolo diverso — l'estensione .png viene
+// garantita a valle (vedi MapExport.kt), non qui.
+fun scegliPercorsoEsportazioneImmagine(nomeSuggerito: String): File? {
+    val dialog = FileDialog(null as Frame?, "Esporta mappa come immagine...", FileDialog.SAVE)
+    dialog.file = nomeSuggerito
+    dialog.isVisible = true
+    val directory = dialog.directory ?: return null
+    val fileName = dialog.file ?: return null
+    return File(directory, fileName)
+}

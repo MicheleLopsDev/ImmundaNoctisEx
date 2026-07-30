@@ -2948,6 +2948,34 @@ non con un giro manuale sull'app (nessun ambiente grafico disponibile
 in questa sessione per il modulo `:tool`). `:tool:compileKotlin`/
 `:tool:test` verdi.
 
+**Implementazione: §19.8 esportare la mappa come immagine PNG, ultimo
+pezzo del giro "parti semplici" (31/07/2026)**: nuovo pulsante "🖼
+Esporta come immagine" nella barra strumenti, stesso selettore file
+nativo di "Salva con nome" con titolo diverso
+(`scegliPercorsoEsportazioneImmagine`, `FileDialogs.kt`). Il disegno
+vero e proprio (`esportaMappaComeImmagine()`, nuovo `MapExport.kt`)
+NON riusa direttamente il `Canvas` Compose dello schermo come
+ipotizzato in fase di specifica — offscreen, senza una finestra su cui
+comporre, serve `java.awt.Graphics2D`/`BufferedImage` — ma replica la
+stessa palette di colori (verde/rosso archi, rosa/giallo START/
+ENDING). Due semplificazioni deliberate: niente immagini di copertina
+dei nodi (costo di caricamento sproporzionato per centinaia di scene,
+la mappa esportata serve per l'orientamento, non sostituisce il
+libro), badge orfana/vicolo cieco come etichetta testuale invece che
+emoji (Graphics2D non garantisce un font con glifi emoji a colori su
+ogni sistema). Estensione `.png` garantita anche se il selettore file
+nativo non la aggiunge da solo. Due nuovi test in `MapExportTest`
+(file PNG leggibile e non vuoto con nodi posizionati; nessun file
+scritto se non c'è nessuna posizione nota, caso limite di un grafo
+vuoto). `:tool:compileKotlin`/`:tool:test` verdi.
+
+Con questo si chiude il giro delle "parti semplici" di §19 aperto da
+Michele il 30/07 ("aggiorna i piani di sviluppo e implementa le parti
+semplici, ma solo dopo aver aggiornato i documenti"): §19.1, §19.2,
+§19.3, §19.4, §19.5, §19.6, §19.7, §19.8 tutti FATTO. Restano
+rimandati a bassa priorità su richiesta esplicita di Michele: §19.9
+(salti minimi BFS, stampa multipagina vera).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

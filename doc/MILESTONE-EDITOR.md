@@ -83,7 +83,7 @@ prompt. È il pezzo più grande e meno definito di questa milestone:
 **serve prima una specifica dedicata** (come già deciso), non si parte
 dal codice — piano ancora da ricevere da Michele.
 
-### 4. Interazioni avanzate sulla mappa (`doc/EDITOR.md` §19, 30/07/2026)
+### 4. Interazioni avanzate sulla mappa (`doc/EDITOR.md` §19, 30/07/2026) — FATTO (31/07/2026)
 
 Giro nato da un confronto diretto con Michele su cosa manca ancora
 all'editor, non da un debito già noto — proposto e affinato insieme
@@ -117,6 +117,10 @@ START→scena/scena→END più vicina (tecnicamente economico, un BFS —
 rimandato su richiesta di Michele, non per difficoltà) e stampa
 multipagina vera (solo se emerge una libreria Kotlin/JVM che
 semplifichi l'impaginazione).
+
+Tutte e sette le issue chiuse il 31/07/2026, ciascuna con un commit
+dedicato (§19.1/§19.4 nello stesso commit, stesso giro di lavoro;
+tutte le altre una per una) — dettaglio in `doc/DIARIO.md`.
 
 ## Cosa NON entra (per ora)
 

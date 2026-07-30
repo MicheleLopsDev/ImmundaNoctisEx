@@ -943,15 +943,30 @@ modulo non può riusare `Scene.outgoingSceneIds()`, che vive in
 `:tool`, ma la logica è identica: 4 righe, non vale la pena spostare
 il codice per questo).
 
-### 19.8 Esportare la mappa come immagine PNG
+### 19.8 Esportare la mappa come immagine PNG — FATTO (31/07/2026)
 
 Nuovo pulsante **"🖼 Esporta come immagine"**: disegna l'INTERA mappa
 logica (tutti i nodi e gli archi, indipendentemente da pan/zoom/
-riquadro visibile corrente) su un'immagine, salvata tramite lo stesso
-selettore file nativo già usato per "Salva con nome" (§5.4). Riusa la
-stessa logica di disegno di nodi/archi già scritta per lo schermo,
-adattata per un output "a schermo intero" invece che ritagliato al
-riquadro visibile.
+riquadro visibile corrente) su un file PNG, salvato tramite lo stesso
+selettore file nativo già usato per "Salva con nome" (§5.4).
+
+**Non un riuso diretto del `Canvas` Compose dello schermo**: qui non
+c'è una finestra su cui comporre, serve un rendering offscreen — usa
+invece `java.awt.Graphics2D`/`BufferedImage` (`MapExport.kt`), con la
+STESSA palette di colori (verde/rosso per gli archi risolti/non
+risolti, rosa/giallo per START/ENDING) ma disegnata a mano invece che
+dichiarata via Modifier. Due semplificazioni deliberate rispetto alla
+mappa interattiva:
+- nessuna immagine di copertina dei nodi (§15.3): caricarle tutte per
+  un'esportazione di centinaia di scene è un costo sproporzionato per
+  una mappa pensata per l'orientamento, non per sostituire il libro;
+- i badge 👻/⛔ (§19.6/§19.7) diventano un'etichetta testuale piccola
+  sotto l'ID ("orfana"/"vicolo cieco") invece dell'emoji: Graphics2D
+  non garantisce un font con glifi emoji a colori su ogni sistema, il
+  testo è più affidabile su un file esportato.
+
+Evidenziazioni legate al mouse (vicinato, percorso di ricerca) non
+hanno senso su un'immagine statica e restano fuori.
 
 **Perché solo PNG e non una stampa vera**: valutata la differenza di
 difficoltà con Michele — un'immagine esportabile è fattibile con

@@ -479,6 +479,23 @@ fun MapScreen(
         sceneSelezionate = duplicati.map { it.id }.toSet()
     }
 
+    // §19.8 (Michele: "esportare la mappa come immagine PNG"): la mappa
+    // LOGICA intera, non lo screenshot del riquadro — indipendente da
+    // pan/zoom correnti, usa `posizioneEffettiva` (auto-layout + scarti
+    // manuali) come la vista interattiva. Nome suggerito dal file del
+    // libro, stessa cartella.
+    fun esportaImmagine() {
+        val nomeSuggerito = file.nameWithoutExtension + ".png"
+        val destinazione = scegliPercorsoEsportazioneImmagine(nomeSuggerito) ?: return
+        val conEstensione = if (destinazione.extension.equals("png", ignoreCase = true)) {
+            destinazione
+        } else {
+            File(destinazione.parentFile, "${destinazione.name}.png")
+        }
+        val posizioni = graph.nodes.associate { it.sceneId to (posizioneEffettiva(it.sceneId) ?: Offset.Zero) }
+        esportaMappaComeImmagine(conEstensione, graph.nodes, graph.edges, scenesById, posizioni)
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             // 30/07/2026, Michele: prima due Row separate (una a sinistra
@@ -538,6 +555,7 @@ fun MapScreen(
                     enabled = sceneSelezionate.isNotEmpty(),
                 ) { Text("🎯 Centra selezione") }
                 Button(onClick = { mostraRisorsePersonalizzate = true }) { Text("🔗 Risorse url:") }
+                Button(onClick = ::esportaImmagine) { Text("🖼 Esporta come immagine") }
                 Button(onClick = { orizzontale = !orizzontale; posizioniManuali = emptyMap() }) {
                     Text(if (orizzontale) "↕ Verticale" else "↔ Orizzontale")
                 }
