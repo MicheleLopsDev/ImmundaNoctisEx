@@ -3,11 +3,8 @@ package io.github.luposolitario.immundanoctisex.tool.editor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.drag
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,7 +42,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -515,54 +511,32 @@ fun MapScreen(
                             .onPointerEvent(PointerEventType.Exit) {
                                 if (nodoSottoMouse == nodo.sceneId) nodoSottoMouse = null
                             }
-                            // Trascinamento manuale (§6.1): un click vero
-                            // (nessun movimento oltre la soglia di sistema)
-                            // apre il pannello di editing; superata la
-                            // soglia si considera un trascinamento e sposta
-                            // il nodo invece di aprirlo.
-                            // 30/07/2026, bug segnalato da Michele ("non
-                            // apre più le scene"): detectDragGestures con
-                            // onDragStart/onDragEnd NON scatta affatto per
-                            // un click fermo, perché al suo interno
-                            // awaitTouchSlopOrCancellation ritorna null se il
-                            // rilascio arriva prima della soglia — né
-                            // onDragStart né onDragEnd vengono mai chiamati.
-                            // Un primo rilevatore manuale (awaitPointerEvent
-                            // in ciclo) risolveva il click ma si bloccava a
-                            // volte ("a volte si blocca lo spostamento",
-                            // Michele) — un possibile evento senza il
-                            // cambiamento del puntatore atteso faceva
-                            // uscire dal ciclo con il tasto ancora premuto,
-                            // lasciando il gesto a metà. Sostituito con le
-                            // stesse primitive collaudate di
-                            // detectDragGestures (awaitTouchSlopOrCancellation
-                            // + drag), aggiungendo solo il ramo mancante:
-                            // se lo scarto non arriva mai, è un click.
+                            // Interazione nodo (30/07/2026, Michele: "questo
+                            // si dovrebbe aprire con il double click e
+                            // permettere il movimento con un solo click") —
+                            // ribaltato rispetto al tentativo precedente
+                            // (click singolo per aprire, soglia per capire
+                            // se era un trascinamento): con i ruoli
+                            // separati non serve più distinguere click da
+                            // trascinamento nello stesso rilevatore, due
+                            // `pointerInput` indipendenti bastano e sono
+                            // il pattern standard di Compose per "doppio
+                            // click qui, trascinamento qui" sullo stesso
+                            // elemento — detectTapGestures ignora da solo
+                            // un gesto che diventa trascinamento (vede lo
+                            // spostamento consumato dall'altro rilevatore
+                            // e si ritira), quindi non c'è conflitto tra i
+                            // due.
                             .pointerInput(nodo.sceneId) {
-                                awaitEachGesture {
-                                    val giu = awaitFirstDown(requireUnconsumed = false)
-                                    var scartoOltreSoglia = Offset.Zero
-                                    val trascinamento = awaitTouchSlopOrCancellation(giu.id) { change, over ->
-                                        change.consume()
-                                        scartoOltreSoglia = over
-                                    }
-                                    if (trascinamento == null) {
-                                        onSceneSelected(nodo.sceneId)
-                                    } else {
-                                        val base = posizioneEffettiva(nodo.sceneId)
-                                        if (base != null) {
-                                            posizioniManuali = posizioniManuali + (nodo.sceneId to
-                                                Offset(base.x + scartoOltreSoglia.x, base.y + scartoOltreSoglia.y))
-                                        }
-                                        drag(trascinamento.id) { change ->
-                                            change.consume()
-                                            val basePos = posizioneEffettiva(nodo.sceneId) ?: return@drag
-                                            val delta = change.positionChange()
-                                            posizioniManuali = posizioniManuali +
-                                                (nodo.sceneId to Offset(basePos.x + delta.x, basePos.y + delta.y))
-                                        }
-                                    }
-                                }
+                                detectTapGestures(onDoubleTap = { onSceneSelected(nodo.sceneId) })
+                            }
+                            .pointerInput(nodo.sceneId) {
+                                detectDragGestures(onDrag = { change, dragAmount ->
+                                    change.consume()
+                                    val base = posizioneEffettiva(nodo.sceneId) ?: return@detectDragGestures
+                                    posizioniManuali = posizioniManuali +
+                                        (nodo.sceneId to Offset(base.x + dragAmount.x, base.y + dragAmount.y))
+                                })
                             },
                         contentAlignment = Alignment.Center,
                     ) {

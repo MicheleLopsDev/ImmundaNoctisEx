@@ -1737,6 +1737,32 @@ all'orizzontale".
 Compilazione pulita, **19/19 test verdi** invariati. `:tool:run`
 verificato senza errori in log. Commit separato, non ancora pushato.
 
+**Terzo giro (stesso giorno)**: lanciando in debug, Michele chiarisce
+che il modello di interazione voluto è il CONTRARIO di quello
+implementato finora: "questo si dovrebbe aprire con il double click e
+permettere il movimento con un solo click" — non click singolo per
+aprire e soglia di spostamento per capire se era un trascinamento, ma
+**doppio click per aprire la scena, click singolo (e trascinamento) per
+spostare il nodo**.
+
+Con i ruoli separati il problema di fondo (distinguere click da
+trascinamento nello STESSO gesto) sparisce del tutto: bastano due
+`pointerInput` indipendenti sullo stesso nodo, il pattern standard di
+Compose per "doppio click qui, trascinamento qui" —
+`detectTapGestures(onDoubleTap = ...)` per l'apertura e il normale
+`detectDragGestures(onDrag = ...)` per lo spostamento (lo stesso già
+usato per il pan dello sfondo, mai stato un problema lì perché non
+doveva anche aprire nulla). Nessun conflitto tra i due:
+`detectTapGestures` vede lo spostamento consumato dal rilevatore di
+drag e si ritira da solo, come documentato nel codice sorgente di
+Compose. Tolto tutto il codice manuale (`awaitEachGesture`,
+`awaitTouchSlopOrCancellation`, `drag`) introdotto nei due giri
+precedenti — non serve più.
+
+Compilazione pulita, **19/19 test verdi** invariati. Commit separato,
+non ancora pushato — in attesa della prova di Michele su doppio
+click/trascinamento.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
