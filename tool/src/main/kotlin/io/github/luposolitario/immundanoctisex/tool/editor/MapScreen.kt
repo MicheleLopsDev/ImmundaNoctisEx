@@ -3,6 +3,8 @@ package io.github.luposolitario.immundanoctisex.tool.editor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,6 +43,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -133,20 +136,6 @@ fun MapScreen(
     // mappa si attenua. Calcolato dagli stessi `graph.edges` già usati
     // per disegnare gli archi, nessuna struttura dati nuova.
     var nodoSottoMouse by remember { mutableStateOf<String?>(null) }
-    val vicinato = remember(nodoSottoMouse, graph) {
-        val centro = nodoSottoMouse
-        if (centro == null) {
-            emptySet()
-        } else {
-            buildSet {
-                add(centro)
-                graph.edges.forEach { edge ->
-                    if (edge.fromSceneId == centro) add(edge.toSceneId)
-                    if (edge.toSceneId == centro) add(edge.fromSceneId)
-                }
-            }
-        }
-    }
     // Contorno di un percorso a richiesta (§6.2): "a richiesta" qui
     // significa "mentre passi il mouse su una scena", non un pulsante
     // dedicato — riusa lo stesso hover del vicinato invece di aggiungere
@@ -155,6 +144,34 @@ fun MapScreen(
     // cambi nodo sotto il mouse.
     val archiPercorso = remember(nodoSottoMouse, graph) {
         nodoSottoMouse?.let { percorsoDaStart(graph, it).zipWithNext().toSet() } ?: emptySet()
+    }
+    // Nodi sul percorso (30/07/2026, dopo la segnalazione di Michele "non
+    // capisco... perché lo start alle volte è grigio e alle volte no"): il
+    // vicinato (attenuazione) DEVE includere gli stessi nodi che la linea
+    // viola già attraversa, altrimenti il grigio e il viola raccontano due
+    // storie diverse. Prima il vicinato copriva solo i collegamenti
+    // diretti (un salto), mentre il percorso poteva estendersi per più
+    // salti: uno START lontano restava grigio anche con la linea viola che
+    // lo raggiungeva. Unendo i due insiemi, START si attenua solo se la
+    // scena sotto il mouse non è affatto raggiungibile da START (scena
+    // orfana) — un caso raro e sensato da segnalare col grigio.
+    val nodiPercorso = remember(archiPercorso) {
+        archiPercorso.flatMap { (a, b) -> listOf(a, b) }.toSet()
+    }
+    val vicinato = remember(nodoSottoMouse, graph, nodiPercorso) {
+        val centro = nodoSottoMouse
+        if (centro == null) {
+            emptySet()
+        } else {
+            buildSet {
+                add(centro)
+                addAll(nodiPercorso)
+                graph.edges.forEach { edge ->
+                    if (edge.fromSceneId == centro) add(edge.toSceneId)
+                    if (edge.toSceneId == centro) add(edge.fromSceneId)
+                }
+            }
+        }
     }
     // Ricerca (§6.1, prima solo nel mockup): per ID o per testo nel
     // codiceScena/narrativeText. Tutte le corrispondenze restano
@@ -219,11 +236,6 @@ fun MapScreen(
     // privi di senso.
     var posizioniManuali by remember(graph, orizzontale) { mutableStateOf<Map<String, Offset>>(emptyMap()) }
     fun posizioneEffettiva(id: String): Offset? = posizioniManuali[id] ?: positions[id]
-    // Un solo accumulatore condiviso (30/07/2026): un solo puntatore alla
-    // volta può trascinare, non serve uno stato per nodo — distingue un
-    // trascinamento vero da un semplice click (che deve continuare ad
-    // aprire il pannello di editing, come già collaudato da Michele).
-    var trascinamentoAccumulato by remember { mutableStateOf(0f) }
 
     fun eseguiRicerca() {
         val query = testoRicerca.trim()
@@ -274,6 +286,17 @@ fun MapScreen(
                 Text(
                     "${manifest.title} — ${manifest.scenes.size} scene, ${warnings.size} avvisi al caricamento",
                     style = MaterialTheme.typography.bodySmall,
+                )
+                // Legenda colori (30/07/2026, Michele: "non capisco cosa
+                // rappresenta... che vuol dire viola e verde?"): sempre
+                // visibile invece di lasciarla solo a parole in chat, così
+                // resta consultabile ogni volta che serve.
+                Text(
+                    "🟩 collegamento valido  🟥 collegamento a scena inesistente  " +
+                        "🟪 percorso da START alla scena sotto il mouse  " +
+                        "grigio = fuori da quel percorso/vicinato",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 messaggioSalvataggio?.let {
                     Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
@@ -473,20 +496,39 @@ fun MapScreen(
                             // pannello di editing come prima; superata la
                             // soglia si considera un trascinamento e sposta
                             // il nodo invece di aprirlo.
+                            // 30/07/2026, bug segnalato da Michele ("non
+                            // apre più le scene"): detectDragGestures con
+                            // onDragStart/onDragEnd NON scatta affatto per
+                            // un click fermo (spostamento zero) — serve un
+                            // movimento minimo perché Compose lo riconosca
+                            // come "inizio trascinamento", quindi onDragEnd
+                            // (e con lui onSceneSelected) non veniva mai
+                            // chiamato per un click semplice. Sostituito con
+                            // un rilevatore manuale (awaitEachGesture) che
+                            // vede SEMPRE la pressione e il rilascio, e
+                            // decide dopo il fatto se c'era stato un vero
+                            // spostamento.
                             .pointerInput(nodo.sceneId) {
-                                detectDragGestures(
-                                    onDragStart = { trascinamentoAccumulato = 0f },
-                                    onDragEnd = {
-                                        if (trascinamentoAccumulato < 4f) onSceneSelected(nodo.sceneId)
-                                    },
-                                    onDrag = { change, dragAmount ->
-                                        change.consume()
-                                        trascinamentoAccumulato += abs(dragAmount.x) + abs(dragAmount.y)
-                                        val base = posizioneEffettiva(nodo.sceneId) ?: return@detectDragGestures
-                                        posizioniManuali = posizioniManuali +
-                                            (nodo.sceneId to Offset(base.x + dragAmount.x, base.y + dragAmount.y))
-                                    },
-                                )
+                                awaitEachGesture {
+                                    val giu = awaitFirstDown()
+                                    var accumulo = 0f
+                                    while (true) {
+                                        val evento = awaitPointerEvent()
+                                        val cambio = evento.changes.firstOrNull { it.id == giu.id } ?: break
+                                        if (cambio.positionChanged()) {
+                                            val delta = cambio.position - cambio.previousPosition
+                                            accumulo += abs(delta.x) + abs(delta.y)
+                                            cambio.consume()
+                                            val base = posizioneEffettiva(nodo.sceneId)
+                                            if (base != null) {
+                                                posizioniManuali = posizioniManuali +
+                                                    (nodo.sceneId to Offset(base.x + delta.x, base.y + delta.y))
+                                            }
+                                        }
+                                        if (!cambio.pressed) break
+                                    }
+                                    if (accumulo < 4f) onSceneSelected(nodo.sceneId)
+                                }
                             },
                         contentAlignment = Alignment.Center,
                     ) {

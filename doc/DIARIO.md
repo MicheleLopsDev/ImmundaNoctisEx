@@ -1647,6 +1647,50 @@ vero), questo tocca codice di `:app` che spedisce davvero. Rimandato
 di proposito a una sessione dedicata invece che infilarlo in coda a
 un tratto già lungo, non deciso qui senza Michele.
 
+**Bug del click e chiarezza dei colori (stesso giorno, dopo il primo
+controllo di Michele)**: Michele testa il tratto autonomo sopra su "The
+Warehouse Letter" (7 scene) e segnala due problemi con 3 screenshot: (1)
+"un bug che non apre più le scene"; (2) "non capisco cosa rappresenta la
+nuova visualizzazione... che vuol dire viola e verde? e perché lo start
+alle volte è grigio e alle volte no?".
+
+- **Causa del bug (reale, non ipotetica)**: `detectDragGestures` con
+  `onDragStart`/`onDragEnd` **non scatta affatto per un click fermo**
+  (spostamento zero) — Compose lo riconosce come "inizio trascinamento"
+  solo dopo un movimento minimo, quindi per un click semplice
+  `onDragEnd` (e con lui `onSceneSelected`) non veniva mai chiamato:
+  zero movimento = zero callback, non "callback con soglia non
+  superata" come pensavo scrivendo quel codice. Sostituito in
+  `MapScreen.kt` con un rilevatore manuale (`awaitEachGesture` +
+  `awaitFirstDown` + ciclo su `awaitPointerEvent`, tutto in
+  `androidx.compose.foundation.gestures`), che vede sempre pressione e
+  rilascio del puntatore e decide DOPO il fatto se c'era stato un vero
+  spostamento (soglia di 4px invariata) — click apre la scena,
+  trascinamento sposta il nodo, in entrambi i casi il codice viene
+  eseguito per davvero.
+- **Causa della confusione sui colori**: il vicinato (attenuazione a
+  grigio) copriva solo i collegamenti diretti (un salto), mentre il
+  percorso viola da START poteva estendersi per più salti — su un nodo
+  lontano da START, la linea viola arrivava fino a START ma il
+  RIQUADRO di START restava comunque grigio, perché START non era un
+  vicino diretto di quel nodo. Grigio e viola raccontavano due storie
+  diverse sulla stessa mappa. Corretto unendo i due insiemi: ora
+  restano a piena opacità il nodo sotto il mouse, i suoi collegamenti
+  diretti, E tutti i nodi attraversati dal percorso viola — START si
+  attenua solo se la scena sotto il mouse è davvero irraggiungibile da
+  START (scena orfana), un caso raro e sensato da segnalare col grigio.
+- **Legenda aggiunta in mappa** (non solo spiegata in chat, per non
+  richiedere la stessa domanda in futuro): riga fissa sotto il titolo
+  del libro in `MapScreen.kt` — verde/rosso = collegamento valido/a
+  scena inesistente, viola = percorso da START alla scena sotto il
+  mouse, grigio = fuori da quel percorso/vicinato.
+
+Compilazione pulita, **19/19 test verdi** invariati (nessuna logica di
+grafo toccata, solo gesture e insieme di attenuazione). Commit separato
+dal precedente (non un `--amend`), **non ancora pushato** — in attesa
+del controllo di Michele su questo fix prima di considerare chiusa la
+mappa.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
