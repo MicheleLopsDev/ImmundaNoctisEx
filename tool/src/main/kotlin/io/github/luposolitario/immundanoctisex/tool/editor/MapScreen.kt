@@ -1055,13 +1055,25 @@ fun MapScreen(
                             expanded = menuContestualePer == nodo.sceneId,
                             onDismissRequest = { menuContestualePer = null },
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("Duplica") },
-                                onClick = {
-                                    menuContestualePer = null
-                                    onDuplicaScena(nodo.sceneId)
-                                },
-                            )
+                            // 30/07/2026, Michele: "diamo per scontato
+                            // che si può duplicare tutto tranne le scene
+                            // start" — un libro potrebbe avere più START
+                            // legittime in futuro (a seconda del
+                            // personaggio scelto), ma è una feature a
+                            // parte non ancora progettata; per ora
+                            // duplicare uno START creerebbe una seconda
+                            // scena START ambigua, mai raggiungibile
+                            // giocando (il motore prende sempre la prima
+                            // che trova) e non segnalata dal validatore.
+                            if (scenaNodo?.sceneType != SceneType.START) {
+                                DropdownMenuItem(
+                                    text = { Text("Duplica") },
+                                    onClick = {
+                                        menuContestualePer = null
+                                        onDuplicaScena(nodo.sceneId)
+                                    },
+                                )
+                            }
                             DropdownMenuItem(
                                 text = { Text("Elimina") },
                                 onClick = {

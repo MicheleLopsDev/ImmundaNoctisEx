@@ -2652,6 +2652,36 @@ segnala due problemi visivi:
 
 `:tool:compileKotlin`/`:tool:test` verdi dopo entrambe le correzioni.
 
+**Controllo delle ultime feature (30/07/2026, Michele: "vediamo cosa
+manca")**: ripassata la specifica §17 contro il codice reale, trovato
+un problema vero non ipotetico: duplicare una scena START crea una
+seconda scena START, il validatore (`GraphValidator`) controlla solo
+"ne esiste almeno una" (mai "al massimo una"), e il motore
+(`PackageRepository.startScene()`, `.find{}`) prende sempre la prima
+che trova nell'elenco — la copia diventa una scena "fantasma", rosa
+sulla mappa come se fosse un ingresso valido ma mai raggiungibile
+giocando. Michele nota che un libro potrebbe avere legittimamente PIÙ
+scene START in futuro (a seconda del personaggio scelto) — feature a
+parte, non ancora progettata, non implementarla ora. Per ora: **"Duplica"
+non compare più nel menu tasto destro sulle scene START** (§17.2
+aggiornato in `doc/EDITOR.md`).
+
+Verificato anche l'auto-suggerimento "dovunque ci sia la possibilità
+di una scelta": Scelte/Scelte per disciplina (`DestinazioneField`) e
+tutti i campi immagine/ritratto (`CampoImmagineConAnteprima`) ce
+l'hanno già; mancava solo sui tre campi del combattimento ("Scena se
+vinci/perdi/fuggi"), rimasti `OutlinedTextField` semplici da quando
+sono stati scritti. `DestinazioneField` ha guadagnato un parametro
+`etichetta` (default invariato) per riusarlo lì con testi diversi dal
+solito "Scena destinazione". `:tool:compileKotlin`/`:tool:test` verdi.
+
+**Discussione aperta, NON implementata (Michele: "pensiamoci
+prima")**: campo `sfx` esplicito sulla scena, che se impostato
+sovrascrive il meccanismo attuale (suono ambientale ricavato
+dall'ID `static:` dello sfondo) con un mp3 a scelta dell'autore via
+`url:`. Impatta lo schema JSON (`core:data`, nuovo campo su `Scene`),
+non solo l'editor — vedi turno successivo per l'analisi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

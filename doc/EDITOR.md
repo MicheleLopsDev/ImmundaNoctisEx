@@ -561,6 +561,18 @@ codice dopo.
 - Con più scene selezionate (§17.3) il menu tasto destro NON offre
   "Duplica" — resta un'azione a singola scena, duplicare un insieme
   sarebbe ambiguo (quale ordine? quali collegamenti tra le copie?).
+- **Non disponibile sulle scene START** (30/07/2026, Michele: "diamo
+  per scontato che si può duplicare tutto tranne le scene start"):
+  duplicare una START creerebbe una seconda scena dello stesso tipo,
+  ambigua — il motore prende sempre la prima START che trova
+  (`PackageRepository.startScene()`), quindi la copia diventerebbe
+  una scena "fantasma" mai raggiungibile giocando, e il validatore non
+  lo segnala (controlla solo che ne esista almeno una, non al
+  massimo una). Michele nota che in futuro un libro potrebbe avere
+  legittimamente PIÙ scene START (a seconda del personaggio scelto
+  all'inizio) — quella è una feature a parte, non ancora progettata:
+  per ora si blocca semplicemente la duplicazione di uno START invece
+  di gestire il caso.
 
 ### 17.3 Multi-selezione e cancellazione di gruppo
 

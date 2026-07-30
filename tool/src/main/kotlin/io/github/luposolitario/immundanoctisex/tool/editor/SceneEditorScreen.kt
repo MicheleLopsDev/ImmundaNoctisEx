@@ -284,24 +284,33 @@ fun SceneEditorScreen(
                             label = { Text("Resistenza") },
                         )
                     }
+                    // §17 (Michele: "dovunque ci sia la possibilità di
+                    // una scelta abilita l'auto suggerimento appena
+                    // inizi a digitare"): questi tre erano rimasti campi
+                    // di testo semplici, senza i suggerimenti che Scelte/
+                    // Scelte per disciplina hanno già da tempo — stesso
+                    // `DestinazioneField`, solo l'etichetta cambia.
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedTextField(
-                            value = combatWinSceneId,
+                        DestinazioneField(
+                            valore = combatWinSceneId,
+                            tutteLeScene = tutteLeScene,
                             onValueChange = { combatWinSceneId = it },
                             modifier = Modifier.weight(1f),
-                            label = { Text("Scena se vinci") },
+                            etichetta = "Scena se vinci",
                         )
-                        OutlinedTextField(
-                            value = combatLoseSceneId,
+                        DestinazioneField(
+                            valore = combatLoseSceneId,
+                            tutteLeScene = tutteLeScene,
                             onValueChange = { combatLoseSceneId = it },
                             modifier = Modifier.weight(1f),
-                            label = { Text("Scena se perdi (opz.)") },
+                            etichetta = "Scena se perdi (opz.)",
                         )
-                        OutlinedTextField(
-                            value = combatEvadeSceneId,
+                        DestinazioneField(
+                            valore = combatEvadeSceneId,
+                            tutteLeScene = tutteLeScene,
                             onValueChange = { combatEvadeSceneId = it },
                             modifier = Modifier.weight(1f),
-                            label = { Text("Scena se fuggi (opz.)") },
+                            etichetta = "Scena se fuggi (opz.)",
                         )
                     }
                     Row(
@@ -436,6 +445,7 @@ private fun DestinazioneField(
     tutteLeScene: List<Scene>,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    etichetta: String = "Scena destinazione",
 ) {
     var mostraSuggerimenti by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -445,7 +455,7 @@ private fun DestinazioneField(
                 onValueChange(it)
                 mostraSuggerimenti = it.isNotBlank()
             },
-            label = { Text("Scena destinazione") },
+            label = { Text(etichetta) },
             modifier = Modifier.fillMaxWidth(),
         )
         if (mostraSuggerimenti) {
