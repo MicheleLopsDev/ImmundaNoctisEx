@@ -57,6 +57,42 @@ non necessariamente di sostituzione completa del motore attuale —
 LiteRT-LM resta il motore di produzione finché la valutazione non dice
 altrimenti.
 
+### 4. Firma di release dell'APK — FATTO (30/07/2026)
+
+Michele: "vanno firmati sia gli apk che gli exe... altrimenti non
+girano sui vari sistemi". Precisazione tecnica: un APK non firmato
+Android non lo installa affatto (già vero per il debug, firmato in
+automatico con una chiave usa-e-getta); quello che mancava era una
+chiave di **release** vera e stabile, la stessa a ogni build — senza,
+un aggiornamento futuro di un'installazione esistente verrebbe
+rifiutato da Android (chiavi diverse = pacchetti "diversi").
+
+Fatto: keystore RSA 2048 generata con `keytool` (validità 10.000
+giorni, ~2053), riferita da `app/build.gradle.kts` tramite
+`signingConfigs`/`buildTypes.release` che legge percorso e password da
+`local.properties` (mai in git, stesso principio già usato per
+`packagingJdk`/`llamaCppDir`) — se quelle chiavi mancano (altra
+macchina, CI) il build type `release` resta semplicemente senza
+signingConfig, niente fallisce per chi non deve firmare nulla.
+`:app:assembleRelease` verificato con `apksigner verify --print-certs`:
+firma valida (schema v2), certificato `CN=Michele, OU=ImmundaNoctisEx`.
+
+**Promemoria per Michele**: la keystore (`keystore/immundanoctisex-release.jks`)
+e le password in `local.properties` sono **volutamente fuori da git** —
+se si perdono, non sarà più possibile pubblicare un aggiornamento
+sopra un'installazione esistente con la stessa identità. Vanno
+salvate altrove (una copia offline, un password manager) a cura tua,
+non di questo repository.
+
+Per l'`.exe` (jpackage/editor): **decisione di non firmarlo**. Windows
+esegue un eseguibile non firmato senza problemi tecnici — l'unico
+effetto è l'avviso SmartScreen "Windows ha protetto il PC" al primo
+avvio (bypassabile con "Ulteriori informazioni → Esegui comunque"). Un
+certificato di code-signing toglierebbe l'avviso ma è un servizio a
+pagamento, spesso ricorrente — contro il vincolo di questo progetto
+(niente servizi a pagamento, vedi memoria di sessione). Non incluso in
+questa milestone.
+
 ## Cosa NON entra (resta in `doc/UPGRADE.md`, non promosso)
 
 - Reskin grafico ispirato al registro cartaceo (§2) — gran parte della
@@ -74,6 +110,6 @@ altrimenti.
 
 Suite di test verde su tutti i moduli (oggi 239+ test) dopo ogni voce
 chiusa, aggiornamento di `doc/DIARIO.md` punto per punto come per ogni
-altro lavoro di questa sessione. Quando tutte e tre le voci sopra sono
+altro lavoro di questa sessione. Quando tutte le voci sopra sono
 chiuse (o esplicitamente rimosse da Michele), questa milestone si
 considera raggiunta e se ne apre una nuova.

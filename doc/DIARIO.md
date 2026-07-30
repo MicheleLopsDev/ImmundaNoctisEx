@@ -2485,6 +2485,29 @@ dinamico (già scalato volutamente durante §15.1).
 Non serve altro lato codice: resta solo la prova su una macchina
 pulita (il figlio di Michele), che deve fare lui.
 
+**Firma di release dell'APK (30/07/2026, Michele: "vanno firmati sia
+gli apk che gli exe... altrimenti non girano sui vari sistemi")**:
+precisato prima di agire — un APK non firmato Android non lo installa
+affatto (il debug lo è già, in automatico), un `.exe` Windows invece
+GIRA anche senza firma, mostra solo l'avviso SmartScreen al primo
+avvio. Michele ha confermato il piano proposto (keystore per l'APK,
+niente firma per l'exe: costerebbe un servizio a pagamento contro il
+vincolo del progetto).
+
+Generata una keystore RSA 2048 (`keystore/immundanoctisex-release.jks`,
+validità 10.000 giorni, alias `immundanoctisex`) con password casuali;
+`app/build.gradle.kts` legge percorso e password da
+`local.properties` (mai in git, stesso principio di
+`packagingJdk`/`llamaCppDir`) tramite un nuovo `signingConfigs`/
+`buildTypes.release` — se quelle chiavi mancano il build type release
+resta senza firma invece di far fallire la build, per chi non deve
+pubblicare nulla. Verificato con `:app:assembleRelease` +
+`apksigner verify --print-certs`: firma valida (schema v2), certificato
+`CN=Michele, OU=ImmundaNoctisEx`. Promemoria lasciato a Michele nella
+milestone: keystore e password vanno salvate ALTROVE (fuori da questo
+repository) a sua cura, perderle vorrebbe dire non poter più
+aggiornare un'installazione esistente con la stessa identità.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

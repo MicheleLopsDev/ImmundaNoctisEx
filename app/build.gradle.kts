@@ -56,6 +56,37 @@ android {
         buildConfigField("boolean", "NATIVE_LLAMA_AVAILABLE", buildLlamaNative.toString())
     }
 
+    // Firma di release (30/07/2026, Michele: "vanno firmati... altrimenti
+    // non girano"): un APK non firmato Android non lo installa affatto —
+    // il debug lo è già, in automatico, con una chiave usa-e-getta rigenerata
+    // a ogni macchina. Qui invece una chiave VERA, la stessa a ogni build,
+    // necessaria per poter aggiornare un'installazione esistente in futuro
+    // (chiavi diverse = Android rifiuta l'aggiornamento). Percorso e password
+    // SOLO in local.properties (mai in git, stesso principio di
+    // packagingJdk/llamaCppDir sopra) — se `releaseStoreFile` manca (es. CI
+    // o macchina di qualcun altro), il buildType release semplicemente non
+    // ha un signingConfig e resta un APK di release non firmato, senza far
+    // fallire la build per chi non deve pubblicare nulla.
+    val releaseStoreFile = localProperties.getProperty("releaseStoreFile")
+    if (releaseStoreFile != null) {
+        signingConfigs {
+            create("release") {
+                storeFile = rootProject.file(releaseStoreFile)
+                storePassword = localProperties.getProperty("releaseStorePassword")
+                keyAlias = localProperties.getProperty("releaseKeyAlias")
+                keyPassword = localProperties.getProperty("releaseKeyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (releaseStoreFile != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
