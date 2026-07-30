@@ -8,11 +8,20 @@ import kotlin.test.assertTrue
 class StaticResourceCatalogTest {
 
     @Test
-    fun ilRegistroSiCaricaConLeTreCategorie() {
+    fun ilRegistroSiCaricaConTutteLeCategorie() {
         val registro = StaticResourceCatalog.registry
+        assertTrue(registro.tones.isNotEmpty())
         assertTrue(registro.locations.isNotEmpty())
         assertTrue(registro.npcs.isNotEmpty())
         assertTrue(registro.enemies.isNotEmpty())
+    }
+
+    @Test
+    fun nessunTonoENiAutorNeSenzaSuggerimenti() {
+        StaticResourceCatalog.registry.tones.forEach {
+            assertTrue(it.id != "AUTHOR", "AUTHOR non è una scelta di scrittura, non deve comparire")
+            assertTrue(it.hints.isNotEmpty(), "tono senza suggerimenti: ${it.id}")
+        }
     }
 
     @Test

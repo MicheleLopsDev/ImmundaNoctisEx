@@ -1,5 +1,15 @@
 {
-  "_nota": "Istantanea delle risorse immagine statiche del client Android (30/07/2026): oggi la fonte di verità restano SceneImageCatalog.kt/NpcImageCatalog.kt/EnemyImageCatalog.kt in :app, questo file è una copia usata SOLO dall'editor (:tool) per mostrare anteprime e liste a discesa. Quando si deciderà il passaggio a un registro dinamico anche per il client, questo file (o un suo successore) diventerà la fonte unica.",
+  "_nota": "Istantanea delle risorse statiche del client Android (30/07/2026): oggi la fonte di verità restano SceneImageCatalog.kt/NpcImageCatalog.kt/EnemyImageCatalog.kt/NarrativeTonePreferences.kt in :app, questo file è una copia usata SOLO dall'editor (:tool) per mostrare anteprime e liste a discesa. Quando si deciderà il passaggio a un registro dinamico anche per il client, questo file (o un suo successore) diventerà la fonte unica.",
+  "tones": [
+    { "id": "DARK", "displayName": "Cupo", "hints": ["dark", "grim"] },
+    { "id": "ADVENTUROUS", "displayName": "Avventuroso", "hints": ["adventurous", "bold"] },
+    { "id": "MYSTERIOUS", "displayName": "Misterioso", "hints": ["mysterious", "eerie"] },
+    { "id": "HEROIC", "displayName": "Eroico", "hints": ["heroic", "epic"] },
+    { "id": "LIGHT", "displayName": "Leggero", "hints": ["light-hearted", "playful"] },
+    { "id": "GRITTY", "displayName": "Duro e crudo", "hints": ["gritty", "violent"] },
+    { "id": "EROTIC", "displayName": "Erotico", "hints": ["erotic", "sexy", "explict"] },
+    { "id": "BRUTAL", "displayName": "Brutale", "hints": ["brutal", "graphic", "unflinching"] }
+  ],
   "locations": [
     { "id": "loc_alley", "description": "a narrow decrepit town alley at night, ramshackle timber buildings pressing close on both sides, rats scavenging among refuse and beggars huddled against the walls, a single lantern lighting the cobblestones" },
     { "id": "loc_black_gate", "description": "a dark stone gate flanked by two skull-horned guardian statues, a staircase descending into darkness beyond, deep in a forest" },

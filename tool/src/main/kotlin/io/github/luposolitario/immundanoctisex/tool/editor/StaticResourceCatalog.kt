@@ -5,12 +5,13 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.net.URL
 
-// Istantanea delle risorse immagine statiche del client Android
-// (30/07/2026, Michele: "creiamo un file json con solo la lista delle
-// risorse statiche... e facciamo che l'editor lo carica"). Oggi la
-// fonte di verità resta SceneImageCatalog.kt/NpcImageCatalog.kt/
-// EnemyImageCatalog.kt in :app (invariati, l'editor non li tocca) —
-// questo file legge una COPIA (`static-resources.json`, impacchettata
+// Istantanea delle risorse statiche del client Android (30/07/2026,
+// Michele: "creiamo un file json con solo la lista delle risorse
+// statiche... e facciamo che l'editor lo carica"). Oggi la fonte di
+// verità resta SceneImageCatalog.kt/NpcImageCatalog.kt/
+// EnemyImageCatalog.kt/NarrativeTonePreferences.kt in :app (invariati,
+// l'editor non li tocca) — questo file legge una COPIA
+// (`static-resources.json`, impacchettata
 // come risorsa di :tool insieme alle immagini stesse in
 // `resources/images/`, così funziona anche nell'.exe standalone senza
 // bisogno del repository intorno). Quando si deciderà il passaggio a
@@ -19,8 +20,20 @@ import java.net.URL
 @Serializable
 data class LocationResource(val id: String, val description: String = "")
 
+// Vocabolario chiuso dei toni (§15.2, Michele: "i toni devono essere
+// fissi tra quelli che dispone l'app") — stessi valori di
+// NarrativeTone (:app, util/NarrativeTonePreferences.kt), SENZA la voce
+// AUTHOR (che significa "nessuna sovrascrittura", non ha senso come
+// scelta di scrittura per l'autore del libro). `hints` sono le parole
+// grezze che finiscono per davvero in Scene.toneHints/Manifest.
+// toneHints (viste dal prompt come "tone_hints") — l'autore sceglie il
+// tono per NOME, l'editor scrive le parole al posto suo.
+@Serializable
+data class ToneResource(val id: String, val displayName: String, val hints: List<String> = emptyList())
+
 @Serializable
 data class StaticResourceRegistry(
+    val tones: List<ToneResource> = emptyList(),
     val locations: List<LocationResource> = emptyList(),
     val npcs: List<String> = emptyList(),
     val enemies: List<String> = emptyList(),

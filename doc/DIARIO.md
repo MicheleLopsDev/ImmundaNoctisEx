@@ -2016,6 +2016,37 @@ verificano caricamento, descrizioni non vuote, un'immagine bundled per
 ogni ID del registro, degrado su ID sconosciuto) — 23 test totali del
 modulo, tutti verdi.
 
+**Specifica scritta della seconda fase**: prima di continuare a
+scrivere codice, Michele chiede di fissare per iscritto tutto quello
+discusso ("le faremo in più sezioni") — nuovo §15 in `doc/EDITOR.md`
+(§15.1-§15.8, §15.1 già fatta), una sottosezione per ciascun pezzo:
+vocabolario chiuso dei toni, immagini in scheda/grafo con priorità,
+mouse (rotella/tasto centrale), aggiungi/elimina scena con rete di
+sicurezza verso la scena di sconfitta, audio delle location, risorse
+`url:` dell'autore in `Manifest.customResources`, salvataggio a
+colori. Il passaggio del client a un registro dinamico resta
+esplicitamente rimandato a una specifica a parte.
+
+**§15.2 — Vocabolario chiuso per i toni**: `content/
+static-resources.json` esteso con una sezione `tones` (8 voci, stessi
+valori di `NarrativeTone` in `:app`, SENZA `AUTHOR` che significa
+"nessuna sovrascrittura" — non una scelta di scrittura). Nuovo
+`ToneResource(id, displayName, hints)` in `StaticResourceCatalog.kt`.
+`CreaNuovoScreen` (`EditorMain.kt`): tolto il campo di testo libero
+"toni separati da virgola", sostituito da una selezione multipla
+(checkbox) sui toni per NOME — l'autore non deve sapere che "Cupo"
+corrisponde alle parole grezze `dark, grim` nel JSON, lo fa l'editor.
+**2 nuovi test** (registro con tutte le categorie, nessun tono è
+AUTHOR/senza suggerimenti) — 25 test totali, tutti verdi.
+
+Nota a parte, non toccata: il codice sorgente di `NarrativeTone` ha un
+refuso ("explict" invece di "explicit" nei suggerimenti di EROTICO,
+`NarrativeTonePreferences.kt:23`) — trascritto identico nel registro
+per restare fedele a quello che l'app scrive per davvero nei prompt;
+segnalato a Michele, non corretto qui perché fuori dallo scopo di
+questo giro e perché cambierebbe una parola che finisce nei prompt
+reali senza che sia stato lui a deciderlo.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

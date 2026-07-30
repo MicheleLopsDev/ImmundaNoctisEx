@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -230,7 +231,13 @@ private fun LibroNonValidoScreen(errors: List<String>, onTornaAvvio: () -> Unit)
 @Composable
 private fun CreaNuovoScreen(onCrea: (Manifest) -> Unit, onTornaAvvio: () -> Unit) {
     var titolo by remember { mutableStateOf("") }
-    var toneHintsTesto by remember { mutableStateOf("") }
+    // Vocabolario chiuso (§15.2, Michele: "i toni devono essere fissi
+    // tra quelli che dispone l'app"): niente più testo libero — si
+    // scelgono i toni per NOME (checkbox), le parole grezze che finiscono
+    // per davvero in Manifest.toneHints (StaticResourceCatalog.
+    // ToneResource.hints) sono un dettaglio che l'autore non deve
+    // conoscere a memoria.
+    var toniSelezionati by remember { mutableStateOf(setOf<String>()) }
     var scaffoldScelto by remember { mutableStateOf(Scaffold.BASE) }
     var errore by remember { mutableStateOf<String?>(null) }
 
@@ -245,13 +252,19 @@ private fun CreaNuovoScreen(onCrea: (Manifest) -> Unit, onTornaAvvio: () -> Unit
             label = { Text("Titolo del libro") },
             modifier = Modifier.fillMaxWidth(),
         )
-        Spacer(Modifier.height(8.dp))
-        OutlinedTextField(
-            value = toneHintsTesto,
-            onValueChange = { toneHintsTesto = it },
-            label = { Text("Toni, separati da virgola (es. dark, avventuroso)") },
-            modifier = Modifier.fillMaxWidth(),
-        )
+        Spacer(Modifier.height(16.dp))
+        Text("Tono narrativo (puoi sceglierne più di uno)", style = MaterialTheme.typography.titleMedium)
+        StaticResourceCatalog.registry.tones.forEach { tono ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(
+                    checked = tono.id in toniSelezionati,
+                    onCheckedChange = { selezionato ->
+                        toniSelezionati = if (selezionato) toniSelezionati + tono.id else toniSelezionati - tono.id
+                    },
+                )
+                Text(tono.displayName)
+            }
+        }
         Spacer(Modifier.height(16.dp))
         Text("Da dove iniziare", style = MaterialTheme.typography.titleMedium)
         Scaffold.entries.forEach { opzione ->
@@ -271,7 +284,10 @@ private fun CreaNuovoScreen(onCrea: (Manifest) -> Unit, onTornaAvvio: () -> Unit
                 if (titolo.isBlank()) {
                     errore = "il titolo non può essere vuoto"
                 } else {
-                    val toneHints = toneHintsTesto.split(",").map { it.trim() }.filter { it.isNotBlank() }
+                    val toneHints = StaticResourceCatalog.registry.tones
+                        .filter { it.id in toniSelezionati }
+                        .flatMap { it.hints }
+                        .distinct()
                     onCrea(creaManifestNuovo(titolo, "FANTASY", toneHints, scaffoldScelto))
                 }
             }) { Text("Crea") }
