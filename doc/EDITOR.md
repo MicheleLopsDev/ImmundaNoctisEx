@@ -413,7 +413,7 @@ su dati già scritti).
 
 ### 15.6 Audio delle risorse
 
-`app/src/main/assets/sfx/images/loc_*.mp3` (30 file, un suono
+`app/src/main/assets/sfx/images/loc_*.mp3` (23 file, un suono
 ambientale per location, stessa convenzione di nome degli ID —
 `loc_alley.mp3` per `loc_alley`): stesso trattamento delle immagini di
 §15.1, copiati nelle risorse di `:tool` e **ascoltabili dall'editor**

@@ -38,6 +38,11 @@ dependencies {
     // famiglia concettuale di Jetpack Compose già in :app.
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
+    // Ascolto dei suoni delle risorse nell'editor (§15.6, 30/07/2026):
+    // javax.sound di base non decodifica MP3 — JLayer è un decoder MP3
+    // puro Java, gratuito (LGPL), lo standard de facto per questo caso
+    // d'uso, nessun servizio esterno.
+    implementation(libs.jlayer)
 
     // La logica pura (es. SceneGraph) si testa da terminale come i moduli
     // core, senza bisogno di avviare la GUI.

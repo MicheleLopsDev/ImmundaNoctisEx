@@ -2128,6 +2128,22 @@ la numerazione, tipo/testo di una scena nuova, rete di sicurezza
 agganciata/non agganciata nei tre casi rilevanti) — 32 test totali,
 tutti verdi.
 
+**§15.6 — Audio delle risorse**: copiati i 23 `assets/sfx/images/
+loc_*.mp3` (non 30 come stimato durante la discussione — corretto
+anche in `doc/EDITOR.md`) in `tool/src/main/resources/sounds/`, stessa
+convenzione delle immagini (§15.1). Nuovo `percorsoSuono(id)` in
+`StaticResourceCatalog.kt` — non tutte le location ne hanno uno, `null`
+è normale. Riproduzione via **JLayer** (`javazoom:jlayer:1.0.1`,
+gratuita, LGPL — aggiunta come dipendenza nuova a `:tool`, `javax.
+sound` di base non decodifica MP3): nuovo `riproduciSuono(scope, url)`
+in `ResourceSoundPlayer.kt`, un `Player` per riproduzione su una
+coroutine di sfondo, degrado silenzioso se fallisce. Pulsante
+"▶ Ascolta" aggiunto SOLO al campo dello sfondo (location) nella
+scheda scena — npc/nemico non hanno un suono associato, nuovo
+parametro `mostraAscolto` su `CampoImmagineConAnteprima` (§15.3),
+attivato solo lì. Compilazione pulita, 32 test invariati (codice
+UI/IO, stesso criterio già seguito per il resto dell'editor).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

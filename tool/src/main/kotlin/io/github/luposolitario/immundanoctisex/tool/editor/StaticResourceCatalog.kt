@@ -59,4 +59,12 @@ object StaticResourceCatalog {
     // catalogo — null se l'immagine non è (ancora) presente in
     // `resources/images/`.
     fun percorsoImmagine(id: String): URL? = javaClass.classLoader.getResource("images/$id.jpg")
+
+    // §15.6 (Michele: "gestire anche i file audio associati alle
+    // risorse... e dai la possibilità di essere ascoltati"): un suono
+    // ambientale per location (`assets/sfx/images/loc_*.mp3` in :app,
+    // stessa convenzione di nome — copia bundled in `resources/sounds/`).
+    // Non tutte le location ne hanno uno (23 su 36 al momento della
+    // copia): null è il caso normale, non un errore.
+    fun percorsoSuono(id: String): URL? = javaClass.classLoader.getResource("sounds/$id.mp3")
 }

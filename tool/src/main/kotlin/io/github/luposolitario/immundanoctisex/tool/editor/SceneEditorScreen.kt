@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -181,6 +182,7 @@ fun SceneEditorScreen(
                         suggerimenti = StaticResourceCatalog.registry.locations.map { it.id },
                         onValueChange = { backgroundImage = it },
                         modifier = Modifier.weight(1f),
+                        mostraAscolto = true,
                     )
                     CampoImmagineConAnteprima(
                         valore = npcImage,
@@ -441,6 +443,10 @@ private fun CampoImmagineConAnteprima(
     suggerimenti: List<String>,
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    // §15.6 (Michele: "dai la possibilità di essere ascoltati"): solo le
+    // location hanno un suono ambientale associato — npcImage/enemyImage
+    // non lo usano, il chiamante lo attiva solo per backgroundImage.
+    mostraAscolto: Boolean = false,
 ) {
     var mostraSuggerimenti by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -482,6 +488,17 @@ private fun CampoImmagineConAnteprima(
         if (valore.isNotBlank()) {
             Spacer(Modifier.height(4.dp))
             AnteprimaImmagineRisorsa(valore, Modifier.fillMaxWidth().height(90.dp))
+            if (mostraAscolto) {
+                val urlSuono = remember(valore) {
+                    (ImageReference.parse(valore) as? ImageReference.Static)
+                        ?.let { StaticResourceCatalog.percorsoSuono(it.catalogId) }
+                }
+                if (urlSuono != null) {
+                    val scope = rememberCoroutineScope()
+                    Spacer(Modifier.height(4.dp))
+                    Button(onClick = { riproduciSuono(scope, urlSuono) }) { Text("▶ Ascolta") }
+                }
+            }
         }
     }
 }
