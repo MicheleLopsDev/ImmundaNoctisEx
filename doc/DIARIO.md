@@ -2476,6 +2476,15 @@ da Michele. Esplicitamente NON incluso: immagini animate GIF/WebP
 (dipende anche da un cambiamento lato client) e il registro risorse
 dinamico (già scalato volutamente durante §15.1).
 
+**Milestone editor, voce 1 quasi chiusa (30/07/2026)**: Michele chiede
+"puoi creare una cartella con le build" — `packagingJdk` in
+`local.properties` puntava già a un JDK Temurin 17 completo,
+`:tool:createDistributable` genera con successo la cartella autonoma
+(~153 MB, JVM inclusa) e l'`.exe` dentro si avvia e resta stabile
+(verificato con un avvio di prova via PowerShell, chiuso subito dopo).
+Non serve altro lato codice: resta solo la prova su una macchina
+pulita (il figlio di Michele), che deve fare lui.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

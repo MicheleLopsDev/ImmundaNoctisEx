@@ -28,19 +28,24 @@ prossimo grande capitolo (editor dei prompt).
 
 ## Cosa entra (proposto da Claude, da confermare/correggere)
 
-### 1. Completare la pacchettizzazione standalone (jpackage)
+### 1. Completare la pacchettizzazione standalone (jpackage) — QUASI FATTO
 
 Obiettivo dichiarato da Michele (`doc/EDITOR.md` §12): passare
-l'editor a suo figlio **senza accesso al repository Git/GitHub**. Il
-plugin `org.jetbrains.compose` è già configurato in
-`tool/build.gradle.kts` (`nativeDistributions`, target `Exe`/`Msi`),
-ma `jpackage` richiede un JDK completo — quello imbustato in Android
-Studio (JBR) non lo include (`'jpackage.exe' is missing`, verificato
-30/07/2026). Resta da: puntare `packagingJdk` in `local.properties` a
-un JDK completo, generare davvero un pacchetto con
-`createDistributable`/`packageMsi`, e provarlo su una macchina pulita
-(idealmente quella del figlio di Michele) per confermare che si avvii
-senza altre dipendenze.
+l'editor a suo figlio **senza accesso al repository Git/GitHub**.
+`packagingJdk` in `local.properties` puntava già a un JDK Temurin 17
+completo (con `jpackage.exe`): `:tool:createDistributable` genera con
+successo una cartella autonoma in
+`tool/build/compose/binaries/main/app/ImmundaNoctisEx-Editor/`
+(~153 MB, JVM inclusa) e l'`.exe` dentro si avvia correttamente
+(verificato 30/07/2026: processo partito e stabile, chiuso dopo la
+prova). Non tracciata in git (dentro `build/`, già ignorato) — va
+rigenerata con lo stesso comando su chi la costruisce.
+
+Resta solo l'ultimo passo, che deve fare Michele: **provarla su una
+macchina pulita** (idealmente quella del figlio, senza Android Studio
+né JDK installati) per confermare che non serva nient'altro. Se serve
+anche l'installer vero (`packageMsi`), il task è pronto ma non ancora
+provato.
 
 ### 2. Verificare il limite dimensionale (~350 scene)
 
