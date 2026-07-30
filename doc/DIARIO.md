@@ -2325,6 +2325,23 @@ url:" in un pannello più ampio che mostri anche le risorse già in uso
 (non solo quelle registrate a mano) — i 5 libri bonificati sopra
 serviranno da dato reale per collaudarlo.
 
+**Fatto**: il popup "Risorse url:" è diventato un `Dialog` a schermo
+quasi pieno (80%×85% della finestra) invece del piccolo `AlertDialog`
+di prima. Nuova sezione in cima, "Immagini in uso nelle scene": scandita
+dal vivo da `manifest.scenes` (non dal registro, che potrebbe non
+conoscerle ancora), un'anteprima piccola per ciascuna
+(`AnteprimaImmagineRisorsa`, riuso diretto di §15.3) + il valore grezzo
++ se corrisponde già a una voce di `customResources.images` lo dice tra
+parentesi. Per un `url:` non ancora registrato, un pulsante "+
+Registra" lo aggiunge al volo con un ID proposto dall'ultimo pezzo del
+link — stessa idea del comando CLI `bonifica` di poco fa, qui a portata
+di click invece che da terminale (i `static:` non hanno bisogno del
+pulsante: sono già il catalogo, non serve registrarli una seconda
+volta). Le due sezioni di aggiunta manuale (immagini/suoni
+personalizzati) restano sotto, invariate nella logica. Compilazione
+pulita, 38 test invariati (stesso criterio del resto dell'editor: UI
+Compose, verificata a mano).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

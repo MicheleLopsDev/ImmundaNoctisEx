@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,7 +53,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
+import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.data.validation.PackageValidator
@@ -504,22 +509,49 @@ fun MapScreen(
             )
         }
 
+        // §15.7, secondo giro (Michele: "vorrei poter anche vedere la
+        // lista delle risorse già presenti... direi di trasformare la
+        // popup"): non più un piccolo `AlertDialog` con solo il modulo
+        // per aggiungere, ma un pannello più ampio (`Dialog` a schermo
+        // quasi pieno) con anche l'elenco di quello che il libro usa
+        // già — con anteprima, non solo testo.
         if (mostraRisorsePersonalizzate) {
-            AlertDialog(
+            Dialog(
                 onDismissRequest = { mostraRisorsePersonalizzate = false },
-                title = { Text("Risorse personalizzate (url:)") },
-                text = {
-                    Column(
-                        modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp).verticalScroll(rememberScrollState()),
-                    ) {
-                        Text(
-                            "Solo un promemoria per te: qui scegli un'immagine/suono dalla lista, " +
-                                "il campo della scena salva comunque url:<link> per intero.",
-                            style = MaterialTheme.typography.bodySmall,
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .fillMaxHeight(0.85f)
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                        .padding(16.dp),
+                ) {
+                    Text("Risorse del libro", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Le voci personalizzate sono solo un promemoria per te: qui scegli " +
+                            "un'immagine/suono dalla lista, il campo della scena salva comunque " +
+                            "url:<link> per intero.",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                        SezioneImmaginiInUso(
+                            manifest = manifest,
+                            onRegistra = { voce ->
+                                onManifestCambiato(
+                                    manifest.copy(
+                                        customResources = manifest.customResources.copy(
+                                            images = manifest.customResources.images + voce,
+                                        ),
+                                    ),
+                                )
+                            },
                         )
-                        Spacer(Modifier.height(8.dp))
+                        Spacer(Modifier.height(16.dp))
                         SezioneRisorsePersonalizzate(
-                            titolo = "Immagini",
+                            titolo = "Immagini personalizzate",
                             voci = manifest.customResources.images,
                             onCambia = { nuoveVoci ->
                                 onManifestCambiato(manifest.copy(customResources = manifest.customResources.copy(images = nuoveVoci)))
@@ -527,18 +559,20 @@ fun MapScreen(
                         )
                         Spacer(Modifier.height(16.dp))
                         SezioneRisorsePersonalizzate(
-                            titolo = "Suoni",
+                            titolo = "Suoni personalizzati",
                             voci = manifest.customResources.sounds,
                             onCambia = { nuoveVoci ->
                                 onManifestCambiato(manifest.copy(customResources = manifest.customResources.copy(sounds = nuoveVoci)))
                             },
                         )
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = { mostraRisorsePersonalizzate = false }) { Text("Chiudi") }
-                },
-            )
+                    Spacer(Modifier.height(8.dp))
+                    Button(
+                        onClick = { mostraRisorsePersonalizzate = false },
+                        modifier = Modifier.align(Alignment.End),
+                    ) { Text("Chiudi") }
+                }
+            }
         }
 
         Box(
@@ -850,6 +884,51 @@ fun MapScreen(
                         .padding(horizontal = 6.dp, vertical = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
                 )
+            }
+        }
+    }
+}
+
+// Immagini GIÀ in uso nelle scene del libro (30/07/2026, Michele:
+// "vorrei poter anche vedere la lista delle risorse già presenti") —
+// scandite dal vivo da `manifest.scenes`, non dal registro
+// `customResources` (che potrebbe non conoscerle ancora). Ogni voce
+// mostra un'anteprima piccola; se corrisponde già a una risorsa
+// personalizzata registrata lo dice, altrimenti (solo per gli `url:`,
+// i `static:` non hanno bisogno di un ID a parte: sono già il
+// catalogo) un pulsante rapido la registra con un ID proposto
+// dall'ultimo pezzo del link — stessa idea del comando CLI 'bonifica'
+// (ConvertMain.kt), qui a portata di click invece che da terminale.
+@Composable
+private fun SezioneImmaginiInUso(manifest: Manifest, onRegistra: (CustomResourceEntry) -> Unit) {
+    val inUso = remember(manifest) {
+        manifest.scenes.flatMap { listOfNotNull(it.backgroundImage, it.npcImage, it.combat?.enemyImage) }.distinct()
+    }
+    Text("Immagini in uso nelle scene (${inUso.size})", style = MaterialTheme.typography.titleMedium)
+    if (inUso.isEmpty()) {
+        Text("Nessuna immagine ancora usata in questo libro.", style = MaterialTheme.typography.bodySmall)
+    }
+    inUso.forEach { valore ->
+        val registrata = manifest.customResources.images.firstOrNull { "${ImageReference.URL_PREFIX}${it.url}" == valore }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+        ) {
+            AnteprimaImmagineRisorsa(valore, Modifier.size(48.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(
+                if (registrata != null) "$valore  (${registrata.id})" else valore,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (registrata == null && valore.startsWith(ImageReference.URL_PREFIX)) {
+                TextButton(onClick = {
+                    val url = valore.removePrefix(ImageReference.URL_PREFIX)
+                    val idProposto = url.substringAfterLast('/').substringBeforeLast('.').ifBlank { "risorsa" }
+                    onRegistra(CustomResourceEntry(idProposto, url))
+                }) { Text("+ Registra") }
             }
         }
     }
