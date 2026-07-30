@@ -56,8 +56,24 @@ import kotlinx.serialization.json.Json
 private val jsonScena = Json { prettyPrint = true }
 
 @Composable
-fun SceneEditorScreen(scene: Scene, tutteLeScene: List<Scene>, onSalva: (Scene) -> Unit, onAnnulla: () -> Unit) {
+fun SceneEditorScreen(
+    scene: Scene,
+    tutteLeScene: List<Scene>,
+    onSalva: (Scene) -> Unit,
+    onAnnulla: () -> Unit,
+    deathSceneId: String? = null,
+    eNuova: Boolean = false,
+) {
     var vistaJson by remember(scene.id) { mutableStateOf(false) }
+    // Rete di sicurezza (§15.5, Michele: "ogni nuova scena per default se
+    // non ha collegamenti deve collegarsi alla scena di sconfitta") —
+    // SOLO alla creazione (`eNuova`), mai un correttore retroattivo su
+    // scene già esistenti senza uscita: quelle restano un avviso di
+    // validazione da guardare, non un'azione automatica silente su dati
+    // già scritti.
+    val onSalvaConReteDiSicurezza: (Scene) -> Unit = { scenaFinale ->
+        onSalva(if (eNuova) conReteDiSicurezza(scenaFinale, deathSceneId) else scenaFinale)
+    }
 
     var narrativeText by remember(scene.id) { mutableStateOf(scene.narrativeText) }
     var choices by remember(scene.id) { mutableStateOf(scene.choices) }
@@ -341,9 +357,12 @@ fun SceneEditorScreen(scene: Scene, tutteLeScene: List<Scene>, onSalva: (Scene) 
             Button(onClick = onAnnulla) { Text("Ritorna") }
             Button(onClick = {
                 if (vistaJson) {
-                    salvaDaJson(jsonTesto, onSalva) { errore = it }
+                    salvaDaJson(jsonTesto, onSalvaConReteDiSicurezza) { errore = it }
                 } else {
-                    salvaDaMaschera(sceneDallaMaschera(), haCombattimento, combatSkill, combatEndurance, combatEvadeAfterRound, onSalva) { errore = it }
+                    salvaDaMaschera(
+                        sceneDallaMaschera(), haCombattimento, combatSkill, combatEndurance,
+                        combatEvadeAfterRound, onSalvaConReteDiSicurezza,
+                    ) { errore = it }
                 }
             }) {
                 Text("Salva scena")

@@ -51,7 +51,16 @@ import java.io.File
 private sealed class Schermata {
     data object Avvio : Schermata()
     data class Mappa(val file: File, val manifest: Manifest, val warnings: List<String>) : Schermata()
-    data class EditorScena(val file: File, val manifest: Manifest, val warnings: List<String>, val sceneId: String) : Schermata()
+    data class EditorScena(
+        val file: File,
+        val manifest: Manifest,
+        val warnings: List<String>,
+        val sceneId: String,
+        // §15.5: solo le scene create dalla mappa (non quelle aperte per
+        // modifica) hanno la rete di sicurezza verso deathSceneId se
+        // restano senza collegamenti in uscita.
+        val eNuova: Boolean = false,
+    ) : Schermata()
     data class LibroNonValido(val errors: List<String>) : Schermata()
     data object CreaNuovo : Schermata()
 }
@@ -136,6 +145,20 @@ fun main() = application {
                             onSceneSelected = { sceneId ->
                                 schermata = Schermata.EditorScena(s.file, s.manifest, s.warnings, sceneId)
                             },
+                            // §15.5: la nuova scena si aggiunge subito al
+                            // manifest (così esiste già quando si apre il
+                            // suo pannello) e si apre direttamente il suo
+                            // editor, con eNuova=true per la rete di
+                            // sicurezza (SceneEditorScreen).
+                            onNuovaScena = {
+                                val nuova = nuovaScenaVuota(s.manifest)
+                                val manifestConNuova = s.manifest.copy(scenes = s.manifest.scenes + nuova)
+                                schermata = Schermata.EditorScena(s.file, manifestConNuova, s.warnings, nuova.id, eNuova = true)
+                            },
+                            onEliminaScena = { sceneId ->
+                                val manifestSenzaScena = s.manifest.copy(scenes = s.manifest.scenes.filter { it.id != sceneId })
+                                schermata = Schermata.Mappa(s.file, manifestSenzaScena, s.warnings)
+                            },
                             salvataggioGiaConfermato = salvataggioGiaConfermato,
                             onSalvataggioConfermato = { salvataggioGiaConfermato = true },
                             onFileCambiato = { nuovoFile -> schermata = Schermata.Mappa(nuovoFile, s.manifest, s.warnings) },
@@ -151,7 +174,21 @@ fun main() = application {
                                     }
                                     schermata = Schermata.Mappa(s.file, s.manifest.copy(scenes = nuoveScene), s.warnings)
                                 },
-                                onAnnulla = { schermata = Schermata.Mappa(s.file, s.manifest, s.warnings) },
+                                // Su una scena appena creata (eNuova), "Ritorna"
+                                // deve ANNULLARE la creazione, non lasciarla a
+                                // metà nel manifest — altrimenti creare una scena
+                                // e ripensarci lascerebbe un residuo vuoto invisibile
+                                // finché non lo si nota sulla mappa.
+                                onAnnulla = {
+                                    val manifestFinale = if (s.eNuova) {
+                                        s.manifest.copy(scenes = s.manifest.scenes.filter { it.id != s.sceneId })
+                                    } else {
+                                        s.manifest
+                                    }
+                                    schermata = Schermata.Mappa(s.file, manifestFinale, s.warnings)
+                                },
+                                deathSceneId = s.manifest.deathSceneId,
+                                eNuova = s.eNuova,
                             )
                         }
                         is Schermata.LibroNonValido -> LibroNonValidoScreen(

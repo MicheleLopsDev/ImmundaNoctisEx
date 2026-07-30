@@ -111,6 +111,8 @@ fun MapScreen(
     mapViewState: MapViewState,
     onTornaAvvio: () -> Unit,
     onSceneSelected: (String) -> Unit,
+    onNuovaScena: () -> Unit,
+    onEliminaScena: (String) -> Unit,
     salvataggioGiaConfermato: Boolean,
     onSalvataggioConfermato: () -> Unit,
     onFileCambiato: (File) -> Unit,
@@ -136,6 +138,11 @@ fun MapScreen(
     // PackageValidator sull'intero manifest corrente, stesso codice della
     // CLI `validate`, zero logica duplicata.
     var risultatoValidazione by remember { mutableStateOf<ValidationResult?>(null) }
+    // Conferma di eliminazione (§15.5, Michele: "la possibilità di
+    // cancellare... le scene selezionate") — azione distruttiva (anche
+    // se recuperabile dai backup, §10), stesso principio della conferma
+    // di sovrascrittura sopra: null = nessun dialogo aperto.
+    var sceneDaEliminare by remember { mutableStateOf<String?>(null) }
 
     fun salvaSu(destinazione: File) {
         val json = Json { prettyPrint = true }.encodeToString(Manifest.serializer(), manifest)
@@ -343,6 +350,15 @@ fun MapScreen(
                     Button(onClick = { risultatoValidazione = PackageValidator.validate(manifest) }) {
                         Text("🔍 Valida libro")
                     }
+                    // §15.5 (Michele: "la possibilità di cancellare o
+                    // aggiungere le scene selezionate"): "Nuova scena"
+                    // sempre attivo, "Elimina" solo con una scena
+                    // selezionata (contorno blu, già costruito).
+                    Button(onClick = onNuovaScena) { Text("+ Nuova scena") }
+                    Button(
+                        onClick = { sceneSelezionata?.let { sceneDaEliminare = it } },
+                        enabled = sceneSelezionata != null,
+                    ) { Text("🗑 Elimina scena") }
                 }
                 Text(
                     "${manifest.title} — ${manifest.scenes.size} scene, ${warnings.size} avvisi al caricamento",
@@ -421,6 +437,29 @@ fun MapScreen(
                 },
                 dismissButton = {
                     TextButton(onClick = { fileDaConfermare = null }) { Text("Annulla") }
+                },
+            )
+        }
+
+        sceneDaEliminare?.let { id ->
+            AlertDialog(
+                onDismissRequest = { sceneDaEliminare = null },
+                title = { Text("Eliminare la scena $id?") },
+                text = {
+                    Text(
+                        "I collegamenti di altre scene verso $id resteranno come riferimenti a una " +
+                            "scena non più esistente (si vedono rossi sulla mappa, non vengono corretti da soli).",
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        onEliminaScena(id)
+                        if (sceneSelezionata == id) sceneSelezionata = null
+                        sceneDaEliminare = null
+                    }) { Text("Elimina") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { sceneDaEliminare = null }) { Text("Annulla") }
                 },
             )
         }

@@ -2097,6 +2097,37 @@ dei tasti premuti in quel momento — corretto per un evento di tipo
 Press singolo. Compilazione pulita, 25 test invariati (nessuna logica
 testabile qui, solo gestori di input).
 
+**§15.5 — Aggiungi/elimina scena, rete di sicurezza**: nuovo
+`NuovaScena.kt` con due funzioni pure (testate): `nuovaScenaVuota(manifest)`
+genera un ID numerico successivo al più alto già usato (stessa
+convenzione degli scaffold, "1"/"2"/"3"...), `conReteDiSicurezza(scene,
+deathSceneId)` aggancia una scelta di default verso la scena di
+sconfitta **solo se** la scena non ha già un'uscita qualunque (scelta,
+scelta-disciplina o combattimento) e il libro ha una `deathSceneId`
+dichiarata.
+
+`MapScreen.kt`: due pulsanti, "+ Nuova scena" (sempre attivo) ed
+"🗑 Elimina scena" (solo con una scena selezionata dal contorno blu già
+costruito, §8.x precedenti) con dialogo di conferma — stesso stile
+della conferma di sovrascrittura già esistente, azione distruttiva
+anche se recuperabile dai backup.
+
+`EditorMain.kt`: "Nuova scena" aggiunge subito la scena al manifest e
+apre il suo pannello con un nuovo flag `Schermata.EditorScena.eNuova`
+(la rete di sicurezza si applica SOLO qui, mai retroattivamente su
+scene esistenti). **Bug trovato scrivendolo**: se si crea una scena e
+si preme "Ritorna" senza salvare, la scena vuota restava comunque nel
+manifest (aggiunta subito, prima ancora di aprire il pannello) — un
+residuo invisibile fino a notarlo sulla mappa. Corretto: "Ritorna" su
+una scena `eNuova` ora la rimuove dal manifest invece di limitarsi a
+tornare alla mappa.
+
+**7 nuovi test** (`NuovaScenaTest`: ID successivo al più alto, ID "1"
+di partenza senza scene numeriche, una sola scena "morte" non blocca
+la numerazione, tipo/testo di una scena nuova, rete di sicurezza
+agganciata/non agganciata nei tre casi rilevanti) — 32 test totali,
+tutti verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
