@@ -1,10 +1,14 @@
 {
-    "id": "rampo",
+    "id": "la-lama-nera",
     "version": "1.0.0",
-    "title": "Rampo",
-    "description": "Questa e una copia di test",
+    "title": "La lama nera",
+    "description": "",
     "language": "en",
     "genre": "FANTASY",
+    "toneHints": [
+        "dark",
+        "grim"
+    ],
     "disciplineChoices": [
         {
             "id": "WEAPONSKILL",
@@ -125,5 +129,101 @@
             "narrativeText": "La tua avventura finisce qui.",
             "outcome": "DEFEAT"
         }
-    ]
+    ],
+    "customResources": {
+        "sounds": [
+            {
+                "id": "loc_alley",
+                "url": "static:loc_alley"
+            },
+            {
+                "id": "loc_caves",
+                "url": "static:loc_caves"
+            },
+            {
+                "id": "loc_crypt",
+                "url": "static:loc_crypt"
+            },
+            {
+                "id": "loc_cursed_castle",
+                "url": "static:loc_cursed_castle"
+            },
+            {
+                "id": "loc_forest",
+                "url": "static:loc_forest"
+            },
+            {
+                "id": "loc_harbor",
+                "url": "static:loc_harbor"
+            },
+            {
+                "id": "loc_market",
+                "url": "static:loc_market"
+            },
+            {
+                "id": "loc_mountain_pass",
+                "url": "static:loc_mountain_pass"
+            },
+            {
+                "id": "loc_smithy_interior",
+                "url": "static:loc_smithy_interior"
+            },
+            {
+                "id": "loc_storm_tower",
+                "url": "static:loc_storm_tower"
+            },
+            {
+                "id": "loc_tavern",
+                "url": "static:loc_tavern"
+            },
+            {
+                "id": "loc_warehouse",
+                "url": "static:loc_warehouse"
+            },
+            {
+                "id": "loc_temple",
+                "url": "static:loc_temple"
+            },
+            {
+                "id": "loc_abandoned_keep",
+                "url": "static:loc_abandoned_keep"
+            },
+            {
+                "id": "loc_ancient_ruins",
+                "url": "static:loc_ancient_ruins"
+            },
+            {
+                "id": "loc_battlefield",
+                "url": "static:loc_battlefield"
+            },
+            {
+                "id": "loc_dungeon",
+                "url": "static:loc_dungeon"
+            },
+            {
+                "id": "loc_haunted_house",
+                "url": "static:loc_haunted_house"
+            },
+            {
+                "id": "loc_swamp",
+                "url": "static:loc_swamp"
+            },
+            {
+                "id": "loc_volcano",
+                "url": "static:loc_volcano"
+            },
+            {
+                "id": "loc_waterfall",
+                "url": "static:loc_waterfall"
+            },
+            {
+                "id": "loc_wizard_cove",
+                "url": "static:loc_wizard_cove"
+            },
+            {
+                "id": "loc_wizard_tower",
+                "url": "static:loc_wizard_tower"
+            }
+        ]
+    }
 }
