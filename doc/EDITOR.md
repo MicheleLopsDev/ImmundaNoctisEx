@@ -199,6 +199,38 @@ un errore blocca e resta a video con l'elenco, gli avvisi invece
 passano, come ovunque nel resto dell'editor) e **"Chiudi"** (scarta
 senza applicare).
 
+### 7.5 Proprietà globali del libro — FATTO (30/07/2026)
+
+Michele: "ci vuole un modo per cambiare le proprietà globali del
+JSON". Prima fase, un pannello **"⚙ Proprietà del libro"** nella
+barra strumenti della mappa, con solo i campi semplici:
+
+- **Titolo, descrizione, lingua, genere, ID libro, versione** — campi
+  di testo diretti su `Manifest`.
+- **Tono narrativo** — stesse checkbox di "Crea libro nuovo" (§9.1,
+  vocabolario chiuso, §15.2): un tono risulta selezionato se almeno una
+  delle sue parole grezze è già in `toneHints`, e al salvataggio
+  `toneHints` viene ricostruito dalle sole voci selezionate — un
+  `toneHints` con parole "libere" scritte a mano altrove (es. dal "📄
+  JSON del libro") viene quindi NORMALIZZATO al vocabolario chiuso se
+  passa da qui, comportamento voluto, non un bug.
+- **`deathSceneId`** — stesso `DestinazioneField` con suggerimenti già
+  usato per le destinazioni delle scelte di una scena (reso non più
+  `private` in `SceneEditorScreen.kt` per essere riusato qui, stesso
+  file/package).
+
+**Deliberatamente FUORI da questo pannello**: `disciplineChoices`
+(catalogo discipline Kai) e `globalRules` (condizione → destinazione).
+Michele: "quel tipo di informazioni devono essere concordati con
+modifiche al client" — non sono campi scalari isolati come gli altri,
+toccano semantica che il client deve conoscere. Restano raggiungibili
+dal "📄 JSON del libro" (§7.4) nel frattempo.
+
+Stesso principio del resto dell'editor: **"Applica" valida sempre**
+con `PackageValidator` prima di accettare (un errore, es. un
+`deathSceneId` verso una scena inesistente, blocca e resta a video)
+— **"Chiudi"** scarta senza applicare.
+
 ## 8. Validazione globale del libro
 
 Un pulsante "valida tutto il libro" richiama `PackageValidator` così

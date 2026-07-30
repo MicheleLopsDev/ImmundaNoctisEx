@@ -508,9 +508,11 @@ fun SceneEditorScreen(
 // (SceneCode.kt) e mostra una lista cliccabile sotto il campo — niente
 // popup flottante, solo una lista in linea, più semplice da tenere
 // affidabile in Compose Desktop. Selezionare una riga riempie il campo
-// con l'ID vero della scena.
+// con l'ID vero della scena. Non `private` (30/07/2026): riusato anche
+// da MapScreen.kt per il campo deathSceneId del pannello "Proprietà del
+// libro" (§7.5) — stesso file, stesso package, nessun duplicato.
 @Composable
-private fun DestinazioneField(
+fun DestinazioneField(
     valore: String,
     tutteLeScene: List<Scene>,
     onValueChange: (String) -> Unit,

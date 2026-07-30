@@ -28,6 +28,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -179,6 +180,17 @@ fun MapScreen(
     var mostraJsonLibro by remember { mutableStateOf(false) }
     var jsonLibroTesto by remember { mutableStateOf("") }
     var erroreJsonLibro by remember { mutableStateOf<String?>(null) }
+    // Proprietà globali del libro (§7.5, Michele: "ci vuole un modo per
+    // cambiare le proprietà globali del JSON"): prima fase, solo i campi
+    // scalari semplici (titolo/descrizione/lingua/genere/id/versione),
+    // i toni (stesso vocabolario chiuso di "Crea libro nuovo") e
+    // deathSceneId. `disciplineChoices`/`globalRules` rimandati di
+    // proposito — Michele: "quel tipo di informazioni devono essere
+    // concordati con modifiche al client", non semplici campi di testo
+    // isolati. Restano comunque raggiungibili dal "📄 JSON del libro"
+    // appena sopra, per chi ne ha bisogno nel frattempo.
+    var mostraProprietaLibro by remember { mutableStateOf(false) }
+    var erroreProprietaLibro by remember { mutableStateOf<String?>(null) }
     // Conferma di eliminazione (§15.5/§17.3, Michele: "la possibilità di
     // cancellare... le scene selezionate", poi estesa a un insieme con
     // Ctrl+click) — azione distruttiva (anche se recuperabile dai
@@ -440,6 +452,12 @@ fun MapScreen(
                     erroreJsonLibro = null
                     mostraJsonLibro = true
                 }) { Text("📄 JSON del libro") }
+                // §7.5 (Michele: "un modo per cambiare le proprietà
+                // globali del JSON").
+                Button(onClick = {
+                    erroreProprietaLibro = null
+                    mostraProprietaLibro = true
+                }) { Text("⚙ Proprietà del libro") }
                 // §15.5/§17.3 (Michele: "la possibilità di cancellare
                 // o aggiungere le scene selezionate", poi estesa a un
                 // insieme): "Nuova scena" sempre attivo, "Elimina"
@@ -683,6 +701,159 @@ fun MapScreen(
                             }
                         }) { Text("Applica") }
                         TextButton(onClick = { mostraJsonLibro = false }) { Text("Chiudi") }
+                    }
+                }
+            }
+        }
+
+        // §7.5 (Michele: "un modo per cambiare le proprietà globali del
+        // JSON"): prima fase, solo campi scalari + toni (vocabolario
+        // chiuso, stesso di "Crea libro nuovo") + deathSceneId.
+        // disciplineChoices/globalRules rimandati apposta — Michele:
+        // "quel tipo di informazioni devono essere concordati con
+        // modifiche al client" — restano raggiungibili dal "📄 JSON del
+        // libro" sopra. Stesso principio del resto dell'editor: nessuna
+        // scrittura senza validazione.
+        if (mostraProprietaLibro) {
+            var titolo by remember(mostraProprietaLibro) { mutableStateOf(manifest.title) }
+            var descrizione by remember(mostraProprietaLibro) { mutableStateOf(manifest.description) }
+            var lingua by remember(mostraProprietaLibro) { mutableStateOf(manifest.language) }
+            var genere by remember(mostraProprietaLibro) { mutableStateOf(manifest.genre) }
+            var idLibro by remember(mostraProprietaLibro) { mutableStateOf(manifest.id) }
+            var versione by remember(mostraProprietaLibro) { mutableStateOf(manifest.version) }
+            var deathSceneId by remember(mostraProprietaLibro) { mutableStateOf(manifest.deathSceneId.orEmpty()) }
+            // Un tono è "selezionato" se almeno una delle sue parole
+            // grezze è già in toneHints — stesso criterio usato al
+            // salvataggio per ricostruirle (§15.2), semplice e coerente.
+            var toniSelezionati by remember(mostraProprietaLibro) {
+                mutableStateOf(
+                    StaticResourceCatalog.registry.tones
+                        .filter { tono -> tono.hints.any { it in manifest.toneHints } }
+                        .map { it.id }
+                        .toSet(),
+                )
+            }
+
+            Dialog(
+                onDismissRequest = { mostraProprietaLibro = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .fillMaxHeight(0.85f)
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                ) {
+                    Text("Proprietà del libro", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "Discipline e regole globali non sono qui: vanno concordate con eventuali " +
+                            "modifiche al client — usa \"📄 JSON del libro\" per quelle nel frattempo.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(12.dp))
+
+                    OutlinedTextField(
+                        value = titolo,
+                        onValueChange = { titolo = it },
+                        label = { Text("Titolo") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = descrizione,
+                        onValueChange = { descrizione = it },
+                        label = { Text("Descrizione") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = lingua,
+                            onValueChange = { lingua = it },
+                            label = { Text("Lingua") },
+                            modifier = Modifier.weight(1f),
+                        )
+                        OutlinedTextField(
+                            value = genere,
+                            onValueChange = { genere = it },
+                            label = { Text("Genere") },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = idLibro,
+                            onValueChange = { idLibro = it },
+                            label = { Text("ID libro") },
+                            modifier = Modifier.weight(1f),
+                        )
+                        OutlinedTextField(
+                            value = versione,
+                            onValueChange = { versione = it },
+                            label = { Text("Versione") },
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    Spacer(Modifier.height(16.dp))
+
+                    Text("Tono narrativo (puoi sceglierne più di uno)", style = MaterialTheme.typography.titleMedium)
+                    StaticResourceCatalog.registry.tones.forEach { tono ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(
+                                checked = tono.id in toniSelezionati,
+                                onCheckedChange = { selezionato ->
+                                    toniSelezionati = if (selezionato) toniSelezionati + tono.id else toniSelezionati - tono.id
+                                },
+                            )
+                            Text(tono.displayName)
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+
+                    Text("Scena di morte fuori combattimento (deathSceneId)", style = MaterialTheme.typography.titleMedium)
+                    DestinazioneField(
+                        valore = deathSceneId,
+                        tutteLeScene = manifest.scenes,
+                        onValueChange = { deathSceneId = it },
+                        etichetta = "ID scena (vuoto = nessuna)",
+                    )
+
+                    erroreProprietaLibro?.let {
+                        Spacer(Modifier.height(8.dp))
+                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    }
+
+                    Spacer(Modifier.height(16.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = {
+                            val toneHints = StaticResourceCatalog.registry.tones
+                                .filter { it.id in toniSelezionati }
+                                .flatMap { it.hints }
+                                .distinct()
+                            val manifestAggiornato = manifest.copy(
+                                id = idLibro,
+                                version = versione,
+                                title = titolo,
+                                description = descrizione,
+                                language = lingua,
+                                genre = genere,
+                                toneHints = toneHints,
+                                deathSceneId = deathSceneId.ifBlank { null },
+                            )
+                            val risultato = PackageValidator.validate(manifestAggiornato)
+                            if (risultato.errors.isNotEmpty()) {
+                                erroreProprietaLibro = risultato.errors.joinToString("\n") { errore -> "• $errore" }
+                            } else {
+                                onManifestCambiato(manifestAggiornato)
+                                mostraProprietaLibro = false
+                            }
+                        }) { Text("Applica") }
+                        TextButton(onClick = { mostraProprietaLibro = false }) { Text("Chiudi") }
                     }
                 }
             }

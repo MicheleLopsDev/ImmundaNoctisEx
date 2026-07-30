@@ -190,6 +190,14 @@ l'ultimo. Se non trova nulla, scrive **"Nessuna corrispondenza"**.
   pulsante **"Applica"** controlla che il testo sia JSON valido e che
   il libro risultante non abbia errori prima di accettarlo (gli
   avvisi non bloccano); **"Chiudi"** scarta senza applicare nulla.
+- **"⚙ Proprietà del libro"** — un modo più comodo del JSON grezzo per
+  cambiare titolo, descrizione, lingua, genere, ID, versione, i toni
+  narrativi (stesse checkbox di "Crea libro nuovo") e la scena di
+  morte fuori combattimento (`deathSceneId`, con gli stessi
+  suggerimenti che vedi scegliendo la destinazione di una scelta).
+  Stesse regole del JSON: **"Applica"** valida prima di accettare,
+  **"Chiudi"** scarta. Discipline e regole globali non sono qui —
+  restano nel "📄 JSON del libro" per ora.
 
 ### 5.5 Le immagini e i suoni del libro
 

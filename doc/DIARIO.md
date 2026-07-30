@@ -2788,6 +2788,23 @@ errore blocca e resta a video con l'elenco, gli avvisi passano) e
 nessuna scrittura senza validazione. `:tool:compileKotlin`/`:tool:test`
 verdi.
 
+**Proprietà globali del libro (§7.5, 30/07/2026, Michele: "ci vuole un
+modo per cambiare le proprietà globali del JSON... pensaci un po'")**:
+proposto un taglio a fasi (solo campi semplici ora, discipline/regole
+globali rimandate) — Michele conferma e aggiunge il motivo:
+"quel tipo di informazioni devono essere concordati con modifiche al
+client", non semplici campi isolati. Pannello "⚙ Proprietà del libro"
+nella barra strumenti della mappa: titolo/descrizione/lingua/genere/
+ID/versione (testo diretto), toni narrativi (stesse checkbox di "Crea
+libro nuovo" — un tono risulta selezionato se una sua parola grezza è
+già in `toneHints`; al salvataggio `toneHints` viene RICOSTRUITO dalle
+sole voci selezionate, quindi normalizza eventuali parole libere
+scritte altrove, comportamento voluto), `deathSceneId` (riusa
+`DestinazioneField` di `SceneEditorScreen.kt`, tolto `private` per
+essere condiviso — stesso file/package, nessun duplicato). "Applica"
+valida sempre con `PackageValidator` prima di accettare, "Chiudi"
+scarta. `:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
