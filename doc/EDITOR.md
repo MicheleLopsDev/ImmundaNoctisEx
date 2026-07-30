@@ -447,6 +447,25 @@ aggiungere/gestire queste voci. Richiede un aggiornamento di
 validatore (un ID duplicato tra voci di `customResources` è un
 avviso, non un errore bloccante).
 
+**Cancella e modifica (30/07/2026, Michele: "dal menu delle risorse
+devi darmi la possibilità di cancellarle oppure di selezionarle e
+modificarle")**: vale per ENTRAMBI gli elenchi del pannello, non solo
+per il registro `customResources`:
+- **Immagini in uso nelle scene** (`SezioneImmaginiInUso`): un valore
+  può comparire in più scene (elenco deduplicato) — cancellare
+  (🗑) azzera quel campo in TUTTE le scene che lo referenziano,
+  modificare (✎, solo per `url:`: un `static:` è un ID del catalogo
+  fisso, non testo libero) lo sostituisce ovunque compaia in un colpo
+  solo. Se il valore era anche registrato in `customResources`,
+  il registro segue di pari passo (rimosso o aggiornato con lo stesso
+  ID).
+- **Registro (immagini non ancora in uso + suoni)**
+  (`SezioneRisorsePersonalizzate`): oltre al ✕ già esistente, ✎ carica
+  la voce nello stesso modulo usato per aggiungerne una nuova, che
+  diventa temporaneamente un modulo di modifica ("💾 Salva"/
+  "✕ Annulla") — evita di dover cancellare e riaggiungere una voce
+  solo per correggerne l'URL.
+
 ### 15.8 Salvataggio di una scena con esito a colori
 
 Al salvataggio di una scena (§7.3), tre esiti invece del semplice

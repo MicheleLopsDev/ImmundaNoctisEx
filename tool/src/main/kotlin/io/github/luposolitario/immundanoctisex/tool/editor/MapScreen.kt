@@ -541,15 +541,7 @@ fun MapScreen(
                     Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
                         SezioneImmaginiInUso(
                             manifest = manifest,
-                            onRegistra = { voce ->
-                                onManifestCambiato(
-                                    manifest.copy(
-                                        customResources = manifest.customResources.copy(
-                                            images = manifest.customResources.images + voce,
-                                        ),
-                                    ),
-                                )
-                            },
+                            onManifestCambiato = onManifestCambiato,
                         )
                         Spacer(Modifier.height(16.dp))
                         // 30/07/2026, Michele: "non capisco perché ci sono
@@ -933,6 +925,30 @@ fun MapScreen(
     }
 }
 
+// Rimuove un valore immagine (qualunque prefisso, static: o url:) da
+// TUTTE le scene che lo referenziano — usato dal ✕ di
+// SezioneImmaginiInUso (30/07/2026, Michele: "dal menu delle risorse
+// devi darmi la possibilità di cancellarle").
+private fun sceneSenzaImmagine(scenes: List<Scene>, valore: String): List<Scene> = scenes.map { scena ->
+    scena.copy(
+        backgroundImage = scena.backgroundImage.takeUnless { it == valore },
+        npcImage = scena.npcImage.takeUnless { it == valore },
+        combat = scena.combat?.let { c -> if (c.enemyImage == valore) c.copy(enemyImage = null) else c },
+    )
+}
+
+// Come sopra ma sostituisce il valore invece di azzerarlo — usato dalla
+// modifica (solo per `url:`, un `static:` è un ID del catalogo fisso,
+// non testo libero da riscrivere).
+private fun sceneConImmagineSostituita(scenes: List<Scene>, vecchio: String, nuovo: String): List<Scene> =
+    scenes.map { scena ->
+        scena.copy(
+            backgroundImage = if (scena.backgroundImage == vecchio) nuovo else scena.backgroundImage,
+            npcImage = if (scena.npcImage == vecchio) nuovo else scena.npcImage,
+            combat = scena.combat?.let { c -> if (c.enemyImage == vecchio) c.copy(enemyImage = nuovo) else c },
+        )
+    }
+
 // Immagini GIÀ in uso nelle scene del libro (30/07/2026, Michele:
 // "vorrei poter anche vedere la lista delle risorse già presenti") —
 // scandite dal vivo da `manifest.scenes`, non dal registro
@@ -943,36 +959,109 @@ fun MapScreen(
 // catalogo) un pulsante rapido la registra con un ID proposto
 // dall'ultimo pezzo del link — stessa idea del comando CLI 'bonifica'
 // (ConvertMain.kt), qui a portata di click invece che da terminale.
+//
+// Cancella/modifica (30/07/2026, Michele: "dal menu delle risorse devi
+// darmi la possibilità di cancellarle oppure di selezionarle e
+// modificarle"): un'immagine "in uso" è identificata dal suo VALORE
+// (può comparire in più scene contemporaneamente, da qui il
+// `.distinct()`), quindi cancellare/modificare agisce su tutte le
+// scene che la referenziano in un colpo solo, non su una singola —
+// altrimenti l'elenco (deduplicato) e l'azione (per-scena) si
+// contraddirebbero. Se il valore era anche registrato in
+// customResources, il registro viene aggiornato di pari passo (stesso
+// ID, URL nuovo o voce rimossa).
 @Composable
-private fun SezioneImmaginiInUso(manifest: Manifest, onRegistra: (CustomResourceEntry) -> Unit) {
+private fun SezioneImmaginiInUso(manifest: Manifest, onManifestCambiato: (Manifest) -> Unit) {
     val inUso = remember(manifest) {
         manifest.scenes.flatMap { listOfNotNull(it.backgroundImage, it.npcImage, it.combat?.enemyImage) }.distinct()
     }
+    var valoreInModifica by remember { mutableStateOf<String?>(null) }
+    var testoInModifica by remember { mutableStateOf("") }
+
+    fun registra(voce: CustomResourceEntry) {
+        onManifestCambiato(
+            manifest.copy(customResources = manifest.customResources.copy(images = manifest.customResources.images + voce)),
+        )
+    }
+
+    fun elimina(valore: String) {
+        val urlSenzaPrefisso = valore.removePrefix(ImageReference.URL_PREFIX)
+        onManifestCambiato(
+            manifest.copy(
+                scenes = sceneSenzaImmagine(manifest.scenes, valore),
+                customResources = manifest.customResources.copy(
+                    images = manifest.customResources.images.filterNot { it.url == urlSenzaPrefisso },
+                ),
+            ),
+        )
+    }
+
+    fun salvaModifica(vecchio: String, nuovoUrl: String) {
+        if (nuovoUrl.isBlank()) return
+        val nuovoValore = "${ImageReference.URL_PREFIX}$nuovoUrl"
+        val vecchioUrlSenzaPrefisso = vecchio.removePrefix(ImageReference.URL_PREFIX)
+        onManifestCambiato(
+            manifest.copy(
+                scenes = sceneConImmagineSostituita(manifest.scenes, vecchio, nuovoValore),
+                customResources = manifest.customResources.copy(
+                    images = manifest.customResources.images.map {
+                        if (it.url == vecchioUrlSenzaPrefisso) it.copy(url = nuovoUrl) else it
+                    },
+                ),
+            ),
+        )
+        valoreInModifica = null
+    }
+
     Text("Immagini in uso nelle scene (${inUso.size})", style = MaterialTheme.typography.titleMedium)
     if (inUso.isEmpty()) {
         Text("Nessuna immagine ancora usata in questo libro.", style = MaterialTheme.typography.bodySmall)
     }
     inUso.forEach { valore ->
         val registrata = manifest.customResources.images.firstOrNull { "${ImageReference.URL_PREFIX}${it.url}" == valore }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-        ) {
-            AnteprimaImmagineRisorsa(valore, Modifier.size(48.dp))
-            Spacer(Modifier.width(8.dp))
-            Text(
-                if (registrata != null) "$valore  (${registrata.id})" else valore,
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            if (registrata == null && valore.startsWith(ImageReference.URL_PREFIX)) {
-                TextButton(onClick = {
-                    val url = valore.removePrefix(ImageReference.URL_PREFIX)
-                    val idProposto = url.substringAfterLast('/').substringBeforeLast('.').ifBlank { "risorsa" }
-                    onRegistra(CustomResourceEntry(idProposto, url))
-                }) { Text("+ Registra") }
+        if (valoreInModifica == valore) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+            ) {
+                OutlinedTextField(
+                    value = testoInModifica,
+                    onValueChange = { testoInModifica = it },
+                    label = { Text("https://...") },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true,
+                )
+                TextButton(onClick = { salvaModifica(valore, testoInModifica) }) { Text("💾 Salva") }
+                TextButton(onClick = { valoreInModifica = null }) { Text("✕ Annulla") }
+            }
+        } else {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+            ) {
+                AnteprimaImmagineRisorsa(valore, Modifier.size(48.dp))
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    if (registrata != null) "$valore  (${registrata.id})" else valore,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                if (registrata == null && valore.startsWith(ImageReference.URL_PREFIX)) {
+                    TextButton(onClick = {
+                        val url = valore.removePrefix(ImageReference.URL_PREFIX)
+                        val idProposto = url.substringAfterLast('/').substringBeforeLast('.').ifBlank { "risorsa" }
+                        registra(CustomResourceEntry(idProposto, url))
+                    }) { Text("+ Registra") }
+                }
+                if (valore.startsWith(ImageReference.URL_PREFIX)) {
+                    TextButton(onClick = {
+                        valoreInModifica = valore
+                        testoInModifica = valore.removePrefix(ImageReference.URL_PREFIX)
+                    }) { Text("✎") }
+                }
+                TextButton(onClick = { elimina(valore) }) { Text("🗑") }
             }
         }
     }
@@ -981,6 +1070,14 @@ private fun SezioneImmaginiInUso(manifest: Manifest, onRegistra: (CustomResource
 // Una sezione del pannello "Risorse personalizzate" (§15.7): elenco con
 // pulsante di rimozione per voce + riga per aggiungerne una nuova.
 // Uguale per immagini e suoni, cambia solo l'elenco passato.
+//
+// Modifica in-place (30/07/2026, Michele: "dal menu delle risorse devi
+// darmi la possibilità di cancellarle oppure di selezionarle e
+// modificarle"): "✎" carica la voce nel modulo sotto (stesso modulo
+// usato per aggiungere), lo trasforma temporaneamente in un modulo di
+// modifica ("💾 Salva"/"✕ Annulla") identificato dall'ID originale —
+// evita di dover cancellare e riaggiungere una voce solo per
+// correggerne l'URL.
 @Composable
 private fun SezioneRisorsePersonalizzate(
     titolo: String,
@@ -989,6 +1086,13 @@ private fun SezioneRisorsePersonalizzate(
 ) {
     var nuovoId by remember { mutableStateOf("") }
     var nuovoUrl by remember { mutableStateOf("") }
+    var idInModifica by remember { mutableStateOf<String?>(null) }
+
+    fun annullaModifica() {
+        idInModifica = null
+        nuovoId = ""
+        nuovoUrl = ""
+    }
 
     Text(titolo, style = MaterialTheme.typography.titleMedium)
     voci.forEach { voce ->
@@ -1000,6 +1104,11 @@ private fun SezioneRisorsePersonalizzate(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            TextButton(onClick = {
+                idInModifica = voce.id
+                nuovoId = voce.id
+                nuovoUrl = voce.url
+            }) { Text("✎") }
             TextButton(onClick = { onCambia(voci - voce) }) { Text("✕") }
         }
     }
@@ -1020,10 +1129,17 @@ private fun SezioneRisorsePersonalizzate(
         )
         Button(onClick = {
             if (nuovoId.isNotBlank() && nuovoUrl.isNotBlank()) {
-                onCambia(voci + CustomResourceEntry(nuovoId, nuovoUrl))
-                nuovoId = ""
-                nuovoUrl = ""
+                val idOriginale = idInModifica
+                if (idOriginale != null) {
+                    onCambia(voci.map { if (it.id == idOriginale) CustomResourceEntry(nuovoId, nuovoUrl) else it })
+                } else {
+                    onCambia(voci + CustomResourceEntry(nuovoId, nuovoUrl))
+                }
+                annullaModifica()
             }
-        }) { Text("+ Aggiungi") }
+        }) { Text(if (idInModifica != null) "💾 Salva" else "+ Aggiungi") }
+        if (idInModifica != null) {
+            TextButton(onClick = { annullaModifica() }) { Text("✕ Annulla") }
+        }
     }
 }
