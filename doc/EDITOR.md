@@ -314,7 +314,156 @@ se il tuo editor Markdown non renderizza l'anteprima qui sotto.
 
 ![Stesso pannello in vista JSON: testo grezzo della scena e un banner rosso con l'errore di validazione che blocca il salvataggio](editor-mockup/04-scena-json.svg)
 
-## 15. Riferimenti
+## 15. Seconda fase: risorse, interazione e qualità di scrittura (30/07/2026)
+
+Specifica aggiunta dopo la v1 (§1-§14, implementata e in uso — vedi
+`doc/DIARIO.md` per la cronologia dei giri di correzione). Discussa a
+lungo per conversazione con Michele lo stesso giorno, **da fare in più
+sezioni separate** (non tutto in una sessione): questo capitolo fissa
+cosa si è deciso, in modo da poter riprendere da qui in ciascuna.
+Sottosezioni pensate come unità di lavoro indipendenti, nell'ordine
+proposto §15.1 → §15.8 (§15.1 già fatta).
+
+### 15.1 Registro delle risorse statiche — FATTO
+
+`content/static-resources.json`: istantanea di `SceneImageCatalog`/
+`NpcImageCatalog`/`EnemyImageCatalog` (`:app`), letta solo dall'editor
+(`StaticResourceCatalog.kt`, `:tool/editor`). Il client resta
+invariato: la fonte di verità per il gioco vero restano i cataloghi
+Kotlin in `:app`, questo file è una copia. Copiato anche in
+`tool/src/main/resources/` insieme alle immagini JPG, così l'editor
+mostra anteprime vere anche impacchettato come `.exe` standalone, non
+solo lanciato con `:tool:run` da dentro il repository.
+
+Quando (non se) si deciderà il passaggio del CLIENT a un registro
+risorse dinamico invece dei cataloghi Kotlin compilati — l'idea più
+grande discussa lo stesso giorno, che tocca `:app` per davvero — serve
+una specifica scritta dedicata a parte, non un paragrafo qui: comporta
+spostare le immagini da `res/drawable-nodpi/` (risorse Android
+compilate, non leggibili per nome a runtime) ad `assets/` (già la sede
+degli mp3, §15.6), e cambiare come `SceneImages.kt`/`NpcImages.kt`/
+`EnemyImages.kt` risolvono un ID — decisione rimandata di proposito,
+non ancora presa.
+
+### 15.2 Vocabolario chiuso anche per i toni
+
+`Manifest.toneHints`/campo tono nel form di creazione libro (§9.1):
+oggi testo libero separato da virgole. Va vincolato allo stesso
+principio già in vigore per le immagini (menu a tendina, non testo
+libero) — vocabolario preso da `NarrativeTone` (`:app`,
+`util/NarrativeTonePreferences.kt`): Cupo, Avventuroso, Misterioso,
+Eroico, Leggero, Duro e crudo, Erotico, Brutale, ciascuno con i propri
+`hints` (es. Cupo -> dark, grim). L'elenco va aggiunto al registro di
+§15.1 (stessa istantanea, stesso principio: il client non cambia,
+l'editor legge una copia) invece di duplicarlo a mano una seconda
+volta.
+
+### 15.3 Immagini: anteprima nella scheda, sfondo nel grafo
+
+Due usi distinti, non lo stesso:
+
+- **Nella scheda di editing di una scena (§7.1)**: ogni immagine
+  presente (`backgroundImage`/`npcImage`/`combat.enemyImage`) va
+  **caricata e mostrata graficamente**, non solo come testo dell'ID —
+  un'anteprima per ciascuna, **ognuna nel proprio posto** (tre slot
+  distinti: location, NPC, nemico), nessuna priorità qui perché
+  possono coesistere tutte e tre nella stessa scena.
+- **Sul nodo della mappa (§6.2)**: un nodo mostra **una sola**
+  immagine come proprio sfondo (al posto del verde/rosso pieno di
+  oggi, o sovrapposta ad esso — da decidere in implementazione se la
+  salute resta leggibile come bordo colorato invece che come
+  riempimento). Quando una scena ne ha più di una, ordine di priorità
+  deciso: **NPC** (`npcImage`) prima, poi **nemico** (`combat.
+  enemyImage` — copre sia "nemico" che "bestia", stesso campo unico
+  nello schema, vedi `NpcImageCatalog.kt`/`EnemyImageCatalog.kt`: le
+  `beast_*` sono le stesse in entrambi i cataloghi, è l'autore a
+  scegliere il campo), infine **location** (`backgroundImage`) come
+  ultima scelta.
+
+### 15.4 Mouse: rotella e tasto centrale
+
+- **Rotella del mouse** sopra la mappa: zoom (stesso effetto dei
+  pulsanti `−`/`+` di §6.1, non li sostituisce).
+- **Pressione del tasto centrale**: stesso effetto del pulsante
+  "⟳ Riordina" già esistente (§6.1) — una scorciatoia, non un
+  comportamento nuovo.
+
+### 15.5 Aggiungere ed eliminare scene dalla mappa
+
+Due azioni nuove in barra strumenti, che usano la selezione con click
+singolo già costruita (contorno blu):
+- **Nuova scena**: crea una scena vuota (nessun collegamento ancora) e
+  apre subito il suo pannello di editing.
+- **Elimina scena selezionata**: rimuove la scena marcata dal contorno
+  blu. I collegamenti di altre scene che puntavano ad essa restano
+  come riferimenti a una scena non più esistente — la validazione li
+  segnala (rosso, §6.2), non blocca né corregge da sola, stessa
+  filosofia di "mai bloccare" già in vigore.
+
+**Rete di sicurezza per le scene nuove**: se una scena appena creata
+non ha ANCORA nessun collegamento in uscita nel momento in cui la si
+salva/chiude per la prima volta, l'editor aggiunge da solo una scelta
+di default verso `manifest.deathSceneId` (la scena di sconfitta già
+garantita da ogni libro, §9.3) — evita il caso, già capitato, di una
+scena senza uscita che fa fallire la validazione per una semplice
+dimenticanza. Vale **solo alla creazione**, non è un correttore
+retroattivo su scene già esistenti senza uscita (quelle restano un
+avviso di validazione da guardare, non un'azione automatica silente
+su dati già scritti).
+
+### 15.6 Audio delle risorse
+
+`app/src/main/assets/sfx/images/loc_*.mp3` (30 file, un suono
+ambientale per location, stessa convenzione di nome degli ID —
+`loc_alley.mp3` per `loc_alley`): stesso trattamento delle immagini di
+§15.1, copiati nelle risorse di `:tool` e **ascoltabili dall'editor**
+(pulsante di riproduzione accanto alla scelta della location). Restano
+FUORI da questo giro (categoria concettualmente diversa, non "una
+risorsa per ID"): `assets/music/` (tracce per umore, non per scena) e
+`assets/sfx/`/`assets/sfx/endings/` (effetti generici — dado, passi,
+finali). Riproduzione via **JLayer** (libreria Java pura, gratuita,
+LGPL — `javax.sound` di base non decodifica MP3).
+
+### 15.7 Risorse `url:` fornite da chi scrive il libro
+
+Nuovo campo a livello di **Manifest** (non nel registro condiviso di
+§15.1, che descrive cosa porta con sé l'APP — questo è dati DI QUEL
+libro, stesso posto di `toneHints`/`disciplineChoices`):
+
+```json
+"customResources": {
+  "images": [ { "id": "mio_villain", "url": "https://..." } ],
+  "sounds": [ { "id": "mio_tema", "url": "https://..." } ]
+}
+```
+
+Serve **solo come comodità per l'autore nell'editor** (una lista da
+cui scegliere invece di riscrivere lo stesso URL più volte) — la scena
+continua a salvare direttamente `"url:https://..."` come già fa oggi,
+il client non deve sapere che `customResources` esiste: zero impatto
+sul motore di gioco, solo un nuovo pannello nell'editor per
+aggiungere/gestire queste voci. Richiede un aggiornamento di
+`doc/SCHEMA-JSON.md` (nuovo campo opzionale di Manifest) e del
+validatore (un ID duplicato tra voci di `customResources` è un
+avviso, non un errore bloccante).
+
+### 15.8 Salvataggio di una scena con esito a colori
+
+Al salvataggio di una scena (§7.3), tre esiti invece del semplice
+blocco/non blocco di oggi:
+- **Valida, nessun avviso**: lo sfondo del pannello lampeggia di un
+  **verde chiarissimo**, poi il pannello si chiude (torna alla mappa)
+  — comportamento di oggi, solo con il colore in più.
+- **Valida con avvisi** (es. un riferimento "in avanti" non ancora
+  creato, §7.3): lampeggio **giallo chiarissimo**, poi si chiude
+  comunque — gli avvisi non bloccano, come oggi.
+- **Non valida** (errore vero, es. campo obbligatorio mancante):
+  lampeggio **rosso molto chiaro**, il pannello **non si chiude**;
+  compare invece un popup che spiega cosa manca. Chiudendo il popup
+  (OK) il pannello **resta aperto** per permettere la correzione — il
+  popup blocca solo se stesso, non "sblocca" la chiusura del pannello.
+
+## 16. Riferimenti
 
 - `doc/ETL.md` — pipeline di conversione Project Aon → JSON, la parte
   CLI di `:tool` che questo documento estende con una GUI.
@@ -327,3 +476,7 @@ se il tuo editor Markdown non renderizza l'anteprima qui sotto.
 - `core/data/.../validation/PackageValidator.kt` (e i validatori che
   compone) — logica di validazione riusata sia per il pulsante "valida
   tutto il libro" sia per la colorazione dei nodi.
+- `content/static-resources.json` — registro delle risorse statiche
+  letto dall'editor (§15.1/§15.2), copia dei cataloghi Kotlin di `:app`.
+- `doc/DIARIO.md` — cronologia dei giri di correzione della v1
+  (30/07/2026) da cui è nata questa seconda fase.
