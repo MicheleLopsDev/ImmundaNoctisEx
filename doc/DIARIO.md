@@ -2556,6 +2556,23 @@ per uso non commerciale sotto la licenza di Project Aon). Commentata
 l'issue #6 con il link alla release; resta solo la prova su una
 macchina pulita, da fare Michele.
 
+**Verifica esplicita: nessun libro nei pacchetti pubblicati
+(30/07/2026, Michele: "non solo nelle release non devono essere
+presenti libri se non json di test")**: chiarito con Michele
+l'ambito prima di agire — riguarda solo i 5 libri Project Aon
+(`doc/LIBRI/`), non i libri di prova più piccoli in `content/`
+(`la-megera.json`/`rampo.json`/ecc., quelli restano); e riguarda solo
+i pacchetti/Release, non il repository Git (già deciso pubblico e
+va bene così). Verificato scompattando ogni `.jar` dentro
+`ImmundaNoctisEx-Editor-portable.zip` (`unzip -l` su tutti i jar in
+`app/`, incluso quello del modulo `:tool`): l'unico JSON bundlato è
+`static-resources.json` (il registro immagini/toni/suoni, non un
+libro) — nessuna traccia dei 5 libri Project Aon né di altro
+contenuto narrativo. Confermato che non poteva essere altrimenti: i
+libri si aprono sempre a runtime tramite il selettore file nativo,
+non vengono mai incorporati come risorsa nel build. Nessuna
+correzione necessaria alla release già pubblicata.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
