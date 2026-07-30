@@ -7,7 +7,7 @@
 
 ---
 
-## STATO CORRENTE — aggiornato 27/07/2026
+## STATO CORRENTE — aggiornato 27/07/2026, con nota 30/07/2026 su Fase 6
 
 **Il client è sostanzialmente completo.** Fase 3 (il libro gira sul
 Razr senza Gemma) e Fase 4 (Gemma genera davvero sul device, misure di
@@ -78,16 +78,43 @@ decorazioni sistemate. Tutto l'aspetto grafico è funzionale (Michele,
    [MICHELE-PROPOSTO] visto che è meccanico ma esteso (tocca quasi
    ogni schermata).
 
-**Prossimo grande capitolo**: il tool di conversione/authoring libri
-(`doc/ETL.md`, Fase 6) — piano dettagliato ancora da ricevere da
-Michele. Punto aperto dalla sessione del 26-27/07: `ETL.md` oggi è
-centrato sulla CONVERSIONE di libri esistenti (Project Aon + Kai
-Chronicles), ma l'obiettivo che Michele ha ribadito è un client di
-AUTHORING assistito da IA per scrittori (prompt -> bozza JSON
-predigerita -> rifinitura in un ambiente grafico) — la conversione
-resta un uso secondario/di test. Il modulo `:tool` esiste solo come
-scheletro Gradle vuoto (`build.gradle.kts` placeholder, nessun
-sorgente): zero righe di codice scritte finora.
+**AGGIORNAMENTO 30/07/2026 — Fase 6, editor grafico costruito e
+funzionante**: il paragrafo qui sotto (26-27/07) è superato dai fatti,
+lasciato per il contesto storico. Il modulo `:tool` NON è più uno
+scheletro vuoto: nella sessione del 30/07 è stato costruito da zero un
+editor grafico Compose Desktop completo (finestra separata,
+`:tool:run`), dettagliato nelle voci "Fase 6" più sotto —
+convertitore Project Aon -> JSON, validatore, e soprattutto l'editor
+visuale vero e proprio: mappa del libro con auto-layout, ricerca,
+trascinamento manuale dei nodi, pannello di editing per scena
+(maschera + JSON grezzo), creazione di un libro nuovo da tre scaffold,
+salvataggio con backup rotanti, validazione globale a richiesta,
+pacchettizzazione in un `.exe` standalone verificata per davvero.
+Tutto committato e pushato. Nella stessa sessione, un lungo giro di
+correzioni guidate da Michele che testava dal vivo: bug di click/drag
+sulla mappa (risolti passando da `detectDragGestures` a
+`detectTapGestures`+`detectDragGestures` separati, con `onPress` per
+la selezione istantanea), stato della vista mappa che si perdeva
+navigando (spostato in `MapViewState` un livello sopra), testi neri
+illeggibili in tema scuro (root `Box` -> `Surface`, che imposta anche
+il colore del contenuto). **Non ancora fatto**: il menu a tendina sul
+catalogo immagini `static:` nell'editor (richiede spostare
+`SceneImageCatalog.kt`/`NpcImageCatalog.kt`/`EnemyImageCatalog.kt` da
+`:app` a un modulo condiviso — rimandato di proposito, tocca codice che
+spedisce davvero); l'editor dei prompt (mai iniziato, fuori perimetro
+dichiarato in `doc/EDITOR.md`); i file `content/la-megera.json`,
+`content/una-nuova-scoperta.json`, `content/scenes.sample_new.json*`
+sono prove di Michele con l'editor, non versionati, da eliminare
+quando vuole lui.
+
+**Prossimo grande capitolo (paragrafo storico, 26-27/07, superato
+sopra)**: il tool di conversione/authoring libri (`doc/ETL.md`, Fase
+6) — piano dettagliato ancora da ricevere da Michele. Punto aperto
+dalla sessione del 26-27/07: `ETL.md` oggi è centrato sulla
+CONVERSIONE di libri esistenti (Project Aon + Kai Chronicles), ma
+l'obiettivo che Michele ha ribadito è un client di AUTHORING assistito
+da IA per scrittori (prompt -> bozza JSON predigerita -> rifinitura in
+un ambiente grafico) — la conversione resta un uso secondario/di test.
 
 **Ricerca sul motore GGUF, seconda puntata (27/07)**: chiesto un
 incremento prestazionale atteso — trovato che Google stessa, in un
