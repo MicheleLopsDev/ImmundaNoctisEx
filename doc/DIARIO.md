@@ -2540,6 +2540,22 @@ frammenti di prompt). `doc/MILESTONE-CLIENT.md`/`doc/MILESTONE-EDITOR.md`
 restano come versione discorsiva con tutto il perché — le issue
 rimandano lì per il dettaglio, non lo duplicano.
 
+**Prima GitHub Release dell'editor (30/07/2026, Michele: "possiamo
+mettere i packages su... prima facciamo un msi per l'exe")**: generato
+anche l'installer `packageMsi` (WiX scaricato in automatico dal
+plugin, nessun setup manuale servito — `ImmundaNoctisEx-Editor-1.0.0.msi`,
+~95 MB), poi pubblicati entrambi i formati (cartella portatile zippata
++ `.msi`) come [Release `editor-v1.0.0`](https://github.com/MicheleLopsDev/ImmundaNoctisEx/releases/tag/editor-v1.0.0),
+tag dedicato sul commit corrente di `develop` (non richiede un merge
+su `main`, i tag di release possono stare su qualunque commit). Prima
+di pubblicare, segnalato a Michele che il repository è **pubblico**
+— i pacchetti sarebbero scaricabili da chiunque; confermato
+esplicitamente, nessun contenuto di terzi che violi copyright (i
+libri Project Aon in `doc/LIBRI/` sono a loro volta ridistribuibili
+per uso non commerciale sotto la licenza di Project Aon). Commentata
+l'issue #6 con il link alla release; resta solo la prova su una
+macchina pulita, da fare Michele.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

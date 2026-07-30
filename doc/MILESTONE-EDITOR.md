@@ -46,11 +46,22 @@ successo una cartella autonoma in
 prova). Non tracciata in git (dentro `build/`, già ignorato) — va
 rigenerata con lo stesso comando su chi la costruisce.
 
-Resta solo l'ultimo passo, che deve fare Michele: **provarla su una
-macchina pulita** (idealmente quella del figlio, senza Android Studio
-né JDK installati) per confermare che non serva nient'altro. Se serve
-anche l'installer vero (`packageMsi`), il task è pronto ma non ancora
-provato.
+Anche l'installer vero (`packageMsi`) generato con successo (WiX
+scaricato automaticamente dal plugin, nessun setup manuale servito):
+`ImmundaNoctisEx-Editor-1.0.0.msi` (~95 MB).
+
+Entrambi pubblicati come [GitHub Release
+`editor-v1.0.0`](https://github.com/MicheleLopsDev/ImmundaNoctisEx/releases/tag/editor-v1.0.0)
+(30/07/2026, Michele: "possiamo mettere i packages su... prima
+facciamo un msi"): cartella portatile zippata + installer `.msi`. Il
+repository è pubblico, quindi anche questi pacchetti lo sono — nessun
+problema di copyright secondo Michele (nessun contenuto di terzi che
+lo violi).
+
+Resta solo l'ultimo passo, che deve fare Michele: **provare uno dei
+due su una macchina pulita** (idealmente quella del figlio, senza
+Android Studio né JDK installati) per confermare che non serva
+nient'altro.
 
 ### 2. Verificare il limite dimensionale (~350 scene)
 
