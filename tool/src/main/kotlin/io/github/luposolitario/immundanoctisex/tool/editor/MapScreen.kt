@@ -7,6 +7,8 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -122,7 +124,7 @@ class MapViewState {
 @Composable
 fun rememberMapViewState(): MapViewState = remember { MapViewState() }
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun MapScreen(
     file: File,
@@ -386,84 +388,82 @@ fun MapScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            // 30/07/2026, Michele: "tutti i tasti... orizzontale e
-            // riordina alla stessa altezza di salva il libro" —
-            // CenterVertically centrava il blocco di destra rispetto
-            // all'INTERA colonna di sinistra (pulsanti + riga di stato +
-            // legenda, tre righe), facendolo scivolare più in basso del
-            // solo primo rigo dei pulsanti. Top allinea entrambi in cima.
-            verticalAlignment = Alignment.Top,
-        ) {
-            Column {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = onTornaAvvio) { Text("← Torna all'avvio") }
-                    Button(onClick = { salvaOChiediConferma(file) }) { Text("💾 Salva libro") }
-                    Button(onClick = {
-                        scegliPercorsoSalvataggio(file.name)?.let(::salvaOChiediConferma)
-                    }) { Text("Salva con nome…") }
-                    // §17.5 (Michele: "l'annulla ti riporta al backup
-                    // -1"): disabilitato senza un .bak1 per questo file,
-                    // conferma esplicita prima di eseguire (distruttivo
-                    // per lo stato non salvato).
-                    Button(
-                        onClick = { mostraConfermaAnnulla = true },
-                        enabled = backupDisponibile,
-                    ) { Text("↩ Annulla") }
-                    Button(onClick = { risultatoValidazione = PackageValidator.validate(manifest) }) {
-                        Text("🔍 Valida libro")
-                    }
-                    // §15.5/§17.3 (Michele: "la possibilità di cancellare
-                    // o aggiungere le scene selezionate", poi estesa a un
-                    // insieme): "Nuova scena" sempre attivo, "Elimina"
-                    // solo con almeno una scena selezionata.
-                    Button(onClick = onNuovaScena) { Text("+ Nuova scena") }
-                    Button(
-                        onClick = { if (sceneSelezionate.isNotEmpty()) sceneIdsDaEliminare = sceneSelezionate },
-                        enabled = sceneSelezionate.isNotEmpty(),
-                    ) { Text("🗑 Elimina scena") }
-                    Button(onClick = { mostraRisorsePersonalizzate = true }) { Text("🔗 Risorse url:") }
+        Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+            // 30/07/2026, Michele: prima due Row separate (una a sinistra
+            // coi pulsanti, una a destra con orizzontale/riordina/zoom)
+            // dentro una Row esterna con SpaceBetween — con la finestra
+            // ridimensionata più stretta della somma di tutti i pulsanti,
+            // una Row normale non va a capo da sola: il gruppo di destra
+            // finiva schiacciato o fuori dalla vista invece di restare
+            // leggibile. FlowRow va a capo da solo quando serve, a
+            // qualunque larghezza della finestra — stessi pulsanti, ora
+            // tutti in un unico gruppo che si adatta.
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Button(onClick = onTornaAvvio) { Text("← Torna all'avvio") }
+                Button(onClick = { salvaOChiediConferma(file) }) { Text("💾 Salva libro") }
+                Button(onClick = {
+                    scegliPercorsoSalvataggio(file.name)?.let(::salvaOChiediConferma)
+                }) { Text("Salva con nome…") }
+                // §17.5 (Michele: "l'annulla ti riporta al backup
+                // -1"): disabilitato senza un .bak1 per questo file,
+                // conferma esplicita prima di eseguire (distruttivo
+                // per lo stato non salvato).
+                Button(
+                    onClick = { mostraConfermaAnnulla = true },
+                    enabled = backupDisponibile,
+                ) { Text("↩ Annulla") }
+                Button(onClick = { risultatoValidazione = PackageValidator.validate(manifest) }) {
+                    Text("🔍 Valida libro")
                 }
-                Text(
-                    "${manifest.title} — ${manifest.scenes.size} scene, ${warnings.size} avvisi al caricamento",
-                    style = MaterialTheme.typography.bodySmall,
-                )
-                // §17.3: contatore visibile solo con più di una scena
-                // selezionata, altrimenti il contorno blu sui nodi basta
-                // da solo (comportamento di oggi, invariato).
-                if (sceneSelezionate.size > 1) {
-                    Text(
-                        "${sceneSelezionate.size} scene selezionate",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-                // Legenda colori (30/07/2026, Michele: "non capisco cosa
-                // rappresenta... che vuol dire viola e verde?"): sempre
-                // visibile invece di lasciarla solo a parole in chat, così
-                // resta consultabile ogni volta che serve.
-                Text(
-                    "🟩 collegamento valido  🟥 collegamento a scena inesistente  " +
-                        "🟪 percorso da START alla scena sotto il mouse  " +
-                        "grigio = fuori da quel percorso (anche se il collegamento esiste)  " +
-                        "🩷 scena START  💛 scena ENDING",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                messaggioSalvataggio?.let {
-                    Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                }
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                // §15.5/§17.3 (Michele: "la possibilità di cancellare
+                // o aggiungere le scene selezionate", poi estesa a un
+                // insieme): "Nuova scena" sempre attivo, "Elimina"
+                // solo con almeno una scena selezionata.
+                Button(onClick = onNuovaScena) { Text("+ Nuova scena") }
+                Button(
+                    onClick = { if (sceneSelezionate.isNotEmpty()) sceneIdsDaEliminare = sceneSelezionate },
+                    enabled = sceneSelezionate.isNotEmpty(),
+                ) { Text("🗑 Elimina scena") }
+                Button(onClick = { mostraRisorsePersonalizzate = true }) { Text("🔗 Risorse url:") }
                 Button(onClick = { orizzontale = !orizzontale; posizioniManuali = emptyMap() }) {
                     Text(if (orizzontale) "↕ Verticale" else "↔ Orizzontale")
                 }
                 Button(onClick = ::riordina) { Text("⟳ Riordina") }
                 Button(onClick = { zoom = (zoom - 0.1f).coerceAtLeast(0.2f) }) { Text("−") }
-                Text("${(zoom * 100).roundToInt()}%")
+                Text("${(zoom * 100).roundToInt()}%", modifier = Modifier.align(Alignment.CenterVertically))
                 Button(onClick = { zoom = (zoom + 0.1f).coerceAtMost(3f) }) { Text("+") }
+            }
+            Text(
+                "${manifest.title} — ${manifest.scenes.size} scene, ${warnings.size} avvisi al caricamento",
+                style = MaterialTheme.typography.bodySmall,
+            )
+            // §17.3: contatore visibile solo con più di una scena
+            // selezionata, altrimenti il contorno blu sui nodi basta
+            // da solo (comportamento di oggi, invariato).
+            if (sceneSelezionate.size > 1) {
+                Text(
+                    "${sceneSelezionate.size} scene selezionate",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+            // Legenda colori (30/07/2026, Michele: "non capisco cosa
+            // rappresenta... che vuol dire viola e verde?"): sempre
+            // visibile invece di lasciarla solo a parole in chat, così
+            // resta consultabile ogni volta che serve.
+            Text(
+                "🟩 collegamento valido  🟥 collegamento a scena inesistente  " +
+                    "🟪 percorso da START alla scena sotto il mouse  " +
+                    "grigio = fuori da quel percorso (anche se il collegamento esiste)  " +
+                    "🩷 scena START  💛 scena ENDING",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            messaggioSalvataggio?.let {
+                Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
             }
         }
 

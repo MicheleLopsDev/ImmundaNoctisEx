@@ -2627,6 +2627,31 @@ raggiungibile da lì. Le interazioni nuove (Ctrl+click, tasto destro,
 Canc/Esc, Annulla, libri recenti) restano da provare a mano da
 Michele — dichiarato esplicitamente, non spacciato per verificato.
 
+**Conferma dal vivo di Michele + due bug di layout della barra
+strumenti (30/07/2026)**: uno screenshot di Michele conferma che il
+giro §17 funziona davvero (contatore "3 scene selezionate", "↩
+Annulla" disattivo senza backup — esattamente come previsto), e
+segnala due problemi visivi:
+1. "tutti i tasti... orizzontale e riordina alla stessa altezza di
+   salva il libro" — la `Row` esterna con `verticalAlignment =
+   CenterVertically` centrava il gruppo orizzontale/riordina/zoom
+   rispetto all'INTERA colonna di sinistra (pulsanti + stato +
+   legenda, tre righe), facendolo scivolare più in basso della sola
+   riga dei pulsanti. Corretto con `Alignment.Top`.
+2. Con la finestra ridimensionata più stretta, un secondo screenshot
+   mostra la barra strumenti rotta sul serio: il pulsante "🔗 Risorse
+   url:" schiacciato in una colonna stretta col testo a capo lettera
+   per lettera, "↔ Orizzontale"/"⟳ Riordina"/zoom quasi fuori dalla
+   vista. Causa: una `Row` normale non va mai a capo da sola — con la
+   somma delle larghezze di 13 pulsanti maggiore della finestra,
+   Compose sovrapponeva i due gruppi invece di adattarli. Risolto
+   sostituendo le due `Row` separate con una singola `FlowRow`
+   (`androidx.compose.foundation.layout`, `@OptIn(ExperimentalLayoutApi)`)
+   che contiene TUTTI i pulsanti insieme e va a capo da sola a
+   qualunque larghezza della finestra.
+
+`:tool:compileKotlin`/`:tool:test` verdi dopo entrambe le correzioni.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
