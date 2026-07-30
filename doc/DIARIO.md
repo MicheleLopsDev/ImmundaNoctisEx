@@ -2461,6 +2461,21 @@ NON incluso (resta in `doc/UPGRADE.md`): reskin grafico, audio
 narrativo, NPU, immagini animate — tutte già rimandate per altre
 ragioni, non debiti da chiudere.
 
+**Milestone tool editor (`doc/MILESTONE-EDITOR.md`, 30/07/2026)**:
+seconda delle due milestone, stesso formato/motivazione (documento
+temporaneo in attesa di `gh`) di quella client. Contenuto proposto:
+completare la pacchettizzazione standalone via jpackage (già
+configurata in `tool/build.gradle.kts`, bloccata dal JDK di Android
+Studio che non include `jpackage.exe` — serve un JDK completo puntato
+da `packagingJdk` in `local.properties`), verificare che il tetto di
+~350 scene (`doc/EDITOR.md` §11) regga davvero sui 5 libri Project Aon
+ora versionati (362-406 scene), e — il pezzo più grande, ancora senza
+piano — l'editor dei frammenti di prompt (`content/config.json`),
+rimandato in `doc/EDITOR.md` §13 in attesa di una specifica dedicata
+da Michele. Esplicitamente NON incluso: immagini animate GIF/WebP
+(dipende anche da un cambiamento lato client) e il registro risorse
+dinamico (già scalato volutamente durante §15.1).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
