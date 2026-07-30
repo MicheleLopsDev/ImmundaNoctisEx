@@ -4,6 +4,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.tool.etl.ProjectAonHtmlParser
+import io.github.luposolitario.immundanoctisex.tool.etl.bonificaRisorseImmagine
 import io.github.luposolitario.immundanoctisex.tool.etl.illustrationUrl
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -88,7 +89,12 @@ private fun enrichWithIllustrationLinks(
         val url = urlBySceneId[scene.id]
         if (url != null && scene.npcImage == null) scene.copy(npcImage = "url:$url") else scene
     }
-    return manifest.copy(scenes = scenes)
+    // "Bonifica" già all'origine (30/07/2026, Michele): ogni conversione
+    // nuova registra da sé i link appena collegati in
+    // customResources.images (§15.7), invece di richiedere il comando
+    // CLI 'bonifica' a parte come per i 5 libri già convertiti prima
+    // che questo campo esistesse.
+    return bonificaRisorseImmagine(manifest.copy(scenes = scenes))
 }
 
 // defaultDisciplineDescriptors() estratta in DefaultDisciplines.kt
