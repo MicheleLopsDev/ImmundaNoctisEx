@@ -67,6 +67,7 @@ documento, elenco completo in §11).
 | `disciplineChoices` | array di `DisciplineDescriptor` | no | `[]` | Il catalogo delle discipline Kai proposte in creazione personaggio (vedi §3). |
 | `globalRules` | array di `GlobalRule` | no | `[]` | Regole condizione → destinazione valutate a ogni cambio scena (vedi §7). |
 | `scenes` | array di `Scene` | no | `[]` | Tutte le scene del libro (vedi §4). In pratica sempre presente e non vuoto. |
+| `customResources` | `CustomResources` | no | `{"images":[],"sounds":[]}` | Risorse `url:` registrate dall'autore per QUESTO libro (§15.7, `doc/EDITOR.md`) — comodità per l'editor grafico, il motore di gioco non lo legge mai: una scena salva sempre `"url:https://..."` per intero, questo campo esiste solo per non dover riscrivere lo stesso link più volte durante la scrittura. `images`/`sounds` sono liste di `{"id": "...", "url": "..."}`; un ID duplicato all'interno della stessa lista è un avviso di validazione, non un errore. |
 
 Esempio minimo:
 
@@ -503,6 +504,9 @@ Solo un **avviso**, non blocca il caricamento:
 - **Ogni `url:` in un'immagine** genera sempre un avviso, anche se il
   link è ben formato e raggiungibile — è una dipendenza di rete da
   rivedere prima di pubblicare o distribuire il libro (§4.2).
+- **Un ID duplicato dentro `customResources.images` o
+  `customResources.sounds`** (§2) — probabile errore di scrittura, ma
+  non rompe nulla: le scene salvano comunque l'url risolto per intero.
 
 ---
 

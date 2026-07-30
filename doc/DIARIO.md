@@ -2144,6 +2144,40 @@ parametro `mostraAscolto` su `CampoImmagineConAnteprima` (§15.3),
 attivato solo lì. Compilazione pulita, 32 test invariati (codice
 UI/IO, stesso criterio già seguito per il resto dell'editor).
 
+**§15.7 — Risorse `url:` dell'autore**: nuovo campo
+`Manifest.customResources` (`:core:data`, `CustomResources.kt`) —
+`images`/`sounds`, ciascuna una lista di `{id, url}`. Comodità per
+l'editor, non un meccanismo letto dal motore: la scena continua a
+salvare `"url:https://..."` per intero, questo campo esiste solo per
+non far riscrivere lo stesso link più volte durante la scrittura.
+Nuovo `CustomResourcesValidator`: un ID duplicato dentro la stessa
+lista è un avviso, mai un errore. Aggiornato `doc/SCHEMA-JSON.md`
+(§2, nuova riga; §10, nuova regola di avviso).
+
+**Bug reale trovato subito dopo**: `:core:data:jvmTest` falliva —
+`ContenutiRealiValidiTest` valida OGNI file JSON in `content/` come
+libro, e il `static-resources.json` aggiunto per l'editor (§15.1, due
+sessioni fa) non lo è. Non me ne ero accorto perché in tutte le
+sessioni successive avevo rilanciato solo `:tool:test`, mai
+`:core:data:jvmTest` — lezione: dopo aver toccato `content/`,
+riverificare anche i test degli ALTRI moduli, non solo di quello che
+si sta modificando in quel momento. Corretto escludendo anche
+`static-resources.json`, stesso trattamento già riservato a
+`config.json`.
+
+`MapScreen.kt`: nuovo pulsante "🔗 Risorse url:" apre un pannello con
+due liste (immagini/suoni), ciascuna con aggiunta/rimozione voci —
+azione non distruttiva, nessuna conferma richiesta. Le risorse
+immagine registrate compaiono anche come suggerimenti nei tre campi
+immagine della scheda scena (§15.3), insieme al catalogo statico.
+
+Verificato che il cambio a `Manifest` (nuovo campo, default non
+rompente) non ha effetti collaterali: `:core:engine:jvmTest` e
+`:app:testDebugUnitTest` entrambi verdi oltre a `:core:data:jvmTest`
+(33 test) e `:tool:test` (32 test) — tutto il progetto, non solo il
+modulo toccato, dato che questa volta il cambio era in un modello
+condiviso.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

@@ -34,6 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.Combat
+import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
+import io.github.luposolitario.immundanoctisex.core.data.model.CustomResources
 import io.github.luposolitario.immundanoctisex.core.data.model.Discipline
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
@@ -64,6 +66,7 @@ fun SceneEditorScreen(
     onAnnulla: () -> Unit,
     deathSceneId: String? = null,
     eNuova: Boolean = false,
+    customResources: CustomResources = CustomResources(),
 ) {
     var vistaJson by remember(scene.id) { mutableStateOf(false) }
     // Rete di sicurezza (§15.5, Michele: "ogni nuova scena per default se
@@ -183,6 +186,7 @@ fun SceneEditorScreen(
                         onValueChange = { backgroundImage = it },
                         modifier = Modifier.weight(1f),
                         mostraAscolto = true,
+                        risorsePersonalizzate = customResources.images,
                     )
                     CampoImmagineConAnteprima(
                         valore = npcImage,
@@ -190,6 +194,7 @@ fun SceneEditorScreen(
                         suggerimenti = StaticResourceCatalog.registry.npcs,
                         onValueChange = { npcImage = it },
                         modifier = Modifier.weight(1f),
+                        risorsePersonalizzate = customResources.images,
                     )
                 }
                 Spacer(Modifier.height(16.dp))
@@ -218,6 +223,7 @@ fun SceneEditorScreen(
                             suggerimenti = StaticResourceCatalog.registry.enemies,
                             onValueChange = { combatEnemyImage = it },
                             modifier = Modifier.weight(1f),
+                            risorsePersonalizzate = customResources.images,
                         )
                     }
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -447,6 +453,11 @@ private fun CampoImmagineConAnteprima(
     // location hanno un suono ambientale associato — npcImage/enemyImage
     // non lo usano, il chiamante lo attiva solo per backgroundImage.
     mostraAscolto: Boolean = false,
+    // §15.7 (Michele: "risorse... fornite da chi crea il libro"): oltre
+    // al catalogo chiuso dell'app, anche i link url: che l'autore ha già
+    // registrato per QUESTO libro — comodità in più, non un vincolo:
+    // scrivere un url: a mano resta sempre possibile.
+    risorsePersonalizzate: List<CustomResourceEntry> = emptyList(),
 ) {
     var mostraSuggerimenti by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
@@ -462,7 +473,10 @@ private fun CampoImmagineConAnteprima(
         if (mostraSuggerimenti) {
             val termine = valore.removePrefix(ImageReference.STATIC_PREFIX).removePrefix(ImageReference.URL_PREFIX)
             val corrispondenze = suggerimenti.filter { it.contains(termine, ignoreCase = true) }.take(6)
-            if (corrispondenze.isNotEmpty()) {
+            val corrispondenzePersonalizzate = risorsePersonalizzate.filter {
+                it.id.contains(termine, ignoreCase = true)
+            }.take(6)
+            if (corrispondenze.isNotEmpty() || corrispondenzePersonalizzate.isNotEmpty()) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -477,6 +491,19 @@ private fun CampoImmagineConAnteprima(
                                 .fillMaxWidth()
                                 .clickable {
                                     onValueChange("${ImageReference.STATIC_PREFIX}$id")
+                                    mostraSuggerimenti = false
+                                }
+                                .padding(8.dp),
+                        )
+                    }
+                    corrispondenzePersonalizzate.forEach { voce ->
+                        Text(
+                            "${ImageReference.URL_PREFIX}${voce.url} (${voce.id})",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onValueChange("${ImageReference.URL_PREFIX}${voce.url}")
                                     mostraSuggerimenti = false
                                 }
                                 .padding(8.dp),

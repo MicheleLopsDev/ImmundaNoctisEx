@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.data.validation.PackageValidator
@@ -113,6 +114,7 @@ fun MapScreen(
     onSceneSelected: (String) -> Unit,
     onNuovaScena: () -> Unit,
     onEliminaScena: (String) -> Unit,
+    onManifestCambiato: (Manifest) -> Unit,
     salvataggioGiaConfermato: Boolean,
     onSalvataggioConfermato: () -> Unit,
     onFileCambiato: (File) -> Unit,
@@ -143,6 +145,10 @@ fun MapScreen(
     // se recuperabile dai backup, §10), stesso principio della conferma
     // di sovrascrittura sopra: null = nessun dialogo aperto.
     var sceneDaEliminare by remember { mutableStateOf<String?>(null) }
+    // Risorse personalizzate (§15.7, Michele: "risorse... fornite da chi
+    // crea il libro"): pannello a parte, non un dialogo di conferma —
+    // niente di distruttivo qui, si apre e si chiude liberamente.
+    var mostraRisorsePersonalizzate by remember { mutableStateOf(false) }
 
     fun salvaSu(destinazione: File) {
         val json = Json { prettyPrint = true }.encodeToString(Manifest.serializer(), manifest)
@@ -359,6 +365,7 @@ fun MapScreen(
                         onClick = { sceneSelezionata?.let { sceneDaEliminare = it } },
                         enabled = sceneSelezionata != null,
                     ) { Text("🗑 Elimina scena") }
+                    Button(onClick = { mostraRisorsePersonalizzate = true }) { Text("🔗 Risorse url:") }
                 }
                 Text(
                     "${manifest.title} — ${manifest.scenes.size} scene, ${warnings.size} avvisi al caricamento",
@@ -492,6 +499,43 @@ fun MapScreen(
                 },
                 confirmButton = {
                     TextButton(onClick = { risultatoValidazione = null }) { Text("Chiudi") }
+                },
+            )
+        }
+
+        if (mostraRisorsePersonalizzate) {
+            AlertDialog(
+                onDismissRequest = { mostraRisorsePersonalizzate = false },
+                title = { Text("Risorse personalizzate (url:)") },
+                text = {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp).verticalScroll(rememberScrollState()),
+                    ) {
+                        Text(
+                            "Solo un promemoria per te: qui scegli un'immagine/suono dalla lista, " +
+                                "il campo della scena salva comunque url:<link> per intero.",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        SezioneRisorsePersonalizzate(
+                            titolo = "Immagini",
+                            voci = manifest.customResources.images,
+                            onCambia = { nuoveVoci ->
+                                onManifestCambiato(manifest.copy(customResources = manifest.customResources.copy(images = nuoveVoci)))
+                            },
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        SezioneRisorsePersonalizzate(
+                            titolo = "Suoni",
+                            voci = manifest.customResources.sounds,
+                            onCambia = { nuoveVoci ->
+                                onManifestCambiato(manifest.copy(customResources = manifest.customResources.copy(sounds = nuoveVoci)))
+                            },
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { mostraRisorsePersonalizzate = false }) { Text("Chiudi") }
                 },
             )
         }
@@ -797,5 +841,55 @@ fun MapScreen(
                 )
             }
         }
+    }
+}
+
+// Una sezione del pannello "Risorse personalizzate" (§15.7): elenco con
+// pulsante di rimozione per voce + riga per aggiungerne una nuova.
+// Uguale per immagini e suoni, cambia solo l'elenco passato.
+@Composable
+private fun SezioneRisorsePersonalizzate(
+    titolo: String,
+    voci: List<CustomResourceEntry>,
+    onCambia: (List<CustomResourceEntry>) -> Unit,
+) {
+    var nuovoId by remember { mutableStateOf("") }
+    var nuovoUrl by remember { mutableStateOf("") }
+
+    Text(titolo, style = MaterialTheme.typography.titleMedium)
+    voci.forEach { voce ->
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "${voce.id} → ${voce.url}",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.weight(1f),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            TextButton(onClick = { onCambia(voci - voce) }) { Text("✕") }
+        }
+    }
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        OutlinedTextField(
+            value = nuovoId,
+            onValueChange = { nuovoId = it },
+            label = { Text("ID") },
+            modifier = Modifier.weight(1f),
+            singleLine = true,
+        )
+        OutlinedTextField(
+            value = nuovoUrl,
+            onValueChange = { nuovoUrl = it },
+            label = { Text("https://...") },
+            modifier = Modifier.weight(2f),
+            singleLine = true,
+        )
+        Button(onClick = {
+            if (nuovoId.isNotBlank() && nuovoUrl.isNotBlank()) {
+                onCambia(voci + CustomResourceEntry(nuovoId, nuovoUrl))
+                nuovoId = ""
+                nuovoUrl = ""
+            }
+        }) { Text("+ Aggiungi") }
     }
 }

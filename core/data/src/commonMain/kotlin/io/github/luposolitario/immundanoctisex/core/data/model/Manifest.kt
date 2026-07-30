@@ -22,4 +22,8 @@ data class Manifest(
     val deathSceneId: String? = null,
     val globalRules: List<GlobalRule> = emptyList(),
     val scenes: List<Scene> = emptyList(),
+    // Risorse url: dell'autore (§15.7, EDITOR.md) — comodità per
+    // l'editor, il motore non le legge mai: le scene salvano sempre il
+    // link risolto direttamente in backgroundImage/npcImage/enemyImage.
+    val customResources: CustomResources = CustomResources(),
 )

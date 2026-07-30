@@ -159,6 +159,12 @@ fun main() = application {
                                 val manifestSenzaScena = s.manifest.copy(scenes = s.manifest.scenes.filter { it.id != sceneId })
                                 schermata = Schermata.Mappa(s.file, manifestSenzaScena, s.warnings)
                             },
+                            // §15.7: cambio generico del manifest senza
+                            // navigare via dalla mappa — usato oggi solo dal
+                            // pannello "Risorse personalizzate".
+                            onManifestCambiato = { manifestAggiornato ->
+                                schermata = Schermata.Mappa(s.file, manifestAggiornato, s.warnings)
+                            },
                             salvataggioGiaConfermato = salvataggioGiaConfermato,
                             onSalvataggioConfermato = { salvataggioGiaConfermato = true },
                             onFileCambiato = { nuovoFile -> schermata = Schermata.Mappa(nuovoFile, s.manifest, s.warnings) },
@@ -189,6 +195,7 @@ fun main() = application {
                                 },
                                 deathSceneId = s.manifest.deathSceneId,
                                 eNuova = s.eNuova,
+                                customResources = s.manifest.customResources,
                             )
                         }
                         is Schermata.LibroNonValido -> LibroNonValidoScreen(

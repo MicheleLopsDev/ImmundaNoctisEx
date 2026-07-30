@@ -13,6 +13,7 @@ object PackageValidator {
             CombatValidator.validate(manifest) +
             GameMechanicValidator.validate(manifest) +
             GlobalRuleValidator.validate(manifest) +
-            ImageReferenceValidator.validate(manifest)
+            ImageReferenceValidator.validate(manifest) +
+            CustomResourcesValidator.validate(manifest)
     }
 }

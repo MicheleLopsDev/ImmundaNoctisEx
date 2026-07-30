@@ -3,6 +3,8 @@ package io.github.luposolitario.immundanoctisex.core.data.validation
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.Combat
 import io.github.luposolitario.immundanoctisex.core.data.model.ComparisonOperator
+import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
+import io.github.luposolitario.immundanoctisex.core.data.model.CustomResources
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.GameMechanic
 import io.github.luposolitario.immundanoctisex.core.data.model.GlobalRule
@@ -178,5 +180,33 @@ class PackageValidatorTest {
         val result = PackageValidator.validate(manifest(listOf(start)))
 
         assertTrue(result.errors.any { it.contains("schema non supportato") })
+    }
+
+    @Test
+    fun risorsePersonalizzateSenzaDuplicatiNonHannoAvvisi() {
+        val libro = manifest(listOf(scene("1", SceneType.START))).copy(
+            customResources = CustomResources(images = listOf(CustomResourceEntry("mio_villain", "https://example.invalid/a.png"))),
+        )
+
+        val result = PackageValidator.validate(libro)
+
+        assertTrue(result.warnings.none { it.contains("Risorse personalizzate") })
+    }
+
+    @Test
+    fun unIdDuplicatoTraRisorsePersonalizzateEUnAvvisoNonUnErrore() {
+        val libro = manifest(listOf(scene("1", SceneType.START))).copy(
+            customResources = CustomResources(
+                images = listOf(
+                    CustomResourceEntry("duplicato", "https://example.invalid/a.png"),
+                    CustomResourceEntry("duplicato", "https://example.invalid/b.png"),
+                ),
+            ),
+        )
+
+        val result = PackageValidator.validate(libro)
+
+        assertTrue(result.errors.isEmpty())
+        assertTrue(result.warnings.any { it.contains("duplicato") && it.contains("immagini") })
     }
 }
