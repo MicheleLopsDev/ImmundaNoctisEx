@@ -39,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
@@ -286,6 +287,17 @@ fun MapScreen(
     var posizioniManuali by mapViewState.posizioniManuali
     fun posizioneEffettiva(id: String): Offset? = posizioniManuali[id] ?: positions[id]
 
+    // §15.4 (Michele: "riordino automatico alla pressione del tasto
+    // centrale"): stessa azione del pulsante "⟳ Riordina", estratta qui
+    // per essere richiamata anche dal tasto centrale del mouse — una
+    // sola implementazione, due modi di attivarla.
+    fun riordina() {
+        zoom = 1f
+        panX = 0f
+        panY = 0f
+        posizioniManuali = emptyMap()
+    }
+
     fun eseguiRicerca() {
         val query = testoRicerca.trim()
         if (query.isBlank()) return
@@ -355,7 +367,7 @@ fun MapScreen(
                 Button(onClick = { orizzontale = !orizzontale; posizioniManuali = emptyMap() }) {
                     Text(if (orizzontale) "↕ Verticale" else "↔ Orizzontale")
                 }
-                Button(onClick = { zoom = 1f; panX = 0f; panY = 0f; posizioniManuali = emptyMap() }) { Text("⟳ Riordina") }
+                Button(onClick = ::riordina) { Text("⟳ Riordina") }
                 Button(onClick = { zoom = (zoom - 0.1f).coerceAtLeast(0.2f) }) { Text("−") }
                 Text("${(zoom * 100).roundToInt()}%")
                 Button(onClick = { zoom = (zoom + 0.1f).coerceAtMost(3f) }) { Text("+") }
@@ -459,6 +471,20 @@ fun MapScreen(
                     posizioneMouse = it.changes.firstOrNull()?.position
                 }
                 .onPointerEvent(PointerEventType.Exit) { posizioneMouse = null }
+                // §15.4 (Michele): rotella del mouse -> zoom, stesso
+                // effetto dei pulsanti −/+ (non li sostituisce). Verso
+                // in alto (scrollDelta.y negativo) avvicina, in basso
+                // allontana — la stessa convenzione di mappe/editor
+                // grafici comuni.
+                .onPointerEvent(PointerEventType.Scroll) {
+                    val scarto = it.changes.firstOrNull()?.scrollDelta?.y ?: return@onPointerEvent
+                    zoom = (zoom - scarto * 0.1f).coerceIn(0.2f, 3f)
+                }
+                // §15.4 (Michele): tasto centrale -> stesso "⟳ Riordina"
+                // del pulsante in barra, una scorciatoia in più.
+                .onPointerEvent(PointerEventType.Press) {
+                    if (it.button == PointerButton.Tertiary) riordina()
+                }
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         if (nodoTrascinato == null) {

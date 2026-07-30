@@ -2083,6 +2083,20 @@ tentativi di smoke test `:tool:run` in background non hanno raggiunto
 in tempo l'apertura reale della finestra (solo fasi di build viste nei
 log, nessun errore però) — non conclusivo quanto un controllo diretto.
 
+**§15.4 — Mouse: rotella e tasto centrale**: estratta la logica del
+pulsante "⟳ Riordina" in una funzione `riordina()` a parte, richiamata
+sia dal pulsante sia dal nuovo gestore del tasto centrale — una sola
+implementazione, due modi di attivarla. Rotella del mouse
+(`PointerEventType.Scroll`) regola lo zoom con lo stesso range dei
+pulsanti −/+ (0.2-3.0), verso l'alto avvicina come nelle mappe/editor
+grafici comuni. Tasto centrale: non `PointerButtons.isTertiaryPressed`
+(non esiste in questa versione di Compose, primo tentativo fallito in
+compilazione) ma `PointerEvent.button == PointerButton.Tertiary`, che
+rappresenta il tasto che ha generato QUELL'evento invece dell'insieme
+dei tasti premuti in quel momento — corretto per un evento di tipo
+Press singolo. Compilazione pulita, 25 test invariati (nessuna logica
+testabile qui, solo gestori di input).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
