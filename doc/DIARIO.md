@@ -2178,6 +2178,33 @@ rompente) non ha effetti collaterali: `:core:engine:jvmTest` e
 modulo toccato, dato che questa volta il cambio era in un modello
 condiviso.
 
+**§15.8 — Salvataggio con esito a colori, CHIUDE §15**: tre esiti
+invece del blocco/non-blocco di oggi. Valida senza avvisi -> sfondo
+del pannello verde chiarissimo (`0xFFC8E6C9`) e chiusura dopo una
+breve pausa (400ms, `LaunchedEffect` + `delay`, perché il colore si
+veda per davvero prima di tornare alla mappa). Valida con un
+riferimento "in avanti" (destinazione non ancora scritta, §7.3) ->
+stesso giallo (`0xFFFFF9C4`), chiude comunque. Non valida (errore di
+campo obbligatorio) -> rosso (`0xFFFFCDD2`), pannello che **non** si
+chiude, popup che spiega cosa manca — chiuderlo (OK) azzera solo il
+popup e il colore, non chiude anche il pannello: si resta lì per
+correggere. Il vecchio banner di errore inline è diventato un vero
+`AlertDialog`. Nessun nuovo test (stessa logica di
+`gestisciSalvataggioRiuscito`/`gestisciSalvataggioFallito` è
+puro Compose state, non estraibile senza un test UI) — verificato
+leggendo il codice, compilazione pulita, 32 test invariati.
+
+**Fine del giro §15 (§15.1-§15.8), tutto committato**: registro
+risorse statiche, vocabolario chiuso dei toni, anteprime immagine in
+scheda/mappa, rotella/tasto centrale, aggiungi/elimina scena con rete
+di sicurezza, audio delle location, risorse url: dell'autore,
+salvataggio a colori. Resta da fare, esplicitamente rimandato: il
+passaggio del client a un registro risorse dinamico (specifica a
+parte, mai iniziata) e la verifica visiva diretta di Michele su tutto
+quanto costruito in questo giro (build/test verdi ovunque, ma diverse
+parti — immagini in tempo reale, audio, colori del salvataggio — non
+verificabili automaticamente, solo leggendo il codice).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

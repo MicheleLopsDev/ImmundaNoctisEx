@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
@@ -21,7 +22,9 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +43,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Discipline
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
+import kotlinx.coroutines.delay
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
@@ -69,14 +73,21 @@ fun SceneEditorScreen(
     customResources: CustomResources = CustomResources(),
 ) {
     var vistaJson by remember(scene.id) { mutableStateOf(false) }
-    // Rete di sicurezza (§15.5, Michele: "ogni nuova scena per default se
-    // non ha collegamenti deve collegarsi alla scena di sconfitta") —
-    // SOLO alla creazione (`eNuova`), mai un correttore retroattivo su
-    // scene già esistenti senza uscita: quelle restano un avviso di
-    // validazione da guardare, non un'azione automatica silente su dati
-    // già scritti.
-    val onSalvaConReteDiSicurezza: (Scene) -> Unit = { scenaFinale ->
-        onSalva(if (eNuova) conReteDiSicurezza(scenaFinale, deathSceneId) else scenaFinale)
+    // Esito del salvataggio a colori (§15.8, Michele: "se validata
+    // correttamente si colora... verde... se ci sono warning... giallo...
+    // altrimenti... rosso... e non si chiude immediatamente a meno che
+    // non premi ok su un popup"). Tre stati:
+    // - VALIDA/CON_AVVISI: colora lo sfondo, POI (dopo una breve pausa
+    //   perché il colore si veda per davvero) chiude il pannello.
+    // - NON_VALIDA: colora di rosso e resta aperto; il popup con la
+    //   spiegazione blocca solo se stesso, chiuderlo (OK) non chiude
+    //   anche il pannello — resti lì per correggere.
+    var coloreEsito by remember(scene.id) { mutableStateOf<Color?>(null) }
+    var sceneInAttesaDiChiusura by remember(scene.id) { mutableStateOf<Scene?>(null) }
+    LaunchedEffect(sceneInAttesaDiChiusura) {
+        val sceneFinale = sceneInAttesaDiChiusura ?: return@LaunchedEffect
+        delay(400)
+        onSalva(sceneFinale)
     }
 
     var narrativeText by remember(scene.id) { mutableStateOf(scene.narrativeText) }
@@ -98,6 +109,28 @@ fun SceneEditorScreen(
 
     var jsonTesto by remember(scene.id) { mutableStateOf(jsonScena.encodeToString(Scene.serializer(), scene)) }
     var errore by remember(scene.id) { mutableStateOf<String?>(null) }
+
+    // Rete di sicurezza (§15.5, Michele: "ogni nuova scena per default se
+    // non ha collegamenti deve collegarsi alla scena di sconfitta") —
+    // SOLO alla creazione (`eNuova`), mai un correttore retroattivo su
+    // scene già esistenti senza uscita: quelle restano un avviso di
+    // validazione da guardare, non un'azione automatica silente su dati
+    // già scritti.
+    fun gestisciSalvataggioRiuscito(sceneValidata: Scene) {
+        val sceneFinale = if (eNuova) conReteDiSicurezza(sceneValidata, deathSceneId) else sceneValidata
+        // Riferimento "in avanti" (§7.3): una destinazione che punta a
+        // una scena non ancora scritta — normale mentre si scrive, ma
+        // segnalata col giallo invece del verde pieno.
+        val idScenaEsistenti = tutteLeScene.map { it.id }.toSet() + sceneFinale.id
+        val haRiferimentiInAvanti = sceneFinale.outgoingSceneIds().any { it !in idScenaEsistenti }
+        coloreEsito = if (haRiferimentiInAvanti) Color(0xFFFFF9C4) else Color(0xFFC8E6C9)
+        sceneInAttesaDiChiusura = sceneFinale
+    }
+
+    fun gestisciSalvataggioFallito(messaggio: String) {
+        errore = messaggio
+        coloreEsito = Color(0xFFFFCDD2)
+    }
 
     // Ricostruisce la scena dallo stato corrente della maschera — usata
     // sia per salvare sia per passare alla vista JSON senza perdere le
@@ -125,7 +158,11 @@ fun SceneEditorScreen(
         },
     )
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+            .let { if (coloreEsito != null) it.background(coloreEsito!!) else it }
+            .padding(16.dp),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -145,13 +182,18 @@ fun SceneEditorScreen(
         }
         Spacer(Modifier.height(12.dp))
 
-        if (errore != null) {
-            Text(
-                "Errore: $errore",
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.background(MaterialTheme.colorScheme.errorContainer).padding(8.dp),
+        // §15.8 (Michele: "un popup che ti spiega cosa manca"): il popup
+        // blocca SOLO se stesso — chiuderlo (OK) azzera il colore rosso
+        // e il messaggio, ma il pannello resta aperto per correggere.
+        errore?.let { messaggio ->
+            AlertDialog(
+                onDismissRequest = { errore = null; coloreEsito = null },
+                title = { Text("Impossibile salvare") },
+                text = { Text(messaggio) },
+                confirmButton = {
+                    TextButton(onClick = { errore = null; coloreEsito = null }) { Text("OK") }
+                },
             )
-            Spacer(Modifier.height(8.dp))
         }
 
         Column(modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())) {
@@ -365,12 +407,12 @@ fun SceneEditorScreen(
             Button(onClick = onAnnulla) { Text("Ritorna") }
             Button(onClick = {
                 if (vistaJson) {
-                    salvaDaJson(jsonTesto, onSalvaConReteDiSicurezza) { errore = it }
+                    salvaDaJson(jsonTesto, ::gestisciSalvataggioRiuscito, ::gestisciSalvataggioFallito)
                 } else {
                     salvaDaMaschera(
                         sceneDallaMaschera(), haCombattimento, combatSkill, combatEndurance,
-                        combatEvadeAfterRound, onSalvaConReteDiSicurezza,
-                    ) { errore = it }
+                        combatEvadeAfterRound, ::gestisciSalvataggioRiuscito, ::gestisciSalvataggioFallito,
+                    )
                 }
             }) {
                 Text("Salva scena")
