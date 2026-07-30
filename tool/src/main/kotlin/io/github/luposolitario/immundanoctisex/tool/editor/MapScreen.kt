@@ -389,7 +389,13 @@ fun MapScreen(
         Row(
             modifier = Modifier.fillMaxWidth().padding(8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
+            // 30/07/2026, Michele: "tutti i tasti... orizzontale e
+            // riordina alla stessa altezza di salva il libro" —
+            // CenterVertically centrava il blocco di destra rispetto
+            // all'INTERA colonna di sinistra (pulsanti + riga di stato +
+            // legenda, tre righe), facendolo scivolare più in basso del
+            // solo primo rigo dei pulsanti. Top allinea entrambi in cima.
+            verticalAlignment = Alignment.Top,
         ) {
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
