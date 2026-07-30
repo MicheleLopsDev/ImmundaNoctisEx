@@ -463,7 +463,48 @@ blocco/non blocco di oggi:
   (OK) il pannello **resta aperto** per permettere la correzione — il
   popup blocca solo se stesso, non "sblocca" la chiusura del pannello.
 
-## 16. Riferimenti
+## 16. Impostazioni dell'editor (30/07/2026)
+
+Michele: "importi dal client le font disponibili, il tema selezionato
+che deve essere persistente e si deve poter aumentare e diminuire la
+grandezza dei caratteri — un pulsante sulla prima maschera". Una
+schermata `Impostazioni` raggiungibile solo dall'Avvio (§5), con
+"Ritorna" per tornare indietro.
+
+### 16.1 Tema, font e grandezza del testo
+
+- **Tema**: chiaro/scuro, scelta esclusiva (radio button). Prima
+  d'ora si perdeva a ogni riavvio (semplice `remember`); ora è
+  persistente (vedi §16.2) — il pulsante rapido 🌙/☀ in basso a destra
+  su ogni schermata resta, ma ora scrive nella stessa preferenza.
+- **Font**: le stesse 4 famiglie già bundlate nel client
+  (`FontPreferences.kt`, `:app` — Almendra, Cinzel Decorative,
+  MedievalSharp, Uncial Antiqua; Google Fonts, licenza OFL), copiate
+  in `tool/src/main/resources/fonts/` così l'editor non dipende dai
+  font installati sul PC. Si applicano a *tutta* l'interfaccia
+  costruendo una `Typography` con ogni stile sovrascritto (un
+  `MaterialTheme(typography = ...)` da solo non basta: ogni
+  `Text(style = MaterialTheme.typography.X)` porta già un
+  `fontFamily` non-null nel proprio `TextStyle`, che vince
+  sull'ambiente).
+- **Grandezza testo**: tre passi fissi (A-/A/A+, moltiplicatori
+  1.0/1.15/1.35), non uno slider continuo — bastano e restano
+  leggibili nell'etichetta. Si applicano scalando `LocalDensity.
+  fontScale` con un `CompositionLocalProvider` attorno a tutta la
+  finestra: stessa tecnica dell'impostazione di accessibilità di
+  Android, scala ogni `Text()` esistente senza doverli toccare uno a
+  uno.
+
+### 16.2 Persistenza
+
+`java.util.prefs.Preferences` (`EditorPreferences.kt`) — già nella
+JDK, nessuna dipendenza in più (su Windows usa il registro utente
+corrente). Stesso principio delle `SharedPreferences` che il client
+usa per le proprie impostazioni equivalenti
+(`NarrativeTonePreferences`/`FontPreferences`), senza però un
+`Context` Android a disposizione.
+
+## 17. Riferimenti
 
 - `doc/ETL.md` — pipeline di conversione Project Aon → JSON, la parte
   CLI di `:tool` che questo documento estende con una GUI.

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -18,15 +19,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -63,16 +69,35 @@ private sealed class Schermata {
     ) : Schermata()
     data class LibroNonValido(val errors: List<String>) : Schermata()
     data object CreaNuovo : Schermata()
+    // §16.1 (Michele: "un menu per le impostazioni... mostrare come
+    // pulsante nella prima maschera"): raggiungibile solo dall'Avvio.
+    data object Impostazioni : Schermata()
 }
 
 fun main() = application {
     var schermata by remember { mutableStateOf<Schermata>(Schermata.Avvio) }
-    // Tema chiaro/scuro (30/07/2026, Michele: "due temi come per gli
-    // smartphone"): solo un interruttore manuale per adesso, sempre
-    // visibile sopra qualunque schermata — gli schemi di colore sono
-    // quelli di default di Material3, la personalizzazione vera e
-    // propria (come i bordi neri dei nodi) resta un pezzo a parte.
-    var temaScuro by remember { mutableStateOf(false) }
+    // Impostazioni (§16.1, Michele: "importi dal client le font
+    // disponibili, il tema selezionato che deve essere persistente e
+    // si deve poter aumentare/diminuire la grandezza dei caratteri") —
+    // caricate una volta sola da `EditorPreferences` (java.util.prefs,
+    // sopravvive alla chiusura dell'editor, a differenza del semplice
+    // `remember` di prima che perdeva il tema scelto a ogni riavvio).
+    val preferenze = remember { EditorPreferences() }
+    var temaScuro by remember { mutableStateOf(preferenze.temaScuro) }
+    var fontScelto by remember { mutableStateOf(preferenze.font) }
+    var scalaTesto by remember { mutableStateOf(preferenze.scalaTesto) }
+    fun impostaTemaScuro(valore: Boolean) {
+        temaScuro = valore
+        preferenze.temaScuro = valore
+    }
+    fun impostaFont(valore: FontEditor) {
+        fontScelto = valore
+        preferenze.font = valore
+    }
+    fun impostaScalaTesto(valore: ScalaTesto) {
+        scalaTesto = valore
+        preferenze.scalaTesto = valore
+    }
     // Conferma di sovrascrittura (30/07/2026, Michele: "la prima volta
     // chiedimi conferma successivamente no") — a livello di sessione, non
     // di singola schermata: passare dalla mappa al pannello di una scena e
@@ -100,7 +125,20 @@ fun main() = application {
         state = windowState,
         resizable = true,
     ) {
-        MaterialTheme(colorScheme = if (temaScuro) darkColorScheme() else lightColorScheme()) {
+        // Grandezza dei caratteri (§16.1): stesso principio
+        // dell'impostazione di accessibilità di Android, un
+        // moltiplicatore su `LocalDensity.fontScale` che scala TUTTI i
+        // testi dell'editor insieme, senza dover toccare ogni singolo
+        // `Text()` esistente in `MapScreen.kt`/`SceneEditorScreen.kt`.
+        val densitaBase = LocalDensity.current
+        val fontFamily = remember(fontScelto) { caricaFontFamily(fontScelto) }
+        CompositionLocalProvider(
+            LocalDensity provides Density(densitaBase.density, fontScale = scalaTesto.moltiplicatore),
+        ) {
+        MaterialTheme(
+            colorScheme = if (temaScuro) darkColorScheme() else lightColorScheme(),
+            typography = tipografiaConFont(fontFamily),
+        ) {
             // Sfondo del tema sul contenitore radice (30/07/2026, Michele:
             // "in tema scuro non cambi lo sfondo") — senza, la finestra
             // mostra lo sfondo bianco di default di AWT/Skiko sotto ogni
@@ -135,6 +173,7 @@ fun main() = application {
                                 }
                             },
                             onCreaNuovo = { schermata = Schermata.CreaNuovo },
+                            onImpostazioni = { schermata = Schermata.Impostazioni },
                         )
                         is Schermata.Mappa -> MapScreen(
                             file = s.file,
@@ -212,12 +251,21 @@ fun main() = application {
                             },
                             onTornaAvvio = { schermata = Schermata.Avvio },
                         )
+                        is Schermata.Impostazioni -> ImpostazioniScreen(
+                            temaScuro = temaScuro,
+                            onTemaScuroCambiato = ::impostaTemaScuro,
+                            fontScelto = fontScelto,
+                            onFontCambiato = ::impostaFont,
+                            scalaTesto = scalaTesto,
+                            onScalaTestoCambiata = ::impostaScalaTesto,
+                            onTornaAvvio = { schermata = Schermata.Avvio },
+                        )
                     }
 
                     // Sempre in basso a destra, non collide con le barre
                     // strumenti in alto delle varie schermate (es. MapScreen).
                     Button(
-                        onClick = { temaScuro = !temaScuro },
+                        onClick = { impostaTemaScuro(!temaScuro) },
                         modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp),
                     ) {
                         Text(if (temaScuro) "☀ Chiaro" else "🌙 Scuro")
@@ -225,11 +273,12 @@ fun main() = application {
                 }
             }
         }
+        }
     }
 }
 
 @Composable
-private fun AvvioScreen(onCaricaLibro: (File) -> Unit, onCreaNuovo: () -> Unit) {
+private fun AvvioScreen(onCaricaLibro: (File) -> Unit, onCreaNuovo: () -> Unit, onImpostazioni: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -244,6 +293,12 @@ private fun AvvioScreen(onCaricaLibro: (File) -> Unit, onCreaNuovo: () -> Unit) 
             Button(onClick = onCreaNuovo) {
                 Text("Crea libro nuovo")
             }
+        }
+        Spacer(Modifier.height(16.dp))
+        // §16.1 (Michele: "un menu per le impostazioni... mostrare come
+        // pulsante nella prima maschera").
+        Button(onClick = onImpostazioni) {
+            Text("⚙ Impostazioni")
         }
     }
 }
@@ -336,5 +391,66 @@ private fun CreaNuovoScreen(onCrea: (Manifest) -> Unit, onTornaAvvio: () -> Unit
                 }
             }) { Text("Crea") }
         }
+    }
+}
+
+// Schermata Impostazioni (§16.1, Michele: "importi dal client le font
+// disponibili, il tema selezionato che deve essere persistente e si
+// deve poter aumentare/diminuire la grandezza dei caratteri"): tema e
+// font sono scelte esclusive (RadioButton), la grandezza del testo
+// scorre i tre passi fissi di ScalaTesto con due pulsanti +/- — uno
+// Slider sarebbe overkill per soli tre valori.
+@Composable
+private fun ImpostazioniScreen(
+    temaScuro: Boolean,
+    onTemaScuroCambiato: (Boolean) -> Unit,
+    fontScelto: FontEditor,
+    onFontCambiato: (FontEditor) -> Unit,
+    scalaTesto: ScalaTesto,
+    onScalaTestoCambiata: (ScalaTesto) -> Unit,
+    onTornaAvvio: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp).verticalScroll(rememberScrollState()),
+    ) {
+        Text("Impostazioni", style = MaterialTheme.typography.headlineSmall)
+        Spacer(Modifier.height(24.dp))
+
+        Text("Tema", style = MaterialTheme.typography.titleMedium)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = !temaScuro, onClick = { onTemaScuroCambiato(false) })
+            Text("Chiaro")
+            Spacer(Modifier.width(16.dp))
+            RadioButton(selected = temaScuro, onClick = { onTemaScuroCambiato(true) })
+            Text("Scuro")
+        }
+
+        Spacer(Modifier.height(24.dp))
+        Text("Font", style = MaterialTheme.typography.titleMedium)
+        FontEditor.entries.forEach { opzione ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(selected = fontScelto == opzione, onClick = { onFontCambiato(opzione) })
+                Text(opzione.displayName, fontFamily = caricaFontFamily(opzione))
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
+        Text("Grandezza testo", style = MaterialTheme.typography.titleMedium)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Button(
+                onClick = { onScalaTestoCambiata(scalaTesto.precedente()) },
+                enabled = scalaTesto != ScalaTesto.entries.first(),
+            ) { Text("A-") }
+            Spacer(Modifier.width(8.dp))
+            Text(scalaTesto.etichetta, style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.width(8.dp))
+            Button(
+                onClick = { onScalaTestoCambiata(scalaTesto.successivo()) },
+                enabled = scalaTesto != ScalaTesto.entries.last(),
+            ) { Text("A+") }
+        }
+
+        Spacer(Modifier.height(32.dp))
+        Button(onClick = onTornaAvvio) { Text("Ritorna") }
     }
 }

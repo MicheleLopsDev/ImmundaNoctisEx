@@ -2371,6 +2371,37 @@ colore torna come bordo di base al posto del nero — l'unico posto
 dove può ancora comparire. Legenda aggiornata con 🩷/💛. Compilazione
 pulita, nessun test nuovo (colore puro, nessuna logica da testare).
 
+**Schermata Impostazioni (§16, `doc/EDITOR.md`; Michele: "un menu per
+le impostazioni... importi dal client le font disponibili, il tema
+selezionato che deve essere persistente e si deve poter aumentare e
+diminuire la grandezza dei caratteri... mostrare come pulsante nella
+prima maschera")**: nuovo file `EditorPreferences.kt` — `FontEditor`
+(le 4 famiglie già bundlate nel client, copiate come `.ttf` in
+`tool/src/main/resources/fonts/`), `ScalaTesto` (tre passi fissi A-/A/
+A+, moltiplicatori 1.0/1.15/1.35) e la classe `EditorPreferences`
+sopra `java.util.prefs.Preferences` (JDK, nessuna dipendenza in più:
+su Windows usa il registro utente). Il tema, prima perso a ogni
+riavvio (semplice `remember`), ora è persistente insieme a font e
+scala. `EditorMain.kt`: nuova `Schermata.Impostazioni` raggiungibile
+da un pulsante "⚙ Impostazioni" sull'Avvio; `ImpostazioniScreen` con
+radio button per tema e font, +/- per la scala testo. Applicati
+globalmente attorno a tutta la finestra con un
+`CompositionLocalProvider(LocalDensity provides Density(...,
+fontScale = ...))` (scala) + `MaterialTheme(typography =
+tipografiaConFont(...))` (font — richiede una `Typography` con OGNI
+stile sovrascritto: un `Text(style = MaterialTheme.typography.X)` ha
+già un `fontFamily` non-null nel proprio `TextStyle` di base, che
+vince sull'ambiente).
+
+Intoppo: `Font(identity: String, data: ByteArray, ...)` per caricare
+un font da byte grezzi NON è in `androidx.compose.ui.text.font`
+(quel pacchetto ha solo le firme per `resId: Int`, tipiche Android) ma
+in `androidx.compose.ui.text.platform` — import sbagliato dava due
+errori di tipo criptici ("String atteso Int", "ByteArray atteso
+FontWeight") perché il risolutore ripiegava sulla firma Android più
+vicina per arità. Compilazione pulita, 38 test invariati (feature
+additiva, nessuna logica esistente toccata).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
