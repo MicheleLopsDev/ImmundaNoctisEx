@@ -2976,6 +2976,25 @@ semplici, ma solo dopo aver aggiornato i documenti"): §19.1, §19.2,
 rimandati a bassa priorità su richiesta esplicita di Michele: §19.9
 (salti minimi BFS, stampa multipagina vera).
 
+**Rigenerazione pacchetti standalone, issue #6 (31/07/2026, Michele:
+"facciamo la 6")**: il pacchetto/installer pubblicati il 30/07 erano
+ormai disallineati dal codice — 7 commit di funzionalità (tutto il
+giro §19 sopra) nel frattempo. La verifica vera e propria (avviare
+`.exe`/`.msi` su una macchina pulita, senza Android Studio né JDK) è
+di Michele, non automatizzabile da qui: quello che si poteva fare è
+stato rigenerare i pacchetti col codice attuale e aggiornarli sulla
+release pubblica, così la prova che farà lui parte già dal contenuto
+giusto. `:tool:createDistributable` e `:tool:packageMsi` rilanciati
+(stessa versione 1.0.0, nessuna modifica alla configurazione di
+pacchettizzazione): l'`.exe` avviato di prova e rimasto stabile prima
+di chiuderlo (stessa verifica minima già fatta il 30/07). Asset
+sostituiti sulla release GitHub `editor-v1.0.0` esistente
+(`gh release upload --clobber`, autorizzato esplicitamente da
+Michele — scelta tra sovrascrivere/nuova versione/solo locale) e note
+della release aggiornate con un changelog che elenca le issue #9-#15.
+Resta aperta la sola parte che tocca a Michele: provare uno dei due
+pacchetti su una macchina pulita.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
