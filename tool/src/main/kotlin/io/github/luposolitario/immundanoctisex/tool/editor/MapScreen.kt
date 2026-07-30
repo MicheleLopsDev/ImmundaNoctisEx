@@ -36,6 +36,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -544,6 +545,16 @@ fun MapScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
+                // 30/07/2026, Michele: "le immagini centrali potessero
+                // uscire fuori dallo sfondo e andare sopra i controlli"
+                // — senza un clip esplicito, un nodo che il pan porta
+                // sopra il bordo superiore del riquadro (specie con
+                // un'immagine di sfondo piena, §15.3) non veniva
+                // ritagliato: disegnandosi DOPO la barra strumenti nella
+                // composizione, ci finiva sopra invece che restarne
+                // coperto. Il riquadro ora ritaglia per davvero i propri
+                // contenuti ai propri confini.
+                .clipToBounds()
                 // Sfondo del tema (30/07/2026: prima era un grigio fisso,
                 // restava chiaro anche col tema scuro attivo).
                 .background(MaterialTheme.colorScheme.surfaceVariant)

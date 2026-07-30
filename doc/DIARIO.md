@@ -2265,6 +2265,27 @@ resta da decidere con Michele se fare ORA una versione ridotta di
 quella migrazione (solo questi tre cataloghi, non tutto il registro
 dinamico) o rimandarla insieme al resto.
 
+**Deciso**: rimandata di proposito, "prima finiamo l'editor, non voglio
+rimettere mano al client per ora" — segnalata come idea importante in
+`doc/UPGRADE.md` §7 (chi l'ha chiesta, cosa serve davvero, dove
+riprenderla) e in memoria di sessione, non solo qui.
+
+**Bug trovato da Michele con uno screenshot**: "non mi ero accorto che
+le immagini centrali potessero uscire fuori dallo sfondo e andare
+sopra i controlli" — con le immagini di sfondo sul nodo (§15.3), un
+nodo che il pan porta sopra il bordo superiore del riquadro mappa non
+veniva ritagliato: disegnandosi DOPO la barra strumenti/ricerca nella
+composizione (lo z-order in Compose segue l'ordine di composizione, a
+parità di tutto il resto), l'immagine ci finiva visivamente sopra
+invece che restarne coperta — prima, senza immagini di sfondo, il
+problema non si notava perché il colore verde/rosso pieno del nodo
+raramente arrivava a coprire quella zona in modo così vistoso.
+Corretto con un `.clipToBounds()` sul riquadro della mappa
+(`MapScreen.kt`): ora ritaglia per davvero i propri contenuti ai
+propri confini, un nodo che sconfina sopra il bordo viene tagliato
+invece di disegnarsi sopra la barra strumenti. Compilazione pulita, 32
+test invariati.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
