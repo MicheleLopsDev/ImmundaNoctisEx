@@ -13,7 +13,7 @@ import kotlin.system.exitProcess
 // direttamente): come per gli .htm sorgente e i .json convertiti, deriva
 // da contenuto Project Aon e resta uso personale, non distribuito.
 //
-// Uso: ./gradlew :tool:run --args="illustrazioni doc/LIBRI/ILLUSTRAZIONI.md doc/LIBRI/01fftd.htm 01fftd Flight_from_the_Dark doc/LIBRI/02fotw.htm 02fotw Fire_on_the_Water ..."
+// Uso: ./gradlew :tool:cli --args="illustrazioni doc/LIBRI/ILLUSTRAZIONI.md doc/LIBRI/01fftd.htm 01fftd Flight_from_the_Dark doc/LIBRI/02fotw.htm 02fotw Fire_on_the_Water ..."
 fun runIllustrazioni(args: Array<String>) {
     if (args.size < 4 || (args.size - 1) % 3 != 0) {
         println("Uso: illustrazioni <output.md> <libro1.htm> <id1> <titolo1> [<libro2.htm> <id2> <titolo2> ...]")

@@ -12,7 +12,7 @@ import kotlin.system.exitProcess
 // PackageRepository/PackageValidator, esattamente lo stesso codice usato
 // dall'app per caricare un libro.
 //
-// Uso: ./gradlew :tool:run --args="validate content/scenes.sample.json [altro.json ...]"
+// Uso: ./gradlew :tool:cli --args="validate content/scenes.sample.json [altro.json ...]"
 fun runValidate(args: Array<String>) {
     if (args.isEmpty()) {
         println("Uso: validate <file.json> [altro.json ...]")

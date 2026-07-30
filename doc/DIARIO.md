@@ -1114,8 +1114,493 @@ libro). Aggiunto a `doc/EDITOR.md` §6.1 e al mockup
 `doc/editor-mockup/02-mappa.svg` (barra strumenti con `⟳ Riordina` e
 `− 100% +`).
 
-Prossimo passo (non ancora iniziato): implementazione, a partire dal
-setup Gradle di Compose Desktop su `:tool`.
+## Fase 6 — inizio implementazione dell'editor (30/07/2026)
+
+Michele dà il via libera: si parte dall'implementazione di
+`doc/EDITOR.md`. Primo passo: setup Gradle di Compose Desktop su
+`:tool`, prima ancora di qualunque schermata vera.
+
+**Compose Multiplatform 1.11.1** (versione stabile più recente,
+verificata via ricerca web insieme al requisito minimo Kotlin 2.3.10
+per i target nativi/web — il progetto è già su Kotlin 2.3.21, quindi
+oltre soglia) aggiunta a `gradle/libs.versions.toml` insieme al plugin
+`org.jetbrains.compose`. Riusato l'alias `kotlin-compose` già esistente
+(lo stesso compilatore Compose di `:app`).
+
+**Conflitto reale, non ipotetico**: il plugin `org.jetbrains.compose`
+registra un proprio task `run` per lanciare la finestra — in conflitto
+diretto col task `run` che il plugin `application` (usato finora dalla
+CLI) registra con lo stesso nome. Confermato via ricerca web prima di
+scriverci sopra codice che avrebbe rotto la build. Risolto **senza
+rompere l'unico modulo `:tool`** (vincolo esplicito di Michele): tolto
+il plugin `application`, la CLI ora passa da un task `JavaExec`
+dedicato con nome diverso — `./gradlew :tool:cli --args="..."` al
+posto di `:tool:run --args="..."` di prima. Aggiornati i commenti
+d'uso in `ConvertMain.kt`/`IllustrazioniMain.kt`/`ValidateMain.kt`.
+`:tool:run` resta libero per il task vero e proprio di Compose Desktop
+(lancia la finestra dell'editor).
+
+Nuovo `EditorMain.kt` (`tool/.../tool/editor/`): solo una finestra
+vuota con "Editor in costruzione", prima pietra per verificare che il
+setup funzioni — nessuna feature vera ancora, quelle arrivano
+schermata per schermata seguendo `doc/EDITOR.md`. **Verificato**:
+`:tool:compileKotlin` pulito, `:tool:cli --args="validate ..."`
+funziona come prima, `:tool:run` esegue fino in fondo con BUILD
+SUCCESSFUL (la finestra si apre, nessun errore di avvio/Skiko).
+Configurati anche `compose.desktop.application.nativeDistributions`
+con `targetFormats(Exe, Msi)` per la distribuzione futura (§12).
+Suite di regressione (`core:data`/`core:engine` jvmTest, `tool`
+compile) tutta verde.
+
+Prossimo passo: prima vera schermata (avvio: carica libro / crea
+nuovo, §5 di `doc/EDITOR.md`).
+
+**Confermato da Michele**: finestra vista e lanciata da Android Studio,
+setup Gradle funzionante end-to-end.
+
+**Schermata di avvio (stesso giorno)**: `EditorMain.kt` ora ha una vera
+schermata iniziale — due bottoni, "Carica libro esistente" e "Crea
+libro nuovo" (§5). "Carica libro esistente" apre il selettore di file
+nativo di Windows (`java.awt.FileDialog`, nessuna libreria in più),
+carica il JSON scelto con **lo stesso** `PackageRepository`/
+`FilePackageSource`/`PackageValidator` già usati dalla CLI (zero
+logica duplicata) e mostra titolo, numero di scene ed errori/avvisi —
+prova concreta che caricamento e validazione funzionano nella GUI
+prima ancora di avere la mappa vera. "Crea libro nuovo" resta un
+segnaposto esplicito ("non ancora implementata (§9)"): lo scaffold a
+tre modelli è un pezzo a parte, volutamente rimandato per non
+accumulare lavoro non finito in un colpo solo. Compilazione e suite di
+regressione tutte verdi; verifica visiva passata a Michele (nessun
+accesso allo schermo da qui).
+
+Prossimo passo: completare "Crea libro nuovo" (form campi globali +
+scelta scaffold), poi la mappa vera (§6).
+
+**Confermato da Michele** (screenshot): schermata di avvio vista e
+funzionante da Android Studio.
+
+**La mappa vera (stesso giorno, §6)**: scelta di andare prima sulla
+mappa invece che completare "Crea libro nuovo" — è la schermata di
+destinazione comune a entrambi i flussi (dopo un caricamento riuscito
+O dopo uno scaffold futuro), costruirla prima dà a "Crea libro nuovo"
+un posto dove atterrare quando arriva.
+
+Nuovo `SceneGraph.kt` (logica pura, **testata da terminale** con 5 test
+JVM — nessuna GUI necessaria per verificarla): `buildSceneGraph(manifest)`
+calcola il livello di ogni scena come distanza minima da `START` via
+BFS (auto-layout gerarchico, §6.1) e marca ogni nodo "healthy" (verde,
+§6.2) solo se **tutti** i suoi riferimenti in uscita
+(`choices`/`disciplineChoices`/i tre esiti di `combat`) puntano a scene
+che esistono davvero — stessi campi che `GraphValidator` di
+`core/data` già controlla, riusati qui senza duplicare la logica.
+Scene non raggiungibili da `START` (o un libro senza `START` affatto,
+caso limite di un libro a metà scrittura) finiscono su un livello a
+parte invece di far esplodere il calcolo.
+
+`MapScreen.kt`: disegna i nodi come `Box` posizionati per livello/indice
+(sfondo verde/rosso in base a `healthy`) e gli archi come linee su un
+`Canvas` sottostante (verdi se la destinazione esiste, rosse altrimenti).
+Pan libero trascinando lo sfondo, zoom con due pulsanti `−`/`+` (§30/07,
+vedi sopra), pulsante "Riordina automaticamente" che per ora ricentra
+pan/zoom (non ancora c'è il trascinamento manuale dei singoli nodi da
+cui "riordinare" davvero — pezzo lasciato esplicitamente per dopo).
+**Non ancora fatti, rimandati**: ricerca per ID/testo, evidenziazione
+del vicinato, contorno di un percorso a richiesta, pannello di editing
+di una scena (§7) — la mappa oggi è solo consultabile, non ancora
+editabile.
+
+`EditorMain.kt` collegato: un caricamento riuscito porta ora alla mappa
+vera (non più a un riepilogo testuale), uno fallito mostra ancora gli
+errori. Verificato: compilazione pulita, 5/5 test verdi, `:tool:run`
+arrivato a BUILD SUCCESSFUL.
+
+Prossimo passo: da decidere con Michele — completare "Crea libro
+nuovo" (form + scaffold), oppure il pannello di editing di una scena
+(§7, selezionando un nodo della mappa).
+
+**Confermato da Michele** (screenshot su "The Warehouse Letter", 7
+scene): mappa vera, nodi e archi colorati come da specifica.
+
+**Due ritocchi (stesso giorno)**:
+- **Finestra non ridimensionabile**: senza uno `state` esplicito la
+  finestra parte piccola e il trascinamento dei bordi non è
+  affidabile. Aggiunto `rememberWindowState(size = DpSize(1280.dp,
+  800.dp))` centrato + `resizable = true` esplicito su `Window` in
+  `EditorMain.kt`.
+- **Pulsante orientamento verticale/orizzontale**: finché non c'è il
+  trascinamento manuale dei singoli nodi (previsto ma non ancora
+  fatto), è l'unico modo di cambiare la disposizione. Aggiunto in
+  `MapScreen.kt` — ruota l'auto-layout di 90° scambiando gli assi
+  livello/fratelli (e le rispettive spaziature H_SPACING/V_SPACING,
+  legate alla dimensione del nodo lungo l'asse, non all'asse in sé).
+  Compilazione e 5/5 test ancora verdi dopo la modifica.
+
+**Confermato da Michele**: test passato su finestra e orientamento.
+Aggiunto un bordo nero da 1dp ai riquadri delle scene ("rendi i bordi...
+visibili" — la personalizzazione grafica vera e propria è rimandata a
+un pezzo a parte). Compilazione e test ancora verdi.
+
+**Tema chiaro/scuro (stesso giorno)**: Michele vuole "due temi come per
+gli smartphone" — stessa logica già presente nell'app principale.
+Aggiunto un interruttore manuale (nessun rilevamento del tema di
+sistema, per adesso: `il più semplice possibile` resta il criterio),
+pulsante sempre visibile in basso a destra sopra qualunque schermata
+(`EditorMain.kt`, un `Box` che avvolge il contenuto). Schemi di colore
+di default di Material3 (`lightColorScheme()`/`darkColorScheme()`),
+nessuna palette personalizzata per adesso. Corretto anche lo sfondo
+della mappa (`MapScreen.kt`), prima un grigio fisso che restava chiaro
+anche col tema scuro attivo — ora `MaterialTheme.colorScheme.
+surfaceVariant`. Il testo dentro i nodi resta nero fisso, non legato al
+tema: gli sfondi verde/rosso di salute (§6.2) restano chiari a
+prescindere dal tema, quindi il nero ci si legge sempre sopra.
+Compilazione e 5/5 test ancora verdi.
+
+**Pannello di editing di una scena (stesso giorno, §7)**: Michele
+conferma tema e dice "continuiamo" — proposta di Claude dal giro
+precedente (il pannello di editing invece di "Crea libro nuovo",
+perché la mappa oggi è consultabile ma non ancora modificabile),
+nessuna obiezione, si procede su quella.
+
+Nuovo `SceneEditorScreen.kt`: cliccare un nodo della mappa
+(`MapScreen.kt`, nodi ora `clickable`) apre il pannello a due viste
+(§7.1/7.2, stesso pattern XML/Design di Android Studio già discusso).
+**Prima versione volutamente incompleta**: la vista Maschera copre solo
+`narrativeText` e `choices` (testo + destinazione, con aggiungi/rimuovi
+scelta) — `backgroundImage`/`npcImage`/`combat`/`disciplineChoices` non
+hanno ancora i loro campi dedicati (i menu a tendina sul catalogo
+static:/url:, sulle discipline, ecc. sono un pezzo a parte). Per quei
+campi, la vista JSON resta sempre disponibile e copre l'intera scena.
+Validazione locale (§7.3) implementata: narrativeText e ogni scelta
+devono avere testo e destinazione non vuoti per salvare, ma una
+destinazione verso una scena non ancora creata NON blocca (si vede
+rossa sulla mappa al ritorno, com'era già nel piano).
+
+**Semplificazione nota, da rivedere**: il salvataggio aggiorna il
+manifest SOLO in memoria (nessuna scrittura su disco, nessun backup —
+quello è §10, un pezzo a parte non ancora fatto) e il conteggio avvisi
+mostrato in cima alla mappa non si ricalcola dopo una modifica (resta
+quello del caricamento originale) — la validazione globale vera
+(pulsante dedicato, §8) è un altro pezzo ancora da costruire.
+
+Compilazione pulita, 5/5 test ancora verdi, `:tool:run` verificato
+senza crash. Verifica visiva passata a Michele.
+
+**Salvataggio su disco (stesso giorno, §10)**: Michele conferma che
+funziona ("ho fatto un giro continua"), Claude segnala prima di
+proseguire una lacuna: fino a qui il salvataggio di una scena
+aggiornava solo la memoria, chiudendo l'app si perdeva tutto. Colmata
+subito, prima di aggiungere altre schermate.
+
+Nuovo `BookStorage.kt` — `ruotaBackup()`/`salvaLibro()`, rotazione a 5
+livelli (`libro.json.bak1` il più recente prima dell'ultimo
+salvataggio, `.bak5` il più vecchio, i successivi si scartano),
+**testato con 4 test JVM** su una cartella temporanea (scrittura
+semplice, rotazione al primo salvataggio, rotazione a cascata su
+salvataggi ripetuti, nessun backup se il file non esiste ancora — caso
+di un libro nuovo, quando "Crea libro nuovo" sarà pronto). Nessuna
+integrazione Git, come deciso: solo copie di file su disco.
+
+Il riferimento al file caricato ora viaggia insieme al manifest
+attraverso `Schermata.Mappa`/`Schermata.EditorScena` (prima si teneva
+solo il `Manifest`, non la provenienza). Nuovo pulsante "💾 Salva
+libro" nella barra strumenti della mappa: serializza il manifest
+corrente, chiama `salvaLibro`, mostra una conferma con il nome del
+backup appena creato. Compilazione pulita, 9/9 test verdi (5 di
+`SceneGraph` + 4 nuovi), `:tool:run` verificato senza crash.
+
+**Sfondo del tema scuro non applicato (stesso giorno)**: Michele
+segnala, con screenshot del pannello scena in tema scuro, che lo
+sfondo resta bianco. Causa: solo `MapScreen.kt` aveva uno sfondo
+esplicito legato al tema (`surfaceVariant`, per l'area della mappa);
+tutte le altre schermate (avvio, editor scena, libro non valido) e il
+contenitore radice in `EditorMain.kt` non avevano nessuno sfondo
+esplicito — senza un `Surface`/`background` che lo dipinga, la finestra
+mostra il bianco di default di AWT/Skiko sotto qualunque `MaterialTheme`,
+chiaro o scuro che sia. Corretto applicando
+`MaterialTheme.colorScheme.background` al `Box` radice in
+`EditorMain.kt`: tutte le schermate lo ereditano insieme, un solo
+punto da correggere invece di uno per schermata. Compilazione e 9/9
+test ancora verdi.
+
+**Ritocco lessicale**: pulsante "Annulla" nel pannello scena rinominato
+in "Ritorna" (Michele: "nelle maschere non usare il termine annulla"),
+coerente con "Torna all'avvio" già usato altrove.
+
+**Backup confermato, campi mancanti del pannello scena (stesso
+giorno)**: Michele conferma che il backup multi-livello funziona come
+voleva ("questo deve essere su più livelli", già 5 come implementato)
+e rimanda la configurabilità a dopo ("i file non sono enormi") — dice
+"continua con il nostro piano". Scelta di Claude: completare la vista
+Maschera del pannello scena (§7.1) invece di partire con "Crea libro
+nuovo", visto che serve subito per editare davvero i libri già in prova.
+
+Aggiunti a `SceneEditorScreen.kt`: **immagini** (`backgroundImage`/
+`npcImage`, campi di testo libero — non ancora un menu a tendina sul
+catalogo `static:`, perché quel catalogo oggi vive solo in `:app`
+(`SceneImageCatalog.kt`/`NpcImageCatalog.kt`/`EnemyImageCatalog.kt`),
+non condiviso con `:core:data`/`:tool`; spostarlo in un posto comune è
+una decisione da prendere con Michele, non presa qui) e
+**combattimento** (nome/immagine nemico, combattività, resistenza, le
+tre destinazioni vinci/perdi/fuggi — attivabile/disattivabile con un
+pulsante). Validazione locale (§7.3) estesa di conseguenza: se il
+combattimento è attivo, nome nemico e scena-se-vinci non possono essere
+vuoti, combattività e resistenza devono essere numeri validi — sempre
+senza bloccare su destinazioni non ancora esistenti. `disciplineChoices`
+resta fuori dalla maschera (nota esplicita a schermo, si passa dal
+JSON). Compilazione pulita, 9/9 test ancora verdi, `:tool:run`
+verificato senza crash.
+
+**"Salva con nome" e conferma di sovrascrittura (stesso giorno)**:
+richiesta di Michele — aggiungere "salva con nome" e chiedere conferma
+solo la prima volta che si sovrascrive, non più dopo.
+
+`EditorMain.kt`: nuovo stato `salvataggioGiaConfermato`, tenuto a
+livello di sessione (dentro `main()`, non dentro `MapScreen`) proprio
+perché passare dalla mappa al pannello di una scena e tornare indietro
+ricrea l'istanza di `Schermata.Mappa` — uno stato `remember` locale a
+`MapScreen` si sarebbe resettato a ogni giro nell'editor di scena,
+facendo ricomparire la domanda molto più spesso di quanto Michele
+volesse. `MapScreen.kt`: il pulsante "💾 Salva libro" apre un
+`AlertDialog` di conferma solo se non è già stato confermato in questa
+sessione; confermato o meno, il dialogo non ricompare più fino al
+riavvio dell'editor. Nuovo pulsante "Salva con nome…"
+(`java.awt.FileDialog` in modalità SAVE, stesso approccio già usato
+per "Carica libro esistente") che aggiorna anche il file "corrente" per
+i salvataggi successivi — l'eventuale avviso "vuoi sostituirlo?" su un
+nome già esistente è quello nativo di Windows, nessun dialogo nostro
+ridondante sopra. Compilazione pulita, 9/9 test ancora verdi, `:tool:run`
+verificato senza crash.
+
+**Bug trovato da Michele, stesso giorno**: "salva con nome va ma non mi
+ha chiesto se sono sicuro di sovrascrivere" — l'assunzione che
+`java.awt.FileDialog` in modalità SAVE mostrasse da sé l'avviso nativo
+di Windows su un nome già esistente **non regge nella pratica**
+(verificato da Michele, non da un test automatico — un `FileDialog` è
+UI nativa, non testabile a schermo da qui). Corretto: tolto
+l'affidamento al comportamento nativo, `mostraConfermaSovrascrittura`
+(booleano) generalizzato in `fileDaConfermare: File?` — vale sia per
+"Salva libro" sia per "Salva con nome" quando il percorso scelto esiste
+già, tramite un'unica funzione `salvaOChiediConferma(destinazione)`:
+salva subito se già confermato in sessione O se il file di destinazione
+non esiste ancora (niente da sovrascrivere), altrimenti apre lo stesso
+`AlertDialog` di prima. Compilazione pulita, 9/9 test ancora verdi,
+`:tool:run` verificato senza crash.
+
+**Validazione globale col pulsante dedicato (stesso giorno, §8)**:
+colmata la lacuna segnalata da Claude qualche giro fa — il conteggio
+avvisi in testa alla mappa restava quello del caricamento iniziale,
+senza modo di ricontrollare il libro intero dopo le modifiche senza
+uscire e ricaricare il file. Nuovo pulsante "🔍 Valida libro" in
+`MapScreen.kt`: richiama `PackageValidator.validate(manifest)` — stesso
+codice della CLI `validate`, zero logica duplicata — sul manifest
+CORRENTE (comprese le modifiche fatte in questa sessione, non ancora
+salvate su disco), e mostra un `AlertDialog` con errori (rossi) e
+avvisi, o "Nessun errore, nessun avviso" se il libro è pulito. La
+scritta di testa ora dice esplicitamente "avvisi al caricamento", per
+non confondere quel numero fisso col risultato fresco di questo
+pulsante. Compilazione pulita, 9/9 test ancora verdi, `:tool:run`
+verificato senza crash.
+
+**"Crea libro nuovo" (stesso giorno, §9)**: ultima grande lacuna del
+perimetro v1 di `doc/EDITOR.md` — finora solo un segnaposto. Michele
+dice "continua", scelta di Claude: questo prima di ricerca/
+evidenziazione sulla mappa e `disciplineChoices` nel pannello scena,
+perché serve davvero al caso d'uso di suo figlio (scrivere un libro da
+zero).
+
+Nuovo `BookScaffolds.kt`: i tre scaffold di §9.2 (Base: START+ENDING;
+Lineare: 5 scene in sequenza; Ramificato: bivio A/B con due scene per
+percorso che confluiscono in un finale comune, 7 scene) — tutti e tre
+con la rete di sicurezza di §9.3 già collegata (`deathSceneId` verso
+una scena DEFEAT dedicata, **non** un arco visibile sulla mappa: è un
+fallback implicito del motore, appare come nodo isolato e non come
+errore). **Testato con 3 nuovi test JVM**: ogni scaffold produce un
+libro che passa `PackageValidator` a zero errori, ha sempre una scena
+START e il `deathSceneId` collegato, e il titolo diventa un ID
+leggibile (slug). `defaultDisciplineDescriptors()` estratta da
+`ConvertMain.kt` (era `private`, duplicata) in un nuovo
+`tool/DefaultDisciplines.kt` condiviso, visto che serve identica anche
+qui.
+
+`EditorMain.kt`: "Crea libro nuovo" ora è un vero form — titolo, toni
+(testo separato da virgole), scelta dello scaffold con radio button.
+"Crea" valida solo che il titolo non sia vuoto, poi chiede SUBITO dove
+salvare (`scegliPercorsoSalvataggio`, lo stesso dialogo di "Salva con
+nome") perché un libro appena creato non ha ancora un file — dopo il
+primo salvataggio si passa dritti alla mappa, già segnato come
+"sessione confermata" (niente richiesta di conferma sovrascrittura sul
+primissimo salvataggio, ovviamente, dato che il file non esiste
+ancora). Estratti in `FileDialogs.kt` i due selettori di file (apri/
+salva con nome), prima duplicati tra `EditorMain.kt` e `MapScreen.kt`.
+Aggiunta anche `salvaManifest()` in `BookStorage.kt` per non ripetere
+ovunque lo stesso encode+scrittura. Compilazione pulita, **12/12 test
+verdi** (9 di prima + 3 nuovi degli scaffold), `:tool:run` verificato
+senza crash.
+
+Perimetro v1 di `doc/EDITOR.md` sostanzialmente completo. Restano,
+quando servirà: `disciplineChoices` nel pannello scena, ricerca ed
+evidenziazione del vicinato sulla mappa, contorno di un percorso a
+richiesta, trascinamento manuale dei nodi, menu a tendina sul catalogo
+immagini (richiede prima di spostare i cataloghi da `:app` a un posto
+condiviso), e la pacchettizzazione vera (§12, non ancora provata).
+
+**`disciplineChoices` nel pannello scena (stesso giorno)**: Michele
+conferma "Crea libro nuovo" e dice "continuiamo" — ultimo campo mancante
+della maschera del pannello scena. A differenza delle immagini
+(`static:`/`url:`, catalogo non condiviso), qui il catalogo era già a
+disposizione: le 10 discipline canoniche sono l'enum `Discipline` di
+`core/data`, niente da spostare. Aggiunta una sezione in
+`SceneEditorScreen.kt` parallela a `choices` (testo + destinazione),
+con un `DropdownMenu` sulle 10 discipline al posto del testo libero per
+`disciplineId` — scelta deliberata: un valore preso da un menu chiuso
+non può mai essere una disciplina inventata, quindi la validazione
+locale non deve nemmeno ricontrollarlo (controlla solo che testo e
+destinazione non siano vuoti, stessa regola già usata per `choices`).
+Compilazione pulita, 12/12 test ancora verdi, `:tool:run` verificato
+senza crash.
+
+La maschera del pannello scena copre ora tutti i campi principali dello
+schema (narrativeText, choices, disciplineChoices, immagini,
+combattimento) — resta fuori solo il dettaglio fine di `combat`
+(`immuneToMindblast`/`evadeAfterRound`, editabili solo da JSON).
+
+**Codice leggibile per le scene, niente campo nuovo (stesso giorno)**:
+Michele nota un problema reale — le scene sulla mappa si distinguono
+solo per ID numerico, niente aiuta a riconoscerle a colpo d'occhio o a
+cercarle quando si aggancia una destinazione. Prima proposta di Claude:
+un nuovo campo `Scene.sceneName` (testo libero con un default
+suggerito) — Michele la migliora: vuole un codice tipo `TAV-TRANS-42`
+(location-tipo-id, "mentre scrivo penso che sono in una taverna e
+voglio agganciare quella di passaggio"), generato **automaticamente**,
+"non serve un vero campo, evitiamo modifiche al JSON essendo un campo
+automatico".
+
+Nuovo `SceneCode.kt`: `codiceScena(scene)` combina `locationName`
+(primi 3 caratteri alfabetici, maiuscolo) + `sceneType` abbreviato
+(START/TRANS/END) + `id` — **calcolato al volo, mai serializzato**: i
+libri già convertiti restano identici, nessuna migrazione, nessun
+campo da tenere sincronizzato a mano. Per le scene senza `locationName`
+esplicito (la maggioranza, probabilmente: quel campo è "appiccicoso" a
+runtime ma nell'editor non c'è "il percorso del giocatore" da cui
+ereditarlo, solo il grafo) usa il generico `SC`. **Testato con 3 test
+JVM**: combinazione base, fallback `SC` senza location, pulizia di
+spazi/punteggiatura nel nome location.
+
+Due punti d'uso:
+- **`MapScreen.kt`**: il rettangolo mostra ora `id · codice`
+  (es. "42 · TAV-TRANS-42") invece del solo ID — nodo allargato
+  (120dp -> 170dp, spaziatura tra colonne adeguata di conseguenza) per
+  starci comodo.
+- **`SceneEditorScreen.kt`**: nuovo `DestinazioneField` — mentre scrivi
+  in un campo destinazione (sia `choices` sia `disciplineChoices`),
+  filtra le scene del libro per ID o per codice e mostra una lista
+  cliccabile sotto il campo (niente popup flottante: una lista in
+  linea, più semplice da tenere affidabile in Compose Desktop);
+  cliccare una riga riempie il campo con l'ID vero. Richiede l'elenco
+  completo delle scene del libro, non solo quella in editing — nuovo
+  parametro `tutteLeScene` sulla funzione, passato da `EditorMain.kt`.
+
+Compilazione pulita, **15/15 test verdi** (12 di prima + 3 nuovi di
+`SceneCode`), `:tool:run` verificato senza crash.
+
+**Estratto narrativo nel nodo (stesso giorno)**: Michele chiede subito
+un ritocco — anche un pezzo di narrazione nel rettangolo, non solo il
+codice, per capire di che scena si parla guardando il solo grafo;
+chiave sulla prima riga, testo sotto sulla seconda.
+
+`MapScreen.kt`: il nodo ora è una `Column` a due righe invece di un
+singolo `Text` — riga 1 l'etichetta (`id · codiceScena`, 1 riga,
+troncata con puntini se troppo lunga), riga 2 il `narrativeText` della
+scena (spazi/a-capo ripuliti, troncato a 2 righe con puntini). Nodo
+allargato e alzato di conseguenza (170×50dp -> 190×72dp) con spaziatura
+tra colonne/righe aumentata (210/100dp -> 230/130dp) per starci comodo
+senza sovrapposizioni. Compilazione pulita, 15/15 test ancora verdi
+(nessuna logica nuova da testare, solo presentazione), `:tool:run`
+verificato senza crash.
+
+**Ricerca sulla mappa (stesso giorno, §6.1)**: c'era solo nel mockup
+(`doc/editor-mockup/02-mappa.svg`), mai davvero cablata. Michele
+conferma il giro precedente e dice "proseguiamo" — scelta di Claude:
+la ricerca prima del trascinamento manuale dei nodi o della
+pacchettizzazione, perché con la mappa ora più leggibile (codice +
+estratto) mancava solo il modo di saltare dritti a una scena su un
+libro grande.
+
+Nuova barra sotto la barra strumenti principale: campo di testo +
+pulsante "🔍 Vai". La ricerca prova, in ordine, ID esatto, ID che
+inizia con il testo, poi `codiceScena`/`narrativeText` che lo
+contengono (case-insensitive) — il primo che trova vince. Se trovata,
+**centra la vista** sul nodo (calcolato da `positions[id]`, lo zoom
+corrente e la dimensione reale del riquadro mappa presa al volo con
+`onGloballyPositioned`) e lo evidenzia con un bordo blu più spesso
+finché non si cerca altro. Nessuna corrispondenza -> messaggio
+"Nessuna corrispondenza" invece di un errore silenzioso.
+
+Nota tecnica per chi riprende in mano questo file: le coordinate dei
+nodi (`positions`) sono calcolate in "magnitudine dp" (`Dp.value`, non
+pixel veri), ma vengono usate sia per `Modifier.offset`/`Canvas`
+(che vogliono pixel) sia ora per il calcolo del pan di centratura
+(anch'esso in pixel, via `onGloballyPositioned`) — semplificazione già
+presente da quando è nata la mappa, non introdotta ora: su schermi a
+densità 1x coincidono, su HiDPI la centratura sarà leggermente
+imprecisa ma non rotta. Da rivedere se un giorno serve precisione
+pixel-perfect. Compilazione pulita, 15/15 test ancora verdi (nessuna
+logica pura nuova, solo UI), `:tool:run` verificato senza crash.
+
+**Ricerca con più risultati, ciclo tra corrispondenze (stesso giorno)**:
+Michele nota che la ricerca precedente si fermava al primo risultato —
+chiede se con più corrispondenze debbano evidenziarsi tutte, e se
+ripremere il pulsante debba passare alla successiva (ID crescente),
+chiedendo un parere su un pulsante solo vs due ("trova"/"trova
+successivo"). Consigliato **un solo pulsante che cicla** (stesso
+comportamento del Ctrl+F di un browser: Trova -> primo risultato,
+Trova di nuovo -> successivo, oltre l'ultimo si ricomincia dal primo)
+invece di due pulsanti separati, per non introdurre un'azione in più
+che conta solo alla primissima pressione. Michele non ha obiettato,
+implementato così.
+
+`MapScreen.kt`: `eseguiRicerca()` ricalcola `corrispondenze` (filtro
+unico su id/codiceScena/narrativeText, ordinate per ID crescente,
+niente più priorità a scalini id-esatto/id-prefisso/testo) solo se la
+query è cambiata rispetto all'ultima ricerca (`ultimaRicerca`);
+altrimenti avanza `indiceCorrente` con wraparound. Editare il testo di
+ricerca azzera `ultimaRicerca`, così la pressione successiva del
+pulsante riparte da capo invece di continuare a scorrere risultati
+ormai superati. Sui nodi: **arancione** su ogni corrispondenza,
+**blu più spesso** solo su quella attiva (quella appena centrata in
+vista) — a colpo d'occhio si vede sia "quante sono" sia "quale delle
+tante è questa". Aggiunto anche un contatore "X di Y" accanto al
+pulsante. Compilazione pulita, 15/15 test ancora verdi, `:tool:run`
+verificato senza crash.
+
+**Pacchettizzazione vera, prima prova reale (stesso giorno, §12)**:
+pianificata da `doc/EDITOR.md` ma mai lanciata per davvero fino ad ora.
+`./gradlew :tool:createDistributable` ha subito trovato un problema
+reale: *"Failed to check JDK distribution: 'jpackage.exe' is
+missing"* — Gradle stava usando il JBR imbustato in Android Studio
+(`C:\Program Files\Android\Android Studio\jbr`), che non include
+`jpackage` (necessario per `createDistributable`/`packageMsi`/
+`packageExe`). Trovato un JDK 17 completo già installato
+(`C:\Program Files\Eclipse Adoptium\jdk-17.0.15.6-hotspot`, ha
+`jpackage.exe`).
+
+Risolto **senza intaccare la build per chi non ha lo stesso JDK nello
+stesso punto**: nuova proprietà opzionale `packagingJdk` in
+`local.properties` (stesso pattern già in uso per `buildLlama`/
+`llamaCppDir`, mai committato), letta in `tool/build.gradle.kts` e
+passata a `compose.desktop.application.javaHome` solo se presente —
+compilare/testare/`:tool:run` restano quelli di sempre (non hanno
+bisogno di jpackage), solo i task di impacchettamento vero la
+richiedono.
+
+**Prova end-to-end riuscita**: `createDistributable` -> BUILD
+SUCCESSFUL, cartella da 116MB in `tool/build/compose/binaries/main/app/
+ImmundaNoctisEx-Editor/` con dentro `ImmundaNoctisEx-Editor.exe`, icona,
+e una cartella `runtime` (la JVM imbustata). Lanciato l'`.exe`
+**direttamente, senza Gradle né Android Studio**: parte davvero da
+solo (verificato via processo attivo) — la prova concreta che si può
+zippare questa cartella e darla a suo figlio così com'è, senza che
+debba installare nulla.
 
 ---
 
