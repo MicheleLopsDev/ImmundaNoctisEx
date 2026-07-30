@@ -59,6 +59,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEnt
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
+import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import io.github.luposolitario.immundanoctisex.core.data.validation.PackageValidator
 import io.github.luposolitario.immundanoctisex.core.data.validation.ValidationResult
 import kotlinx.serialization.json.Json
@@ -384,7 +385,8 @@ fun MapScreen(
                 Text(
                     "🟩 collegamento valido  🟥 collegamento a scena inesistente  " +
                         "🟪 percorso da START alla scena sotto il mouse  " +
-                        "grigio = fuori da quel percorso (anche se il collegamento esiste)",
+                        "grigio = fuori da quel percorso (anche se il collegamento esiste)  " +
+                        "🩷 scena START  💛 scena ENDING",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -718,13 +720,36 @@ fun MapScreen(
                     val immagineNodo = scenaNodo?.npcImage
                         ?: scenaNodo?.combat?.enemyImage
                         ?: scenaNodo?.backgroundImage
+                    // Colore per tipo di scena (30/07/2026, Michele: "colora
+                    // di giallino chiaro gli end e di rosa chiaro gli start
+                    // così saltano subito all'occhio") — priorità sulla
+                    // salute quando non c'è un'immagine (START/ENDING
+                    // restano riconoscibili a colpo d'occhio anche se
+                    // capita raramente che uno dei due sia rosso); quando
+                    // c'è un'immagine di copertina che copre il
+                    // riempimento, lo stesso colore torna come bordo di
+                    // base invece che nero, unico posto dove può ancora
+                    // comparire.
+                    val coloreTipo = when (scenaNodo?.sceneType) {
+                        SceneType.START -> Color(0xFFFCE4EC)
+                        SceneType.ENDING -> Color(0xFFFFF9C4)
+                        else -> null
+                    }
                     Box(
                         modifier = Modifier
                             .offset { IntOffset(pos.x.roundToInt(), pos.y.roundToInt()) }
                             .size(NODE_WIDTH, NODE_HEIGHT)
                             .alpha(opacitaNodo)
                             .clip(RoundedCornerShape(6.dp))
-                            .background(if (nodo.healthy) Color(0xFFE8F5E9) else Color(0xFFFFEBEE))
+                            // Resta come fallback anche quando c'è
+                            // un'immagine di copertina (§15.3): se
+                            // l'immagine sta ancora caricando o fallisce
+                            // (mostraSegnaposto=false, vedi
+                            // AnteprimaImmagineRisorsa più sotto), questo
+                            // colore continua a essere quello visibile,
+                            // esattamente come prima di questo colore per
+                            // tipo di scena.
+                            .background(coloreTipo ?: (if (nodo.healthy) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)))
                             // Bordo nero di default (30/07/2026, Michele: "rendi i
                             // bordi... visibili" — la personalizzazione grafica vera
                             // e propria è un pezzo a parte, per adesso solo leggibile).
@@ -737,7 +762,7 @@ fun MapScreen(
                                 color = when {
                                     isAttiva || isSelezionata -> Color(0xFF1E88E5)
                                     isCorrispondenza -> Color(0xFFFF9800)
-                                    else -> Color.Black
+                                    else -> coloreTipo ?: Color.Black
                                 },
                                 RoundedCornerShape(6.dp),
                             )

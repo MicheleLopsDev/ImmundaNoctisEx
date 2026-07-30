@@ -2357,6 +2357,20 @@ doppione. Aggiungere/rimuovere da questa sezione ricompone
 `customResources.images` insieme alle voci "in uso" (mai toccate da
 qui). Compilazione pulita, 38 test invariati.
 
+**Colore per tipo di scena (Michele: "colora di giallino chiaro gli end
+e di rosa chiaro gli start così saltano subito all'occhio")**: nuovo
+`coloreTipo` sul nodo — rosa (`0xFFFCE4EC`) per `SceneType.START`,
+giallo chiaro (`0xFFFFF9C4`) per `ENDING`, `null` per `TRANSITION`
+(fill di salute verde/rosso invariato). Priorità sulla salute quando
+non c'è un'immagine di copertina (§15.3): capita raramente che uno dei
+due sia rosso, ma restano riconoscibili a colpo d'occhio comunque —
+resta comunque il colore FALLBACK, mostrato se l'immagine sta ancora
+caricando o fallisce (`mostraSegnaposto=false`), non un rimpiazzo del
+tutto. Quando c'è un'immagine che copre il riempimento, lo stesso
+colore torna come bordo di base al posto del nero — l'unico posto
+dove può ancora comparire. Legenda aggiornata con 🩷/💛. Compilazione
+pulita, nessun test nuovo (colore puro, nessuna logica da testare).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
