@@ -10,6 +10,13 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.compose.multiplatform)
+    // 30/07/2026: mancava — la libreria runtime kotlinx-serialization-json
+    // era già una dipendenza, ma senza questo plugin le classi @Serializable
+    // DEFINITE dentro :tool (non quelle di :core:data, generate lì) non
+    // hanno un serializzatore generato a compile-time ("Serializer for
+    // class 'X' is not found" a runtime, silenzioso se avvolto in
+    // runCatching — scoperto scrivendo StaticResourceCatalog.kt).
+    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {

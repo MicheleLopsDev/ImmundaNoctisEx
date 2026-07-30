@@ -1973,6 +1973,49 @@ immediato".
 Compilazione e test verificati con `--rerun-tasks`, 19/19 test verdi
 invariati.
 
+**Decimo giro (stesso giorno) — verso un editor di risorse**: Michele
+propone un'idea più grande: un editor di risorse dentro `:tool` (menu
+con tab per tipo di risorsa, maschere per crearne di nuove), che a
+regime cambierebbe come il CLIENT Android risolve immagini/toni/audio
+— oggi cataloghi Kotlin compilati (`when` fissi + `R.drawable.*`),
+domani un registro dati caricato a runtime. Discusso a fondo: è la
+direzione giusta (l'editor oggi non è utilizzabile da terzi senza
+accesso al codice Kotlin), ma tocca il client che gira davvero, quindi
+non improvvisata — **rimandata una specifica scritta dedicata**
+quando si deciderà il passaggio vero. Per ORA, primo passo concreto e
+a rischio contenuto concordato con Michele: un'istantanea JSON delle
+risorse statiche, letta SOLO dall'editor, il client resta invariato.
+
+**`content/static-resources.json`** (nuovo): istantanea di
+`SceneImageCatalog`/`NpcImageCatalog`/`EnemyImageCatalog` (36
+location con descrizione, 20 NPC, 14 nemici — le `beast_*` compaiono
+in entrambe le ultime due liste, stesso file fisico, è l'autore a
+scegliere il campo). Copiato anche dentro `tool/src/main/resources/`
+(così viene impacchettato nell'`.exe` standalone, non solo leggibile
+durante `:tool:run` da Gradle) insieme a una copia delle 64 immagini
+JPG in `tool/src/main/resources/images/` — deciso di bundlare
+per davvero (non solo puntare al percorso del repository) perché
+altrimenti le anteprime non funzionerebbero nell'eseguibile dato al
+figlio di Michele, fuori dalla checkout del progetto.
+
+Nuovo `StaticResourceCatalog.kt` (`:tool/editor`): carica il JSON dal
+classpath (`ignoreUnknownKeys = true`, degrado silenzioso su registro
+vuoto se il file manca o è malformato — mai un crash) e risolve il
+percorso di un'immagine bundled per ID. **Bug reale trovato scrivendo
+i test**: `kotlinx.serialization.SerializationException: Serializer
+for class 'StaticResourceRegistry' is not found` — il modulo `:tool`
+aveva la LIBRERIA runtime di kotlinx-serialization ma non il PLUGIN
+del compilatore (`libs.plugins.kotlin.serialization`), quindi le
+classi `@Serializable` DEFINITE dentro `:tool` (non quelle di
+`:core:data`, che il plugin ce l'ha e infatti funzionavano già)
+restavano senza serializzatore generato — mascherato in un primo
+momento dal `runCatching` di degrado silenzioso, che restituiva un
+registro vuoto senza dire perché. Aggiunto il plugin mancante a
+`tool/build.gradle.kts`. **4 nuovi test** (`StaticResourceCatalogTest`,
+verificano caricamento, descrizioni non vuote, un'immagine bundled per
+ogni ID del registro, degrado su ID sconosciuto) — 23 test totali del
+modulo, tutti verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
