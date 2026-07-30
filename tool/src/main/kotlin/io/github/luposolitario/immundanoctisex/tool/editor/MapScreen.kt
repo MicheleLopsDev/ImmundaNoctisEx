@@ -90,6 +90,12 @@ class MapViewState {
     val panY = mutableStateOf(0f)
     val orizzontale = mutableStateOf(false)
     val posizioniManuali = mutableStateOf<Map<String, Offset>>(emptyMap())
+    // Scena selezionata con un click singolo (30/07/2026, Michele:
+    // "quando clicco una scena devi contornarla di un blu") — diversa
+    // dall'hover (nodoSottoMouse, si perde appena sposti il mouse) e dal
+    // doppio click (che apre il pannello): un click singolo la marca e
+    // resta marcata finché non clicchi altrove.
+    val sceneSelezionata = mutableStateOf<String?>(null)
 }
 
 @Composable
@@ -149,6 +155,7 @@ fun MapScreen(
     var zoom by mapViewState.zoom
     var panX by mapViewState.panX
     var panY by mapViewState.panY
+    var sceneSelezionata by mapViewState.sceneSelezionata
     // Spostamento enorme segnalato da Michele trascinando un nodo
     // (confermato: cursore e riquadro finivano in punti lontanissimi tra
     // loro, non solo un'impressione). Due rimedi insieme: (1) questo
@@ -460,6 +467,12 @@ fun MapScreen(
                             panY += dragAmount.y
                         }
                     }
+                }
+                // Click sullo sfondo (fuori da qualunque nodo) toglie la
+                // selezione con contorno blu — coerente con l'aspettativa
+                // che "clicco altrove" deselezioni.
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = { sceneSelezionata = null })
                 },
         ) {
             Box(
@@ -508,6 +521,12 @@ fun MapScreen(
                     val ricercaAttiva = testoRicerca == ultimaRicerca
                     val isCorrispondenza = ricercaAttiva && corrispondenze.any { it.id == nodo.sceneId }
                     val isAttiva = ricercaAttiva && corrispondenze.getOrNull(indiceCorrente)?.id == nodo.sceneId
+                    // Selezione con click singolo (30/07/2026, Michele:
+                    // "quando clicco una scena devi contornarla di un
+                    // blu") — stesso blu della corrispondenza di ricerca
+                    // attiva, priorità più bassa: se le due coincidono non
+                    // cambia nulla a vista.
+                    val isSelezionata = nodo.sceneId == sceneSelezionata
                     // Vicinato (§6.1): fuori dal mouse-over, tutti a piena
                     // opacità; con un nodo sotto mouse, solo lui e i suoi
                     // collegati diretti restano leggibili.
@@ -524,12 +543,12 @@ fun MapScreen(
                             // e propria è un pezzo a parte, per adesso solo leggibile).
                             .border(
                                 width = when {
-                                    isAttiva -> 3.dp
+                                    isAttiva || isSelezionata -> 3.dp
                                     isCorrispondenza -> 2.dp
                                     else -> 1.dp
                                 },
                                 color = when {
-                                    isAttiva -> Color(0xFF1E88E5)
+                                    isAttiva || isSelezionata -> Color(0xFF1E88E5)
                                     isCorrispondenza -> Color(0xFFFF9800)
                                     else -> Color.Black
                                 },
@@ -556,7 +575,10 @@ fun MapScreen(
                             // e si ritira), quindi non c'è conflitto tra i
                             // due.
                             .pointerInput(nodo.sceneId) {
-                                detectTapGestures(onDoubleTap = { onSceneSelected(nodo.sceneId) })
+                                detectTapGestures(
+                                    onTap = { sceneSelezionata = nodo.sceneId },
+                                    onDoubleTap = { onSceneSelected(nodo.sceneId) },
+                                )
                             }
                             .pointerInput(nodo.sceneId) {
                                 // Ancora locale alla coroutine del gesto

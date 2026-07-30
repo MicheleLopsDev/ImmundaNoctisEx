@@ -1897,6 +1897,26 @@ Compilazione verificata con `--rerun` (il normale check `UP-TO-DATE`
 non aveva ricompilato il file appena modificato), 19/19 test verdi
 invariati.
 
+**Ottavo giro (stesso giorno)**: Michele chiede "quando clicco una
+scena devi contornarla di un blu" — una selezione visiva con click
+singolo, terza cosa distinta dall'hover (`nodoSottoMouse`, si perde
+appena sposti il mouse) e dal doppio click (che apre il pannello).
+Nuovo `MapViewState.sceneSelezionata: String?`, impostato da
+`detectTapGestures(onTap = ...)` sullo stesso `pointerInput` che già
+gestiva il doppio click di apertura — nessun rilevatore in più.
+Bordo blu (stesso colore/spessore della corrispondenza di ricerca
+attiva, priorità più bassa: se coincidono non cambia nulla a vista).
+Aggiunto anche un `detectTapGestures(onTap = ...)` sullo sfondo per
+togliere la selezione cliccando fuori da qualunque nodo — coerente con
+l'aspettativa "clicco altrove, si deseleziona". Ricordato in
+`MapViewState` come gli altri stati della vista mappa, quindi
+sopravvive al giro mappa -> scena -> mappa.
+
+Compilazione e test verificati con `--rerun-tasks` (flag corretto,
+scoperto durante questo giro che il semplice `--rerun` del giro
+precedente non forza una vera ricompilazione), 19/19 test verdi
+invariati.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
