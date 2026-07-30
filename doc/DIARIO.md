@@ -2774,6 +2774,20 @@ registrata (`static:`/`url:`) nell'URL vero — `static:<id>` passa da
 direttamente un URL di rete. `:tool:compileKotlin`/`:tool:test` verdi
 (intoppo minore: import mancante di `Modifier.width`, corretto).
 
+**Editing del JSON completo del libro — implementato dopo mesi solo
+su specifica (30/07/2026, Michele: "un tasto che nella schermata
+principale ti permette di vedere tutto il file json")**: `doc/
+EDITOR.md` §7.4 lo descriveva fin dalla specifica originale del
+29/07/2026 ma non era mai stato costruito, essendo rimasto indietro
+rispetto al resto (§7.1/§7.2/§7.3 sì). Pulsante "📄 JSON del libro"
+nella barra strumenti della mappa: `Dialog` a schermo quasi pieno,
+campo di testo con l'intero `Manifest` codificato (pretty-print),
+"Applica" (decodifica + `PackageValidator` sull'intero manifest, un
+errore blocca e resta a video con l'elenco, gli avvisi passano) e
+"Chiudi" (scarta). Stesso principio già seguito ovunque nell'editor:
+nessuna scrittura senza validazione. `:tool:compileKotlin`/`:tool:test`
+verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

@@ -76,6 +76,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import io.github.luposolitario.immundanoctisex.core.data.validation.PackageValidator
 import io.github.luposolitario.immundanoctisex.core.data.validation.ValidationResult
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.File
 import kotlin.math.roundToInt
@@ -165,6 +166,19 @@ fun MapScreen(
     // PackageValidator sull'intero manifest corrente, stesso codice della
     // CLI `validate`, zero logica duplicata.
     var risultatoValidazione by remember { mutableStateOf<ValidationResult?>(null) }
+    // Editing del JSON completo del libro (§7.4, mai implementato finché
+    // Michele non l'ha chiesto esplicitamente: "un tasto che nella
+    // schermata principale ti permette di vedere tutto il file json") —
+    // a differenza della vista JSON di una scena (§7.2, dentro
+    // SceneEditorScreen), qui si vede/modifica l'intero Manifest in un
+    // colpo solo. Stesso principio del resto dell'editor: NESSUNA
+    // scrittura su disco senza validazione — "Applica" richiama
+    // PackageValidator sull'intero manifest, un errore blocca
+    // l'applicazione e resta a video (gli avvisi invece non bloccano,
+    // come ovunque altrove).
+    var mostraJsonLibro by remember { mutableStateOf(false) }
+    var jsonLibroTesto by remember { mutableStateOf("") }
+    var erroreJsonLibro by remember { mutableStateOf<String?>(null) }
     // Conferma di eliminazione (§15.5/§17.3, Michele: "la possibilità di
     // cancellare... le scene selezionate", poi estesa a un insieme con
     // Ctrl+click) — azione distruttiva (anche se recuperabile dai
@@ -419,6 +433,13 @@ fun MapScreen(
                 Button(onClick = { risultatoValidazione = PackageValidator.validate(manifest) }) {
                     Text("🔍 Valida libro")
                 }
+                // §7.4 (Michele: "un tasto che nella schermata principale
+                // ti permette di vedere tutto il file json").
+                Button(onClick = {
+                    jsonLibroTesto = Json { prettyPrint = true }.encodeToString(Manifest.serializer(), manifest)
+                    erroreJsonLibro = null
+                    mostraJsonLibro = true
+                }) { Text("📄 JSON del libro") }
                 // §15.5/§17.3 (Michele: "la possibilità di cancellare
                 // o aggiungere le scene selezionate", poi estesa a un
                 // insieme): "Nuova scena" sempre attivo, "Elimina"
@@ -609,6 +630,62 @@ fun MapScreen(
                     TextButton(onClick = { risultatoValidazione = null }) { Text("Chiudi") }
                 },
             )
+        }
+
+        // §7.4 (Michele: "un tasto che nella schermata principale ti
+        // permette di vedere tutto il file json"): stesso principio
+        // della vista JSON di una scena (SceneEditorScreen §7.2), ma per
+        // l'intero libro in un colpo solo — mai scritto su disco senza
+        // validazione, "Applica" richiama PackageValidator sull'intero
+        // manifest e blocca solo su errori veri (gli avvisi passano,
+        // come ovunque nel resto dell'editor).
+        if (mostraJsonLibro) {
+            Dialog(
+                onDismissRequest = { mostraJsonLibro = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .fillMaxHeight(0.9f)
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                        .padding(16.dp),
+                ) {
+                    Text("JSON completo del libro", style = MaterialTheme.typography.titleLarge)
+                    Spacer(Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = jsonLibroTesto,
+                        onValueChange = { jsonLibroTesto = it },
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        label = { Text("Manifest (JSON)") },
+                    )
+                    erroreJsonLibro?.let {
+                        Spacer(Modifier.height(8.dp))
+                        Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(onClick = {
+                            val manifestDecodificato = try {
+                                Json.decodeFromString(Manifest.serializer(), jsonLibroTesto)
+                            } catch (e: SerializationException) {
+                                erroreJsonLibro = "JSON non valido — ${e.message}"
+                                null
+                            }
+                            if (manifestDecodificato != null) {
+                                val risultato = PackageValidator.validate(manifestDecodificato)
+                                if (risultato.errors.isNotEmpty()) {
+                                    erroreJsonLibro = risultato.errors.joinToString("\n") { errore -> "• $errore" }
+                                } else {
+                                    onManifestCambiato(manifestDecodificato)
+                                    mostraJsonLibro = false
+                                }
+                            }
+                        }) { Text("Applica") }
+                        TextButton(onClick = { mostraJsonLibro = false }) { Text("Chiudi") }
+                    }
+                }
+            }
         }
 
         // §15.7, secondo giro (Michele: "vorrei poter anche vedere la

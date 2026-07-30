@@ -185,6 +185,11 @@ l'ultimo. Se non trova nulla, scrive **"Nessuna corrispondenza"**.
   **"Libro VALIDO (N avvisi)"** oppure **"Libro NON VALIDO"**, con
   l'elenco di errori e avvisi. Da fare ogni tanto, specialmente prima
   di chiudere una sessione di lavoro lunga.
+- **"📄 JSON del libro"** — per chi preferisce vedere o modificare
+  tutto il libro come testo grezzo invece che scena per scena. Un
+  pulsante **"Applica"** controlla che il testo sia JSON valido e che
+  il libro risultante non abbia errori prima di accettarlo (gli
+  avvisi non bloccano); **"Chiudi"** scarta senza applicare nulla.
 
 ### 5.5 Le immagini e i suoni del libro
 

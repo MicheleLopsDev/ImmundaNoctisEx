@@ -175,7 +175,7 @@ creata — è un pattern di scrittura normale (si scrive in avanti e si
 torna indietro dopo). In quel caso il nodo resta/diventa rosso (§6.2)
 finché la scena mancante non viene creata.
 
-### 7.4 Editing del JSON completo del libro
+### 7.4 Editing del JSON completo del libro — FATTO (30/07/2026)
 
 Oltre alla vista JSON della singola scena (§7.2), un secondo modo,
 raggiungibile dalla barra strumenti principale (non dal pannello di
@@ -187,6 +187,17 @@ le modifiche richiama la stessa validazione globale del pulsante di
 non è valido, le modifiche non vengono accettate e restano a video con
 l'elenco degli errori, esattamente come già succede oggi con la CLI
 `validate`.
+
+Rimasto solo scritto in questa specifica per mesi, implementato solo
+quando Michele lo ha chiesto esplicitamente ("un tasto che nella
+schermata principale ti permette di vedere tutto il file json").
+Pulsante **"📄 JSON del libro"** nella barra strumenti della mappa,
+apre un `Dialog` a schermo quasi pieno con un campo di testo unico
+(l'intero `Manifest` codificato con pretty-print) e due pulsanti:
+**"Applica"** (decodifica il testo, valida con `PackageValidator` —
+un errore blocca e resta a video con l'elenco, gli avvisi invece
+passano, come ovunque nel resto dell'editor) e **"Chiudi"** (scarta
+senza applicare).
 
 ## 8. Validazione globale del libro
 
