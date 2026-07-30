@@ -36,6 +36,12 @@ data class GraphEdge(
 data class SceneGraph(
     val nodes: List<GraphNode>,
     val edges: List<GraphEdge>,
+    // Genitore di ciascuna scena nell'albero dei cammini minimi da START
+    // (§6.2, "un esempio di percorso da START fino a un finale"), scoperto
+    // dalla STESSA visita in ampiezza già fatta per calcolare `level` —
+    // nessuna visita in più. Assente per START stessa e per le scene non
+    // raggiungibili.
+    val genitoreDiPercorso: Map<String, String>,
 )
 
 // Auto-layout gerarchico (§6.1): livello = distanza minima da START via
@@ -48,6 +54,7 @@ fun buildSceneGraph(manifest: Manifest): SceneGraph {
     val start = manifest.scenes.firstOrNull { it.sceneType == SceneType.START }
 
     val levels = mutableMapOf<String, Int>()
+    val genitori = mutableMapOf<String, String>()
     if (start != null) {
         val queue = ArrayDeque<String>()
         levels[start.id] = 0
@@ -59,6 +66,7 @@ fun buildSceneGraph(manifest: Manifest): SceneGraph {
             current.outgoingSceneIds().forEach { nextId ->
                 if (nextId !in levels && scenesById.containsKey(nextId)) {
                     levels[nextId] = currentLevel + 1
+                    genitori[nextId] = currentId
                     queue.add(nextId)
                 }
             }
@@ -76,5 +84,23 @@ fun buildSceneGraph(manifest: Manifest): SceneGraph {
         }
     }
 
-    return SceneGraph(nodes = nodes, edges = edges)
+    return SceneGraph(nodes = nodes, edges = edges, genitoreDiPercorso = genitori)
+}
+
+// Un esempio di percorso da START fino a `sceneId`, ricostruito
+// risalendo `genitoreDiPercorso` (§6.2) — lista vuota se la scena non è
+// raggiungibile da START (o se il libro non ha ancora una scena START,
+// caso di un libro appena creato). Ordine: START per primo, `sceneId`
+// per ultimo.
+fun percorsoDaStart(graph: SceneGraph, sceneId: String): List<String> {
+    val percorso = mutableListOf(sceneId)
+    var attuale = sceneId
+    while (true) {
+        val genitore = graph.genitoreDiPercorso[attuale] ?: break
+        percorso.add(genitore)
+        attuale = genitore
+    }
+    val partenza = graph.nodes.firstOrNull { it.level == 0 }?.sceneId
+    if (percorso.last() != partenza) return emptyList()
+    return percorso.reversed()
 }

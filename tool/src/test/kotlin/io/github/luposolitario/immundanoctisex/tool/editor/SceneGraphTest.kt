@@ -78,4 +78,53 @@ class SceneGraphTest {
 
         assertEquals(Int.MAX_VALUE, graph.nodes.single().level)
     }
+
+    @Test
+    fun ilPercorsoDaStartVaDallInizioAllaScenaCercata() {
+        val scenes = listOf(
+            scene("1", SceneType.START, "2"),
+            scene("2", destinations = arrayOf("3")),
+            scene("3", SceneType.ENDING),
+        )
+
+        val graph = buildSceneGraph(manifest(scenes))
+
+        assertEquals(listOf("1", "2", "3"), percorsoDaStart(graph, "3"))
+    }
+
+    @Test
+    fun ilPercorsoESemprePresenteSuUnBivio() {
+        val scenes = listOf(
+            scene("1", SceneType.START, "2", "3"),
+            scene("2", SceneType.ENDING),
+            scene("3", SceneType.ENDING),
+        )
+
+        val graph = buildSceneGraph(manifest(scenes))
+
+        assertEquals(listOf("1", "2"), percorsoDaStart(graph, "2"))
+        assertEquals(listOf("1", "3"), percorsoDaStart(graph, "3"))
+    }
+
+    @Test
+    fun nessunPercorsoVersoUnaScenaNonRaggiungibile() {
+        val scenes = listOf(
+            scene("1", SceneType.START, "2"),
+            scene("2", SceneType.ENDING),
+            scene("99", SceneType.ENDING),
+        )
+
+        val graph = buildSceneGraph(manifest(scenes))
+
+        assertTrue(percorsoDaStart(graph, "99").isEmpty())
+    }
+
+    @Test
+    fun nessunPercorsoSenzaSceneStart() {
+        val scenes = listOf(scene("5", SceneType.ENDING))
+
+        val graph = buildSceneGraph(manifest(scenes))
+
+        assertTrue(percorsoDaStart(graph, "5").isEmpty())
+    }
 }

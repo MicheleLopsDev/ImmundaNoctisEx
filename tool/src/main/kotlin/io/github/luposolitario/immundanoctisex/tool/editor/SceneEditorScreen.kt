@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -71,6 +72,8 @@ fun SceneEditorScreen(scene: Scene, tutteLeScene: List<Scene>, onSalva: (Scene) 
     var combatWinSceneId by remember(scene.id) { mutableStateOf(scene.combat?.winSceneId ?: "") }
     var combatLoseSceneId by remember(scene.id) { mutableStateOf(scene.combat?.loseSceneId ?: "") }
     var combatEvadeSceneId by remember(scene.id) { mutableStateOf(scene.combat?.evadeSceneId ?: "") }
+    var combatImmune by remember(scene.id) { mutableStateOf(scene.combat?.immuneToMindblast ?: false) }
+    var combatEvadeAfterRound by remember(scene.id) { mutableStateOf((scene.combat?.evadeAfterRound ?: 0).toString()) }
 
     var jsonTesto by remember(scene.id) { mutableStateOf(jsonScena.encodeToString(Scene.serializer(), scene)) }
     var errore by remember(scene.id) { mutableStateOf<String?>(null) }
@@ -90,8 +93,8 @@ fun SceneEditorScreen(scene: Scene, tutteLeScene: List<Scene>, onSalva: (Scene) 
                 enemyImage = combatEnemyImage.ifBlank { null },
                 enemyCombatSkill = combatSkill.toIntOrNull() ?: 0,
                 enemyEndurance = combatEndurance.toIntOrNull() ?: 0,
-                immuneToMindblast = scene.combat?.immuneToMindblast ?: false,
-                evadeAfterRound = scene.combat?.evadeAfterRound ?: 0,
+                immuneToMindblast = combatImmune,
+                evadeAfterRound = combatEvadeAfterRound.toIntOrNull() ?: 0,
                 winSceneId = combatWinSceneId,
                 loseSceneId = combatLoseSceneId.ifBlank { null },
                 evadeSceneId = combatEvadeSceneId.ifBlank { null },
@@ -223,6 +226,25 @@ fun SceneEditorScreen(scene: Scene, tutteLeScene: List<Scene>, onSalva: (Scene) 
                             label = { Text("Scena se fuggi (opz.)") },
                         )
                     }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        OutlinedTextField(
+                            value = combatEvadeAfterRound,
+                            onValueChange = { combatEvadeAfterRound = it },
+                            modifier = Modifier.weight(1f),
+                            label = { Text("Fuga disponibile dopo N round") },
+                        )
+                        Row(
+                            modifier = Modifier.weight(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Checkbox(checked = combatImmune, onCheckedChange = { combatImmune = it })
+                            Text("Immune a MINDBLAST")
+                        }
+                    }
                 }
                 Spacer(Modifier.height(16.dp))
 
@@ -311,7 +333,7 @@ fun SceneEditorScreen(scene: Scene, tutteLeScene: List<Scene>, onSalva: (Scene) 
                 if (vistaJson) {
                     salvaDaJson(jsonTesto, onSalva) { errore = it }
                 } else {
-                    salvaDaMaschera(sceneDallaMaschera(), haCombattimento, combatSkill, combatEndurance, onSalva) { errore = it }
+                    salvaDaMaschera(sceneDallaMaschera(), haCombattimento, combatSkill, combatEndurance, combatEvadeAfterRound, onSalva) { errore = it }
                 }
             }) {
                 Text("Salva scena")
@@ -404,6 +426,7 @@ private fun salvaDaMaschera(
     haCombattimento: Boolean,
     combatSkill: String,
     combatEndurance: String,
+    combatEvadeAfterRound: String,
     onSalva: (Scene) -> Unit,
     onErrore: (String) -> Unit,
 ) {
@@ -429,6 +452,10 @@ private fun salvaDaMaschera(
         }
         if (combatSkill.toIntOrNull() == null || combatEndurance.toIntOrNull() == null) {
             onErrore("combattività e resistenza del nemico devono essere numeri")
+            return
+        }
+        if (combatEvadeAfterRound.toIntOrNull() == null) {
+            onErrore("il numero di round prima della fuga deve essere un numero")
             return
         }
         if (combat.winSceneId.isBlank()) {

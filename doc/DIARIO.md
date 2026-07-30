@@ -1602,6 +1602,51 @@ solo (verificato via processo attivo) — la prova concreta che si può
 zippare questa cartella e darla a suo figlio così com'è, senza che
 debba installare nulla.
 
+**Ultimo tratto autonomo (stesso giorno)**: Michele dice "proseguiamo,
+farò un controllo alla fine" — Claude procede su più punti rimasti
+senza fermarsi a ogni singolo passo, verificando da sé compilazione,
+test e `:tool:run` a ogni tappa.
+
+- **Dettaglio fine del combattimento**: aggiunti a `SceneEditorScreen.kt`
+  i due campi che mancavano — round prima che la fuga sia disponibile
+  (`evadeAfterRound`, numerico) e una casella "Immune a MINDBLAST"
+  (`immuneToMindblast`). Validazione locale estesa di conseguenza.
+- **Evidenziazione del vicinato (§6.1)**: al passaggio del mouse su un
+  nodo (non al click, che apre già il pannello — nessuna interazione
+  esistente toccata), i suoi collegamenti diretti restano a piena
+  opacità, il resto della mappa si attenua (nodi e archi). Rilevamento
+  hover via `onPointerEvent(Enter/Exit)`.
+- **Contorno di un percorso a richiesta (§6.2)**: "a richiesta" tradotto
+  come "mentre passi il mouse su una scena" invece di un pulsante
+  dedicato — riusa lo stesso hover del vicinato, un esempio di cammino
+  da START a quella scena si disegna in viola più spesso, sopra il
+  verde/rosso di risoluzione. Nuovo `SceneGraph.genitoreDiPercorso`
+  (mappa figlio->genitore, scoperta gratis dalla stessa visita in
+  ampiezza già usata per `level` — nessuna visita in più) e
+  `percorsoDaStart(graph, sceneId)`, **testati con 4 nuovi test JVM**
+  (percorso lineare, bivio, scena non raggiungibile, libro senza START).
+- **Trascinamento manuale dei nodi (§6.1, "riordinare come uno
+  vuole")**: scarti dalla posizione auto-calcolata (`posizioniManuali`),
+  non salvati nel JSON — le scene non hanno coordinate nello schema,
+  si perdono ricaricando il libro o premendo "Riordina automaticamente"
+  (che ora li azzera per davvero, non solo pan/zoom). Un click vero
+  (spostamento sotto una soglia di 4px) apre ancora il pannello di
+  editing come prima; superata la soglia si sposta il nodo. Un solo
+  accumulatore di trascinamento condiviso, non uno per nodo — un solo
+  puntatore alla volta può trascinare.
+
+Compilazione pulita, **19/19 test verdi** (15 di prima + 4 nuovi di
+`percorsoDaStart`), `:tool:run` verificato senza crash a ogni tappa.
+
+**Deliberatamente non affrontato in questo tratto**: il menu a tendina
+sul catalogo immagini (`static:`). Richiede spostare
+`SceneImageCatalog.kt`/`NpcImageCatalog.kt`/`EnemyImageCatalog.kt` da
+`:app` a un posto condiviso con `:tool` — a differenza di tutto il
+resto di oggi (confinato dentro `:tool`, zero rischio per il gioco
+vero), questo tocca codice di `:app` che spedisce davvero. Rimandato
+di proposito a una sessione dedicata invece che infilarlo in coda a
+un tratto già lungo, non deciso qui senza Michele.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

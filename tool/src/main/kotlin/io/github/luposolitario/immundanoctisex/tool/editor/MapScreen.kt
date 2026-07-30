@@ -3,7 +3,6 @@ package io.github.luposolitario.immundanoctisex.tool.editor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,11 +31,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
@@ -51,15 +54,16 @@ import io.github.luposolitario.immundanoctisex.core.data.validation.PackageValid
 import io.github.luposolitario.immundanoctisex.core.data.validation.ValidationResult
 import kotlinx.serialization.json.Json
 import java.io.File
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
-// Mappa del libro (doc/EDITOR.md §6). Prima versione: auto-layout
-// gerarchico fisso (nessun trascinamento manuale dei nodi ancora — è un
-// pezzo a parte, per adesso "Riordina automaticamente" si limita a
-// ricentrare pan/zoom), pan libero, zoom a pulsanti, colorazione
-// verde/rosso dei nodi (§6.2). Non ancora fatti: ricerca, evidenziazione
-// del vicinato, contorno di un percorso a richiesta, pannello di editing
-// di una scena (§7) — passi successivi.
+// Mappa del libro (doc/EDITOR.md §6). Auto-layout gerarchico come punto
+// di partenza, trascinabile a mano scena per scena (§6.1); "Riordina
+// automaticamente" scarta gli spostamenti manuali e ricentra pan/zoom.
+// Pan libero sullo sfondo, zoom a pulsanti, colorazione verde/rosso dei
+// nodi (§6.2), ricerca con ciclo tra corrispondenze, evidenziazione del
+// vicinato al passaggio del mouse. Non ancora fatto: contorno di un
+// percorso a richiesta.
 // Nodo allargato e alzato (30/07/2026, Michele: "metti anche una parte
 // della narrazione... dividi la chiave sulla prima riga e il testo su
 // una seconda riga sotto") per mostrare id+codice (riga 1) ed estratto
@@ -70,6 +74,7 @@ private val NODE_HEIGHT = 72.dp
 private val H_SPACING = 230.dp
 private val V_SPACING = 130.dp
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MapScreen(
     file: File,
@@ -122,6 +127,35 @@ fun MapScreen(
     var zoom by remember { mutableStateOf(1f) }
     var panX by remember { mutableStateOf(0f) }
     var panY by remember { mutableStateOf(0f) }
+    // Evidenziazione del vicinato (§6.1): al passaggio del mouse su un
+    // nodo (non al click, che apre già il pannello di editing), i suoi
+    // collegamenti diretti restano a piena opacità e il resto della
+    // mappa si attenua. Calcolato dagli stessi `graph.edges` già usati
+    // per disegnare gli archi, nessuna struttura dati nuova.
+    var nodoSottoMouse by remember { mutableStateOf<String?>(null) }
+    val vicinato = remember(nodoSottoMouse, graph) {
+        val centro = nodoSottoMouse
+        if (centro == null) {
+            emptySet()
+        } else {
+            buildSet {
+                add(centro)
+                graph.edges.forEach { edge ->
+                    if (edge.fromSceneId == centro) add(edge.toSceneId)
+                    if (edge.toSceneId == centro) add(edge.fromSceneId)
+                }
+            }
+        }
+    }
+    // Contorno di un percorso a richiesta (§6.2): "a richiesta" qui
+    // significa "mentre passi il mouse su una scena", non un pulsante
+    // dedicato — riusa lo stesso hover del vicinato invece di aggiungere
+    // un'altra interazione. Un esempio di cammino da START a quella
+    // scena (percorsoDaStart, SceneGraph.kt), sempre lo stesso finché non
+    // cambi nodo sotto il mouse.
+    val archiPercorso = remember(nodoSottoMouse, graph) {
+        nodoSottoMouse?.let { percorsoDaStart(graph, it).zipWithNext().toSet() } ?: emptySet()
+    }
     // Ricerca (§6.1, prima solo nel mockup): per ID o per testo nel
     // codiceScena/narrativeText. Tutte le corrispondenze restano
     // evidenziate; ogni pressione del pulsante avanza a quella successiva
@@ -176,6 +210,21 @@ fun MapScreen(
         }
     }
 
+    // Trascinamento manuale dei nodi (§6.1, "riordinare come uno vuole"):
+    // scarti dalla posizione auto-calcolata, non salvati nel JSON (le
+    // scene non hanno coordinate nello schema) — si perdono ricaricando
+    // il libro o premendo "Riordina automaticamente", di proposito.
+    // Azzerati quando cambia il grafo o l'orientamento, stesso criterio
+    // di `positions`: una disposizione diversa rende gli scarti vecchi
+    // privi di senso.
+    var posizioniManuali by remember(graph, orizzontale) { mutableStateOf<Map<String, Offset>>(emptyMap()) }
+    fun posizioneEffettiva(id: String): Offset? = posizioniManuali[id] ?: positions[id]
+    // Un solo accumulatore condiviso (30/07/2026): un solo puntatore alla
+    // volta può trascinare, non serve uno stato per nodo — distingue un
+    // trascinamento vero da un semplice click (che deve continuare ad
+    // aprire il pannello di editing, come già collaudato da Michele).
+    var trascinamentoAccumulato by remember { mutableStateOf(0f) }
+
     fun eseguiRicerca() {
         val query = testoRicerca.trim()
         if (query.isBlank()) return
@@ -195,7 +244,7 @@ fun MapScreen(
             indiceCorrente = (indiceCorrente + 1) % corrispondenze.size
         }
         val trovata = corrispondenze.getOrNull(indiceCorrente)
-        val pos = trovata?.let { positions[it.id] }
+        val pos = trovata?.let { posizioneEffettiva(it.id) }
         if (trovata == null || pos == null) {
             ricercaFallita = true
             return
@@ -234,7 +283,7 @@ fun MapScreen(
                 Button(onClick = { orizzontale = !orizzontale }) {
                     Text(if (orizzontale) "↕ Verticale" else "↔ Orizzontale")
                 }
-                Button(onClick = { zoom = 1f; panX = 0f; panY = 0f }) { Text("⟳ Riordina") }
+                Button(onClick = { zoom = 1f; panX = 0f; panY = 0f; posizioniManuali = emptyMap() }) { Text("⟳ Riordina") }
                 Button(onClick = { zoom = (zoom - 0.1f).coerceAtLeast(0.2f) }) { Text("−") }
                 Text("${(zoom * 100).roundToInt()}%")
                 Button(onClick = { zoom = (zoom + 0.1f).coerceAtMost(3f) }) { Text("+") }
@@ -355,19 +404,32 @@ fun MapScreen(
                 // rivedere quando si passa a libri da 350+ scene).
                 Canvas(modifier = Modifier.size(4000.dp)) {
                     graph.edges.forEach { edge ->
-                        val from = positions[edge.fromSceneId] ?: return@forEach
-                        val to = positions[edge.toSceneId] ?: return@forEach
+                        val from = posizioneEffettiva(edge.fromSceneId) ?: return@forEach
+                        val to = posizioneEffettiva(edge.toSceneId) ?: return@forEach
+                        // Arco estraneo al vicinato del nodo sotto il
+                        // mouse -> attenuato, stessa idea dei nodi sotto.
+                        val estraneo = nodoSottoMouse != null &&
+                            edge.fromSceneId != nodoSottoMouse && edge.toSceneId != nodoSottoMouse
+                        // Arco sul percorso da START al nodo sotto il
+                        // mouse -> viola e più spesso, sopra il
+                        // verde/rosso di risoluzione (§6.2).
+                        val suPercorso = (edge.fromSceneId to edge.toSceneId) in archiPercorso
                         drawLine(
-                            color = if (edge.resolved) Color(0xFF4CAF50) else Color(0xFFE53935),
+                            color = if (suPercorso) {
+                                Color(0xFF8E24AA)
+                            } else {
+                                (if (edge.resolved) Color(0xFF4CAF50) else Color(0xFFE53935))
+                                    .copy(alpha = if (estraneo) 0.15f else 1f)
+                            },
                             start = Offset(from.x + NODE_WIDTH.value / 2, from.y + NODE_HEIGHT.value / 2),
                             end = Offset(to.x + NODE_WIDTH.value / 2, to.y + NODE_HEIGHT.value / 2),
-                            strokeWidth = 2f,
+                            strokeWidth = if (suPercorso) 4f else 2f,
                         )
                     }
                 }
 
                 graph.nodes.forEach { nodo ->
-                    val pos = positions[nodo.sceneId] ?: return@forEach
+                    val pos = posizioneEffettiva(nodo.sceneId) ?: return@forEach
                     // Ricerca (§6.1): arancione su TUTTE le corrispondenze,
                     // blu più spesso solo su quella attiva (centrata in
                     // vista in questo momento) — così si vede a colpo
@@ -375,10 +437,15 @@ fun MapScreen(
                     val ricercaAttiva = testoRicerca == ultimaRicerca
                     val isCorrispondenza = ricercaAttiva && corrispondenze.any { it.id == nodo.sceneId }
                     val isAttiva = ricercaAttiva && corrispondenze.getOrNull(indiceCorrente)?.id == nodo.sceneId
+                    // Vicinato (§6.1): fuori dal mouse-over, tutti a piena
+                    // opacità; con un nodo sotto mouse, solo lui e i suoi
+                    // collegati diretti restano leggibili.
+                    val opacitaNodo = if (nodoSottoMouse == null || nodo.sceneId in vicinato) 1f else 0.25f
                     Box(
                         modifier = Modifier
                             .offset { IntOffset(pos.x.roundToInt(), pos.y.roundToInt()) }
                             .size(NODE_WIDTH, NODE_HEIGHT)
+                            .alpha(opacitaNodo)
                             .clip(RoundedCornerShape(6.dp))
                             .background(if (nodo.healthy) Color(0xFFE8F5E9) else Color(0xFFFFEBEE))
                             // Bordo nero di default (30/07/2026, Michele: "rendi i
@@ -397,7 +464,30 @@ fun MapScreen(
                                 },
                                 RoundedCornerShape(6.dp),
                             )
-                            .clickable { onSceneSelected(nodo.sceneId) },
+                            .onPointerEvent(PointerEventType.Enter) { nodoSottoMouse = nodo.sceneId }
+                            .onPointerEvent(PointerEventType.Exit) {
+                                if (nodoSottoMouse == nodo.sceneId) nodoSottoMouse = null
+                            }
+                            // Trascinamento manuale (§6.1): un click vero
+                            // (spostamento sotto soglia) apre ancora il
+                            // pannello di editing come prima; superata la
+                            // soglia si considera un trascinamento e sposta
+                            // il nodo invece di aprirlo.
+                            .pointerInput(nodo.sceneId) {
+                                detectDragGestures(
+                                    onDragStart = { trascinamentoAccumulato = 0f },
+                                    onDragEnd = {
+                                        if (trascinamentoAccumulato < 4f) onSceneSelected(nodo.sceneId)
+                                    },
+                                    onDrag = { change, dragAmount ->
+                                        change.consume()
+                                        trascinamentoAccumulato += abs(dragAmount.x) + abs(dragAmount.y)
+                                        val base = posizioneEffettiva(nodo.sceneId) ?: return@detectDragGestures
+                                        posizioniManuali = posizioniManuali +
+                                            (nodo.sceneId to Offset(base.x + dragAmount.x, base.y + dragAmount.y))
+                                    },
+                                )
+                            },
                         contentAlignment = Alignment.Center,
                     ) {
                         // Colore fisso, non legato al tema: gli sfondi
