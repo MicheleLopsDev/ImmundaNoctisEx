@@ -230,8 +230,13 @@ fun main() = application {
                             // evita il bug di chiudere su un `s.manifest`
                             // ormai superato se si chiamasse una volta per
                             // scena in un ciclo.
-                            onEliminaScene = { ids ->
-                                val manifestSenzaScene = s.manifest.copy(scenes = s.manifest.scenes.filterNot { it.id in ids })
+                            onEliminaScene = { ids, ricollegaAId ->
+                                val manifestRicollegato = if (ricollegaAId != null) {
+                                    ricollegaRiferimenti(s.manifest, ids, ricollegaAId)
+                                } else {
+                                    s.manifest
+                                }
+                                val manifestSenzaScene = manifestRicollegato.copy(scenes = manifestRicollegato.scenes.filterNot { it.id in ids })
                                 schermata = Schermata.Mappa(s.file, manifestSenzaScene, s.warnings)
                             },
                             // §15.7: cambio generico del manifest senza

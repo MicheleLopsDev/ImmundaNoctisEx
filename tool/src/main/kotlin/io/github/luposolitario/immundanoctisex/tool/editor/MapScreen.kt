@@ -141,7 +141,7 @@ fun MapScreen(
     onSceneSelected: (String) -> Unit,
     onNuovaScena: () -> Unit,
     onDuplicaScena: (String) -> Unit,
-    onEliminaScene: (Set<String>) -> Unit,
+    onEliminaScene: (Set<String>, String?) -> Unit,
     onManifestCambiato: (Manifest) -> Unit,
     salvataggioGiaConfermato: Boolean,
     onSalvataggioConfermato: () -> Unit,
@@ -617,6 +617,12 @@ fun MapScreen(
 
         if (sceneIdsDaEliminare.isNotEmpty()) {
             val idsOrdinati = sceneIdsDaEliminare.sortedBy { it.toIntOrNull() ?: Int.MAX_VALUE }
+            // §19.5 (Michele: "Ricollegamento opzionale alla
+            // cancellazione"): vuoto di default = comportamento invariato
+            // (riferimenti restano rossi). `remember(sceneIdsDaEliminare)`
+            // riparte da vuoto ogni volta che si apre il dialogo su un
+            // insieme diverso di scene.
+            var idRicollegamento by remember(sceneIdsDaEliminare) { mutableStateOf("") }
             AlertDialog(
                 onDismissRequest = { sceneIdsDaEliminare = emptySet() },
                 title = {
@@ -626,20 +632,29 @@ fun MapScreen(
                     )
                 },
                 text = {
-                    Text(
-                        if (idsOrdinati.size == 1) {
-                            "I collegamenti di altre scene verso ${idsOrdinati.first()} resteranno come riferimenti a una " +
-                                "scena non più esistente (si vedono rossi sulla mappa, non vengono corretti da soli)."
-                        } else {
-                            "Scene coinvolte: ${idsOrdinati.joinToString(", ")}. I collegamenti di altre scene verso di " +
-                                "loro resteranno come riferimenti a scene non più esistenti (si vedono rossi sulla mappa, " +
-                                "non vengono corretti da soli)."
-                        },
-                    )
+                    Column {
+                        Text(
+                            if (idsOrdinati.size == 1) {
+                                "I collegamenti di altre scene verso ${idsOrdinati.first()} resteranno come riferimenti a una " +
+                                    "scena non più esistente (si vedono rossi sulla mappa, non vengono corretti da soli)."
+                            } else {
+                                "Scene coinvolte: ${idsOrdinati.joinToString(", ")}. I collegamenti di altre scene verso di " +
+                                    "loro resteranno come riferimenti a scene non più esistenti (si vedono rossi sulla mappa, " +
+                                    "non vengono corretti da soli)."
+                            },
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        DestinazioneField(
+                            valore = idRicollegamento,
+                            tutteLeScene = manifest.scenes.filter { it.id !in sceneIdsDaEliminare },
+                            onValueChange = { idRicollegamento = it },
+                            etichetta = "Ricollega i riferimenti in ingresso verso: (vuoto = non ricollegare)",
+                        )
+                    }
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        onEliminaScene(sceneIdsDaEliminare)
+                        onEliminaScene(sceneIdsDaEliminare, idRicollegamento.ifBlank { null })
                         sceneSelezionate = sceneSelezionate - sceneIdsDaEliminare
                         sceneIdsDaEliminare = emptySet()
                     }) { Text("Elimina") }

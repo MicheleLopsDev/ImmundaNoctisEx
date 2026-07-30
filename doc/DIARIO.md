@@ -2898,6 +2898,24 @@ una scena ENDING senza uscite — normale, è un finale — non generi
 l'avviso). `:tool:compileKotlin`/`:tool:test` e `:core:data:jvmTest`
 verdi.
 
+**Implementazione: §19.5 ricollegamento opzionale alla cancellazione
+(31/07/2026)**: il dialogo di conferma eliminazione guadagna un campo
+opzionale "Ricollega i riferimenti in ingresso verso:" (lo stesso
+`DestinazioneField` con suggerimenti già usato altrove, campo vuoto =
+comportamento invariato). Nuova funzione pura `ricollegaRiferimenti()`
+in `NuovaScena.kt`: PRIMA di rimuovere le scene selezionate, riscrive
+verso il bersaglio scelto ogni collegamento dell'intero libro che
+punta a una di esse — non solo scelte e combattimento come nella
+richiesta originale, ma tutto ciò che `GraphValidator` controlla
+(`choices`, `disciplineChoices`, `combat.win/lose/evadeSceneId`,
+`manifest.deathSceneId`, `globalRules[].targetSceneId`), un solo
+bersaglio condiviso per l'intera cancellazione. Il campo dei
+suggerimenti esclude le scene in corso di cancellazione. Tre nuovi
+test in `NuovaScenaTest` (riscrittura di ogni tipo di collegamento,
+riscrittura di deathSceneId/globalRules, non-interferenza con
+riferimenti verso altre scene). `:tool:compileKotlin`/`:tool:test`
+verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

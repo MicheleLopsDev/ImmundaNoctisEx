@@ -49,3 +49,35 @@ fun conReteDiSicurezza(scene: Scene, deathSceneId: String?): Scene {
         ),
     )
 }
+
+// Ricollegamento opzionale alla cancellazione (§19.5, Michele: campo
+// "Ricollega i riferimenti in ingresso verso:" nel dialogo di conferma
+// eliminazione). Riscrive OGNI collegamento dell'intero libro che punta
+// a una delle scene in `daIds` verso `aId` — un solo bersaglio condiviso
+// per l'intera cancellazione, non uno per scena. Va chiamata PRIMA di
+// rimuovere le scene da `manifest.scenes`, altrimenti `aId` potrebbe
+// essere già sparito se coincide (per errore) con una delle `daIds`
+// (evitato a monte: il campo del dialogo esclude le scene in
+// cancellazione dai suggerimenti).
+fun ricollegaRiferimenti(manifest: Manifest, daIds: Set<String>, aId: String): Manifest {
+    fun remap(id: String): String = if (id in daIds) aId else id
+    fun remapNullable(id: String?): String? = id?.let(::remap)
+
+    return manifest.copy(
+        deathSceneId = remapNullable(manifest.deathSceneId),
+        globalRules = manifest.globalRules.map { it.copy(targetSceneId = remap(it.targetSceneId)) },
+        scenes = manifest.scenes.map { scene ->
+            scene.copy(
+                choices = scene.choices.map { it.copy(nextSceneId = remap(it.nextSceneId)) },
+                disciplineChoices = scene.disciplineChoices.map { it.copy(nextSceneId = remap(it.nextSceneId)) },
+                combat = scene.combat?.let { combat ->
+                    combat.copy(
+                        winSceneId = remap(combat.winSceneId),
+                        loseSceneId = remapNullable(combat.loseSceneId),
+                        evadeSceneId = remapNullable(combat.evadeSceneId),
+                    )
+                },
+            )
+        },
+    )
+}

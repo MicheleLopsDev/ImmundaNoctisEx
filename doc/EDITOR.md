@@ -888,7 +888,7 @@ invece che su un singolo nodo trovato. Utile sui libri grandi (350+
 scene, §17 issue #7) dove trovare a occhio un gruppo dopo averlo
 selezionato è scomodo.
 
-### 19.5 Ricollegamento opzionale alla cancellazione
+### 19.5 Ricollegamento opzionale alla cancellazione — FATTO (31/07/2026)
 
 Il dialogo di conferma eliminazione (§17.3) guadagna un campo
 opzionale: **"Ricollega i riferimenti in ingresso verso:"** (stesso
@@ -899,6 +899,14 @@ selezionate, ogni collegamento nell'intero libro che punta a una di
 esse viene riscritto verso la scena scelta — un solo bersaglio
 condiviso per l'intera cancellazione, non uno per scena (se servono
 bersagli diversi, si fanno cancellazioni separate).
+
+`ricollegaRiferimenti()` (`NuovaScena.kt`, pura, testata) copre TUTTI
+i collegamenti che `GraphValidator` conosce: `choices`,
+`disciplineChoices`, `combat.winSceneId`/`loseSceneId`/`evadeSceneId`,
+`manifest.deathSceneId`, `globalRules[].targetSceneId` — non solo
+scelte/combattimento. Il campo del dialogo esclude dai suggerimenti le
+scene in corso di cancellazione (non avrebbe senso ricollegarsi a una
+scena che sta per sparire).
 
 ### 19.6 Evidenziare le scene orfane — FATTO (31/07/2026)
 

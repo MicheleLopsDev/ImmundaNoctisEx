@@ -1,6 +1,11 @@
 package io.github.luposolitario.immundanoctisex.tool.editor
 
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
+import io.github.luposolitario.immundanoctisex.core.data.model.Combat
+import io.github.luposolitario.immundanoctisex.core.data.model.ComparisonOperator
+import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
+import io.github.luposolitario.immundanoctisex.core.data.model.GlobalRule
+import io.github.luposolitario.immundanoctisex.core.data.model.GlobalRuleType
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
@@ -67,5 +72,50 @@ class NuovaScenaTest {
         val vuota = scene("5")
         val risultato = conReteDiSicurezza(vuota, deathSceneId = null)
         assertEquals(vuota, risultato)
+    }
+
+    // §19.5: il ricollegamento riscrive OGNI tipo di collegamento del
+    // libro che punta a una scena eliminata, lasciando invariato tutto
+    // il resto.
+    @Test
+    fun ilRicollegamentoRiscriveChoiceDisciplineChoiceECombat() {
+        val bersaglio = scene("1", "2").copy(
+            disciplineChoices = listOf(DisciplineChoice("d1", "SIXTH_SENSE", "testo", nextSceneId = "2")),
+            combat = Combat(enemyName = "Nemico", enemyCombatSkill = 10, enemyEndurance = 10, winSceneId = "2", loseSceneId = "2", evadeSceneId = "2"),
+        )
+        val eliminata = scene("2")
+        val m = manifest(listOf(bersaglio, eliminata))
+
+        val risultato = ricollegaRiferimenti(m, daIds = setOf("2"), aId = "9")
+
+        val scenaRicollegata = risultato.scenes.first { it.id == "1" }
+        assertEquals("9", scenaRicollegata.choices.single().nextSceneId)
+        assertEquals("9", scenaRicollegata.disciplineChoices.single().nextSceneId)
+        assertEquals("9", scenaRicollegata.combat!!.winSceneId)
+        assertEquals("9", scenaRicollegata.combat!!.loseSceneId)
+        assertEquals("9", scenaRicollegata.combat!!.evadeSceneId)
+    }
+
+    @Test
+    fun ilRicollegamentoRiscriveDeathSceneIdEGlobalRules() {
+        val start = scene("1")
+        val m = manifest(listOf(start), deathSceneId = "morte").copy(
+            globalRules = listOf(GlobalRule(GlobalRuleType.FLAG, "vittoria", ComparisonOperator.EQ, "true", targetSceneId = "morte")),
+        )
+
+        val risultato = ricollegaRiferimenti(m, daIds = setOf("morte"), aId = "9")
+
+        assertEquals("9", risultato.deathSceneId)
+        assertEquals("9", risultato.globalRules.single().targetSceneId)
+    }
+
+    @Test
+    fun ilRicollegamentoNonToccaIRiferimentiVersoAltreScene() {
+        val invariata = scene("1", "3")
+        val m = manifest(listOf(invariata, scene("2"), scene("3")))
+
+        val risultato = ricollegaRiferimenti(m, daIds = setOf("2"), aId = "9")
+
+        assertEquals("3", risultato.scenes.first { it.id == "1" }.choices.single().nextSceneId)
     }
 }
