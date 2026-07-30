@@ -523,7 +523,96 @@ usa per le proprie impostazioni equivalenti
 (`NarrativeTonePreferences`/`FontPreferences`), senza però un
 `Context` Android a disposizione.
 
-## 17. Riferimenti
+## 17. Terza fase: gestione delle scene e cronologia (30/07/2026)
+
+Origine: Michele chiede un giro di miglioramenti sulla mappa, dopo
+aver notato (elenco proposto da Claude, poi discusso e approvato per
+intero) che mancava un modo rapido per cancellare/duplicare una
+scena, per riaprire un libro recente, e per tornare indietro da un
+salvataggio sbagliato senza dover armeggiare a mano con i file
+`.bakN` (§10). Stesso metodo delle altre sezioni: specifica prima,
+codice dopo.
+
+### 17.1 Eliminare una scena: tasto Canc e menu tasto destro
+
+- Oggi solo il pulsante **"🗑 Elimina scena"** nella barra strumenti,
+  attivo se una scena è selezionata (contorno blu).
+- **Tasto Canc** con una (o più, §17.3) scena selezionata produce lo
+  stesso effetto del pulsante — stessa conferma già esistente, nessun
+  comportamento nuovo da inventare.
+- **Tasto destro** su un nodo apre un menu contestuale con almeno
+  **"Elimina"** e **"Duplica"** (§17.2) — due punti d'ingresso in più
+  per un'azione che oggi esiste già, non un'azione nuova.
+
+### 17.2 Duplicare una scena
+
+- Dal menu tasto destro (§17.1): **"Duplica"** crea una copia della
+  scena selezionata con un nuovo ID auto-generato (stessa logica di
+  "+ Nuova scena": prossimo ID numerico libero), copiando TUTTI i
+  campi (testo, immagini, combattimento, scelte, scelte per
+  disciplina) così come sono — le scelte della copia puntano
+  inizialmente alle STESSE destinazioni dell'originale, da correggere
+  a mano se la copia deve portare altrove.
+- La copia NON eredita la rete di sicurezza delle scene nuove
+  (§9.3/§15.5): è considerata già esistente, non una scena "nuova" da
+  proteggere se resta senza collegamenti in uscita.
+- Si apre subito l'editor della copia (come per "+ Nuova scena"), per
+  poterla modificare senza dover ricliccare.
+- Con più scene selezionate (§17.3) il menu tasto destro NON offre
+  "Duplica" — resta un'azione a singola scena, duplicare un insieme
+  sarebbe ambiguo (quale ordine? quali collegamenti tra le copie?).
+
+### 17.3 Multi-selezione e cancellazione di gruppo
+
+- **Click semplice** su un nodo: selezione singola (comportamento di
+  oggi, invariato).
+- **Ctrl+click** su un nodo: aggiunge/rimuove quel nodo dall'insieme
+  selezionato, senza deselezionare gli altri.
+- **Tasto Canc** con più scene selezionate: le elimina tutte insieme,
+  con un'UNICA conferma che elenca gli ID coinvolti (non una conferma
+  per scena).
+- **Tasto Esc**: deseleziona tutto (oggi solo il click sullo sfondo
+  fuori da ogni nodo lo fa).
+- Quando la selezione multipla è attiva, la barra strumenti mostra un
+  contatore (es. **"3 scene selezionate"**) per non perdere il conto.
+
+### 17.4 Libri recenti
+
+- La schermata di Avvio (§5) memorizza (stessa tecnica di
+  `EditorPreferences`, §16.2: `java.util.prefs.Preferences`) un elenco
+  dei percorsi degli ultimi libri aperti/creati, mostrato come lista
+  cliccabile accanto ai due pulsanti esistenti.
+- Un percorso che non esiste più (file spostato o cancellato) non deve
+  bloccare l'avvio: va tolto dall'elenco silenziosamente (o mostrato
+  in grigio/non cliccabile), mai un errore a sorpresa.
+- Numero di voci da tenere: proposta 5-10, da fissare in fase di
+  implementazione — non serve renderlo configurabile come i livelli
+  di backup (§17.5), è un dettaglio minore.
+
+### 17.5 Annulla (torna all'ultimo backup) e livelli configurabili
+
+- Nuovo pulsante **"↩ Annulla"** nella barra strumenti della mappa
+  (vicino a "💾 Salva libro"): sostituisce il file corrente con
+  l'ultimo backup (`.bak1`, §10) e ricarica il libro da lì.
+- **Distruttivo per lo stato non salvato**: come l'eliminazione di una
+  scena, richiede un dialogo di conferma esplicito prima di procedere
+  — non un'azione silenziosa.
+- **Disabilitato se non esiste ancora un `.bak1`** per il libro
+  corrente in questa sessione (es. libro appena aperto, nessun
+  salvataggio ancora fatto): niente errore a sorpresa, il pulsante è
+  semplicemente non cliccabile.
+- Resta un singolo passo indietro (torna sempre e solo a `.bak1`), non
+  un vero undo multi-livello con cronologia sfogliabile — coerente con
+  la natura di "rete di sicurezza minima" già dichiarata in §10, non
+  un sistema di versioning completo.
+- **Numero di livelli di backup configurabile**: oggi fisso a 5
+  (`BookStorage.kt`, `MAX_BACKUP`); diventa un'impostazione nella
+  schermata Impostazioni (§16), stessa persistenza di tema/font/scala
+  testo, con un intervallo **3-9** livelli (default invariato: 5).
+  Cambiare il valore non tocca i backup già scritti con l'impostazione
+  precedente, si applica dal salvataggio successivo.
+
+## 18. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per
   scrivere libri (Michele e suo figlio): cosa vedi e cosa clicchi,

@@ -2573,6 +2573,21 @@ libri si aprono sempre a runtime tramite il selettore file nativo,
 non vengono mai incorporati come risorsa nel build. Nessuna
 correzione necessaria alla release già pubblicata.
 
+**Terza fase editor: gestione scene e cronologia — specifica (§17,
+`doc/EDITOR.md`, 30/07/2026)**: Michele chiede un giro di migliorie
+dopo aver visto l'elenco di osservazioni proposto da Claude, le
+approva tutte tranne il rinomino ID (scartato di comune accordo: un
+ID auto-generato numerico non ha un nome semantico da preservare,
+nessun beneficio reale). Scritta la specifica prima del codice, stesso
+metodo del giro §15: eliminare/duplicare una scena dal tasto destro
++ tasto Canc, multi-selezione con Ctrl+click e cancellazione di
+gruppo con un'unica conferma, libri recenti sull'Avvio, e un
+"↩ Annulla" che torna all'ultimo backup (`.bak1`) con conferma
+esplicita (distruttivo per lo stato non salvato) e disabilitato se
+non esiste ancora un backup in questa sessione. Livelli di backup
+(oggi fissi a 5) diventano configurabili 3-9 nelle Impostazioni
+esistenti (§16), non un posto nuovo. Prossimo passo: implementazione.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
