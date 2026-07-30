@@ -204,7 +204,11 @@ Pulsante **"🔗 Risorse url:"** — apre un pannello con tre elenchi:
    registri un suono nuovo, il campo accetta sia un **suono già
    pronto** dell'app (scrivi `static:` e poi il nome del luogo, es.
    `static:loc_tavern` — comparirà un suggerimento cliccabile) sia un
-   **link tuo** (`url:https://...`).
+   **link tuo** (`url:https://...`). Un libro **nuovo** parte già con
+   tutta la libreria dei suoni bundlati pronta all'uso (nessuna
+   registrazione manuale necessaria); su un libro più vecchio, se
+   mancano ancora alcune voci compare un pulsante **"+ Aggiungi tutti
+   i suoni del catalogo"** che le aggiunge tutte in un click.
 
 Quando scrivi un'immagine/suono nella scheda di una scena, puoi
 scegliere tra due modi: un **ID già pronto** del catalogo dell'app

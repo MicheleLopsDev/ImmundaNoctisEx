@@ -1,6 +1,7 @@
 package io.github.luposolitario.immundanoctisex.tool.editor
 
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
+import io.github.luposolitario.immundanoctisex.core.data.model.CustomResources
 import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
@@ -34,6 +35,13 @@ fun creaManifestNuovo(titolo: String, genere: String, toneHints: List<String>, s
         disciplineChoices = defaultDisciplineDescriptors(),
         deathSceneId = "morte",
         scenes = scene + sceneMorte(),
+        // §18.4 (Michele: "mi crei per default già tutti gli id per i
+        // suoni statici presenti nel apk così c'è già una libreria di
+        // suoni"): un libro nuovo parte con l'intera libreria di suoni
+        // di location già bundlati, pronta per essere scelta in
+        // Scene.sfx senza dover registrare nulla a mano — restano da
+        // creare solo i suoni personalizzati legati a un url.
+        customResources = CustomResources(sounds = suoniStaticiDiDefault()),
     )
 }
 

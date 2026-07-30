@@ -680,11 +680,7 @@ fun MapScreen(
                         // "static:<location>" — riusa i suoni ambientali
                         // già bundlati, così Scene.sfx punta sempre solo
                         // a un ID senza sapere cosa c'è dietro.
-                        val suoniStaticiDisponibili = remember {
-                            StaticResourceCatalog.registry.locations
-                                .filter { StaticResourceCatalog.percorsoSuono(it.id) != null }
-                                .map { it.id }
-                        }
+                        val suoniStaticiDisponibili = remember { suoniStaticiDiDefault().map { it.id } }
                         SezioneRisorsePersonalizzate(
                             titolo = "Suoni personalizzati",
                             voci = manifest.customResources.sounds,
@@ -693,6 +689,28 @@ fun MapScreen(
                             },
                             suggerimentiRisorseStatiche = suoniStaticiDisponibili,
                         )
+                        // §18.4 (Michele: "mi crei per default già tutti
+                        // gli id per i suoni statici presenti nel apk"):
+                        // per i libri creati PRIMA di questa modifica (o
+                        // aperti da fuori l'editor), un pulsante fa la
+                        // stessa cosa in un click — solo le voci che
+                        // mancano ancora, non tocca quelle già presenti
+                        // (magari modificate a mano nel frattempo).
+                        val idGiaRegistrati = remember(manifest) { manifest.customResources.sounds.map { it.id }.toSet() }
+                        val vociMancanti = remember(idGiaRegistrati) {
+                            suoniStaticiDiDefault().filter { it.id !in idGiaRegistrati }
+                        }
+                        if (vociMancanti.isNotEmpty()) {
+                            TextButton(onClick = {
+                                onManifestCambiato(
+                                    manifest.copy(
+                                        customResources = manifest.customResources.copy(
+                                            sounds = manifest.customResources.sounds + vociMancanti,
+                                        ),
+                                    ),
+                                )
+                            }) { Text("+ Aggiungi tutti i suoni del catalogo (${vociMancanti.size})") }
+                        }
                     }
                     Spacer(Modifier.height(8.dp))
                     Button(

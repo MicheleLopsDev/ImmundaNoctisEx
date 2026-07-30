@@ -1,5 +1,7 @@
 package io.github.luposolitario.immundanoctisex.tool.editor
 
+import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
+import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -68,3 +70,18 @@ object StaticResourceCatalog {
     // copia): null è il caso normale, non un errore.
     fun percorsoSuono(id: String): URL? = javaClass.classLoader.getResource("sounds/$id.mp3")
 }
+
+// Libreria di suoni pronta all'uso (§18.4, Michele: "mi crei per default
+// già tutti gli id per i suoni statici presenti nel apk così c'è già una
+// libreria di suoni e si devono creare solo quelli custom legati agli
+// url"): una voce di customResources.sounds per ogni location che ha
+// DAVVERO un mp3 bundlato — id uguale all'ID della location stessa
+// (nessuno schema di nomi nuovo da inventare: è già l'ID canonico,
+// prevedibile per chiunque legga il JSON), valore "static:<stesso id>".
+// Usata sia alla creazione di un libro nuovo (BookScaffolds.kt) sia dal
+// pulsante "+ Aggiungi tutti i suoni del catalogo" nel pannello risorse
+// (MapScreen.kt) per i libri già esistenti.
+fun suoniStaticiDiDefault(): List<CustomResourceEntry> =
+    StaticResourceCatalog.registry.locations
+        .filter { StaticResourceCatalog.percorsoSuono(it.id) != null }
+        .map { CustomResourceEntry(id = it.id, url = "${ImageReference.STATIC_PREFIX}${it.id}") }

@@ -712,6 +712,27 @@ meccanismi paralleli:
   — stesso controllo già fatto sui campi immagine della scena, riusato
   qui.
 
+### 18.5 Libreria di suoni statici già pronta (30/07/2026, terzo giro)
+
+Michele: "mi crei per default già tutti gli id per i suoni statici
+presenti nel apk così c'è già una libreria di suoni e si devono
+creare solo quelli custom legati agli url". Nuova funzione
+`suoniStaticiDiDefault()` (`StaticResourceCatalog.kt`): una voce di
+`customResources.sounds` per OGNI location che ha davvero un mp3
+bundlato (`StaticResourceCatalog.percorsoSuono(id) != null`) — `id`
+uguale all'ID della location stessa (nessuno schema di nomi nuovo:
+è già l'ID canonico, prevedibile per chiunque legga il JSON), valore
+`"static:<stesso id>"`.
+
+- **Libro nuovo** (`creaManifestNuovo`, `BookScaffolds.kt`): parte già
+  con l'intera libreria — nessuna registrazione manuale necessaria per
+  i suoni bundlati, restano da creare solo quelli personalizzati
+  legati a un `url:`.
+- **Libro già esistente**: un pulsante **"+ Aggiungi tutti i suoni del
+  catalogo"** nel pannello "Risorse del libro" (visibile solo se
+  mancano ancora voci), che aggiunge solo quelle NON già presenti —
+  non tocca voci esistenti eventualmente già modificate a mano.
+
 ## 19. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per

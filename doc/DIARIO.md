@@ -2746,6 +2746,22 @@ un URL nudo per i suoni, ora richiede il prefisso).
 
 `:core:data:jvmTest` e `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Libreria di suoni statici già pronta (30/07/2026, terzo giro,
+Michele: "mi crei per default già tutti gli id per i suoni statici
+presenti nel apk così c'è già una libreria di suoni e si devono
+creare solo quelli custom legati agli url")**: nuova
+`suoniStaticiDiDefault()` (`StaticResourceCatalog.kt`) — una voce di
+`customResources.sounds` per ogni location con un mp3 bundlato
+davvero (`percorsoSuono(id) != null`), `id` uguale all'ID della
+location (nessuno schema di nomi nuovo, decisione di Claude: già l'ID
+canonico, prevedibile). Un libro nuovo (`creaManifestNuovo`) parte
+con l'intera libreria già dentro; un libro già esistente guadagna un
+pulsante "+ Aggiungi tutti i suoni del catalogo (N)" nel pannello
+risorse, visibile solo se mancano ancora voci e che non tocca quelle
+già presenti (magari modificate a mano). `:tool:compileKotlin`/
+`:tool:test` verdi, incluso `BookScaffoldsTest` (il libro risultante
+resta valido con la libreria già dentro).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
