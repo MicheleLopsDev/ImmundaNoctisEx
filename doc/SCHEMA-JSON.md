@@ -67,7 +67,7 @@ documento, elenco completo in §11).
 | `disciplineChoices` | array di `DisciplineDescriptor` | no | `[]` | Il catalogo delle discipline Kai proposte in creazione personaggio (vedi §3). |
 | `globalRules` | array di `GlobalRule` | no | `[]` | Regole condizione → destinazione valutate a ogni cambio scena (vedi §7). |
 | `scenes` | array di `Scene` | no | `[]` | Tutte le scene del libro (vedi §4). In pratica sempre presente e non vuoto. |
-| `customResources` | `CustomResources` | no | `{"images":[],"sounds":[]}` | Risorse `url:` registrate dall'autore per QUESTO libro (§15.7, `doc/EDITOR.md`) — comodità per l'editor grafico, il motore di gioco non lo legge mai: una scena salva sempre `"url:https://..."` per intero, questo campo esiste solo per non dover riscrivere lo stesso link più volte durante la scrittura. `images`/`sounds` sono liste di `{"id": "...", "url": "..."}`; un ID duplicato all'interno della stessa lista è un avviso di validazione, non un errore. |
+| `customResources` | `CustomResources` | no | `{"images":[],"sounds":[]}` | Risorse registrate dall'autore per QUESTO libro (§15.7/§18.4, `doc/EDITOR.md`). `images`/`sounds` sono liste di `{"id": "...", "url": "..."}`; un ID duplicato all'interno della stessa lista è un avviso di validazione, non un errore. **Ruolo diverso tra le due liste** (30/07/2026): `images` resta solo comodità per l'editor — il motore di gioco non la legge mai, una scena salva sempre `"url:https://..."` risolto per intero, il campo `url` qui è sempre un link nudo senza prefisso. `sounds` invece è letto DAVVERO dal motore per risolvere `Scene.sfx` (§4.4): il suo campo `url` porta il prefisso `static:`/`url:` (§4.2), perché una scena non salva mai il suono risolto — rimanda sempre e solo all'`id` di una voce qui. |
 
 Esempio minimo:
 
@@ -226,26 +226,48 @@ esplicito nell'editor prima di poterlo usare in una scena, e riusare
 lo stesso `id` su più scene evita di duplicare inutilmente la stessa
 risorsa in cache lato client.
 
+La voce del registro a cui `sfx` rimanda può valere **una delle due
+forme già note** (§4.2), a scelta di chi scrive il libro:
+
+- **`"static:<id_location>"`** — riusa un suono ambientale GIÀ
+  bundlato nell'app, associato oggi a una location (`doc/
+  SUONI-IMMAGINI.md`). Permette di dare a una scena il suono di una
+  location diversa da quella del proprio `backgroundImage`.
+- **`"url:<http/https>"`** — mp3 scelto liberamente dall'autore,
+  scaricato a runtime (quando il client lo supporterà, vedi nota
+  sotto).
+
 ```json
 "customResources": {
-  "sounds": [ { "id": "campana_a_morto", "url": "https://..." } ]
+  "sounds": [
+    { "id": "campana_a_morto", "url": "url:https://..." },
+    { "id": "atmosfera_taverna", "url": "static:loc_tavern" }
+  ]
 },
 "scenes": [
-  { "id": "12", "sfx": "campana_a_morto", "...": "..." }
+  { "id": "12", "sfx": "campana_a_morto", "...": "..." },
+  { "id": "13", "sfx": "atmosfera_taverna", "...": "..." }
 ]
 ```
 
 **Comportamento**:
-- `null` (default, tutti i libri di oggi) — nessun cambiamento: il
-  gioco continua a cercare un suono ambientale associato al nome
-  dell'immagine `static:` di sfondo, come sempre.
-- Valorizzato — **sostituisce del tutto** quella ricerca automatica,
-  anche se la scena usa comunque un'immagine `static:`.
+- `Scene.sfx` è `null` (default, tutti i libri di oggi) — nessun
+  cambiamento: il gioco continua a cercare un suono ambientale
+  associato al nome dell'immagine `static:` di sfondo, come sempre.
+- `Scene.sfx` valorizzato — **sostituisce del tutto** quella ricerca
+  automatica, anche se la scena usa comunque un'immagine `static:`.
+  `Scene.sfx` punta SEMPRE e solo a un `id` di `customResources.sounds`
+  — mai direttamente un `static:`/`url:`, quella distinzione vive
+  dentro la voce del registro, non nel campo della scena.
 
-**Validazione**: un `sfx` che non corrisponde a nessun `id` in
-`customResources.sounds` è un **errore bloccante** (`SfxValidator`,
-`core:data`), non un avviso — un riferimento silenziosamente ignorato
-sarebbe peggiore di un blocco esplicito in fase di validazione.
+**Validazione** (`core:data`), tutti errori bloccanti, non avvisi:
+- Un `Scene.sfx` che non corrisponde a nessun `id` in
+  `customResources.sounds` (`SfxValidator`) — un riferimento
+  silenziosamente ignorato sarebbe peggiore di un blocco esplicito.
+- Una voce di `customResources.sounds` il cui `url` non ha il
+  prefisso `static:`/`url:`, o usa uno schema diverso da `http`/`https`
+  (`CustomResourcesValidator`) — stesso controllo già fatto per
+  `backgroundImage`/`npcImage`/`combat.enemyImage` (§4.2), riusato qui.
 
 **Nota**: al momento della scrittura di questa sezione, il motore di
 gioco (`:app`) non sa ancora scaricare/mettere in cache un mp3 da

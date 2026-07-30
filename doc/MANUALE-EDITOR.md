@@ -200,7 +200,11 @@ Pulsante **"🔗 Risorse url:"** — apre un pannello con tre elenchi:
    nessuna scena; stesso **"✎"**/**"✕"**, più un modulo per
    aggiungerne di nuove (campi **"ID"** e **"https://..."**, pulsante
    **"+ Aggiungi"**).
-3. **Suoni personalizzati** — stessa cosa, per l'audio.
+3. **Suoni personalizzati** — stessa cosa, per l'audio: quando
+   registri un suono nuovo, il campo accetta sia un **suono già
+   pronto** dell'app (scrivi `static:` e poi il nome del luogo, es.
+   `static:loc_tavern` — comparirà un suggerimento cliccabile) sia un
+   **link tuo** (`url:https://...`).
 
 Quando scrivi un'immagine/suono nella scheda di una scena, puoi
 scegliere tra due modi: un **ID già pronto** del catalogo dell'app
@@ -227,6 +231,14 @@ all'altra non perde le modifiche fatte).
   cliccando più volte; si interrompe da solo se chiudi la scena).
 - **"Ritratto NPC (static:id o url:...)"** — l'immagine di un
   personaggio, se la scena ne ha uno.
+- **"Effetto sonoro personalizzato"** — un menu a tendina, diverso dai
+  campi immagine sopra: qui NON puoi scrivere un link a mano, solo
+  scegliere tra i suoni che hai già registrato nel pannello "Risorse
+  del libro" (§5.5). Se non hai ancora registrato nessun suono, un
+  messaggio te lo ricorda invece di mostrare un menu vuoto. Se scelto,
+  **sostituisce del tutto** il suono automatico legato all'immagine di
+  sfondo — utile per dare a una scena un'atmosfera diversa da quella
+  che l'immagine suggerirebbe da sola.
 - **Combattimento** — pulsante **"+ Aggiungi combattimento"** (diventa
   **"✕ Rimuovi combattimento"**): se attivo, compaiono i campi nome
   nemico, immagine, Combattività, Resistenza, scena se vinci, scena se

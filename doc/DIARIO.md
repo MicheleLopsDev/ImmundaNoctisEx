@@ -2718,6 +2718,34 @@ arriverà lì (non facoltativo come il resto di quella sezione).
 `:app:testDebugUnitTest` tutti verdi — nessuna regressione sui libri
 esistenti (`sfx` è `null` di default).
 
+**`sfx` — secondo giro di design (30/07/2026, Michele: "diamo la
+possibilità di associare una risorsa statica come mp3... la chiave
+può essere una risorsa scaricabile oppure un file mp3 statico")**:
+ripensamento che semplifica il primo giro invece di aggiungere un
+meccanismo parallelo. Prima proposta di Claude: due forme separate
+per `Scene.sfx` stesso (`static:<id>` vs ID nudo per il registro).
+Michele la migliora: **un solo registro** (`customResources.sounds`),
+dove ogni VOCE può valere `static:<id>` o `url:<link>` — `Scene.sfx`
+resta sempre e solo un ID nudo verso quel registro, senza mai sapere
+cosa c'è dietro. Confermato con Michele prima di toccare codice
+("questo che stiamo dicendo giusto?").
+
+Implementato: `SfxValidator` non cambia (già corretto per il nuovo
+design: valida solo che l'ID esista). Nuovo controllo in
+`CustomResourcesValidator` — una voce di `customResources.sounds`
+deve avere il prefisso `static:`/`url:` (riusa `ImageReference.parse`,
+nome fuorviante ma logica identica, nessun refactor per un solo
+riuso). Editor: `SezioneRisorsePersonalizzate` (pannello "Risorse del
+libro") guadagna un parametro opzionale che, solo per i suoni, mostra
+suggerimenti cliccabili dei suoni di location già bundlati (`static:
+<id>`, filtrati da `StaticResourceCatalog.percorsoSuono(id) != null`)
+accanto alla possibilità di scrivere un `url:` a mano — stesso
+pattern di suggerimento già usato altrove, nessun componente nuovo.
+Corretti anche i fixture dei test scritti nel giro precedente (usavano
+un URL nudo per i suoni, ora richiede il prefisso).
+
+`:core:data:jvmTest` e `:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

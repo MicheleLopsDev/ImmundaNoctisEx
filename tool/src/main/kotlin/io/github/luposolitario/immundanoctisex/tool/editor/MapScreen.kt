@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.tool.editor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -670,12 +671,27 @@ fun MapScreen(
                             },
                         )
                         Spacer(Modifier.height(16.dp))
+                        // §18.4 (Michele: "puoi associare un url vero e
+                        // proprio oppure una risorsa statica presente nel
+                        // apk... avrai un id univoco che userai
+                        // indipendentemente dal tipo richiamato"): a
+                        // differenza delle immagini (sempre un url nudo),
+                        // un suono personalizzato può valere anche
+                        // "static:<location>" — riusa i suoni ambientali
+                        // già bundlati, così Scene.sfx punta sempre solo
+                        // a un ID senza sapere cosa c'è dietro.
+                        val suoniStaticiDisponibili = remember {
+                            StaticResourceCatalog.registry.locations
+                                .filter { StaticResourceCatalog.percorsoSuono(it.id) != null }
+                                .map { it.id }
+                        }
                         SezioneRisorsePersonalizzate(
                             titolo = "Suoni personalizzati",
                             voci = manifest.customResources.sounds,
                             onCambia = { nuoveVoci ->
                                 onManifestCambiato(manifest.copy(customResources = manifest.customResources.copy(sounds = nuoveVoci)))
                             },
+                            suggerimentiRisorseStatiche = suoniStaticiDisponibili,
                         )
                     }
                     Spacer(Modifier.height(8.dp))
@@ -1285,15 +1301,23 @@ private fun SezioneRisorsePersonalizzate(
     titolo: String,
     voci: List<CustomResourceEntry>,
     onCambia: (List<CustomResourceEntry>) -> Unit,
+    // §18.4: solo per i suoni — quando non vuoto, il campo valore
+    // accetta anche "static:<id>" (riferimento a un suono già bundlato)
+    // oltre a un url: scritto a mano, con suggerimenti cliccabili sotto
+    // il campo. Vuoto (default, caso immagini) = comportamento invariato
+    // di sempre, solo un url nudo.
+    suggerimentiRisorseStatiche: List<String> = emptyList(),
 ) {
     var nuovoId by remember { mutableStateOf("") }
     var nuovoUrl by remember { mutableStateOf("") }
     var idInModifica by remember { mutableStateOf<String?>(null) }
+    var mostraSuggerimentiStatici by remember { mutableStateOf(false) }
 
     fun annullaModifica() {
         idInModifica = null
         nuovoId = ""
         nuovoUrl = ""
+        mostraSuggerimentiStatici = false
     }
 
     Text(titolo, style = MaterialTheme.typography.titleMedium)
@@ -1322,13 +1346,44 @@ private fun SezioneRisorsePersonalizzate(
             modifier = Modifier.weight(1f),
             singleLine = true,
         )
-        OutlinedTextField(
-            value = nuovoUrl,
-            onValueChange = { nuovoUrl = it },
-            label = { Text("https://...") },
-            modifier = Modifier.weight(2f),
-            singleLine = true,
-        )
+        Column(modifier = Modifier.weight(2f)) {
+            OutlinedTextField(
+                value = nuovoUrl,
+                onValueChange = {
+                    nuovoUrl = it
+                    if (suggerimentiRisorseStatiche.isNotEmpty()) mostraSuggerimentiStatici = it.isNotBlank()
+                },
+                label = { Text(if (suggerimentiRisorseStatiche.isNotEmpty()) "static:<id> oppure url:<link>" else "https://...") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+            )
+            if (mostraSuggerimentiStatici) {
+                val termine = nuovoUrl.removePrefix(ImageReference.STATIC_PREFIX)
+                val corrispondenze = suggerimentiRisorseStatiche.filter { it.contains(termine, ignoreCase = true) }.take(6)
+                if (corrispondenze.isNotEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                    ) {
+                        corrispondenze.forEach { id ->
+                            Text(
+                                "${ImageReference.STATIC_PREFIX}$id",
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        nuovoUrl = "${ImageReference.STATIC_PREFIX}$id"
+                                        mostraSuggerimentiStatici = false
+                                    }
+                                    .padding(8.dp),
+                            )
+                        }
+                    }
+                }
+            }
+        }
         Button(onClick = {
             if (nuovoId.isNotBlank() && nuovoUrl.isNotBlank()) {
                 val idOriginale = idInModifica

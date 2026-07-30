@@ -218,14 +218,39 @@ class PackageValidatorTest {
     }
 
     @Test
-    fun unSfxRegistratoInCustomResourcesNonDaErrori() {
+    fun unSfxRegistratoConUnUrlNonDaErrori() {
         val libro = manifest(listOf(scene("1", SceneType.START).copy(sfx = "mio_suono"))).copy(
-            customResources = CustomResources(sounds = listOf(CustomResourceEntry("mio_suono", "https://example.invalid/a.mp3"))),
+            customResources = CustomResources(sounds = listOf(CustomResourceEntry("mio_suono", "url:https://example.invalid/a.mp3"))),
         )
 
         val result = PackageValidator.validate(libro)
 
         assertTrue(result.errors.isEmpty())
+    }
+
+    @Test
+    fun unSfxRegistratoConUnaRisorsaStaticaNonDaErrori() {
+        // §18.4 (Michele: "puoi associare... una risorsa statica presente
+        // nel apk"): la voce del registro può valere anche static:<id>,
+        // non solo url: — Scene.sfx punta comunque solo all'ID.
+        val libro = manifest(listOf(scene("1", SceneType.START).copy(sfx = "mio_suono"))).copy(
+            customResources = CustomResources(sounds = listOf(CustomResourceEntry("mio_suono", "static:loc_tavern"))),
+        )
+
+        val result = PackageValidator.validate(libro)
+
+        assertTrue(result.errors.isEmpty())
+    }
+
+    @Test
+    fun unaVoceSuoniSenzaPrefissoVieneRigettata() {
+        val libro = manifest(listOf(scene("1", SceneType.START))).copy(
+            customResources = CustomResources(sounds = listOf(CustomResourceEntry("mio_suono", "https://example.invalid/a.mp3"))),
+        )
+
+        val result = PackageValidator.validate(libro)
+
+        assertTrue(result.errors.any { it.contains("mio_suono") && it.contains("prefisso") })
     }
 
     @Test

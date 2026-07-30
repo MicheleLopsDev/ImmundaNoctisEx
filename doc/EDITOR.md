@@ -680,6 +680,38 @@ tecnici — entrambi richiedono che il client impari a scaricare/mettere
 in cache risorse da `url:`) invece di farlo due volte in due sessioni
 separate.
 
+### 18.4 Il registro: un suono può essere `url:` o `static:` (30/07/2026, secondo giro)
+
+Ripensandoci, Michele affina §18.1: invece di riservare `sfx`
+esclusivamente ai suoni scaricabili, anche un suono **già bundlato
+nell'app** (uno di quelli associati oggi a una location, §15.6) deve
+essere selezionabile — ma sempre attraverso una registrazione
+esplicita, mai implicita. Il design finale, più semplice di due
+meccanismi paralleli:
+
+- Non cambia nulla su `Scene.sfx` (§18.1): resta sempre e solo un
+  `id` verso `customResources.sounds`.
+- Cambia invece cosa può contenere una **voce del registro**: il suo
+  campo `url` porta ora il prefisso `static:`/`url:` (stessa
+  convenzione di `backgroundImage`, §4.2 `doc/SCHEMA-JSON.md`) invece
+  di essere sempre un link nudo come per le immagini — `"static:
+  loc_tavern"` riusa un suono di location già bundlato, `"url:
+  https://..."` un mp3 scelto dall'autore.
+- **Perché non tocca le immagini**: lì il registro è solo un
+  promemoria, la scena risolve subito il valore vero (§15.7). Qui
+  invece la scena rimanda per sempre all'ID, quindi la voce deve
+  portare l'informazione completa su cosa c'è dietro.
+- **Editor**: la sezione "Suoni personalizzati" del pannello "Risorse
+  del libro" (§15.7) guadagna suggerimenti cliccabili (stesso pattern
+  di `CampoImmagineConAnteprima`) per i suoni di location già
+  bundlati, oltre a poter scrivere un `url:` a mano — stessa
+  componente riusata, non una nuova.
+- **Validazione**: `CustomResourcesValidator` (già esistente) rifiuta
+  con un errore una voce di `customResources.sounds` senza prefisso
+  riconosciuto, o con uno schema diverso da `http`/`https` per `url:`
+  — stesso controllo già fatto sui campi immagine della scena, riusato
+  qui.
+
 ## 19. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per
