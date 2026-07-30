@@ -83,6 +83,41 @@ prompt. È il pezzo più grande e meno definito di questa milestone:
 **serve prima una specifica dedicata** (come già deciso), non si parte
 dal codice — piano ancora da ricevere da Michele.
 
+### 4. Interazioni avanzate sulla mappa (`doc/EDITOR.md` §19, 30/07/2026)
+
+Giro nato da un confronto diretto con Michele su cosa manca ancora
+all'editor, non da un debito già noto — proposto e affinato insieme
+prima di scrivere codice, stesso metodo delle fasi precedenti. Sette
+voci, ciascuna una GitHub Issue a parte:
+
+1. **[#9](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/9)
+   Legare/rimuovere un legame diretto** tra due scene selezionate
+   (§19.1) — dal menu tasto destro, senza aprire la scheda di
+   nessuna delle due.
+2. **[#10](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/10)
+   Duplicare un gruppo** mantenendo i collegamenti interni (§19.2).
+3. **[#11](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/11)
+   Trascinare un gruppo** di scene insieme (§19.3).
+4. **[#12](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/12)
+   Centrare la vista sulla selezione** (§19.4).
+5. **[#13](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/13)
+   Ricollegamento opzionale** alla cancellazione, verso una scena
+   scelta invece di lasciare riferimenti rotti (§19.5).
+6. **[#14](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/14)
+   Evidenziare scene orfane e vicoli ciechi** sulla mappa (§19.6 +
+   §19.7, stesso tipo di segnalazione visiva).
+7. **[#15](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/15)
+   Esportare la mappa come immagine PNG** (§19.8) — valutata anche
+   la stampa vera multipagina, sensibilmente più complessa
+   (impaginazione su più fogli per un libro grande): PNG copre la
+   maggior parte dei casi d'uso reali con uno sforzo molto minore.
+
+**Bassa priorità esplicita, non in questo giro** (§19.9): salti minimi
+START→scena/scena→END più vicina (tecnicamente economico, un BFS —
+rimandato su richiesta di Michele, non per difficoltà) e stampa
+multipagina vera (solo se emerge una libreria Kotlin/JVM che
+semplifichi l'impaginazione).
+
 ## Cosa NON entra (per ora)
 
 - Immagini animate GIF/WebP (`doc/UPGRADE.md` §7) — Michele ha già

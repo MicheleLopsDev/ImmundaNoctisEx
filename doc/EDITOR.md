@@ -804,7 +804,143 @@ direttamente come URL di rete. Nessun suono registrato o riferimento
 non risolvibile (caso raro, es. voce corrotta) = pulsante assente,
 niente errore a schermo.
 
-## 19. Riferimenti
+## 19. Quarta fase: interazioni avanzate sulla mappa (30/07/2026)
+
+Origine: dopo il controllo delle ultime feature, Michele chiede spunti
+su cosa manca ancora all'editor. Proposta un'idea concreta (legare due
+scene direttamente dalla mappa), discussa e ampliata insieme in più
+giri prima di scrivere codice — stesso metodo delle fasi precedenti
+(§15/§17/§18).
+
+### 19.1 Legare/rimuovere un legame diretto tra due scene
+
+Con **esattamente due scene selezionate** (Ctrl+click, §17.3), il menu
+tasto destro (§17.1) aggiunge, per ciascuna delle due direzioni:
+
+- **"Lega scena X→Y"** — se NON esiste già un collegamento X→Y: crea
+  una `Choice` ordinaria in X con `nextSceneId = Y` e un testo
+  segnaposto (es. "Vai avanti..."), da correggere a mano. Non apre
+  l'editor della scena (a differenza di "+ Nuova scena"/"Duplica"):
+  con due scene già esistenti, aprire quale delle due sarebbe
+  arbitrario.
+- **"Rimuovi legame X→Y"** — se il collegamento esiste già: toglie
+  TUTTE le `Choice` di X che puntano a Y (di norma una sola).
+
+Con più o meno di due scene selezionate, questa parte del menu non
+compare — restano solo "Duplica"/"Elimina" come oggi.
+
+**Deliberatamente fuori perimetro**: scelte per disciplina (serve
+scegliere quale disciplina, non sta in un click) e collegamenti di
+combattimento (vinci/perdi/fuggi, legati a un blocco combattimento
+specifico) — restano da fare dentro la scheda della scena come oggi.
+
+### 19.2 Duplicare un gruppo mantenendo i collegamenti interni
+
+Con 2+ scene selezionate, il menu tasto destro guadagna **"Duplica
+gruppo"**: copia ogni scena selezionata con un nuovo ID (stessa
+allocazione sequenziale di "+ Nuova scena", tutti gli ID nuovi
+riservati insieme per evitare collisioni tra loro).
+
+- Un collegamento (scelta, scelta-disciplina, combattimento) che punta
+  a un'altra scena **DENTRO** il gruppo duplicato viene remappato al
+  nuovo ID corrispondente — il gruppo duplicato resta internamente
+  coerente, un blocco a sé.
+- Un collegamento che punta **FUORI** dal gruppo resta invariato,
+  verso la scena originale — non viene duplicata anche quella.
+- Nessuna rete di sicurezza (come la duplica singola, §17.2): non è
+  una scena "nuova" in quel senso.
+- Non apre automaticamente un editor (potrebbero essere molte scene):
+  il gruppo appena creato diventa la nuova selezione sulla mappa,
+  pronto per essere spostato/ispezionato subito.
+
+### 19.3 Trascinare un gruppo insieme
+
+Con 2+ scene selezionate, iniziare a trascinare un nodo **che fa parte
+della selezione** sposta tutto il gruppo insieme, mantenendo le
+posizioni relative — utile per riorganizzare un blocco senza spostare
+nodo per nodo. Trascinare un nodo **non selezionato** continua a
+spostare solo quello, come oggi (non entra implicitamente a far parte
+del gruppo).
+
+### 19.4 Centrare la vista sulla selezione
+
+Nuovo pulsante (barra strumenti, attivo con 1+ scene selezionate):
+calcola il rettangolo che contiene tutte le scene selezionate e
+regola pan/zoom per inquadrarle — stessa idea del centraggio già
+usato dalla ricerca (§5.3/§6.1) ma sul rettangolo di un insieme
+invece che su un singolo nodo trovato. Utile sui libri grandi (350+
+scene, §17 issue #7) dove trovare a occhio un gruppo dopo averlo
+selezionato è scomodo.
+
+### 19.5 Ricollegamento opzionale alla cancellazione
+
+Il dialogo di conferma eliminazione (§17.3) guadagna un campo
+opzionale: **"Ricollega i riferimenti in ingresso verso:"** (stesso
+`DestinazioneField` con suggerimenti già usato altrove), vuoto di
+default = comportamento di oggi invariato (i riferimenti restano
+rossi, non corretti). Se valorizzato: PRIMA di rimuovere le scene
+selezionate, ogni collegamento nell'intero libro che punta a una di
+esse viene riscritto verso la scena scelta — un solo bersaglio
+condiviso per l'intera cancellazione, non uno per scena (se servono
+bersagli diversi, si fanno cancellazioni separate).
+
+### 19.6 Evidenziare le scene orfane
+
+Le scene non raggiungibili da START (`GraphNode.level == Int.MAX_VALUE`,
+già identificate internamente da `buildSceneGraph` per la loro
+posizione nell'ultimo livello della griglia) guadagnano un segno
+distintivo in più sulla mappa (es. bordo tratteggiato) — oggi si notano
+solo indirettamente dalla posizione, non c'è un modo per trovarle a
+colpo d'occhio su un libro grande.
+
+### 19.7 Segnalare i vicoli ciechi
+
+Una scena `TRANSITION` con `outgoingSceneIds()` vuoto (`SceneGraph.kt`:
+nessuna scelta, nessuna scelta-disciplina, nessun combattimento) è un
+vicolo cieco — il giocatore ci resta bloccato, a meno di un salto
+d'ufficio da `gameMechanics`/`globalRules` che il grafo visivo non
+modella (stesso limite già esistente di `buildSceneGraph`, non un
+limite nuovo introdotto qui). Segnalata sulla mappa (segno distintivo
+come le orfane, §19.6) e/o come nuovo **avviso** (non errore: può
+essere intenzionale se coperto da una regola globale) in
+`PackageValidator`.
+
+### 19.8 Esportare la mappa come immagine PNG
+
+Nuovo pulsante **"🖼 Esporta come immagine"**: disegna l'INTERA mappa
+logica (tutti i nodi e gli archi, indipendentemente da pan/zoom/
+riquadro visibile corrente) su un'immagine, salvata tramite lo stesso
+selettore file nativo già usato per "Salva con nome" (§5.4). Riusa la
+stessa logica di disegno di nodi/archi già scritta per lo schermo,
+adattata per un output "a schermo intero" invece che ritagliato al
+riquadro visibile.
+
+**Perché solo PNG e non una stampa vera**: valutata la differenza di
+difficoltà con Michele — un'immagine esportabile è fattibile con
+sforzo contenuto (riusa il disegno già scritto), mentre una stampa
+multipagina vera (l'API di stampa di Java, con l'impaginazione di un
+libro da 350+ scene su più fogli) è sensibilmente più complessa.
+L'immagine copre comunque la maggior parte dei casi d'uso reali
+("voglio vedere/condividere/stampare la mappa" — la stampa vera e
+propria la fa poi chi vuole, dal proprio programma di visualizzazione
+immagini).
+
+### 19.9 Rimandato a bassa priorità (non in questo giro)
+
+- **Salti minimi START→scena e scena→END più vicina** ("i pesi delle
+  foglie nel grafo", Michele): tecnicamente economico da calcolare
+  (attraversamento in ampiezza, BFS, costo trascurabile anche su
+  libri da centinaia di scene) — quando si implementerà, la proposta è
+  calcolarlo sempre in automatico ad ogni cambio del grafo (nessun
+  pulsante di ricalcolo manuale, la preoccupazione sulle prestazioni
+  non è fondata a queste dimensioni). Bassa priorità su richiesta
+  esplicita di Michele, non per difficoltà tecnica.
+- **Stampa multipagina vera** (§19.8): resta rimandata a meno che non
+  emerga una libreria Kotlin/JVM che semplifichi davvero
+  l'impaginazione — altrimenti l'esportazione PNG (§19.8) resta la
+  soluzione pratica.
+
+## 20. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per
   scrivere libri (Michele e suo figlio): cosa vedi e cosa clicchi,

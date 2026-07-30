@@ -2817,6 +2817,35 @@ nemmeno JSON valido, `runCatching` degrada silenziosamente a "(non
 leggibile)" col solo nome del file — stesso principio del resto
 dell'editor, mai un crash. `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Quarta fase: interazioni avanzate sulla mappa — specifica (§19,
+`doc/EDITOR.md`, 30/07/2026)**: Michele chiede spunti su cosa manca
+ancora all'editor. Proposto un giro di idee (legame diretto tra due
+scene dal tasto destro, azioni di gruppo, evidenziazione mappa,
+esportazione immagine), discusso e affinato in più passaggi:
+- Michele chiarisce il legame diretto con un esempio preciso ("Lega
+  scena X→Y" / "Y→X" se non legate, "Rimuovi legame X→Y" se legate),
+  confermando che va allo stesso livello di Duplica/Elimina nel menu.
+- Chiede spunti aggiuntivi sui GRUPPI in particolare → proposti
+  duplica-gruppo con remap interno, trascina-gruppo, centra-selezione,
+  ricollegamento opzionale alla cancellazione.
+- Chiede anche i "salti minimi" START→scena/scena→END (BFS) ma lo
+  marca lui stesso bassa priorità, chiedendo di dare priorità alle
+  cose più semplici proposte da Claude — rispettato, spostato in
+  §19.9 con nota tecnica (BFS economico, nessun problema di
+  prestazioni previsto, solo rimandato su richiesta esplicita).
+- Chiede una valutazione di difficoltà per "stampare il grafo": PNG
+  (riusa il disegno già scritto, difficoltà bassa/media) vs stampa
+  multipagina vera (impaginazione di un libro grande, difficoltà
+  medio/alta) — Michele sceglie PNG tra le "cose semplici", la stampa
+  vera resta bassa priorità a meno di una libreria che la semplifichi.
+- "Aggiorna i piani di sviluppo e implementa le parti semplici, ma
+  solo dopo aver aggiornato i documenti" — specifica scritta prima
+  (§19, `doc/EDITOR.md`), poi `doc/MILESTONE-EDITOR.md` esteso con la
+  voce 4 e 7 GitHub Issue create (#9-#15) sotto la milestone "Tool
+  editor" esistente, una per sottosezione (§19.6/§19.7 bundlate
+  insieme, stesso tipo di segnalazione visiva). Prossimo passo:
+  implementazione.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
