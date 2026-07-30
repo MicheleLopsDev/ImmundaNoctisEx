@@ -2205,6 +2205,25 @@ quanto costruito in questo giro (build/test verdi ovunque, ma diverse
 parti — immagini in tempo reale, audio, colori del salvataggio — non
 verificabili automaticamente, solo leggendo il codice).
 
+**Verifica di Michele, due bug reali trovati**: (1) "se fa play del
+sound non permettere di fare di nuovo click altrimenti cliccando più
+volte succede un casino" — `riproduciSuono` lanciava una coroutine
+fire-and-forget ad ogni click (§15.6), click ripetuti sovrapponevano
+più riproduzioni contemporaneamente. Reso `suspend` (non lancia più da
+sé una coroutine) così il pulsante sa ESATTAMENTE quando la
+riproduzione finisce: nuovo stato `inRiproduzione`, pulsante
+disabilitato (ed etichetta "in riproduzione…") finché non torna
+`false`. (2) "nel editor di scena se faccio click sul immagine si apre
+in un popup a dimensione intera" — non una richiesta di correzione ma
+una funzione nuova: click sull'anteprima (§15.3) apre un `Dialog` a
+schermo pieno (sfondo nero, immagine adattata senza ritaglio via
+`ContentScale.Fit`, si chiude cliccando fuori o sull'immagine).
+Aggiunto un parametro `ingrandibile` a `AnteprimaImmagineRisorsa`,
+attivo SOLO nella scheda scena — sul nodo della mappa il click ha già
+un altro significato (aprire/spostare la scena) e non va toccato.
+
+Compilazione pulita, 32 test invariati.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

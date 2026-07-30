@@ -2,6 +2,7 @@ package io.github.luposolitario.immundanoctisex.tool.editor
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +19,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.loadImageBitmap
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -39,11 +42,22 @@ import java.net.URL
 // (§15.3) preferisce restare trasparente finché non c'è un'immagine
 // vera, per lasciar vedere il colore di salute sotto invece di un
 // grigio piatto durante il caricamento o in caso di fallimento.
+// `ingrandibile` (30/07/2026, Michele: "nel editor di scena se faccio
+// click sul immagine si apre in un popup a dimensione intera"): click
+// sull'anteprima per vederla grande — attivo SOLO nella scheda scena,
+// non sul nodo della mappa (lì il click ha già un altro significato,
+// aprire/spostare la scena, §15.5 e turni precedenti).
 @Composable
-fun AnteprimaImmagineRisorsa(valore: String, modifier: Modifier = Modifier, mostraSegnaposto: Boolean = true) {
+fun AnteprimaImmagineRisorsa(
+    valore: String,
+    modifier: Modifier = Modifier,
+    mostraSegnaposto: Boolean = true,
+    ingrandibile: Boolean = false,
+) {
     val riferimento = remember(valore) { ImageReference.parse(valore) }
     var bitmap by remember(valore) { mutableStateOf<ImageBitmap?>(null) }
     var caricamentoFallito by remember(valore) { mutableStateOf(false) }
+    var ingrandita by remember(valore) { mutableStateOf(false) }
 
     LaunchedEffect(valore) {
         bitmap = null
@@ -68,11 +82,12 @@ fun AnteprimaImmagineRisorsa(valore: String, modifier: Modifier = Modifier, most
         if (bitmap == null) caricamentoFallito = true
     }
 
+    val bitmapCorrente = bitmap
     Box(
-        modifier = if (mostraSegnaposto) modifier.background(Color(0xFFD8D8D8)) else modifier,
+        modifier = (if (mostraSegnaposto) modifier.background(Color(0xFFD8D8D8)) else modifier)
+            .let { if (ingrandibile && bitmapCorrente != null) it.clickable { ingrandita = true } else it },
         contentAlignment = Alignment.Center,
     ) {
-        val bitmapCorrente = bitmap
         when {
             bitmapCorrente != null -> Image(
                 bitmap = bitmapCorrente,
@@ -82,6 +97,28 @@ fun AnteprimaImmagineRisorsa(valore: String, modifier: Modifier = Modifier, most
             )
             mostraSegnaposto && caricamentoFallito -> Text("nessuna anteprima", style = MaterialTheme.typography.labelSmall)
             mostraSegnaposto -> Text("…", style = MaterialTheme.typography.labelSmall)
+        }
+    }
+
+    if (ingrandita && bitmapCorrente != null) {
+        Dialog(
+            onDismissRequest = { ingrandita = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.9f))
+                    .clickable { ingrandita = false },
+                contentAlignment = Alignment.Center,
+            ) {
+                Image(
+                    bitmap = bitmapCorrente,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit,
+                )
+            }
         }
     }
 }

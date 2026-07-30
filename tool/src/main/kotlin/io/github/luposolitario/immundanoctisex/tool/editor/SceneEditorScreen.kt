@@ -44,6 +44,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
@@ -556,7 +557,7 @@ private fun CampoImmagineConAnteprima(
         }
         if (valore.isNotBlank()) {
             Spacer(Modifier.height(4.dp))
-            AnteprimaImmagineRisorsa(valore, Modifier.fillMaxWidth().height(90.dp))
+            AnteprimaImmagineRisorsa(valore, Modifier.fillMaxWidth().height(90.dp), ingrandibile = true)
             if (mostraAscolto) {
                 val urlSuono = remember(valore) {
                     (ImageReference.parse(valore) as? ImageReference.Static)
@@ -564,8 +565,25 @@ private fun CampoImmagineConAnteprima(
                 }
                 if (urlSuono != null) {
                     val scope = rememberCoroutineScope()
+                    // 30/07/2026, Michele: "se fa play del sound non
+                    // permettere di fare di nuovo click altrimenti
+                    // cliccando più volte succede un casino" — più
+                    // riproduzioni in corso insieme si sovrappongono.
+                    // Pulsante disabilitato finché quella in corso non
+                    // finisce per davvero (riproduciSuono è sospendibile
+                    // apposta, vedi ResourceSoundPlayer.kt).
+                    var inRiproduzione by remember(valore) { mutableStateOf(false) }
                     Spacer(Modifier.height(4.dp))
-                    Button(onClick = { riproduciSuono(scope, urlSuono) }) { Text("▶ Ascolta") }
+                    Button(
+                        onClick = {
+                            inRiproduzione = true
+                            scope.launch {
+                                riproduciSuono(urlSuono)
+                                inRiproduzione = false
+                            }
+                        },
+                        enabled = !inRiproduzione,
+                    ) { Text(if (inRiproduzione) "▶ in riproduzione…" else "▶ Ascolta") }
                 }
             }
         }
