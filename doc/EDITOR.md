@@ -733,6 +733,24 @@ uguale all'ID della location stessa (nessuno schema di nomi nuovo:
   mancano ancora voci), che aggiunge solo quelle NON già presenti —
   non tocca voci esistenti eventualmente già modificate a mano.
 
+### 18.6 Anteprima dell'sfx scelto (30/07/2026, quarto giro)
+
+Michele: "nella maschera ci vuole il play per i suoni con le stesse
+regole... dopo il play il tasto si blocca fino alla fine, alla
+chiusura della maschera chiudi il sfx". Stesso identico comportamento
+del "▶ Ascolta" già esistente per lo sfondo (§7.1): pulsante accanto
+al menu a tendina `SfxDropdown`, disabilitato per tutta la durata
+della riproduzione, fermato esplicitamente (`SoundPlayerController.
+ferma()`) quando la maschera si chiude — `Player.play()` di JLayer è
+bloccante, cancellare la sola coroutine non basta (`ResourceSoundPlayer.kt`).
+
+Unica parte nuova: risolvere la voce registrata (`static:`/`url:`,
+§18.4) nell'URL vero da suonare — `static:<id>` passa da
+`StaticResourceCatalog.percorsoSuono`, `url:<link>` viene costruito
+direttamente come URL di rete. Nessun suono registrato o riferimento
+non risolvibile (caso raro, es. voce corrotta) = pulsante assente,
+niente errore a schermo.
+
 ## 19. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per

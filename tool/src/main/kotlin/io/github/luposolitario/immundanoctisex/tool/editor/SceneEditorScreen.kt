@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -48,6 +49,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import java.net.URL
 
 // Pannello di editing di una scena (doc/EDITOR.md §7). La vista Maschera
 // copre narrativeText, choices, disciplineChoices, backgroundImage/
@@ -266,11 +268,48 @@ fun SceneEditorScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
-                    SfxDropdown(
-                        valore = sfx,
-                        opzioni = customResources.sounds,
-                        onValueChange = { sfx = it },
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        SfxDropdown(
+                            valore = sfx,
+                            opzioni = customResources.sounds,
+                            onValueChange = { sfx = it },
+                        )
+                        // §18.6 (Michele: "ci vuole il play per i suoni
+                        // con le stesse regole"): stesso comportamento
+                        // del "▶ Ascolta" delle immagini — disabilitato
+                        // durante la riproduzione, fermato alla chiusura
+                        // della maschera (Player.play() di JLayer è
+                        // bloccante, la cancellazione della coroutine da
+                        // sola non basta, vedi ResourceSoundPlayer.kt).
+                        // Risolve la voce registrata (static:/url:,
+                        // §18.4) nell'URL vero da suonare.
+                        val sfxUrl = remember(sfx, customResources.sounds) {
+                            sfx?.let { id -> customResources.sounds.firstOrNull { it.id == id } }?.let { voce ->
+                                when (val ref = ImageReference.parse(voce.url)) {
+                                    is ImageReference.Static -> StaticResourceCatalog.percorsoSuono(ref.catalogId)
+                                    is ImageReference.Url -> runCatching { URL(ref.url) }.getOrNull()
+                                    null -> null
+                                }
+                            }
+                        }
+                        if (sfxUrl != null) {
+                            val scope = rememberCoroutineScope()
+                            val controllerSfx = remember { SoundPlayerController() }
+                            DisposableEffect(Unit) { onDispose { controllerSfx.ferma() } }
+                            var inRiproduzioneSfx by remember { mutableStateOf(false) }
+                            Spacer(Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    inRiproduzioneSfx = true
+                                    scope.launch {
+                                        controllerSfx.riproduci(sfxUrl)
+                                        inRiproduzioneSfx = false
+                                    }
+                                },
+                                enabled = !inRiproduzioneSfx,
+                            ) { Text(if (inRiproduzioneSfx) "▶ in riproduzione…" else "▶ Ascolta") }
+                        }
+                    }
                 }
                 Spacer(Modifier.height(16.dp))
 

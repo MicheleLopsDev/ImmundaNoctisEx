@@ -242,7 +242,10 @@ all'altra non perde le modifiche fatte).
   messaggio te lo ricorda invece di mostrare un menu vuoto. Se scelto,
   **sostituisce del tutto** il suono automatico legato all'immagine di
   sfondo — utile per dare a una scena un'atmosfera diversa da quella
-  che l'immagine suggerirebbe da sola.
+  che l'immagine suggerirebbe da sola. Accanto al menu compare un
+  pulsante **"▶ Ascolta"** per sentirlo in anteprima, con le stesse
+  regole di quello dello sfondo: si disabilita mentre suona e si
+  interrompe da solo se chiudi la scena.
 - **Combattimento** — pulsante **"+ Aggiungi combattimento"** (diventa
   **"✕ Rimuovi combattimento"**): se attivo, compaiono i campi nome
   nemico, immagine, Combattività, Resistenza, scena se vinci, scena se

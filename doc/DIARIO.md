@@ -2762,6 +2762,18 @@ già presenti (magari modificate a mano). `:tool:compileKotlin`/
 `:tool:test` verdi, incluso `BookScaffoldsTest` (il libro risultante
 resta valido con la libreria già dentro).
 
+**Anteprima dell'sfx (30/07/2026, quarto giro, Michele: "ci vuole il
+play per i suoni con le stesse regole per il play... alla chiusura
+della maschera chiudi il sfx così posso fare la preview")**: aggiunto
+un "▶ Ascolta" accanto a `SfxDropdown`, stesso comportamento esatto di
+quello già esistente per lo sfondo (disabilitato durante la
+riproduzione, fermato da `SoundPlayerController.ferma()` alla
+chiusura della maschera). L'unica parte nuova: risolvere la voce
+registrata (`static:`/`url:`) nell'URL vero — `static:<id>` passa da
+`StaticResourceCatalog.percorsoSuono`, `url:<link>` diventa
+direttamente un URL di rete. `:tool:compileKotlin`/`:tool:test` verdi
+(intoppo minore: import mancante di `Modifier.width`, corretto).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
