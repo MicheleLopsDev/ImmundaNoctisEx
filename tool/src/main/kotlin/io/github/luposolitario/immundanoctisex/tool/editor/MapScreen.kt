@@ -550,11 +550,30 @@ fun MapScreen(
                             },
                         )
                         Spacer(Modifier.height(16.dp))
+                        // 30/07/2026, Michele: "non capisco perché ci sono
+                        // due volte gli url delle immagini" — dopo una
+                        // bonifica (§15.7) il registro contiene le stesse
+                        // immagini già mostrate sopra come "in uso", quindi
+                        // comparivano due volte con lo stesso significato.
+                        // Qui restano SOLO le voci registrate che NESSUNA
+                        // scena usa ancora — un elenco diverso da quello
+                        // sopra, non un doppione: risorse pronte per quando
+                        // servirà agganciarle a una scena.
+                        val urlGiaInUso = remember(manifest) {
+                            manifest.scenes
+                                .flatMap { listOfNotNull(it.backgroundImage, it.npcImage, it.combat?.enemyImage) }
+                                .filter { it.startsWith(ImageReference.URL_PREFIX) }
+                                .map { it.removePrefix(ImageReference.URL_PREFIX) }
+                                .toSet()
+                        }
                         SezioneRisorsePersonalizzate(
-                            titolo = "Immagini personalizzate",
-                            voci = manifest.customResources.images,
-                            onCambia = { nuoveVoci ->
-                                onManifestCambiato(manifest.copy(customResources = manifest.customResources.copy(images = nuoveVoci)))
+                            titolo = "Altre immagini registrate (non ancora usate in una scena)",
+                            voci = manifest.customResources.images.filter { it.url !in urlGiaInUso },
+                            onCambia = { nuoveVociNonInUso ->
+                                val vociInUso = manifest.customResources.images.filter { it.url in urlGiaInUso }
+                                onManifestCambiato(
+                                    manifest.copy(customResources = manifest.customResources.copy(images = vociInUso + nuoveVociNonInUso)),
+                                )
                             },
                         )
                         Spacer(Modifier.height(16.dp))

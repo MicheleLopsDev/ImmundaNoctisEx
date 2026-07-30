@@ -2342,6 +2342,21 @@ personalizzati) restano sotto, invariate nella logica. Compilazione
 pulita, 38 test invariati (stesso criterio del resto dell'editor: UI
 Compose, verificata a mano).
 
+**Confusione segnalata subito con uno screenshot su "Flight from the
+Dark" (libro bonificato)**: "non capisco perché ci sono due volte gli
+url delle immagini" — causa reale, non un bug di duplicazione dati:
+dopo una bonifica, `customResources.images` contiene le STESSE 19
+immagini già mostrate sopra come "in uso nelle scene" — le due sezioni
+raccontavano la stessa cosa due volte, con stili diversi (anteprima
+sopra, solo testo sotto), senza modo di capire che fossero lo stesso
+concetto visto da due punti diversi. Corretto: "Immagini personalizzate"
+ora mostra SOLO le voci registrate che nessuna scena usa ancora
+(rinominata "Altre immagini registrate (non ancora usate in una
+scena)") — un elenco complementare a quello sopra, non più un
+doppione. Aggiungere/rimuovere da questa sezione ricompone
+`customResources.images` insieme alle voci "in uso" (mai toccate da
+qui). Compilazione pulita, 38 test invariati.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
