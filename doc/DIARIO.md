@@ -2846,6 +2846,32 @@ esportazione immagine), discusso e affinato in più passaggi:
   insieme, stesso tipo di segnalazione visiva). Prossimo passo:
   implementazione.
 
+**Implementazione: §19.4 centra selezione, §19.1 lega/rimuovi legame
+— e una correzione importante scoperta nel farlo (31/07/2026)**:
+implementare §19.1 richiedeva che il tasto destro preservasse una
+multi-selezione esistente invece di collassarla sempre a un nodo solo
+(limitazione accettata in §17.1 come "di Compose"). Verificato sui
+sorgenti prima di accettarlo come vero limite: `detectTapGestures` ha
+su desktop una seconda firma (`skikoMain`,
+`@ExperimentalFoundationApi`) con un parametro `matcher:
+PointerMatcher` — passando esplicitamente `PointerMatcher.Primary`
+invece di lasciar risolvere di default la firma `commonMain`
+(button-agnostic), il gesto di selezione ora scatta SOLO col tasto
+sinistro. Lezione: una limitazione "di una libreria" va verificata sui
+sorgenti prima di progettarci intorno, non presunta — la
+semplificazione di §17.1 era evitabile fin dall'inizio.
+
+Implementato: `centraSuSelezione()` (bounding box della selezione,
+zoom ricalcolato per farcela stare, stessa idea del centraggio della
+ricerca ma su un rettangolo); menu tasto destro ora distingue
+selezione singola/doppia/multipla per davvero — "Duplica" nascosto
+con 2+ selezionate (come sempre detto in §17.2, ora vero anche nei
+fatti), "Lega scena X→Y"/"Rimuovi legame X→Y" con esattamente 2
+selezionate (`legaScena`/`rimuoviLegame`, nuove Choice ordinarie con
+testo segnaposto), "Elimina" ora agisce sull'intera selezione
+corrente invece che sul solo nodo cliccato. `:tool:compileKotlin`/
+`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

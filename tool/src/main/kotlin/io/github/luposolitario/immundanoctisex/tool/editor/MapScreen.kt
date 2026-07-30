@@ -1,6 +1,8 @@
 package io.github.luposolitario.immundanoctisex.tool.editor
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -70,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
@@ -127,7 +130,7 @@ class MapViewState {
 @Composable
 fun rememberMapViewState(): MapViewState = remember { MapViewState() }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MapScreen(
     file: File,
@@ -414,6 +417,53 @@ fun MapScreen(
         panY = viewportSize.height / 2f - (pos.y + NODE_HEIGHT.value / 2f) * zoom
     }
 
+    // §19.4 (Michele: "centrare la vista sulla selezione"): calcola il
+    // rettangolo che contiene tutte le scene selezionate e regola
+    // pan/zoom per inquadrarle per intero, con un margine — stessa idea
+    // del centraggio della ricerca sopra, ma su un insieme invece che su
+    // un singolo nodo, e con lo zoom ricalcolato (non tenuto fisso)
+    // perché un gruppo grande potrebbe non starci allo zoom corrente.
+    fun centraSuSelezione() {
+        val posizioni = sceneSelezionate.mapNotNull { posizioneEffettiva(it) }
+        if (posizioni.isEmpty() || viewportSize.width == 0 || viewportSize.height == 0) return
+        val minX = posizioni.minOf { it.x }
+        val minY = posizioni.minOf { it.y }
+        val maxX = posizioni.maxOf { it.x } + NODE_WIDTH.value
+        val maxY = posizioni.maxOf { it.y } + NODE_HEIGHT.value
+        val margine = 80f
+        val zoomCheStaNellaLarghezza = (viewportSize.width - margine) / (maxX - minX).coerceAtLeast(1f)
+        val zoomCheStaNellAltezza = (viewportSize.height - margine) / (maxY - minY).coerceAtLeast(1f)
+        zoom = minOf(zoomCheStaNellaLarghezza, zoomCheStaNellAltezza).coerceIn(0.2f, 3f)
+        panX = viewportSize.width / 2f - (minX + maxX) / 2f * zoom
+        panY = viewportSize.height / 2f - (minY + maxY) / 2f * zoom
+    }
+
+    // §19.1 (Michele: "se seleziono due scene non legate mi dai 2
+    // opzioni... Lega scena X->Y... se già legate Rimuovi legame X->Y"):
+    // aggiunge/toglie una Choice ORDINARIA — scelte per disciplina e
+    // link di combattimento restano da fare nella scheda della scena
+    // (§19.1, deliberatamente fuori perimetro). "Lega" usa un testo
+    // segnaposto (come le scene create da zero, §9): non c'è modo di
+    // sapere cosa scrivere al posto dell'autore, solo che il
+    // collegamento deve esistere.
+    fun legaScena(daId: String, aId: String) {
+        val nuoveScene = manifest.scenes.map { scena ->
+            if (scena.id == daId) {
+                scena.copy(choices = scena.choices + Choice(id = "link_$aId", choiceText = "Vai avanti...", nextSceneId = aId))
+            } else {
+                scena
+            }
+        }
+        onManifestCambiato(manifest.copy(scenes = nuoveScene))
+    }
+
+    fun rimuoviLegame(daId: String, aId: String) {
+        val nuoveScene = manifest.scenes.map { scena ->
+            if (scena.id == daId) scena.copy(choices = scena.choices.filterNot { it.nextSceneId == aId }) else scena
+        }
+        onManifestCambiato(manifest.copy(scenes = nuoveScene))
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             // 30/07/2026, Michele: prima due Row separate (una a sinistra
@@ -467,6 +517,11 @@ fun MapScreen(
                     onClick = { if (sceneSelezionate.isNotEmpty()) sceneIdsDaEliminare = sceneSelezionate },
                     enabled = sceneSelezionate.isNotEmpty(),
                 ) { Text("🗑 Elimina scena") }
+                // §19.4 (Michele: "centrare la vista sulla selezione").
+                Button(
+                    onClick = { centraSuSelezione() },
+                    enabled = sceneSelezionate.isNotEmpty(),
+                ) { Text("🎯 Centra selezione") }
                 Button(onClick = { mostraRisorsePersonalizzate = true }) { Text("🔗 Risorse url:") }
                 Button(onClick = { orizzontale = !orizzontale; posizioniManuali = emptyMap() }) {
                     Text(if (orizzontale) "↕ Verticale" else "↔ Orizzontale")
@@ -1187,15 +1242,20 @@ fun MapScreen(
                             // §17.1 (Michele: "tasto destro e di lì menu
                             // per cancellare, duplicare"): il menu agisce
                             // SEMPRE sul solo nodo cliccato col tasto
-                            // destro, non sull'eventuale multi-selezione
-                            // — `detectTapGestures.onPress` sotto scatta
-                            // comunque anche per il tasto destro (non
-                            // distingue i bottoni) e collassa da solo la
-                            // selezione a questo nodo, quindi al momento
-                            // in cui il menu si apre non c'è comunque mai
-                            // più di un nodo selezionato.
+                            // destro (30/07/2026, corretto dopo aver
+                            // scoperto `PointerMatcher.Primary` più sotto,
+                            // vedi commento su `detectTapGestures`): un
+                            // tasto destro su un nodo GIÀ nella
+                            // selezione multipla la preserva intera (il
+                            // menu può quindi offrire azioni di gruppo,
+                            // §19.1/§19.2); su un nodo FUORI dalla
+                            // selezione la sostituisce con quel solo nodo
+                            // — stessa convenzione di Explorer/Finder.
                             .onPointerEvent(PointerEventType.Press) {
-                                if (it.button == PointerButton.Secondary) menuContestualePer = nodo.sceneId
+                                if (it.button == PointerButton.Secondary) {
+                                    if (nodo.sceneId !in sceneSelezionate) sceneSelezionate = setOf(nodo.sceneId)
+                                    menuContestualePer = nodo.sceneId
+                                }
                             }
                             // Interazione nodo (30/07/2026, Michele: "questo
                             // si dovrebbe aprire con il double click e
@@ -1228,6 +1288,19 @@ fun MapScreen(
                             // dovrebbe restare selezionata la 5".
                             .pointerInput(nodo.sceneId) {
                                 detectTapGestures(
+                                    // 30/07/2026: `matcher` di default è
+                                    // button-agnostic (scatta anche col
+                                    // tasto destro) — questa versione
+                                    // desktop-specifica di
+                                    // `detectTapGestures` (skiko,
+                                    // `@ExperimentalFoundationApi`)
+                                    // accetta invece un `PointerMatcher`
+                                    // esplicito: `Primary` lo limita al
+                                    // solo tasto sinistro, lasciando il
+                                    // destro all'`onPointerEvent(Press)`
+                                    // sopra senza che i due si
+                                    // sovrappongano più.
+                                    matcher = PointerMatcher.Primary,
                                     // §17.3 (Michele: "una multi selezione
                                     // tenendo premuto ctrl"): Ctrl aggiunge/
                                     // toglie questo nodo dall'insieme
@@ -1330,9 +1403,16 @@ fun MapScreen(
                                 overflow = TextOverflow.Ellipsis,
                             )
                         }
-                        // §17.1/§17.2 (Michele: "tasto destro e di lì
-                        // menu per cancellare, duplicare"): sempre sul
-                        // solo nodo cliccato (vedi commento sopra).
+                        // §17.1/§17.2/§19.1 (Michele: "tasto destro e di
+                        // lì menu per cancellare, duplicare"; poi "se
+                        // seleziono due scene... mi dai 2 opzioni... allo
+                        // stesso livello di duplica cancella"): ora che
+                        // il tasto destro preserva la multi-selezione
+                        // esistente invece di collassarla (vedi
+                        // `PointerMatcher.Primary` sopra), il menu può
+                        // davvero distinguere selezione singola/doppia/
+                        // multipla invece di agire sempre sul solo nodo
+                        // cliccato.
                         DropdownMenu(
                             expanded = menuContestualePer == nodo.sceneId,
                             onDismissRequest = { menuContestualePer = null },
@@ -1347,7 +1427,12 @@ fun MapScreen(
                             // scena START ambigua, mai raggiungibile
                             // giocando (il motore prende sempre la prima
                             // che trova) e non segnalata dal validatore.
-                            if (scenaNodo?.sceneType != SceneType.START) {
+                            // §17.2: "Duplica" resta un'azione a singola
+                            // scena — con una multi-selezione attiva non
+                            // compare (duplicare un insieme è §19.2,
+                            // rimandato: quale ordine? quali collegamenti
+                            // tra le copie?).
+                            if (sceneSelezionate.size <= 1 && scenaNodo?.sceneType != SceneType.START) {
                                 DropdownMenuItem(
                                     text = { Text("Duplica") },
                                     onClick = {
@@ -1356,11 +1441,33 @@ fun MapScreen(
                                     },
                                 )
                             }
+                            // §19.1: solo con ESATTAMENTE due scene
+                            // selezionate — un'opzione per direzione,
+                            // "Lega" se il collegamento non esiste
+                            // ancora, "Rimuovi legame" se esiste già.
+                            // Ordine stabile (per ID numerico) così le
+                            // etichette non "ballano" da un'apertura del
+                            // menu all'altra.
+                            if (sceneSelezionate.size == 2) {
+                                val (idA, idB) = sceneSelezionate.sortedBy { it.toIntOrNull() ?: Int.MAX_VALUE }
+                                val aggiungiVoceLegame: @Composable (String, String) -> Unit = { da, a ->
+                                    val giaLegate = scenesById[da]?.choices?.any { it.nextSceneId == a } == true
+                                    DropdownMenuItem(
+                                        text = { Text(if (giaLegate) "Rimuovi legame $da→$a" else "Lega scena $da→$a") },
+                                        onClick = {
+                                            menuContestualePer = null
+                                            if (giaLegate) rimuoviLegame(da, a) else legaScena(da, a)
+                                        },
+                                    )
+                                }
+                                aggiungiVoceLegame(idA, idB)
+                                aggiungiVoceLegame(idB, idA)
+                            }
                             DropdownMenuItem(
-                                text = { Text("Elimina") },
+                                text = { Text(if (sceneSelezionate.size > 1) "Elimina (${sceneSelezionate.size})" else "Elimina") },
                                 onClick = {
                                     menuContestualePer = null
-                                    sceneIdsDaEliminare = setOf(nodo.sceneId)
+                                    sceneIdsDaEliminare = sceneSelezionate.ifEmpty { setOf(nodo.sceneId) }
                                 },
                             )
                         }

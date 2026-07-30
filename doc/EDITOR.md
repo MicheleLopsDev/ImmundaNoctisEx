@@ -812,7 +812,7 @@ scene direttamente dalla mappa), discussa e ampliata insieme in più
 giri prima di scrivere codice — stesso metodo delle fasi precedenti
 (§15/§17/§18).
 
-### 19.1 Legare/rimuovere un legame diretto tra due scene
+### 19.1 Legare/rimuovere un legame diretto tra due scene — FATTO (31/07/2026)
 
 Con **esattamente due scene selezionate** (Ctrl+click, §17.3), il menu
 tasto destro (§17.1) aggiunge, per ciascuna delle due direzioni:
@@ -833,6 +833,22 @@ compare — restano solo "Duplica"/"Elimina" come oggi.
 scegliere quale disciplina, non sta in un click) e collegamenti di
 combattimento (vinci/perdi/fuggi, legati a un blocco combattimento
 specifico) — restano da fare dentro la scheda della scena come oggi.
+
+**Correzione a una semplificazione precedente (§17.1, 31/07/2026)**:
+implementare questa voce richiedeva che il tasto destro preservasse
+una multi-selezione esistente invece di collassarla sempre a un solo
+nodo (come si diceva in §17.1, per una limitazione ritenuta di
+Compose). Verificando sui sorgenti: `detectTapGestures` ha su desktop
+una seconda firma (`skikoMain`, `@ExperimentalFoundationApi`) con un
+parametro `matcher: PointerMatcher` — passando esplicitamente
+`PointerMatcher.Primary` (invece di lasciare la firma `commonMain`
+senza `matcher`, button-agnostic, risolta di default), il gesto di
+selezione ora scatta SOLO col tasto sinistro. Il tasto destro
+(`onPointerEvent(Press)`, separato) preserva quindi una
+multi-selezione già esistente se il nodo cliccato ne fa già parte, o
+la sostituisce con quel solo nodo altrimenti — stessa convenzione di
+Explorer/Finder. "Duplica" (§17.2) ora si nasconde per davvero quando
+sono selezionate più scene, non solo "di fatto" come prima.
 
 ### 19.2 Duplicare un gruppo mantenendo i collegamenti interni
 
@@ -862,7 +878,7 @@ nodo per nodo. Trascinare un nodo **non selezionato** continua a
 spostare solo quello, come oggi (non entra implicitamente a far parte
 del gruppo).
 
-### 19.4 Centrare la vista sulla selezione
+### 19.4 Centrare la vista sulla selezione — FATTO (31/07/2026)
 
 Nuovo pulsante (barra strumenti, attivo con 1+ scene selezionate):
 calcola il rettangolo che contiene tutte le scene selezionate e
