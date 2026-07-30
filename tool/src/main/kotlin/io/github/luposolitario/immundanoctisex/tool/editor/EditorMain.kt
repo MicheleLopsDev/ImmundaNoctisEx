@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -98,6 +99,29 @@ fun main() = application {
         scalaTesto = valore
         preferenze.scalaTesto = valore
     }
+    // Livelli di backup (§17.5, Michele: "potremmo decidere quanti
+    // livelli di backup vogliamo... partirei da 3 fino ad un massimo
+    // di 9") — stessa persistenza delle altre impostazioni.
+    var livelliBackup by remember { mutableStateOf(preferenze.livelliBackup) }
+    fun impostaLivelliBackup(valore: Int) {
+        livelliBackup = valore.coerceIn(MAX_BACKUP_MIN, MAX_BACKUP_MAX)
+        preferenze.livelliBackup = livelliBackup
+    }
+    // Libri recenti (§17.4): mirror osservabile da Compose di
+    // EditorPreferences.libriRecenti (le Preferences non notificano da
+    // sole la ricomposizione) — aggiornato ogni volta che un libro
+    // viene aperto o creato con successo.
+    var libriRecenti by remember { mutableStateOf(preferenze.libriRecenti) }
+    fun apriLibro(file: File) {
+        when (val esito = PackageRepository(FilePackageSource(file)).load()) {
+            is PackageLoadResult.Success -> {
+                preferenze.aggiungiLibroRecente(file.absolutePath)
+                libriRecenti = preferenze.libriRecenti
+                schermata = Schermata.Mappa(file, esito.manifest, esito.warnings)
+            }
+            is PackageLoadResult.Failure -> schermata = Schermata.LibroNonValido(esito.errors)
+        }
+    }
     // Conferma di sovrascrittura (30/07/2026, Michele: "la prima volta
     // chiedimi conferma successivamente no") — a livello di sessione, non
     // di singola schermata: passare dalla mappa al pannello di una scena e
@@ -164,16 +188,11 @@ fun main() = application {
                 Box(modifier = Modifier.fillMaxSize()) {
                     when (val s = schermata) {
                         is Schermata.Avvio -> AvvioScreen(
-                            onCaricaLibro = { file ->
-                                when (val esito = PackageRepository(FilePackageSource(file)).load()) {
-                                    is PackageLoadResult.Success ->
-                                        schermata = Schermata.Mappa(file, esito.manifest, esito.warnings)
-                                    is PackageLoadResult.Failure ->
-                                        schermata = Schermata.LibroNonValido(esito.errors)
-                                }
-                            },
+                            onCaricaLibro = ::apriLibro,
                             onCreaNuovo = { schermata = Schermata.CreaNuovo },
                             onImpostazioni = { schermata = Schermata.Impostazioni },
+                            libriRecenti = libriRecenti,
+                            onApriRecente = { percorso -> apriLibro(File(percorso)) },
                         )
                         is Schermata.Mappa -> MapScreen(
                             file = s.file,
@@ -194,9 +213,25 @@ fun main() = application {
                                 val manifestConNuova = s.manifest.copy(scenes = s.manifest.scenes + nuova)
                                 schermata = Schermata.EditorScena(s.file, manifestConNuova, s.warnings, nuova.id, eNuova = true)
                             },
-                            onEliminaScena = { sceneId ->
-                                val manifestSenzaScena = s.manifest.copy(scenes = s.manifest.scenes.filter { it.id != sceneId })
-                                schermata = Schermata.Mappa(s.file, manifestSenzaScena, s.warnings)
+                            // §17.2 (Michele: "duplicare... penso che il
+                            // rinomino non ha senso"): copia con un nuovo
+                            // ID, si apre subito, NON eredita la rete di
+                            // sicurezza (non è una scena "nuova" in quel
+                            // senso, è già contenuto scritto).
+                            onDuplicaScena = { sceneId ->
+                                val originale = s.manifest.scenes.first { it.id == sceneId }
+                                val duplicata = duplicaScena(originale, s.manifest)
+                                val manifestConDuplicata = s.manifest.copy(scenes = s.manifest.scenes + duplicata)
+                                schermata = Schermata.EditorScena(s.file, manifestConDuplicata, s.warnings, duplicata.id, eNuova = false)
+                            },
+                            // §17.3: un insieme di ID invece di uno solo —
+                            // filtrarli TUTTI in un'unica `manifest.copy`
+                            // evita il bug di chiudere su un `s.manifest`
+                            // ormai superato se si chiamasse una volta per
+                            // scena in un ciclo.
+                            onEliminaScene = { ids ->
+                                val manifestSenzaScene = s.manifest.copy(scenes = s.manifest.scenes.filterNot { it.id in ids })
+                                schermata = Schermata.Mappa(s.file, manifestSenzaScene, s.warnings)
                             },
                             // §15.7: cambio generico del manifest senza
                             // navigare via dalla mappa — usato oggi solo dal
@@ -206,7 +241,27 @@ fun main() = application {
                             },
                             salvataggioGiaConfermato = salvataggioGiaConfermato,
                             onSalvataggioConfermato = { salvataggioGiaConfermato = true },
-                            onFileCambiato = { nuovoFile -> schermata = Schermata.Mappa(nuovoFile, s.manifest, s.warnings) },
+                            onFileCambiato = { nuovoFile ->
+                                preferenze.aggiungiLibroRecente(nuovoFile.absolutePath)
+                                libriRecenti = preferenze.libriRecenti
+                                schermata = Schermata.Mappa(nuovoFile, s.manifest, s.warnings)
+                            },
+                            livelliBackup = livelliBackup,
+                            // §17.5 (Michele: "l'annulla ti riporta al
+                            // backup -1"): ripristina il file da `.bak1` e
+                            // ricarica il manifest da lì — stesso esito di
+                            // Failure/Success di un caricamento normale, un
+                            // backup corrotto a mano non deve mai crashare.
+                            onAnnullaUltimoBackup = {
+                                if (ripristinaUltimoBackup(s.file)) {
+                                    when (val esito = PackageRepository(FilePackageSource(s.file)).load()) {
+                                        is PackageLoadResult.Success ->
+                                            schermata = Schermata.Mappa(s.file, esito.manifest, esito.warnings)
+                                        is PackageLoadResult.Failure ->
+                                            schermata = Schermata.LibroNonValido(esito.errors)
+                                    }
+                                }
+                            },
                         )
                         is Schermata.EditorScena -> {
                             val scena = s.manifest.scenes.first { it.id == s.sceneId }
@@ -244,8 +299,10 @@ fun main() = application {
                         is Schermata.CreaNuovo -> CreaNuovoScreen(
                             onCrea = { manifestNuovo ->
                                 scegliPercorsoSalvataggio("${manifestNuovo.id}.json")?.let { nuovoFile ->
-                                    salvaManifest(nuovoFile, manifestNuovo)
+                                    salvaManifest(nuovoFile, manifestNuovo, livelliBackup)
                                     salvataggioGiaConfermato = true
+                                    preferenze.aggiungiLibroRecente(nuovoFile.absolutePath)
+                                    libriRecenti = preferenze.libriRecenti
                                     schermata = Schermata.Mappa(nuovoFile, manifestNuovo, emptyList())
                                 }
                             },
@@ -258,6 +315,8 @@ fun main() = application {
                             onFontCambiato = ::impostaFont,
                             scalaTesto = scalaTesto,
                             onScalaTestoCambiata = ::impostaScalaTesto,
+                            livelliBackup = livelliBackup,
+                            onLivelliBackupCambiati = ::impostaLivelliBackup,
                             onTornaAvvio = { schermata = Schermata.Avvio },
                         )
                     }
@@ -278,7 +337,13 @@ fun main() = application {
 }
 
 @Composable
-private fun AvvioScreen(onCaricaLibro: (File) -> Unit, onCreaNuovo: () -> Unit, onImpostazioni: () -> Unit) {
+private fun AvvioScreen(
+    onCaricaLibro: (File) -> Unit,
+    onCreaNuovo: () -> Unit,
+    onImpostazioni: () -> Unit,
+    libriRecenti: List<String>,
+    onApriRecente: (String) -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -299,6 +364,21 @@ private fun AvvioScreen(onCaricaLibro: (File) -> Unit, onCreaNuovo: () -> Unit, 
         // pulsante nella prima maschera").
         Button(onClick = onImpostazioni) {
             Text("⚙ Impostazioni")
+        }
+        // §17.4 (Michele: "caricare i libri recenti è una ottima idea"):
+        // un percorso che non esiste più (file spostato/cancellato) sparisce
+        // silenziosamente dalla lista mostrata, senza toccare quella salvata
+        // (potrebbe ricomparire da sola, es. un'unità rimovibile ricollegata)
+        // e senza mai dare un errore a sorpresa.
+        val recentiEsistenti = remember(libriRecenti) { libriRecenti.filter { File(it).exists() } }
+        if (recentiEsistenti.isNotEmpty()) {
+            Spacer(Modifier.height(24.dp))
+            Text("Libri recenti", style = MaterialTheme.typography.titleMedium)
+            recentiEsistenti.forEach { percorso ->
+                TextButton(onClick = { onApriRecente(percorso) }) {
+                    Text(File(percorso).name)
+                }
+            }
         }
     }
 }
@@ -408,6 +488,8 @@ private fun ImpostazioniScreen(
     onFontCambiato: (FontEditor) -> Unit,
     scalaTesto: ScalaTesto,
     onScalaTestoCambiata: (ScalaTesto) -> Unit,
+    livelliBackup: Int,
+    onLivelliBackupCambiati: (Int) -> Unit,
     onTornaAvvio: () -> Unit,
 ) {
     Column(
@@ -448,6 +530,26 @@ private fun ImpostazioniScreen(
                 onClick = { onScalaTestoCambiata(scalaTesto.successivo()) },
                 enabled = scalaTesto != ScalaTesto.entries.last(),
             ) { Text("A+") }
+        }
+
+        // §17.5 (Michele: "potremmo decidere quanti livelli di backup
+        // vogliamo io partirei da 3 fino ad un massimo di 9"): stessi
+        // pulsanti +/- della grandezza testo, ma su un intero invece di
+        // un enum a passi fissi.
+        Spacer(Modifier.height(24.dp))
+        Text("Livelli di backup", style = MaterialTheme.typography.titleMedium)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Button(
+                onClick = { onLivelliBackupCambiati(livelliBackup - 1) },
+                enabled = livelliBackup > MAX_BACKUP_MIN,
+            ) { Text("-") }
+            Spacer(Modifier.width(8.dp))
+            Text("$livelliBackup", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.width(8.dp))
+            Button(
+                onClick = { onLivelliBackupCambiati(livelliBackup + 1) },
+                enabled = livelliBackup < MAX_BACKUP_MAX,
+            ) { Text("+") }
         }
 
         Spacer(Modifier.height(32.dp))

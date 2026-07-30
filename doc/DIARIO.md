@@ -2588,6 +2588,45 @@ non esiste ancora un backup in questa sessione. Livelli di backup
 (oggi fissi a 5) diventano configurabili 3-9 nelle Impostazioni
 esistenti (§16), non un posto nuovo. Prossimo passo: implementazione.
 
+**Implementazione §17 (30/07/2026)**: `BookStorage.kt` (`MAX_BACKUP`
+diventa `MAX_BACKUP_DEFAULT`/`MIN`/`MAX` + `esisteBackup`/
+`ripristinaUltimoBackup`), `NuovaScena.kt` (`duplicaScena`, riusa
+`nuovaScenaVuota` solo per l'ID), `EditorPreferences.kt`
+(`livelliBackup` coerceIn 3-9, `libriRecenti` come stringa
+`\n`-separata in Preferences). `MapScreen.kt` (il grosso del giro):
+`MapViewState.sceneSelezionata: String?` diventato
+`sceneSelezionate: Set<String>`; Ctrl+click letto da un
+`onKeyEvent`/`focusRequester` dedicato (necessario perché
+`detectTapGestures.onPress` non espone i modificatori di tastiera);
+tasto Canc/Backspace ed Esc sullo stesso `onKeyEvent`; tasto destro
+(`onPointerEvent(Press)` con `PointerButton.Secondary`) apre un
+`DropdownMenu` con Duplica/Elimina.
+
+**Intoppo scoperto durante l'implementazione**: `detectTapGestures`
+non distingue i bottoni del mouse — il suo `onPress` scatta anche per
+il tasto destro, non solo il sinistro. Un tentativo di far sì che il
+menu tasto destro rispettasse un'eventuale multi-selezione esistente
+(come da specifica §17.2, "l'insieme selezionato") si scontrava con
+questo: `onPress` avrebbe comunque collassato la selezione a un solo
+nodo nello stesso istante. Risolto semplificando invece di inseguire
+un fix fragile: il menu tasto destro agisce SEMPRE sul solo nodo
+cliccato, mai sulla multi-selezione — che resta comunque raggiungibile
+per intero da tasto Canc/pulsante "🗑 Elimina scena". Nessuna perdita
+di funzionalità reale (`onPress` collassa comunque la selezione a quel
+nodo prima che il menu si apra), solo una scelta di implementazione
+più semplice e robusta invece che quella descritta alla lettera in
+§17.2 — la specifica non è stata corretta perché il comportamento
+osservabile resta identico.
+
+**Verifica**: `:tool:compileKotlin` e `:tool:test` (38 test) verdi.
+Tentato anche un test interattivo vero avviando `gradlew :tool:run` e
+provando a guidarlo con lo strumento di controllo desktop — non
+riuscito: quello strumento riconosce solo applicazioni registrate nel
+menu Start, una finestra lanciata al volo da Gradle non è
+raggiungibile da lì. Le interazioni nuove (Ctrl+click, tasto destro,
+Canc/Esc, Annulla, libri recenti) restano da provare a mano da
+Michele — dichiarato esplicitamente, non spacciato per verificato.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

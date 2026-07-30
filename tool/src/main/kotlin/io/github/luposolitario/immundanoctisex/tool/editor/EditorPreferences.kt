@@ -86,9 +86,33 @@ class EditorPreferences {
         get() = runCatching { ScalaTesto.valueOf(prefs.get(KEY_SCALA_TESTO, ScalaTesto.MEDIO.name)) }.getOrDefault(ScalaTesto.MEDIO)
         set(value) = prefs.put(KEY_SCALA_TESTO, value.name)
 
+    // Livelli di backup (§17.5, Michele: "potremmo decidere quanti
+    // livelli di backup vogliamo io partirei da 3 fino ad un massimo di
+    // 9"): coerceIn ad ogni lettura/scrittura, così un valore corrotto
+    // scritto da una versione futura/precedente non sfugge mai
+    // dall'intervallo dichiarato.
+    var livelliBackup: Int
+        get() = prefs.getInt(KEY_LIVELLI_BACKUP, MAX_BACKUP_DEFAULT).coerceIn(MAX_BACKUP_MIN, MAX_BACKUP_MAX)
+        set(value) = prefs.putInt(KEY_LIVELLI_BACKUP, value.coerceIn(MAX_BACKUP_MIN, MAX_BACKUP_MAX))
+
+    // Libri recenti (§17.4): un solo valore stringa con i percorsi
+    // separati da "\n" — Preferences non ha un tipo lista nativo, e un
+    // percorso di file non contiene mai un ritorno a capo. Il più
+    // recente è sempre il primo.
+    var libriRecenti: List<String>
+        get() = prefs.get(KEY_LIBRI_RECENTI, "").split("\n").filter { it.isNotBlank() }
+        private set(value) = prefs.put(KEY_LIBRI_RECENTI, value.joinToString("\n"))
+
+    fun aggiungiLibroRecente(percorso: String) {
+        libriRecenti = (listOf(percorso) + libriRecenti.filterNot { it == percorso }).take(MAX_LIBRI_RECENTI)
+    }
+
     private companion object {
         const val KEY_TEMA_SCURO = "tema_scuro"
         const val KEY_FONT = "font"
         const val KEY_SCALA_TESTO = "scala_testo"
+        const val KEY_LIVELLI_BACKUP = "livelli_backup"
+        const val KEY_LIBRI_RECENTI = "libri_recenti"
+        const val MAX_LIBRI_RECENTI = 8
     }
 }

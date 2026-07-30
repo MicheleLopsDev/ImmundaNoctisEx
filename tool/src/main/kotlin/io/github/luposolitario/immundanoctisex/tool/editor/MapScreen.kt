@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.tool.editor
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -24,11 +25,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,9 +43,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
@@ -99,12 +110,13 @@ class MapViewState {
     val panY = mutableStateOf(0f)
     val orizzontale = mutableStateOf(false)
     val posizioniManuali = mutableStateOf<Map<String, Offset>>(emptyMap())
-    // Scena selezionata con un click singolo (30/07/2026, Michele:
-    // "quando clicco una scena devi contornarla di un blu") — diversa
-    // dall'hover (nodoSottoMouse, si perde appena sposti il mouse) e dal
-    // doppio click (che apre il pannello): un click singolo la marca e
-    // resta marcata finché non clicchi altrove.
-    val sceneSelezionata = mutableStateOf<String?>(null)
+    // Scene selezionate (30/07/2026, Michele: "quando clicco una scena
+    // devi contornarla di un blu"; §17.3: "una multi selezione tenendo
+    // premuto ctrl") — un insieme invece di un solo ID: click semplice lo
+    // sostituisce con un singolo elemento, Ctrl+click aggiunge/rimuove.
+    // Diversa dall'hover (nodoSottoMouse, si perde appena sposti il
+    // mouse) e dal doppio click (che apre il pannello).
+    val sceneSelezionate = mutableStateOf<Set<String>>(emptySet())
 }
 
 @Composable
@@ -120,11 +132,14 @@ fun MapScreen(
     onTornaAvvio: () -> Unit,
     onSceneSelected: (String) -> Unit,
     onNuovaScena: () -> Unit,
-    onEliminaScena: (String) -> Unit,
+    onDuplicaScena: (String) -> Unit,
+    onEliminaScene: (Set<String>) -> Unit,
     onManifestCambiato: (Manifest) -> Unit,
     salvataggioGiaConfermato: Boolean,
     onSalvataggioConfermato: () -> Unit,
     onFileCambiato: (File) -> Unit,
+    livelliBackup: Int,
+    onAnnullaUltimoBackup: () -> Unit,
 ) {
     val graph = remember(manifest) { buildSceneGraph(manifest) }
     val scenesById = remember(manifest) { manifest.scenes.associateBy { it.id } }
@@ -147,20 +162,29 @@ fun MapScreen(
     // PackageValidator sull'intero manifest corrente, stesso codice della
     // CLI `validate`, zero logica duplicata.
     var risultatoValidazione by remember { mutableStateOf<ValidationResult?>(null) }
-    // Conferma di eliminazione (§15.5, Michele: "la possibilità di
-    // cancellare... le scene selezionate") — azione distruttiva (anche
-    // se recuperabile dai backup, §10), stesso principio della conferma
-    // di sovrascrittura sopra: null = nessun dialogo aperto.
-    var sceneDaEliminare by remember { mutableStateOf<String?>(null) }
+    // Conferma di eliminazione (§15.5/§17.3, Michele: "la possibilità di
+    // cancellare... le scene selezionate", poi estesa a un insieme con
+    // Ctrl+click) — azione distruttiva (anche se recuperabile dai
+    // backup, §10), stesso principio della conferma di sovrascrittura
+    // sopra: insieme vuoto = nessun dialogo aperto.
+    var sceneIdsDaEliminare by remember { mutableStateOf<Set<String>>(emptySet()) }
     // Risorse personalizzate (§15.7, Michele: "risorse... fornite da chi
     // crea il libro"): pannello a parte, non un dialogo di conferma —
     // niente di distruttivo qui, si apre e si chiude liberamente.
     var mostraRisorsePersonalizzate by remember { mutableStateOf(false) }
+    // "↩ Annulla" (§17.5, Michele: "l'annulla ti riporta al backup -1"):
+    // disponibile solo se esiste già un backup per QUESTO file — niente
+    // errore a sorpresa su un libro appena aperto senza salvataggi in
+    // questa sessione. Aggiornato a true subito dopo ogni salvataggio
+    // riuscito (che crea sempre almeno .bak1).
+    var backupDisponibile by remember(file) { mutableStateOf(esisteBackup(file)) }
+    var mostraConfermaAnnulla by remember { mutableStateOf(false) }
 
     fun salvaSu(destinazione: File) {
         val json = Json { prettyPrint = true }.encodeToString(Manifest.serializer(), manifest)
-        salvaLibro(destinazione, json)
+        salvaLibro(destinazione, json, livelliBackup)
         messaggioSalvataggio = "✓ Salvato (backup in ${destinazione.name}.bak1)"
+        backupDisponibile = true
     }
 
     fun salvaOChiediConferma(destinazione: File) {
@@ -176,7 +200,21 @@ fun MapScreen(
     var zoom by mapViewState.zoom
     var panX by mapViewState.panX
     var panY by mapViewState.panY
-    var sceneSelezionata by mapViewState.sceneSelezionata
+    var sceneSelezionate by mapViewState.sceneSelezionate
+    // Tasto Ctrl tenuto premuto (§17.3): tracciato da un ascoltatore di
+    // tastiera separato dal gesto di click, perché `detectTapGestures`
+    // non espone i modificatori di tastiera nel suo `onPress`. Letto al
+    // volo dentro `onPress` di ogni nodo.
+    var ctrlPremuto by remember { mutableStateOf(false) }
+    // Menu contestuale (§17.1, Michele: "tasto destro e di lì menu per
+    // cancellare, duplicare"): quale scena l'ha aperto, null = chiuso.
+    var menuContestualePer by remember { mutableStateOf<String?>(null) }
+    // Focus da tastiera per Canc/Esc/Ctrl (§17.1/§17.3): richiesto al
+    // primo click su un nodo o sullo sfondo, così i tasti funzionano
+    // subito dopo un'interazione con la mappa senza un click a vuoto in
+    // più; si perde naturalmente cliccando un campo di testo altrove
+    // (es. la ricerca), dove i tasti non devono agire sulla mappa.
+    val focusMappa = remember { FocusRequester() }
     // Spostamento enorme segnalato da Michele trascinando un nodo
     // (confermato: cursore e riquadro finivano in punti lontanissimi tra
     // loro, non solo un'impressione). Due rimedi insieme: (1) questo
@@ -360,17 +398,25 @@ fun MapScreen(
                     Button(onClick = {
                         scegliPercorsoSalvataggio(file.name)?.let(::salvaOChiediConferma)
                     }) { Text("Salva con nome…") }
+                    // §17.5 (Michele: "l'annulla ti riporta al backup
+                    // -1"): disabilitato senza un .bak1 per questo file,
+                    // conferma esplicita prima di eseguire (distruttivo
+                    // per lo stato non salvato).
+                    Button(
+                        onClick = { mostraConfermaAnnulla = true },
+                        enabled = backupDisponibile,
+                    ) { Text("↩ Annulla") }
                     Button(onClick = { risultatoValidazione = PackageValidator.validate(manifest) }) {
                         Text("🔍 Valida libro")
                     }
-                    // §15.5 (Michele: "la possibilità di cancellare o
-                    // aggiungere le scene selezionate"): "Nuova scena"
-                    // sempre attivo, "Elimina" solo con una scena
-                    // selezionata (contorno blu, già costruito).
+                    // §15.5/§17.3 (Michele: "la possibilità di cancellare
+                    // o aggiungere le scene selezionate", poi estesa a un
+                    // insieme): "Nuova scena" sempre attivo, "Elimina"
+                    // solo con almeno una scena selezionata.
                     Button(onClick = onNuovaScena) { Text("+ Nuova scena") }
                     Button(
-                        onClick = { sceneSelezionata?.let { sceneDaEliminare = it } },
-                        enabled = sceneSelezionata != null,
+                        onClick = { if (sceneSelezionate.isNotEmpty()) sceneIdsDaEliminare = sceneSelezionate },
+                        enabled = sceneSelezionate.isNotEmpty(),
                     ) { Text("🗑 Elimina scena") }
                     Button(onClick = { mostraRisorsePersonalizzate = true }) { Text("🔗 Risorse url:") }
                 }
@@ -378,6 +424,16 @@ fun MapScreen(
                     "${manifest.title} — ${manifest.scenes.size} scene, ${warnings.size} avvisi al caricamento",
                     style = MaterialTheme.typography.bodySmall,
                 )
+                // §17.3: contatore visibile solo con più di una scena
+                // selezionata, altrimenti il contorno blu sui nodi basta
+                // da solo (comportamento di oggi, invariato).
+                if (sceneSelezionate.size > 1) {
+                    Text(
+                        "${sceneSelezionate.size} scene selezionate",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
                 // Legenda colori (30/07/2026, Michele: "non capisco cosa
                 // rappresenta... che vuol dire viola e verde?"): sempre
                 // visibile invece di lasciarla solo a parole in chat, così
@@ -456,25 +512,62 @@ fun MapScreen(
             )
         }
 
-        sceneDaEliminare?.let { id ->
+        if (sceneIdsDaEliminare.isNotEmpty()) {
+            val idsOrdinati = sceneIdsDaEliminare.sortedBy { it.toIntOrNull() ?: Int.MAX_VALUE }
             AlertDialog(
-                onDismissRequest = { sceneDaEliminare = null },
-                title = { Text("Eliminare la scena $id?") },
+                onDismissRequest = { sceneIdsDaEliminare = emptySet() },
+                title = {
+                    Text(
+                        if (idsOrdinati.size == 1) "Eliminare la scena ${idsOrdinati.first()}?"
+                        else "Eliminare ${idsOrdinati.size} scene?",
+                    )
+                },
                 text = {
                     Text(
-                        "I collegamenti di altre scene verso $id resteranno come riferimenti a una " +
-                            "scena non più esistente (si vedono rossi sulla mappa, non vengono corretti da soli).",
+                        if (idsOrdinati.size == 1) {
+                            "I collegamenti di altre scene verso ${idsOrdinati.first()} resteranno come riferimenti a una " +
+                                "scena non più esistente (si vedono rossi sulla mappa, non vengono corretti da soli)."
+                        } else {
+                            "Scene coinvolte: ${idsOrdinati.joinToString(", ")}. I collegamenti di altre scene verso di " +
+                                "loro resteranno come riferimenti a scene non più esistenti (si vedono rossi sulla mappa, " +
+                                "non vengono corretti da soli)."
+                        },
                     )
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        onEliminaScena(id)
-                        if (sceneSelezionata == id) sceneSelezionata = null
-                        sceneDaEliminare = null
+                        onEliminaScene(sceneIdsDaEliminare)
+                        sceneSelezionate = sceneSelezionate - sceneIdsDaEliminare
+                        sceneIdsDaEliminare = emptySet()
                     }) { Text("Elimina") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { sceneDaEliminare = null }) { Text("Annulla") }
+                    TextButton(onClick = { sceneIdsDaEliminare = emptySet() }) { Text("Annulla") }
+                },
+            )
+        }
+
+        // §17.5 (Michele: "l'annulla ti riporta al backup -1"):
+        // distruttivo per lo stato non salvato, conferma esplicita come
+        // per l'eliminazione di una scena — non un'azione silenziosa.
+        if (mostraConfermaAnnulla) {
+            AlertDialog(
+                onDismissRequest = { mostraConfermaAnnulla = false },
+                title = { Text("Tornare all'ultimo backup?") },
+                text = {
+                    Text(
+                        "Il libro tornerà com'era prima dell'ultimo salvataggio. Qualunque modifica fatta da " +
+                            "allora (salvata o no) andrà persa.",
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        mostraConfermaAnnulla = false
+                        onAnnullaUltimoBackup()
+                    }) { Text("Annulla il salvataggio") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { mostraConfermaAnnulla = false }) { Text("Chiudi") }
                 },
             )
         }
@@ -592,6 +685,40 @@ fun MapScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
+                // Focus da tastiera (§17.1/§17.3): serve per ricevere
+                // Canc/Esc/Ctrl. Richiesto esplicitamente sotto, non
+                // automatico all'apertura della mappa — coerente con
+                // "il focus segue l'ultima area cliccata", non un
+                // furto di focus a sorpresa da un campo di testo.
+                .focusRequester(focusMappa)
+                .focusable()
+                .onKeyEvent { evento ->
+                    when {
+                        evento.key == Key.CtrlLeft || evento.key == Key.CtrlRight -> {
+                            ctrlPremuto = evento.type == KeyEventType.KeyDown
+                            false
+                        }
+                        evento.type != KeyEventType.KeyDown -> false
+                        // §17.1/§17.3 (Michele: "la seleziono e premo
+                        // canc"): stesso comportamento del pulsante "🗑
+                        // Elimina scena", singola o multipla.
+                        evento.key == Key.Delete || evento.key == Key.Backspace -> {
+                            if (sceneSelezionate.isNotEmpty()) {
+                                sceneIdsDaEliminare = sceneSelezionate
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        // Deseleziona tutto (oggi solo il click sullo
+                        // sfondo lo fa) — comodo con la multi-selezione.
+                        evento.key == Key.Escape -> {
+                            sceneSelezionate = emptySet()
+                            true
+                        }
+                        else -> false
+                    }
+                }
                 // 30/07/2026, Michele: "le immagini centrali potessero
                 // uscire fuori dallo sfondo e andare sopra i controlli"
                 // — senza un clip esplicito, un nodo che il pan porta
@@ -637,11 +764,17 @@ fun MapScreen(
                 }
                 // Click sullo sfondo (fuori da qualunque nodo) toglie la
                 // selezione con contorno blu — coerente con l'aspettativa
-                // che "clicco altrove" deselezioni.
+                // che "clicco altrove" deselezioni. Richiede anche il
+                // focus da tastiera (§17.1/§17.3): dopo aver cliccato la
+                // mappa, Canc/Esc agiscono subito.
                 .pointerInput(Unit) {
-                    detectTapGestures(onTap = { sceneSelezionata = null })
+                    detectTapGestures(onTap = {
+                        focusMappa.requestFocus()
+                        sceneSelezionate = emptySet()
+                    })
                 },
         ) {
+            LaunchedEffect(Unit) { focusMappa.requestFocus() }
             Box(
                 modifier = Modifier.graphicsLayer(
                     scaleX = zoom,
@@ -690,10 +823,11 @@ fun MapScreen(
                     val isAttiva = ricercaAttiva && corrispondenze.getOrNull(indiceCorrente)?.id == nodo.sceneId
                     // Selezione con click singolo (30/07/2026, Michele:
                     // "quando clicco una scena devi contornarla di un
-                    // blu") — stesso blu della corrispondenza di ricerca
-                    // attiva, priorità più bassa: se le due coincidono non
-                    // cambia nulla a vista.
-                    val isSelezionata = nodo.sceneId == sceneSelezionata
+                    // blu"; §17.3: multi-selezione con Ctrl+click) —
+                    // stesso blu della corrispondenza di ricerca attiva,
+                    // priorità più bassa: se le due coincidono non cambia
+                    // nulla a vista.
+                    val isSelezionata = nodo.sceneId in sceneSelezionate
                     // Vicinato (§6.1): fuori dal mouse-over, tutti a piena
                     // opacità; con un nodo sotto mouse, solo lui e i suoi
                     // collegati diretti restano leggibili.
@@ -762,6 +896,19 @@ fun MapScreen(
                             .onPointerEvent(PointerEventType.Exit) {
                                 if (nodoSottoMouse == nodo.sceneId) nodoSottoMouse = null
                             }
+                            // §17.1 (Michele: "tasto destro e di lì menu
+                            // per cancellare, duplicare"): il menu agisce
+                            // SEMPRE sul solo nodo cliccato col tasto
+                            // destro, non sull'eventuale multi-selezione
+                            // — `detectTapGestures.onPress` sotto scatta
+                            // comunque anche per il tasto destro (non
+                            // distingue i bottoni) e collassa da solo la
+                            // selezione a questo nodo, quindi al momento
+                            // in cui il menu si apre non c'è comunque mai
+                            // più di un nodo selezionato.
+                            .onPointerEvent(PointerEventType.Press) {
+                                if (it.button == PointerButton.Secondary) menuContestualePer = nodo.sceneId
+                            }
                             // Interazione nodo (30/07/2026, Michele: "questo
                             // si dovrebbe aprire con il double click e
                             // permettere il movimento con un solo click") —
@@ -793,7 +940,22 @@ fun MapScreen(
                             // dovrebbe restare selezionata la 5".
                             .pointerInput(nodo.sceneId) {
                                 detectTapGestures(
-                                    onPress = { sceneSelezionata = nodo.sceneId },
+                                    // §17.3 (Michele: "una multi selezione
+                                    // tenendo premuto ctrl"): Ctrl aggiunge/
+                                    // toglie questo nodo dall'insieme
+                                    // selezionato invece di sostituirlo.
+                                    onPress = {
+                                        focusMappa.requestFocus()
+                                        sceneSelezionate = if (ctrlPremuto) {
+                                            if (nodo.sceneId in sceneSelezionate) {
+                                                sceneSelezionate - nodo.sceneId
+                                            } else {
+                                                sceneSelezionate + nodo.sceneId
+                                            }
+                                        } else {
+                                            setOf(nodo.sceneId)
+                                        }
+                                    },
                                     onDoubleTap = { onSceneSelected(nodo.sceneId) },
                                 )
                             }
@@ -878,6 +1040,28 @@ fun MapScreen(
                                 color = if (immagineNodo != null) Color(0xFFE0E0E0) else Color.DarkGray,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        // §17.1/§17.2 (Michele: "tasto destro e di lì
+                        // menu per cancellare, duplicare"): sempre sul
+                        // solo nodo cliccato (vedi commento sopra).
+                        DropdownMenu(
+                            expanded = menuContestualePer == nodo.sceneId,
+                            onDismissRequest = { menuContestualePer = null },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Duplica") },
+                                onClick = {
+                                    menuContestualePer = null
+                                    onDuplicaScena(nodo.sceneId)
+                                },
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Elimina") },
+                                onClick = {
+                                    menuContestualePer = null
+                                    sceneIdsDaEliminare = setOf(nodo.sceneId)
+                                },
                             )
                         }
                     }

@@ -31,11 +31,17 @@ Tre pulsanti:
 - **"Carica libro esistente"** — apre un libro già scritto (un file
   `.json`).
 - **"Crea libro nuovo"** — comincia un libro da zero.
-- **"⚙ Impostazioni"** — tema, carattere, grandezza del testo (§8).
+- **"⚙ Impostazioni"** — tema, carattere, grandezza del testo, livelli
+  di backup (§7).
 
 In basso a destra, su **ogni schermata dell'editor**, un pulsante
 alterna il tema chiaro/scuro (**"🌙 Scuro"** quando sei in chiaro,
 **"☀ Chiaro"** quando sei in scuro).
+
+Se hai già aperto o creato dei libri, sotto compare **"Libri
+recenti"**: un click su un titolo lo riapre subito, senza passare dal
+selettore file. Un libro spostato o cancellato sparisce da solo da
+questa lista (senza errori).
 
 ## 3. Aprire un libro già esistente
 
@@ -105,11 +111,19 @@ in alto a destra per non perdere l'informazione).
   **"−"**/**"+"** in alto, stessa percentuale mostrata in mezzo).
 - **Trascina con il tasto sinistro sullo sfondo** (fuori da un
   riquadro) — sposta la visuale (pan).
-- **Click sinistro su un riquadro** — lo seleziona (contorno blu).
-- **Click sinistro sullo sfondo** (fuori da ogni riquadro) —
-  deseleziona.
+- **Click sinistro su un riquadro** — lo seleziona (contorno blu),
+  sostituendo la selezione precedente.
+- **Ctrl + click sinistro su un riquadro** — lo aggiunge alla
+  selezione (o lo toglie, se era già selezionato) senza perdere gli
+  altri: così puoi selezionare più scene insieme, per eliminarle tutte
+  in un colpo solo (sotto).
+- **Click sinistro sullo sfondo** (fuori da ogni riquadro), oppure
+  **tasto Esc** — deseleziona tutto.
 - **Doppio click su un riquadro** — apre quella scena per modificarla
   (§6).
+- **Tasto destro su un riquadro** — apre un menu con **"Duplica"** (§5.2)
+  ed **"Elimina"**, sempre riferito a quel singolo riquadro anche se
+  avevi altre scene selezionate.
 - **Trascina un riquadro** — lo sposta a mano sulla mappa (solo per
   vederci meglio: questa posizione non si salva nel libro, si perde
   ricaricandolo o premendo "⟳ Riordina").
@@ -132,11 +146,17 @@ in alto a destra per non perdere l'informazione).
   solo un collegamento di riserva verso la scena di morte del libro
   ("rete di sicurezza") — così non lasci mai per sbaglio un vicolo
   cieco che blocca il gioco.
-- **"🗑 Elimina scena"** — attivo solo se hai selezionato un riquadro
-  (contorno blu). Chiede conferma: **"Eliminare la scena ID?"**,
-  avvisando che i collegamenti di altre scene verso quella eliminata
-  resteranno (si vedranno rossi sulla mappa, l'editor non li corregge
-  da solo).
+- **"🗑 Elimina scena"** (o il tasto **Canc**/**Backspace** sulla
+  tastiera) — attivo solo se hai selezionato almeno un riquadro
+  (contorno blu), anche più di uno insieme (sopra). Chiede conferma
+  (l'elenco delle scene coinvolte se sono più di una), avvisando che i
+  collegamenti di altre scene verso quelle eliminate resteranno (si
+  vedranno rossi sulla mappa, l'editor non li corregge da solo).
+- **"Duplica"** (dal menu del tasto destro) — crea una copia della
+  scena con tutti i suoi contenuti (testo, immagini, combattimento,
+  scelte) e un nuovo numero, e apre subito la copia per modificarla.
+  Le scelte della copia puntano ancora alle stesse destinazioni
+  dell'originale: correggile a mano se la copia deve portare altrove.
 
 ### 5.3 Cercare una scena
 
@@ -150,12 +170,17 @@ l'ultimo. Se non trova nulla, scrive **"Nessuna corrispondenza"**.
 
 - **"💾 Salva libro"** — sovrascrive il file. La PRIMA volta che lo fai
   in una sessione di lavoro, chiede conferma spiegando che verrà
-  creata una copia di sicurezza automatica (§9); le volte successive
+  creata una copia di sicurezza automatica (§8); le volte successive
   non chiede più (fino a quando non chiudi l'editor). Dopo il
   salvataggio compare per un momento la scritta **"✓ Salvato (backup
   in NOME.bak1)"**.
 - **"Salva con nome…"** — salva su un nuovo file, scelto dalla
   finestra di sistema.
+- **"↩ Annulla"** — riporta il libro com'era prima dell'ULTIMO
+  salvataggio (una sola copia indietro, non una cronologia intera).
+  Disattivo se non hai ancora salvato nulla in questa sessione. Chiede
+  sempre conferma: qualunque modifica fatta dopo l'ultimo salvataggio
+  (salvata o no) va persa.
 - **"🔍 Valida libro"** — controlla tutto il libro e apre un popup:
   **"Libro VALIDO (N avvisi)"** oppure **"Libro NON VALIDO"**, con
   l'elenco di errori e avvisi. Da fare ogni tanto, specialmente prima
@@ -246,23 +271,28 @@ Dalla schermata iniziale, **"⚙ Impostazioni"**:
 - **Font** — 4 caratteri a scelta (Almendra, Cinzel Decorative,
   MedievalSharp, Uncial Antiqua), applicati a tutta l'interfaccia.
 - **Grandezza testo** — tre passi (**"A-"**/**"A"**/**"A+"**).
+- **Livelli di backup** — da 3 a 9 (default 5), vedi §8: quante copie
+  di sicurezza tenere prima di iniziare a sovrascrivere le più vecchie.
 
-Tutte e tre le scelte restano memorizzate anche dopo aver chiuso e
-riaperto l'editor.
+Tutte le scelte restano memorizzate anche dopo aver chiuso e riaperto
+l'editor.
 
 ## 8. Le copie di sicurezza automatiche
 
 Ogni volta che salvi un libro (sovrascrivendo il file), l'editor crea
 prima una copia del file **così com'era prima** — si accumulano fino
-a 5 copie via via più vecchie (`NOME.json.bak1` la più recente,
-`.bak5` la più vecchia), nella stessa cartella del libro. Se ti accorgi
-di un errore grosso appena fatto, puoi recuperare rinominando la copia
-`.bak1` sopra al file principale.
+al numero di copie scelto in Impostazioni (§7: da 3 a 9, default 5),
+via via più vecchie (`NOME.json.bak1` la più recente, `.bakN` la più
+vecchia), nella stessa cartella del libro. Se ti accorgi di un errore
+grosso appena fatto, il pulsante **"↩ Annulla"** (§5.4) fa lo stesso
+lavoro in automatico; per tornare più indietro di un solo passo puoi
+comunque rinominare a mano una copia `.bakN` più vecchia sopra al file
+principale.
 
-Non è una cronologia completa (solo le ultime 5 versioni, non "torna a
-ieri"): per una sicurezza più solida su un libro importante, tieni tu
-stesso delle copie separate ogni tanto (es. su una chiavetta o un
-cloud), specialmente prima di sessioni di lavoro lunghe.
+Non è una cronologia completa (solo le ultime copie configurate, non
+"torna a ieri"): per una sicurezza più solida su un libro importante,
+tieni tu stesso delle copie separate ogni tanto (es. su una chiavetta
+o un cloud), specialmente prima di sessioni di lavoro lunghe.
 
 ## 9. Un limite da conoscere
 

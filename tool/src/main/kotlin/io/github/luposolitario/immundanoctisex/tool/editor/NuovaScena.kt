@@ -20,6 +20,16 @@ fun nuovaScenaVuota(manifest: Manifest): Scene {
     )
 }
 
+// Duplica una scena esistente (§17.2, Michele: "duplicare... penso che
+// il rinomino non ha senso visto che il codice è auto generato"): copia
+// TUTTI i campi, solo l'ID cambia (stessa numerazione progressiva di
+// nuovaScenaVuota) — le scelte della copia puntano quindi alle STESSE
+// destinazioni dell'originale, da correggere a mano se la copia deve
+// portare altrove. Niente rete di sicurezza (conReteDiSicurezza): una
+// scena duplicata non è "nuova" in quel senso, è già contenuto scritto.
+fun duplicaScena(originale: Scene, manifest: Manifest): Scene =
+    originale.copy(id = nuovaScenaVuota(manifest).id)
+
 // Rete di sicurezza per scene nuove senza uscita (§15.5, Michele: "ogni
 // nuova scena per default se non ha collegamenti deve collegarsi alla
 // scena di sconfitta di default... questo sistema il problema in alcuni
