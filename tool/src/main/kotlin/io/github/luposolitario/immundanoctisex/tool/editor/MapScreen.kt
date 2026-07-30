@@ -574,9 +574,22 @@ fun MapScreen(
                             // spostamento consumato dall'altro rilevatore
                             // e si ritira), quindi non c'è conflitto tra i
                             // due.
+                            // 30/07/2026, Michele: "c'è un certo lag nella
+                            // selezione, il blu non è immediato" — con
+                            // `onTap`, Compose ASPETTA il tempo limite del
+                            // doppio click prima di confermare che era un
+                            // singolo tap (altrimenti non potrebbe
+                            // distinguerli), quindi il ritardo era
+                            // strutturale. `onPress` invece scatta
+                            // all'istante, alla pressione, senza aspettare
+                            // di sapere se diventerà un tap, un doppio tap
+                            // o un trascinamento — stesso motivo per cui
+                            // ora seleziona anche a inizio trascinamento,
+                            // coerente con "sto spostando la scena 4, non
+                            // dovrebbe restare selezionata la 5".
                             .pointerInput(nodo.sceneId) {
                                 detectTapGestures(
-                                    onTap = { sceneSelezionata = nodo.sceneId },
+                                    onPress = { sceneSelezionata = nodo.sceneId },
                                     onDoubleTap = { onSceneSelected(nodo.sceneId) },
                                 )
                             }
@@ -648,13 +661,22 @@ fun MapScreen(
             // il nodo IN QUEL MOMENTO trascinato (`nodoTrascinato`), che
             // torna null appena rilasci il tasto — quindi spariva proprio
             // nell'istante in cui Michele faceva lo screenshot per
-            // controllare il risultato. Usa invece `nodoSottoMouse` (il
-            // hover, non il trascinamento): resta valorizzato finché il
-            // cursore sta sopra quel nodo, quindi resta visibile anche
-            // subito DOPO aver rilasciato — esattamente quando serve
-            // guardare il numero.
-            if (posizioneMouse != null || nodoSottoMouse != null) {
-                val etichettaScena = nodoSottoMouse?.let { id ->
+            // controllare il risultato. Passato a `nodoSottoMouse` (il
+            // hover) per quello.
+            // 30/07/2026, terzo giro: durante un trascinamento vero
+            // Michele segnala che la riga della scena non compare affatto
+            // — `nodoSottoMouse` dipende da eventi Enter/Exit basati sulla
+            // posizione ATTUALE del nodo, e mentre il nodo si sposta sotto
+            // il cursore durante il drag questi eventi non sono affidabili
+            // (il nodo è un frame indietro rispetto al cursore). Priorità
+            // a `nodoTrascinato` quando presente (deterministico, deciso
+            // da noi in onDragStart/onDragEnd, non dall'hit-test) — resta
+            // affidabile DURANTE il trascinamento; ricade su
+            // `nodoSottoMouse` solo dopo il rilascio, quando torna a
+            // essere l'hover a decidere.
+            val nodoDaMostrare = nodoTrascinato ?: nodoSottoMouse
+            if (posizioneMouse != null || nodoDaMostrare != null) {
+                val etichettaScena = nodoDaMostrare?.let { id ->
                     val pos = posizioneEffettiva(id)
                     if (pos != null) " · scena $id -> (${pos.x.roundToInt()}, ${pos.y.roundToInt()})" else " · scena $id"
                 }.orEmpty()

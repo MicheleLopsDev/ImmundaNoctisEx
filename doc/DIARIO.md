@@ -1917,6 +1917,35 @@ scoperto durante questo giro che il semplice `--rerun` del giro
 precedente non forza una vera ricompilazione), 19/19 test verdi
 invariati.
 
+**Nono giro (stesso giorno)**: Michele segnala tre cose insieme, tutte
+reali, in un colpo solo: (1) trascinando la scena 4 restava marcata
+selezionata (blu) la 5, invece della 4; (2) durante quel trascinamento
+la riga della scena nell'overlay di debug non compariva affatto; (3)
+"c'è un certo lag nella selezione, il blu intorno alla scena non è
+immediato".
+
+- **(3) è strutturale, non un errore**: `onTap` in Compose ASPETTA il
+  tempo limite del doppio click prima di confermare che era un
+  singolo tap — altrimenti non potrebbe distinguerlo da un doppio tap
+  in corso. Sostituito con `onPress` (stesso `detectTapGestures`), che
+  scatta all'istante alla pressione, senza aspettare di sapere se
+  diventerà un tap, un doppio tap o un trascinamento.
+- Questo stesso cambio risolve anche **(1)**: `onPress` scatta anche
+  quando la pressione diventa poi un trascinamento (è lo stesso evento
+  di partenza), quindi trascinare un nodo lo seleziona subito — non
+  serve più un aggancio separato in `onDragStart`.
+- **(2)**: `nodoSottoMouse` (l'hover) dipende da eventi Enter/Exit
+  legati alla posizione ATTUALE del nodo — mentre il nodo si muove
+  sotto il cursore durante un trascinamento questi eventi non sono
+  affidabili (il nodo è graficamente un frame indietro rispetto al
+  cursore). L'overlay ora dà priorità a `nodoTrascinato` quando
+  presente (deciso da noi in `onDragStart`/`onDragEnd`, non
+  dall'hit-test — affidabile per definizione durante il trascinamento)
+  e ricade su `nodoSottoMouse` solo dopo il rilascio.
+
+Compilazione e test verificati con `--rerun-tasks`, 19/19 test verdi
+invariati.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
