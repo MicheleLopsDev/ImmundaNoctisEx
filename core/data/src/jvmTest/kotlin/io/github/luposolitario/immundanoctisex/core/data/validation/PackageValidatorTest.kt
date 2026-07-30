@@ -209,4 +209,40 @@ class PackageValidatorTest {
         assertTrue(result.errors.isEmpty())
         assertTrue(result.warnings.any { it.contains("duplicato") && it.contains("immagini") })
     }
+
+    @Test
+    fun unaSceneSenzaSfxNonHaErrori() {
+        val result = PackageValidator.validate(manifest(listOf(scene("1", SceneType.START))))
+
+        assertTrue(result.errors.isEmpty())
+    }
+
+    @Test
+    fun unSfxRegistratoInCustomResourcesNonDaErrori() {
+        val libro = manifest(listOf(scene("1", SceneType.START).copy(sfx = "mio_suono"))).copy(
+            customResources = CustomResources(sounds = listOf(CustomResourceEntry("mio_suono", "https://example.invalid/a.mp3"))),
+        )
+
+        val result = PackageValidator.validate(libro)
+
+        assertTrue(result.errors.isEmpty())
+    }
+
+    @Test
+    fun unSfxNonRegistratoVieneRigettato() {
+        val start = scene("1", SceneType.START).copy(sfx = "sconosciuto")
+
+        val result = PackageValidator.validate(manifest(listOf(start)))
+
+        assertTrue(result.errors.any { it.contains("sfx") && it.contains("sconosciuto") })
+    }
+
+    @Test
+    fun unSfxVuotoVieneRigettato() {
+        val start = scene("1", SceneType.START).copy(sfx = "")
+
+        val result = PackageValidator.validate(manifest(listOf(start)))
+
+        assertTrue(result.errors.any { it.contains("sfx") && it.contains("vuota") })
+    }
 }

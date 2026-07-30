@@ -560,6 +560,20 @@ l'editor (`doc/EDITOR.md` §15 e oltre) non è concluso. Da riprendere
 quando si deciderà il passaggio del client al registro risorse
 dinamico — stesso punto di decisione, motivazione aggiornata.
 
+**Aggiornamento (30/07/2026)**: Michele decide di raggruppare in
+questa stessa sessione futura anche il supporto lato client per
+`Scene.sfx` (`doc/EDITOR.md` §18.3, `doc/SCHEMA-JSON.md` §4.4) — un
+suono personalizzato `url:` scelto dall'autore, oggi valido nello
+schema e nell'editor ma non ancora suonabile dal client
+(`SoundEffectPlayer.kt` sa suonare solo file già dentro l'APK).
+Motivo: entrambi i lavori richiedono la STESSA cosa nuova per il
+client — scaricare e mettere in cache una risorsa da `url:` a runtime,
+invece che leggerla solo da asset bundlati — farli insieme evita di
+costruire due volte lo stesso meccanismo in due sessioni separate. A
+differenza del resto di questa sezione, il supporto sfx **non è
+facoltativo**: è un campo dello schema già attivo, il client deve
+saperlo suonare quando presente.
+
 ## 8. Verifica di esistenza delle risorse `url:` nell'editor
 
 **Origine (30/07/2026)**: durante il lavoro sul pannello "Risorse del

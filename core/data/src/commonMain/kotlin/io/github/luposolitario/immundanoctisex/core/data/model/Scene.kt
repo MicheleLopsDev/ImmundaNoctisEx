@@ -47,4 +47,16 @@ data class Scene(
     // Solo per sceneType ENDING: come si chiude l'avventura. Assente su
     // una scena di finale = NEUTRAL (l'esito non viene inventato).
     val outcome: EndingOutcome? = null,
+    // Effetto sonoro personalizzato (30/07/2026, Michele: "il creatore
+    // del libro può scegliere un sfx con un suo mp3 da un url... dobbiamo
+    // capire come semplificare la cosa"): se valorizzato, SOVRASCRIVE il
+    // suono automatico ricavato dal nome dell'immagine static: (invariato
+    // quando è null — nessun libro esistente cambia comportamento).
+    // Non un url: diretto come le immagini: un ID che DEVE corrispondere
+    // a una voce già registrata in `Manifest.customResources.sounds`
+    // (§15.7) — stesso principio del vocabolario chiuso dei toni (§15.2):
+    // "aggiungere risorse deve essere una cosa seria e voluta", e riusare
+    // lo stesso ID su più scene evita di duplicare inutilmente la stessa
+    // risorsa in cache lato client. Validato da SfxValidator.
+    val sfx: String? = null,
 )

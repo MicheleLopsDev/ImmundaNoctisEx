@@ -2682,6 +2682,42 @@ dall'ID `static:` dello sfondo) con un mp3 a scelta dell'autore via
 `url:`. Impatta lo schema JSON (`core:data`, nuovo campo su `Scene`),
 non solo l'editor — vedi turno successivo per l'analisi.
 
+**`Scene.sfx` progettato e implementato (30/07/2026)**: analizzato
+prima come suonano oggi i due meccanismi separati — l'"▶ Ascolta"
+dell'editor (JLayer, solo anteprima, mai nel gioco vero) e
+`SoundEffectPlayer.playNamed()` del client (`:app`, suona SOLO file
+già dentro l'APK via `context.assets`, nessun download da rete).
+Michele affina la proposta due volte: (1) `sfx` sovrascrive sempre il
+meccanismo automatico, anche sopra un'immagine `static:`; (2) non un
+`url:` scritto a mano come le immagini — deve essere l'`id` di una
+voce già registrata in `customResources.sounds`, "aggiungere risorse
+deve essere una cosa seria e voluta" e riusare lo stesso ID su più
+scene evita di sprecare cache lato client in futuro. Segnalato
+esplicitamente un cambio di principio: `customResources` non è più
+"il client non deve saperlo" (§15.7) — per `sfx` il client DOVRÀ
+leggerlo per risolvere l'ID.
+
+Implementato: `Scene.sfx: String? = null` (`core:data`), nuovo
+`SfxValidator` (errore bloccante su ID vuoto o non registrato,
+composto in `PackageValidator` come gli altri), 4 test nuovi in
+`PackageValidatorTest`. Nell'editor: sezione "Effetto sonoro
+personalizzato" nella maschera scena, un `SfxDropdown` (stesso
+pattern di `DisciplinaDropdown`) con "Nessuno" + un elemento per ogni
+suono registrato — mai testo libero, stesso principio del vocabolario
+chiuso dei toni (§15.2). Se nessun suono è ancora registrato, un
+messaggio guida al pannello risorse invece di un campo vuoto e muto.
+
+Il lato client (scaricare/mettere in cache/suonare da un `url:` a
+runtime) resta rimandato per scelta di Michele — raggruppato con la
+revisione delle immagini animate GIF/WebP (`doc/UPGRADE.md` §7,
+aggiornato) perché entrambi richiedono la stessa capacità nuova del
+client. Marcato esplicitamente come lavoro OBBLIGATORIO quando si
+arriverà lì (non facoltativo come il resto di quella sezione).
+
+`:core:data:jvmTest`, `:tool:compileKotlin`/`:tool:test` e
+`:app:testDebugUnitTest` tutti verdi — nessuna regressione sui libri
+esistenti (`sfx` è `null` di default).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

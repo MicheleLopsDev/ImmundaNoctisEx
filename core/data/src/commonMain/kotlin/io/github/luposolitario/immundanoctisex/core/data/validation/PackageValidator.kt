@@ -14,6 +14,7 @@ object PackageValidator {
             GameMechanicValidator.validate(manifest) +
             GlobalRuleValidator.validate(manifest) +
             ImageReferenceValidator.validate(manifest) +
-            CustomResourcesValidator.validate(manifest)
+            CustomResourcesValidator.validate(manifest) +
+            SfxValidator.validate(manifest)
     }
 }

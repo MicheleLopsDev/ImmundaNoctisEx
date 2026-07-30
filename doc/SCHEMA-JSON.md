@@ -143,6 +143,7 @@ Campi comuni a ogni scena, indipendentemente dal tipo:
 | `combat` | `Combat` o `null` | no | `null` | Blocco di combattimento, se la scena ne ha uno (vedi §6). |
 | `gameMechanics` | array di `GameMechanic` | no | `[]` | Comandi eseguiti all'ingresso in scena, in ordine (vedi §8). |
 | `outcome` | enum o `null` | no | `null` | Solo per `sceneType: "ENDING"` — come finisce l'avventura (vedi §4.3). |
+| `sfx` | stringa o `null` | no | `null` | Effetto sonoro personalizzato che SOVRASCRIVE quello automatico ricavato dal nome dell'immagine `static:` (vedi §4.4). |
 
 ### 4.1 `sceneType`
 
@@ -213,6 +214,43 @@ inesistente), il motore ne **fabbrica uno al volo** (testo generato al
 momento, o un testo fisso se il narratore non è disponibile) — un
 libro non lascia mai il giocatore bloccato senza sapere come è
 andata.
+
+### 4.4 `sfx` (effetto sonoro personalizzato, 30/07/2026)
+
+A differenza di `backgroundImage`/`npcImage`/`combat.enemyImage`
+(§4.2), **non è un `url:` scritto a mano**: è l'`id` di una voce già
+registrata in `manifest.customResources.sounds` (§2). Questa
+asimmetria è voluta (Michele: "aggiungere risorse deve essere una
+cosa seria e voluta") — registrare un suono richiede un passo
+esplicito nell'editor prima di poterlo usare in una scena, e riusare
+lo stesso `id` su più scene evita di duplicare inutilmente la stessa
+risorsa in cache lato client.
+
+```json
+"customResources": {
+  "sounds": [ { "id": "campana_a_morto", "url": "https://..." } ]
+},
+"scenes": [
+  { "id": "12", "sfx": "campana_a_morto", "...": "..." }
+]
+```
+
+**Comportamento**:
+- `null` (default, tutti i libri di oggi) — nessun cambiamento: il
+  gioco continua a cercare un suono ambientale associato al nome
+  dell'immagine `static:` di sfondo, come sempre.
+- Valorizzato — **sostituisce del tutto** quella ricerca automatica,
+  anche se la scena usa comunque un'immagine `static:`.
+
+**Validazione**: un `sfx` che non corrisponde a nessun `id` in
+`customResources.sounds` è un **errore bloccante** (`SfxValidator`,
+`core:data`), non un avviso — un riferimento silenziosamente ignorato
+sarebbe peggiore di un blocco esplicito in fase di validazione.
+
+**Nota**: al momento della scrittura di questa sezione, il motore di
+gioco (`:app`) non sa ancora scaricare/mettere in cache un mp3 da
+`url:` a runtime (sa solo suonare file già dentro l'APK) — il supporto
+lato client è rimandato, vedi `doc/UPGRADE.md` §7.
 
 ---
 
@@ -496,6 +534,8 @@ caricamento** (errore bloccante):
   prefisso riconosciuto è rifiutato.
 - **Un `url:` accetta solo schema `http://` o `https://`** — mai
   `file://` o altri schemi.
+- **`sfx` valorizzato** deve corrispondere a un `id` presente in
+  `customResources.sounds` (§4.4) — mai vuoto, mai un ID inesistente.
 
 Solo un **avviso**, non blocca il caricamento:
 

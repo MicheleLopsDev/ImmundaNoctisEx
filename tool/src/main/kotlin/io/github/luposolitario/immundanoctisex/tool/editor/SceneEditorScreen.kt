@@ -97,6 +97,12 @@ fun SceneEditorScreen(
     var disciplineChoices by remember(scene.id) { mutableStateOf(scene.disciplineChoices) }
     var backgroundImage by remember(scene.id) { mutableStateOf(scene.backgroundImage ?: "") }
     var npcImage by remember(scene.id) { mutableStateOf(scene.npcImage ?: "") }
+    // Effetto sonoro personalizzato (30/07/2026, Michele: "un id_url
+    // presente nella sezione risorse che corrisponde ad un mp3"):
+    // vocabolario chiuso come i toni (§15.2), non testo libero — solo
+    // selezione da `customResources.sounds` già registrati, mai un url:
+    // scritto a mano qui (a differenza di backgroundImage/npcImage).
+    var sfx by remember(scene.id) { mutableStateOf(scene.sfx) }
 
     var haCombattimento by remember(scene.id) { mutableStateOf(scene.combat != null) }
     var combatEnemyName by remember(scene.id) { mutableStateOf(scene.combat?.enemyName ?: "") }
@@ -158,6 +164,7 @@ fun SceneEditorScreen(
         } else {
             null
         },
+        sfx = sfx,
     )
 
     Column(
@@ -239,6 +246,30 @@ fun SceneEditorScreen(
                         onValueChange = { npcImage = it },
                         modifier = Modifier.weight(1f),
                         risorsePersonalizzate = customResources.images,
+                    )
+                }
+                Spacer(Modifier.height(16.dp))
+
+                // §17 (Michele: "un id_url presente nella sezione risorse
+                // che corrisponde ad un mp3"): a differenza dei campi
+                // immagine sopra, qui NON è ammesso testo libero — solo
+                // selezione da customResources.sounds già registrati,
+                // stesso principio del vocabolario chiuso dei toni
+                // (§15.2, CreaNuovoScreen). Vuoto = nessun suono
+                // personalizzato, resta il meccanismo automatico dal
+                // nome dell'immagine static: (invariato).
+                Text("Effetto sonoro personalizzato", style = MaterialTheme.typography.titleMedium)
+                if (customResources.sounds.isEmpty()) {
+                    Text(
+                        "Nessun suono registrato — vai al pannello \"Risorse del libro\" nella mappa per registrarne uno prima.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    SfxDropdown(
+                        valore = sfx,
+                        opzioni = customResources.sounds,
+                        onValueChange = { sfx = it },
                     )
                 }
                 Spacer(Modifier.height(16.dp))
@@ -609,6 +640,38 @@ private fun CampoImmagineConAnteprima(
                         enabled = !inRiproduzione,
                     ) { Text(if (inRiproduzione) "▶ in riproduzione…" else "▶ Ascolta") }
                 }
+            }
+        }
+    }
+}
+
+// Menu a tendina sui suoni registrati in customResources.sounds (§17,
+// Michele: "un id_url presente nella sezione risorse... aggiungere
+// risorse deve essere una cosa seria e voluta"): a differenza dei campi
+// immagine (CampoImmagineConAnteprima, testo libero + suggerimenti), qui
+// SOLO selezione — niente url: scritto a mano. "Nessuno" in cima
+// riporta il campo a null (nessun sfx personalizzato per questa scena).
+@Composable
+private fun SfxDropdown(valore: String?, opzioni: List<CustomResourceEntry>, onValueChange: (String?) -> Unit) {
+    var aperto by remember { mutableStateOf(false) }
+    Box {
+        Button(onClick = { aperto = true }) { Text(valore ?: "Nessuno") }
+        DropdownMenu(expanded = aperto, onDismissRequest = { aperto = false }) {
+            DropdownMenuItem(
+                text = { Text("Nessuno") },
+                onClick = {
+                    onValueChange(null)
+                    aperto = false
+                },
+            )
+            opzioni.forEach { voce ->
+                DropdownMenuItem(
+                    text = { Text(voce.id) },
+                    onClick = {
+                        onValueChange(voce.id)
+                        aperto = false
+                    },
+                )
             }
         }
     }

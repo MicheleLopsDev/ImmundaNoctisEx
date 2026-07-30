@@ -624,7 +624,63 @@ codice dopo.
   Cambiare il valore non tocca i backup già scritti con l'impostazione
   precedente, si applica dal salvataggio successivo.
 
-## 18. Riferimenti
+## 18. Effetto sonoro personalizzato per scena (`sfx`, 30/07/2026)
+
+Origine: durante il controllo del giro §17, Michele nota che il
+meccanismo automatico del suono ambientale (nome dell'immagine
+`static:` → file bundlato) non copre chi vuole usare un mp3 proprio
+via `url:`. Discusso e progettato insieme prima di scrivere codice
+(schema, poi editor).
+
+### 18.1 Schema (`core:data`)
+
+Nuovo campo `Scene.sfx: String? = null` (vedi `doc/SCHEMA-JSON.md`
+§4.4 per il dettaglio completo). Punti fermi della progettazione:
+
+- **Sovrascrittura, non sostituzione del meccanismo esistente**: se
+  `null` (ogni libro di oggi), nulla cambia — il suono resta quello
+  derivato dal nome dell'immagine `static:`. Se valorizzato, vince
+  sempre lui, anche sopra un'immagine `static:`.
+- **Non un `url:` diretto come le immagini**: deve essere l'`id` di
+  una voce già registrata in `customResources.sounds` (§15.7) — niente
+  testo libero. Michele: "aggiungere risorse deve essere una cosa
+  seria e voluta", e riusare lo stesso ID su più scene evita di
+  duplicare la stessa risorsa in cache lato client quando (in futuro)
+  il client la scaricherà davvero.
+- **Validazione**: `SfxValidator` (nuovo, stesso schema degli altri
+  validatori componibili in `PackageValidator`) rifiuta con un
+  **errore** (non un avviso) un `sfx` vuoto o che non corrisponde a
+  nessun `id` registrato.
+
+### 18.2 Editor: selezione chiusa, non testo libero
+
+Nella maschera della scena (§7.1), una nuova sezione "Effetto sonoro
+personalizzato" tra Immagini e Combattimento:
+
+- Se `customResources.sounds` è vuoto: un messaggio spiega di
+  registrare prima un suono dal pannello "Risorse del libro" (§15.7)
+  — niente campo mostrato a vuoto e muto.
+- Altrimenti: un menu a tendina (`SfxDropdown`, stesso pattern di
+  `DisciplinaDropdown` §7.1) con **"Nessuno"** in cima (torna a
+  `null`) e un elemento per ciascun suono registrato — mai un campo di
+  testo libero, coerente col vocabolario chiuso già usato per i toni
+  (§15.2).
+
+### 18.3 Lato client — rimandato, NON un'idea libera
+
+A differenza delle altre voci di `doc/UPGRADE.md`, questa non è
+facoltativa: è un campo dello schema già attivo, il client **deve**
+saperlo suonare quando presente, non è un "se un giorno vogliamo".
+Deciso però di rimandare l'implementazione: `SoundEffectPlayer.kt`
+(`:app`) oggi sa suonare solo file già dentro l'APK (`context.assets`),
+nessun meccanismo di download/cache da `url:` a runtime. Michele:
+raggruppare questo lavoro con la revisione delle immagini animate
+GIF/WebP (`doc/UPGRADE.md` §7, già in coda per gli stessi motivi
+tecnici — entrambi richiedono che il client impari a scaricare/mettere
+in cache risorse da `url:`) invece di farlo due volte in due sessioni
+separate.
+
+## 19. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per
   scrivere libri (Michele e suo figlio): cosa vedi e cosa clicchi,
