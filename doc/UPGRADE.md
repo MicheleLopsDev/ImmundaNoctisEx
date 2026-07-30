@@ -519,3 +519,43 @@ considerazione come prossima feature papabile appena:
 **Non schedulato**: nessuna azione di codice. Da ricontrollare quando
 Michele segnala uno sviluppo, o a inizio di una futura sessione se
 emergono novità su LiteRT-LM/QNN degne di nota.
+
+## 7. Immagini animate (GIF/WebP) per libri-fumetto
+
+**Origine (30/07/2026)**: durante il lavoro sull'editor (`doc/EDITOR.md`
+§15.3), Michele chiede se il catalogo NPC/bestia/nemico supporta il
+formato WebP "così da poter aggiungere immagini un po' più animate".
+Segnalata come cosa **importante** da non perdere: a Michele è stato
+chiesto (da terzi, non ancora chiaro chi/quale libro) se con questo
+motore si possono fare **libri-game da fumetti animati, tipo GIF o
+WebP** — un uso più ambizioso della semplice illustrazione statica di
+scena, verso qualcosa più vicino a un fumetto animato.
+
+**Verificato prima di rimandare** (non un rinvio alla cieca):
+- **WebP statico**: già pienamente supportato oggi, zero lavoro —
+  Android tratta `.webp` in `res/drawable-nodpi/` come qualunque altro
+  formato raster, `painterResource` non fa differenza.
+- **Contenuti ANIMATI (GIF o WebP animato)**: bloccati non dal
+  formato ma dal PERCORSO di caricamento attuale.
+  `SceneImages.kt`/`NpcImages.kt`/`EnemyImages.kt` passano da
+  `painterResource(R.drawable.xxx)`, che mostra sempre un unico
+  fotogramma statico per costruzione — nessun formato animerebbe lì.
+  Servirebbe (a) l'artefatto `coil-gif` (oggi non incluso, solo
+  `coil-compose`) e (b) spostare quei cataloghi dal binario
+  `painterResource`/`R.drawable` al percorso Coil già usato per gli
+  `url:`, l'unico che sa gestire contenuti animati.
+  `minSdk=34` copre già comodamente `ImageDecoder`/
+  `AnimatedImageDrawable` (disponibili da API 28 in su), nessun
+  problema di compatibilità su questo fronte.
+- Coincide con la migrazione del catalogo statico a un registro
+  dinamico già discussa e rimandata apposta durante la costruzione
+  dell'editor (`doc/EDITOR.md` §15.1) — qui avrebbe un motivo concreto
+  in più (l'animazione), non solo la comodità di aggiungere risorse
+  senza ricompilare.
+
+**Decisione di Michele**: rimandata di proposito — "prima finiamo
+l'editor, non voglio rimettere mano al client per ora". Non è un
+rifiuto, è un ordine di priorità: il client resta fermo finché
+l'editor (`doc/EDITOR.md` §15 e oltre) non è concluso. Da riprendere
+quando si deciderà il passaggio del client al registro risorse
+dinamico — stesso punto di decisione, motivazione aggiornata.
