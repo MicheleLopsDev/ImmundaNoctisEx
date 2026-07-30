@@ -39,9 +39,12 @@ alterna il tema chiaro/scuro (**"🌙 Scuro"** quando sei in chiaro,
 **"☀ Chiaro"** quando sei in scuro).
 
 Se hai già aperto o creato dei libri, sotto compare **"Libri
-recenti"**: un click su un titolo lo riapre subito, senza passare dal
+recenti"**: un click su una riga lo riapre subito, senza passare dal
 selettore file. Un libro spostato o cancellato sparisce da solo da
-questa lista (senza errori).
+questa lista (senza errori). Ogni riga mostra **nome del file - titolo
+- genere - lingua - descrizione** (solo i primi 30 caratteri, con
+"…" se più lunga) — se il file non si riesce proprio a leggere, vedi
+solo il nome del file seguito da "(non leggibile)".
 
 ## 3. Aprire un libro già esistente
 

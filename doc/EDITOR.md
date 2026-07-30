@@ -642,7 +642,17 @@ codice dopo.
   in grigio/non cliccabile), mai un errore a sorpresa.
 - Numero di voci da tenere: proposta 5-10, da fissare in fase di
   implementazione — non serve renderlo configurabile come i livelli
-  di backup (§17.5), è un dettaglio minore.
+  di backup (§17.5), è un dettaglio minore. Implementato a 8
+  (`MAX_LIBRI_RECENTI`, `EditorPreferences.kt`).
+- **Formato di ogni riga** (30/07/2026, Michele: "metti Nome file -
+  Titolo - GENERE - Lingua - Descrizione, solo i primi 30 char"):
+  ogni percorso viene letto al volo (solo `Json.decodeFromString` sul
+  `Manifest`, MAI passando da `PackageRepository`/`PackageValidator` —
+  un libro con errori di validazione resta comunque leggibile qui, non
+  è il posto per bloccarlo) per mostrare i metadati; se il file non è
+  nemmeno JSON valido, degrado silenzioso allo stesso principio del
+  resto dell'editor — si vede solo il nome del file con "(non
+  leggibile)", niente crash né popup d'errore a sorpresa.
 
 ### 17.5 Annulla (torna all'ultimo backup) e livelli configurabili
 

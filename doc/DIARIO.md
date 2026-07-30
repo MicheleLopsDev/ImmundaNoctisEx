@@ -2805,6 +2805,18 @@ essere condiviso — stesso file/package, nessun duplicato). "Applica"
 valida sempre con `PackageValidator` prima di accettare, "Chiudi"
 scarta. `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Lista libri recenti più ricca (§17.4, 30/07/2026, Michele: "metti
+Nome file - Titolo - GENERE - Lingua - Descrizione, solo i primi 30
+char")**: ogni riga ora legge il `Manifest` al volo con un
+`Json.decodeFromString` diretto — deliberatamente NON passando da
+`PackageRepository.load()`, perché quello fallisce anche solo per
+errori di *validazione* (non solo JSON malformato): un libro
+momentaneamente non valido a metà modifica resta comunque leggibile
+in questa lista, non è il posto giusto per bloccarlo. Se il file non è
+nemmeno JSON valido, `runCatching` degrada silenziosamente a "(non
+leggibile)" col solo nome del file — stesso principio del resto
+dell'editor, mai un crash. `:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

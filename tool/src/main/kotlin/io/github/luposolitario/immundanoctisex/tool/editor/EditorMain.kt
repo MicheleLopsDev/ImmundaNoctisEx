@@ -44,6 +44,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.tool.FilePackageSource
+import kotlinx.serialization.json.Json
 import java.io.File
 
 // Punto d'ingresso della GUI (doc/EDITOR.md). Separato dalla CLI (Main.kt):
@@ -370,13 +371,37 @@ private fun AvvioScreen(
         // silenziosamente dalla lista mostrata, senza toccare quella salvata
         // (potrebbe ricomparire da sola, es. un'unità rimovibile ricollegata)
         // e senza mai dare un errore a sorpresa.
-        val recentiEsistenti = remember(libriRecenti) { libriRecenti.filter { File(it).exists() } }
+        // 30/07/2026, Michele: "quando mi dai la lista dei libri metti
+        // Nome file - Titolo - GENERE - Lingua - Descrizione (solo i
+        // primi 30 char)" — lettura "al volo" del solo Manifest (senza
+        // passare da PackageRepository/PackageValidator: un libro con
+        // errori di validazione resta comunque leggibile qui, non è
+        // questo il posto per bloccarlo) solo per mostrare i metadati;
+        // se il file non è nemmeno JSON valido, degrado silenzioso allo
+        // stesso principio del resto dell'editor — si vede solo il nome
+        // del file, niente crash né messaggio d'errore a sorpresa.
+        val recentiEsistenti = remember(libriRecenti) {
+            libriRecenti.filter { File(it).exists() }.map { percorso ->
+                val manifest = runCatching {
+                    Json { ignoreUnknownKeys = true }.decodeFromString(Manifest.serializer(), File(percorso).readText())
+                }.getOrNull()
+                percorso to manifest
+            }
+        }
         if (recentiEsistenti.isNotEmpty()) {
             Spacer(Modifier.height(24.dp))
             Text("Libri recenti", style = MaterialTheme.typography.titleMedium)
-            recentiEsistenti.forEach { percorso ->
+            recentiEsistenti.forEach { (percorso, manifest) ->
                 TextButton(onClick = { onApriRecente(percorso) }) {
-                    Text(File(percorso).name)
+                    val nomeFile = File(percorso).name
+                    val etichetta = if (manifest != null) {
+                        val descrizioneBreve = manifest.description.take(30) +
+                            if (manifest.description.length > 30) "…" else ""
+                        "$nomeFile - ${manifest.title} - ${manifest.genre} - ${manifest.language} - $descrizioneBreve"
+                    } else {
+                        "$nomeFile (non leggibile)"
+                    }
+                    Text(etichetta)
                 }
             }
         }
