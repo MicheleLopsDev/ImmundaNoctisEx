@@ -1870,6 +1870,33 @@ overlay più affidabile prima di azzardare un'altra ipotesi — troppe
 correzioni di fila sullo stesso sintomo senza una prova diretta
 rischiano di essere solo tentativi alla cieca.
 
+**Settimo giro (stesso giorno)**: Michele riprova e conferma che lo
+spostamento enorme "adesso non avviene più" — la riscrittura con
+l'ancora locale (giro precedente) era davvero la causa. Segnala un
+problema diverso, con screenshot in tema scuro: "non si leggono i
+testi perché sono neri anche loro... controlla tutti i testi a video
+che diventino di colore bianco o chiaro".
+
+Causa reale: il contenitore radice di `EditorMain.kt` era un `Box` con
+`.background(MaterialTheme.colorScheme.background)` — colora lo sfondo
+ma NON imposta `LocalContentColor`. Ogni `Text()` nell'editor senza un
+colore esplicito (la stragrande maggioranza: titoli, pulsanti,
+messaggi, dialoghi) cadeva quindi sul nero fisso di default di
+Material3, illeggibile sopra uno sfondo scuro. Sostituito il `Box` con
+un `Surface` (stesso colore di sfondo) che IN PIÙ imposta
+`LocalContentColor` al contrasto giusto per quel colore
+(`contentColorFor` — chiaro su sfondo scuro, scuro su sfondo chiaro),
+propagato a cascata a tutto il resto dell'editor (mappa, pannello
+scena, schermate di avvio/creazione) senza dover toccare un colore per
+volta. Le etichette DENTRO i nodi della mappa restano nere esplicite,
+di proposito: i loro sfondi verde/rosso sono fissi e chiari
+indipendentemente dal tema, quindi il nero resta corretto in entrambi
+i temi.
+
+Compilazione verificata con `--rerun` (il normale check `UP-TO-DATE`
+non aveva ricompilato il file appena modificato), 19/19 test verdi
+invariati.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

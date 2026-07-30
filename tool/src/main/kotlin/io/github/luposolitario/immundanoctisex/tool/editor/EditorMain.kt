@@ -1,6 +1,5 @@
 package io.github.luposolitario.immundanoctisex.tool.editor
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
@@ -95,73 +95,88 @@ fun main() = application {
             // "in tema scuro non cambi lo sfondo") — senza, la finestra
             // mostra lo sfondo bianco di default di AWT/Skiko sotto ogni
             // schermata, MaterialTheme colora solo i widget espliciti.
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background),
+            // 30/07/2026, secondo giro (Michele: "in modalità scura non si
+            // leggono i testi perché sono neri anche loro"): un `Box` con
+            // `.background(...)` colora lo sfondo ma NON imposta
+            // `LocalContentColor` — ogni `Text()` senza un `color`
+            // esplicito nel resto dell'editor cadeva quindi sul default di
+            // Material3 (nero fisso), illeggibile sopra uno sfondo scuro.
+            // `Surface` fa la stessa cosa di sfondo MA imposta anche
+            // `LocalContentColor` al contrasto giusto per quel colore
+            // (`contentColorFor`) — chiaro su sfondo scuro, scuro su
+            // sfondo chiaro, per tutti i testi del resto dell'editor senza
+            // dover mettere un colore esplicito uno per uno. Le etichette
+            // DENTRO i nodi della mappa restano nere esplicite (già
+            // corrette): i loro sfondi verde/rosso sono fissi e chiari
+            // indipendentemente dal tema.
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background,
             ) {
-                when (val s = schermata) {
-                    is Schermata.Avvio -> AvvioScreen(
-                        onCaricaLibro = { file ->
-                            when (val esito = PackageRepository(FilePackageSource(file)).load()) {
-                                is PackageLoadResult.Success ->
-                                    schermata = Schermata.Mappa(file, esito.manifest, esito.warnings)
-                                is PackageLoadResult.Failure ->
-                                    schermata = Schermata.LibroNonValido(esito.errors)
-                            }
-                        },
-                        onCreaNuovo = { schermata = Schermata.CreaNuovo },
-                    )
-                    is Schermata.Mappa -> MapScreen(
-                        file = s.file,
-                        manifest = s.manifest,
-                        warnings = s.warnings,
-                        mapViewState = mapViewState,
-                        onTornaAvvio = { schermata = Schermata.Avvio },
-                        onSceneSelected = { sceneId ->
-                            schermata = Schermata.EditorScena(s.file, s.manifest, s.warnings, sceneId)
-                        },
-                        salvataggioGiaConfermato = salvataggioGiaConfermato,
-                        onSalvataggioConfermato = { salvataggioGiaConfermato = true },
-                        onFileCambiato = { nuovoFile -> schermata = Schermata.Mappa(nuovoFile, s.manifest, s.warnings) },
-                    )
-                    is Schermata.EditorScena -> {
-                        val scena = s.manifest.scenes.first { it.id == s.sceneId }
-                        SceneEditorScreen(
-                            scene = scena,
-                            tutteLeScene = s.manifest.scenes,
-                            onSalva = { sceneAggiornata ->
-                                val nuoveScene = s.manifest.scenes.map {
-                                    if (it.id == sceneAggiornata.id) sceneAggiornata else it
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when (val s = schermata) {
+                        is Schermata.Avvio -> AvvioScreen(
+                            onCaricaLibro = { file ->
+                                when (val esito = PackageRepository(FilePackageSource(file)).load()) {
+                                    is PackageLoadResult.Success ->
+                                        schermata = Schermata.Mappa(file, esito.manifest, esito.warnings)
+                                    is PackageLoadResult.Failure ->
+                                        schermata = Schermata.LibroNonValido(esito.errors)
                                 }
-                                schermata = Schermata.Mappa(s.file, s.manifest.copy(scenes = nuoveScene), s.warnings)
                             },
-                            onAnnulla = { schermata = Schermata.Mappa(s.file, s.manifest, s.warnings) },
+                            onCreaNuovo = { schermata = Schermata.CreaNuovo },
+                        )
+                        is Schermata.Mappa -> MapScreen(
+                            file = s.file,
+                            manifest = s.manifest,
+                            warnings = s.warnings,
+                            mapViewState = mapViewState,
+                            onTornaAvvio = { schermata = Schermata.Avvio },
+                            onSceneSelected = { sceneId ->
+                                schermata = Schermata.EditorScena(s.file, s.manifest, s.warnings, sceneId)
+                            },
+                            salvataggioGiaConfermato = salvataggioGiaConfermato,
+                            onSalvataggioConfermato = { salvataggioGiaConfermato = true },
+                            onFileCambiato = { nuovoFile -> schermata = Schermata.Mappa(nuovoFile, s.manifest, s.warnings) },
+                        )
+                        is Schermata.EditorScena -> {
+                            val scena = s.manifest.scenes.first { it.id == s.sceneId }
+                            SceneEditorScreen(
+                                scene = scena,
+                                tutteLeScene = s.manifest.scenes,
+                                onSalva = { sceneAggiornata ->
+                                    val nuoveScene = s.manifest.scenes.map {
+                                        if (it.id == sceneAggiornata.id) sceneAggiornata else it
+                                    }
+                                    schermata = Schermata.Mappa(s.file, s.manifest.copy(scenes = nuoveScene), s.warnings)
+                                },
+                                onAnnulla = { schermata = Schermata.Mappa(s.file, s.manifest, s.warnings) },
+                            )
+                        }
+                        is Schermata.LibroNonValido -> LibroNonValidoScreen(
+                            errors = s.errors,
+                            onTornaAvvio = { schermata = Schermata.Avvio },
+                        )
+                        is Schermata.CreaNuovo -> CreaNuovoScreen(
+                            onCrea = { manifestNuovo ->
+                                scegliPercorsoSalvataggio("${manifestNuovo.id}.json")?.let { nuovoFile ->
+                                    salvaManifest(nuovoFile, manifestNuovo)
+                                    salvataggioGiaConfermato = true
+                                    schermata = Schermata.Mappa(nuovoFile, manifestNuovo, emptyList())
+                                }
+                            },
+                            onTornaAvvio = { schermata = Schermata.Avvio },
                         )
                     }
-                    is Schermata.LibroNonValido -> LibroNonValidoScreen(
-                        errors = s.errors,
-                        onTornaAvvio = { schermata = Schermata.Avvio },
-                    )
-                    is Schermata.CreaNuovo -> CreaNuovoScreen(
-                        onCrea = { manifestNuovo ->
-                            scegliPercorsoSalvataggio("${manifestNuovo.id}.json")?.let { nuovoFile ->
-                                salvaManifest(nuovoFile, manifestNuovo)
-                                salvataggioGiaConfermato = true
-                                schermata = Schermata.Mappa(nuovoFile, manifestNuovo, emptyList())
-                            }
-                        },
-                        onTornaAvvio = { schermata = Schermata.Avvio },
-                    )
-                }
 
-                // Sempre in basso a destra, non collide con le barre
-                // strumenti in alto delle varie schermate (es. MapScreen).
-                Button(
-                    onClick = { temaScuro = !temaScuro },
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp),
-                ) {
-                    Text(if (temaScuro) "☀ Chiaro" else "🌙 Scuro")
+                    // Sempre in basso a destra, non collide con le barre
+                    // strumenti in alto delle varie schermate (es. MapScreen).
+                    Button(
+                        onClick = { temaScuro = !temaScuro },
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(12.dp),
+                    ) {
+                        Text(if (temaScuro) "☀ Chiaro" else "🌙 Scuro")
+                    }
                 }
             }
         }
