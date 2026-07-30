@@ -869,7 +869,7 @@ riservati insieme per evitare collisioni tra loro).
   il gruppo appena creato diventa la nuova selezione sulla mappa,
   pronto per essere spostato/ispezionato subito.
 
-### 19.3 Trascinare un gruppo insieme
+### 19.3 Trascinare un gruppo insieme — FATTO (31/07/2026)
 
 Con 2+ scene selezionate, iniziare a trascinare un nodo **che fa parte
 della selezione** sposta tutto il gruppo insieme, mantenendo le
@@ -877,6 +877,13 @@ posizioni relative — utile per riorganizzare un blocco senza spostare
 nodo per nodo. Trascinare un nodo **non selezionato** continua a
 spostare solo quello, come oggi (non entra implicitamente a far parte
 del gruppo).
+
+Un'ancora per nodo del gruppo (non una sola condivisa), catturata a
+`onDragStart` dalla posizione effettiva di ciascuno e spostata dello
+stesso scarto (`dragAmount`) a ogni frame — stessa logica dell'ancora
+locale alla coroutine già in uso per il trascinamento singolo (evita
+derive dovute ai tempi di ricomposizione), solo estesa a una mappa
+invece di un singolo `Offset`.
 
 ### 19.4 Centrare la vista sulla selezione — FATTO (31/07/2026)
 

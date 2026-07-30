@@ -1369,25 +1369,38 @@ fun MapScreen(
                                 )
                             }
                             .pointerInput(nodo.sceneId) {
-                                // Ancora locale alla coroutine del gesto
-                                // (non allo stato Compose): accumula qui lo
-                                // scarto e scrive SOLO su posizioniManuali,
-                                // non lo rilegge mai — evita qualunque
+                                // Ancore locali alla coroutine del gesto
+                                // (non allo stato Compose): accumulano qui lo
+                                // scarto e scrivono SOLO su posizioniManuali,
+                                // non le rileggono mai — evita qualunque
                                 // deriva dovuta ai tempi della
                                 // ricomposizione tra una lettura e la
                                 // scrittura successiva.
-                                var ancora = Offset.Zero
+                                // §19.3 (Michele, azioni di gruppo):
+                                // trascinare un nodo che fa parte della
+                                // selezione (2+) sposta l'intero gruppo,
+                                // mantenendo le posizioni relative — un'
+                                // ancora per nodo del gruppo, tutte spostate
+                                // dello stesso scarto a ogni frame.
+                                // Trascinare un nodo non selezionato continua
+                                // a muovere solo quel nodo, come prima.
+                                var ancore = emptyMap<String, Offset>()
                                 detectDragGestures(
                                     onDragStart = {
                                         nodoTrascinato = nodo.sceneId
-                                        ancora = posizioneEffettiva(nodo.sceneId) ?: Offset.Zero
+                                        val gruppo = if (nodo.sceneId in sceneSelezionate && sceneSelezionate.size >= 2) {
+                                            sceneSelezionate
+                                        } else {
+                                            setOf(nodo.sceneId)
+                                        }
+                                        ancore = gruppo.associateWith { posizioneEffettiva(it) ?: Offset.Zero }
                                     },
                                     onDragEnd = { nodoTrascinato = null },
                                     onDragCancel = { nodoTrascinato = null },
                                     onDrag = { change, dragAmount ->
                                         change.consume()
-                                        ancora = Offset(ancora.x + dragAmount.x, ancora.y + dragAmount.y)
-                                        posizioniManuali = posizioniManuali + (nodo.sceneId to ancora)
+                                        ancore = ancore.mapValues { (_, pos) -> Offset(pos.x + dragAmount.x, pos.y + dragAmount.y) }
+                                        posizioniManuali = posizioniManuali + ancore
                                     },
                                 )
                             },

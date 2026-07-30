@@ -2933,6 +2933,21 @@ via `onManifestCambiato` e lo stato locale `sceneSelezionate`), non
 apre alcun editor. Tre nuovi test in `NuovaScenaTest`.
 `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Implementazione: §19.3 trascinare un gruppo insieme (31/07/2026)**:
+trascinare un nodo che fa parte della selezione corrente (2+) sposta
+ora l'intero gruppo, mantenendo le posizioni relative; trascinare un
+nodo non selezionato continua a muovere solo quello, come prima.
+Estesa la logica di ancora-locale-alla-coroutine già in uso per il
+trascinamento singolo (evita derive dovute ai tempi di
+ricomposizione) da un singolo `Offset` a una `Map<String, Offset>`
+catturata a `onDragStart` — una voce per ogni scena del gruppo,
+spostate tutte dello stesso scarto a ogni frame di `onDrag`. Nessuna
+funzione pura estraibile (è gesto Compose, come il trascinamento
+singolo che lo precede): verificato a compilazione/test e a lettura,
+non con un giro manuale sull'app (nessun ambiente grafico disponibile
+in questa sessione per il modulo `:tool`). `:tool:compileKotlin`/
+`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
