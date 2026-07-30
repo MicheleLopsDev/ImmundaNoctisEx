@@ -3,7 +3,15 @@
   <rect x="0" y="0" width="700" height="34" fill="#e0e0e0" stroke="#999"/>
   <rect x="12" y="7" width="180" height="20" rx="4" fill="#fff" stroke="#999"/>
   <text x="22" y="21" font-size="11" fill="#888">Cerca scena per ID o testo...</text>
-  <text x="640" y="21" font-size="13" fill="#555">− ⊕ +</text>
+
+  <!-- riordina automaticamente + zoom -/+ (30/07/2026, richiesta Michele) -->
+  <rect x="450" y="6" width="110" height="22" rx="3" fill="#fff" stroke="#999"/>
+  <text x="505" y="21" font-size="11" text-anchor="middle" fill="#555">⟳ Riordina</text>
+  <rect x="580" y="6" width="24" height="22" rx="3" fill="#fff" stroke="#999"/>
+  <text x="592" y="21" font-size="13" text-anchor="middle" fill="#555">−</text>
+  <text x="632" y="21" font-size="10" text-anchor="middle" fill="#888">100%</text>
+  <rect x="656" y="6" width="24" height="22" rx="3" fill="#fff" stroke="#999"/>
+  <text x="668" y="21" font-size="13" text-anchor="middle" fill="#555">+</text>
 
   <!-- percorso valido: contorno verde -->
   <rect x="45" y="70" width="330" height="90" rx="10" fill="none" stroke="#4CAF50" stroke-width="3" stroke-dasharray="4 3"/>

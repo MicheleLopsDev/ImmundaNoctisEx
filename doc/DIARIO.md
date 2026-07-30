@@ -1106,6 +1106,14 @@ momento se si vuole un'esperienza da "programma installato" vera e
 propria. Rinumerate di conseguenza le sezioni successive del documento
 (Fuori perimetro §13, Bozze grafiche §14, Riferimenti §15).
 
+**Ritocco §6.1 (30/07/2026)**: Michele chiede due pulsanti `−`/`+` (o in
+alternativa uno slider) per lo zoom della mappa, più un pulsante
+"Riordina automaticamente" per ritracciare da capo l'auto-layout su
+richiesta (utile dopo aver spostato dei nodi a mano o modificato il
+libro). Aggiunto a `doc/EDITOR.md` §6.1 e al mockup
+`doc/editor-mockup/02-mappa.svg` (barra strumenti con `⟳ Riordina` e
+`− 100% +`).
+
 Prossimo passo (non ancora iniziato): implementazione, a partire dal
 setup Gradle di Compose Desktop su `:tool`.
 

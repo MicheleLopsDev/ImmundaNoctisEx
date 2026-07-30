@@ -90,7 +90,16 @@ All'apertura, due scelte:
 - **Auto-layout gerarchico** a partire dalla scena `START` (livelli per
   distanza nel grafo) — nessun posizionamento manuale dei nodi da fare
   a mano.
-- **Pan e zoom** liberi sul canvas.
+- **Pan e zoom** liberi sul canvas, con un controllo esplicito in
+  barra strumenti oltre al gesto sul canvas (rotellina/pinch): due
+  pulsanti `−`/`+` (scelta di partenza, più semplice da implementare di
+  uno slider e coerente con "il più semplice possibile") — uno slider
+  resta un'alternativa se in prova si rivela più comodo per un
+  controllo fine.
+- **Pulsante "Riordina automaticamente"**: ritraccia da capo
+  l'auto-layout gerarchico su richiesta — utile dopo aver spostato dei
+  nodi a mano o dopo aver aggiunto/rimosso scene, per tornare alla
+  disposizione pulita senza dover ricaricare il libro.
 - **Ricerca** per ID scena o per testo nel `narrativeText`, che centra
   la vista sul nodo trovato.
 - **Evidenziazione del vicinato**: selezionando un nodo, i suoi
