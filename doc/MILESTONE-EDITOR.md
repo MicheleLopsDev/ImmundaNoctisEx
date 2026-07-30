@@ -33,7 +33,7 @@ prossimo grande capitolo (editor dei prompt).
 
 ## Cosa entra (proposto da Claude, da confermare/correggere)
 
-### 1. Completare la pacchettizzazione standalone (jpackage) — QUASI FATTO
+### 1. Completare la pacchettizzazione standalone (jpackage) — FATTO (31/07/2026)
 
 Obiettivo dichiarato da Michele (`doc/EDITOR.md` §12): passare
 l'editor a suo figlio **senza accesso al repository Git/GitHub**.
@@ -58,10 +58,10 @@ repository è pubblico, quindi anche questi pacchetti lo sono — nessun
 problema di copyright secondo Michele (nessun contenuto di terzi che
 lo violi).
 
-Resta solo l'ultimo passo, che deve fare Michele: **provare uno dei
-due su una macchina pulita** (idealmente quella del figlio, senza
-Android Studio né JDK installati) per confermare che non serva
-nient'altro.
+Rigenerati e ripubblicati il 31/07/2026 (stessa release, stessa
+versione 1.0.0) con tutto il codice del giro §19 (voce 4 sotto).
+**Ultimo passo confermato da Michele il 31/07/2026**: provato su una
+macchina pulita, funziona.
 
 ### 2. Verificare il limite dimensionale (~350 scene)
 

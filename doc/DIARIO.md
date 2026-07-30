@@ -2992,8 +2992,11 @@ sostituiti sulla release GitHub `editor-v1.0.0` esistente
 (`gh release upload --clobber`, autorizzato esplicitamente da
 Michele — scelta tra sovrascrivere/nuova versione/solo locale) e note
 della release aggiornate con un changelog che elenca le issue #9-#15.
-Resta aperta la sola parte che tocca a Michele: provare uno dei due
-pacchetti su una macchina pulita.
+
+**Confermato da Michele il 31/07/2026** ("fatto funziona"): il
+pacchetto provato su macchina pulita funziona. Issue #6 chiusa,
+milestone "Tool editor" completa salvo la #8 (editor dei frammenti di
+prompt, ferma in attesa di una specifica dedicata da Michele).
 
 ---
 
