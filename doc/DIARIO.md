@@ -2916,6 +2916,23 @@ riscrittura di deathSceneId/globalRules, non-interferenza con
 riferimenti verso altre scene). `:tool:compileKotlin`/`:tool:test`
 verdi.
 
+**Implementazione: §19.2 duplica gruppo con remap interno
+(31/07/2026)**: con 2+ scene selezionate, il menu tasto destro
+guadagna "Duplica gruppo (N)" (esclusa se una delle selezionate è
+START, stesso motivo della "Duplica" singola). Nuova funzione pura
+`duplicaGruppo()` in `NuovaScena.kt`: alloca tutti gli ID nuovi
+INSIEME in un'unica passata (non uno alla volta — altrimenti la
+numerazione dipenderebbe dall'ordine di iterazione, la seconda copia
+vedrebbe già la prima come "ID più alto"), poi remappa solo i
+collegamenti che puntano a un'altra scena DENTRO il gruppo duplicato
+verso la sua copia; i collegamenti verso scene fuori dal gruppo
+restano invariati, verso gli originali. Il nuovo gruppo diventa la
+selezione corrente (`duplicaGruppoESeleziona()` in `MapScreen.kt`,
+stesso pattern di `legaScena`/`rimuoviLegame`: aggiorna il manifest
+via `onManifestCambiato` e lo stato locale `sceneSelezionate`), non
+apre alcun editor. Tre nuovi test in `NuovaScenaTest`.
+`:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

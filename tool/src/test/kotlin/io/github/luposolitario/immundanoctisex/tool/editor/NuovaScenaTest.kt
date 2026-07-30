@@ -118,4 +118,43 @@ class NuovaScenaTest {
 
         assertEquals("3", risultato.scenes.first { it.id == "1" }.choices.single().nextSceneId)
     }
+
+    // §19.2: duplicare un gruppo deve mantenere i collegamenti TRA le
+    // scene del gruppo (verso le copie), lasciando invariati quelli
+    // verso scene fuori dal gruppo (verso gli originali).
+    @Test
+    fun ilDuplicaGruppoAllocaIdNuoviETuttiInsieme() {
+        val uno = scene("1", "2")
+        val due = scene("2")
+        val m = manifest(listOf(uno, due, scene("5")))
+
+        val duplicati = duplicaGruppo(listOf(uno, due), m)
+
+        assertEquals(setOf("6", "7"), duplicati.map { it.id }.toSet())
+    }
+
+    @Test
+    fun ilDuplicaGruppoRiscriveICollegamentiInterniELasciaInvariatiIEsterni() {
+        val uno = scene("1", "2", "5")
+        val due = scene("2")
+        val m = manifest(listOf(uno, due, scene("5")))
+
+        val duplicati = duplicaGruppo(listOf(uno, due), m)
+
+        val copiaUno = duplicati.first { it.choices.size == 2 }
+        val destinazioni = copiaUno.choices.map { it.nextSceneId }
+        assertTrue(duplicati.map { it.id }.contains(destinazioni.first { it != "5" }))
+        assertTrue(destinazioni.contains("5"))
+    }
+
+    @Test
+    fun ilDuplicaGruppoNonTocaGliOriginali() {
+        val uno = scene("1", "2")
+        val due = scene("2")
+        val m = manifest(listOf(uno, due))
+
+        duplicaGruppo(listOf(uno, due), m)
+
+        assertEquals("2", uno.choices.single().nextSceneId)
+    }
 }

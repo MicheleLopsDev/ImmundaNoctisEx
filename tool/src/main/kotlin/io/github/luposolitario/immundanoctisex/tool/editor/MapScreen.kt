@@ -464,6 +464,21 @@ fun MapScreen(
         onManifestCambiato(manifest.copy(scenes = nuoveScene))
     }
 
+    // §19.2 (Michele: azioni utili sui gruppi): duplica l'intera
+    // selezione in un colpo solo, con gli ID nuovi allocati TUTTI
+    // insieme (`duplicaGruppo`, NuovaScena.kt) — a differenza di
+    // "Duplica" singola, i collegamenti TRA scene del gruppo puntano
+    // alle copie, non agli originali (altrimenti il gruppo duplicato
+    // sarebbe solo un ammasso di nodi scollegati fra loro). Il nuovo
+    // gruppo diventa la selezione corrente, non apre alcun editor —
+    // resta sulla mappa per un eventuale trascina/lega successivo.
+    fun duplicaGruppoESeleziona(ids: Set<String>) {
+        val originali = manifest.scenes.filter { it.id in ids }
+        val duplicati = duplicaGruppo(originali, manifest)
+        onManifestCambiato(manifest.copy(scenes = manifest.scenes + duplicati))
+        sceneSelezionate = duplicati.map { it.id }.toSet()
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             // 30/07/2026, Michele: prima due Row separate (una a sinistra
@@ -1481,15 +1496,28 @@ fun MapScreen(
                             // che trova) e non segnalata dal validatore.
                             // §17.2: "Duplica" resta un'azione a singola
                             // scena — con una multi-selezione attiva non
-                            // compare (duplicare un insieme è §19.2,
-                            // rimandato: quale ordine? quali collegamenti
-                            // tra le copie?).
+                            // compare, sostituita da "Duplica gruppo"
+                            // (§19.2, sotto).
                             if (sceneSelezionate.size <= 1 && scenaNodo?.sceneType != SceneType.START) {
                                 DropdownMenuItem(
                                     text = { Text("Duplica") },
                                     onClick = {
                                         menuContestualePer = null
                                         onDuplicaScena(nodo.sceneId)
+                                    },
+                                )
+                            }
+                            // §19.2: speculare a "Duplica" — compare SOLO
+                            // con 2+ selezionate (la singola resta
+                            // "Duplica" sopra), stessa esclusione delle
+                            // scene START (stesso motivo: seconda START
+                            // ambigua e non segnalata).
+                            if (sceneSelezionate.size >= 2 && sceneSelezionate.none { scenesById[it]?.sceneType == SceneType.START }) {
+                                DropdownMenuItem(
+                                    text = { Text("Duplica gruppo (${sceneSelezionate.size})") },
+                                    onClick = {
+                                        menuContestualePer = null
+                                        duplicaGruppoESeleziona(sceneSelezionate)
                                     },
                                 )
                             }

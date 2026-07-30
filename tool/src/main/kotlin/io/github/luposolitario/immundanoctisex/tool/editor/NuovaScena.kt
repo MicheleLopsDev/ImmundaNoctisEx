@@ -81,3 +81,37 @@ fun ricollegaRiferimenti(manifest: Manifest, daIds: Set<String>, aId: String): M
         },
     )
 }
+
+// Duplica un gruppo di scene mantenendo i collegamenti interni (§19.2,
+// Michele: azioni utili sui gruppi). A differenza di `duplicaScena`
+// (singola, collegamenti lasciati agli originali): gli ID nuovi sono
+// allocati TUTTI insieme, in un'unica passata progressiva a partire dal
+// più alto ID esistente nel libro — non uno alla volta, altrimenti la
+// seconda copia vedrebbe già la prima come "ID più alto usato" e la
+// numerazione dipenderebbe dall'ordine di iterazione. Un collegamento
+// (choice/disciplineChoice/combat) che punta a un'altra scena DENTRO il
+// gruppo duplicato viene riscritto verso la sua copia, così il gruppo
+// duplicato resta collegato al suo interno come l'originale; un
+// collegamento verso una scena FUORI dal gruppo resta invariato, punta
+// ancora all'originale.
+fun duplicaGruppo(originali: List<Scene>, manifest: Manifest): List<Scene> {
+    var prossimoId = (manifest.scenes.mapNotNull { it.id.toIntOrNull() }.maxOrNull() ?: 0) + 1
+    val nuoviId = originali.associate { it.id to (prossimoId++).toString() }
+    fun remapInterno(id: String): String = nuoviId[id] ?: id
+    fun remapInternoNullable(id: String?): String? = id?.let(::remapInterno)
+
+    return originali.map { originale ->
+        originale.copy(
+            id = nuoviId.getValue(originale.id),
+            choices = originale.choices.map { it.copy(nextSceneId = remapInterno(it.nextSceneId)) },
+            disciplineChoices = originale.disciplineChoices.map { it.copy(nextSceneId = remapInterno(it.nextSceneId)) },
+            combat = originale.combat?.let { combat ->
+                combat.copy(
+                    winSceneId = remapInterno(combat.winSceneId),
+                    loseSceneId = remapInternoNullable(combat.loseSceneId),
+                    evadeSceneId = remapInternoNullable(combat.evadeSceneId),
+                )
+            },
+        )
+    }
+}

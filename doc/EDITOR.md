@@ -850,7 +850,7 @@ la sostituisce con quel solo nodo altrimenti — stessa convenzione di
 Explorer/Finder. "Duplica" (§17.2) ora si nasconde per davvero quando
 sono selezionate più scene, non solo "di fatto" come prima.
 
-### 19.2 Duplicare un gruppo mantenendo i collegamenti interni
+### 19.2 Duplicare un gruppo mantenendo i collegamenti interni — FATTO (31/07/2026)
 
 Con 2+ scene selezionate, il menu tasto destro guadagna **"Duplica
 gruppo"**: copia ogni scena selezionata con un nuovo ID (stessa
