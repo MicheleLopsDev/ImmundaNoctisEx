@@ -160,6 +160,12 @@ fun MapScreen(
     // meccanismo implicito di "evento già consumato" tra coroutine
     // indipendenti.
     var trascinamentoNodoAttivo by remember { mutableStateOf(false) }
+    // Coordinate del mouse a schermo (30/07/2026, Michele: "cosi la
+    // prossima volta quando prendo una schermata è più semplice capire
+    // dove ero") — posizione grezza nel riquadro della mappa (stessa
+    // unità già usata da `viewportSize`), non nella mappa "logica"
+    // (post pan/zoom): è quella che si vede identica nello screenshot.
+    var posizioneMouse by remember { mutableStateOf<Offset?>(null) }
     // Evidenziazione del vicinato (§6.1): al passaggio del mouse su un
     // nodo (non al click, che apre già il pannello di editing), i suoi
     // collegamenti diretti restano a piena opacità e il resto della
@@ -439,6 +445,10 @@ fun MapScreen(
                 // Dimensione reale del riquadro (30/07/2026, §6.1): serve
                 // solo per centrare la ricerca — vedi eseguiRicerca().
                 .onGloballyPositioned { viewportSize = it.size }
+                .onPointerEvent(PointerEventType.Move) {
+                    posizioneMouse = it.changes.firstOrNull()?.position
+                }
+                .onPointerEvent(PointerEventType.Exit) { posizioneMouse = null }
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         if (!trascinamentoNodoAttivo) {
@@ -593,6 +603,21 @@ fun MapScreen(
                         }
                     }
                 }
+            }
+
+            // Coordinate del mouse (30/07/2026, Michele): fuori dal
+            // graphicsLayer di pan/zoom apposta, così restano leggibili
+            // in un angolo fisso indipendentemente da dove sei sulla
+            // mappa — la stessa posizione che si vede in uno screenshot.
+            posizioneMouse?.let { pos ->
+                Text(
+                    "🖱 (${pos.x.roundToInt()}, ${pos.y.roundToInt()})",
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
+                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                    style = MaterialTheme.typography.labelSmall,
+                )
             }
         }
     }

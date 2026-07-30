@@ -1806,6 +1806,18 @@ e trascinando le scene 3 e 4 "un pochino più in basso", il risultato
 Compilazione pulita, **19/19 test verdi** invariati. Commit separato,
 non ancora pushato.
 
+**Coordinate del mouse a schermo (stesso giorno)**: Michele chiede di
+mostrare la posizione del mouse "così la prossima volta quando prendo
+una schermata è più semplice capire dove ero" — una richiesta di
+debug/comunicazione, non una funzione di prodotto. Aggiunta in
+`MapScreen.kt`: `onPointerEvent(PointerEventType.Move)` sul riquadro
+mappa aggiorna `posizioneMouse`, mostrata come overlay fisso
+("🖱 (x, y)") in basso a sinistra, FUORI dal `graphicsLayer` di
+pan/zoom apposta — sono le coordinate grezze del riquadro, le stesse
+che si vedono identiche in uno screenshot, non quelle "logiche" della
+mappa (post pan/zoom, quelle usate da `posizioniManuali`). Compilazione
+pulita, 19/19 test verdi invariati.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
