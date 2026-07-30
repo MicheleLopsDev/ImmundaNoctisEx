@@ -2224,6 +2224,47 @@ un altro significato (aprire/spostare la scena) e non va toccato.
 
 Compilazione pulita, 32 test invariati.
 
+**Terzo bug della stessa verifica**: "se chiudo la maschera smetti di
+suonare il suono" — chiudere il pannello NON fermava una riproduzione
+in corso. Causa reale: `Player.play()` di JLayer è una chiamata
+BLOCCANTE; cancellare la coroutine che la ospita (cosa che
+`rememberCoroutineScope()` fa da sé alla chiusura del pannello) non la
+interrompe, perché la cancellazione si applica solo ai punti di
+sospensione, non a una chiamata sincrona bloccante su un thread.
+`ResourceSoundPlayer.kt` diventa una classe (`SoundPlayerController`)
+che tiene vivo il riferimento al `Player` per poterlo chiudere
+davvero con `.close()`; `SceneEditorScreen.kt` ferma il controller in
+un `DisposableEffect(Unit)` — scatta esattamente alla chiusura del
+pannello. Compilazione pulita, 32 test invariati.
+
+**Domanda di Michele sul formato WebP**: verificato prima di
+rispondere, non deciso a caso. Il WebP **statico** (non animato) è già
+pienamente supportato oggi, zero modifiche necessarie — Android tratta
+`.webp` in `res/drawable-nodpi/` esattamente come `.jpg`/`.png` da
+sempre, `painterResource` non fa differenza. Il WebP **animato**
+invece no, e non è un limite del formato ma del PERCORSO di
+caricamento attuale: `SceneImages.kt`/`NpcImages.kt`/`EnemyImages.kt`
+in `:app` passano da `painterResource(R.drawable.xxx)`, che mostra
+SEMPRE un unico fotogramma statico qualunque sia il formato del file
+— non anima nulla per definizione. Per animare per davvero servirebbe
+il PERCORSO Coil già usato per gli `url:` (che sa gestire contenuti
+animati), ma oggi nemmeno quello lo farebbe: manca l'artefatto
+`coil-gif` (non incluso, solo `coil-compose` in dipendenza) che
+registra il decoder per contenuti animati. `minSdk=34` copre già
+comodamente `ImageDecoder`/`AnimatedImageDrawable` di Android
+(disponibili da API 28), nessun problema di compatibilità. In pratica:
+spostare i cataloghi statici dalla risoluzione `painterResource`/
+`R.drawable` al percorso Coil è esattamente la migrazione già
+discussa e rimandata di proposito (§15.1) — qui avrebbe un motivo
+concreto in più (l'animazione) oltre alla dinamicità del registro.
+Anteprima nell'editor desktop (`AnteprimaImmagineRisorsa`,
+`loadImageBitmap`): mostrerebbe comunque solo il primo fotogramma
+anche dopo la migrazione, Skiko/`ImageBitmap` non anima — limite
+accettabile per un'anteprima, non un blocco. **Non implementato**:
+resta da decidere con Michele se fare ORA una versione ridotta di
+quella migrazione (solo questi tre cataloghi, non tutto il registro
+dinamico) o rimandarla insieme al resto.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

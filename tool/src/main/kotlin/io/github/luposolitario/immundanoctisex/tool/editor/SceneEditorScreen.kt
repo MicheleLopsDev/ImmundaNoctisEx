@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -565,12 +566,25 @@ private fun CampoImmagineConAnteprima(
                 }
                 if (urlSuono != null) {
                     val scope = rememberCoroutineScope()
+                    // Un solo controller per l'intera vita di questo campo
+                    // (NON tenuto per `valore`: deve sopravvivere a un
+                    // cambio di testo senza perdere il riferimento a
+                    // un'eventuale riproduzione in corso) — fermato
+                    // esplicitamente alla chiusura del pannello (30/07/2026,
+                    // Michele: "se chiudo la maschera smetti di suonare il
+                    // suono"): cancellare la coroutine da sola non basta,
+                    // Player.play() di JLayer è bloccante (vedi
+                    // ResourceSoundPlayer.kt).
+                    val controllerSuono = remember { SoundPlayerController() }
+                    DisposableEffect(Unit) {
+                        onDispose { controllerSuono.ferma() }
+                    }
                     // 30/07/2026, Michele: "se fa play del sound non
                     // permettere di fare di nuovo click altrimenti
                     // cliccando più volte succede un casino" — più
                     // riproduzioni in corso insieme si sovrappongono.
                     // Pulsante disabilitato finché quella in corso non
-                    // finisce per davvero (riproduciSuono è sospendibile
+                    // finisce per davvero (riproduci è sospendibile
                     // apposta, vedi ResourceSoundPlayer.kt).
                     var inRiproduzione by remember(valore) { mutableStateOf(false) }
                     Spacer(Modifier.height(4.dp))
@@ -578,7 +592,7 @@ private fun CampoImmagineConAnteprima(
                         onClick = {
                             inRiproduzione = true
                             scope.launch {
-                                riproduciSuono(urlSuono)
+                                controllerSuono.riproduci(urlSuono)
                                 inRiproduzione = false
                             }
                         },
