@@ -2872,6 +2872,32 @@ testo segnaposto), "Elimina" ora agisce sull'intera selezione
 corrente invece che sul solo nodo cliccato. `:tool:compileKotlin`/
 `:tool:test` verdi.
 
+**Implementazione: §19.6 scene orfane, §19.7 vicoli ciechi
+(31/07/2026)**: due segnalazioni visive sulla mappa, stessa idea
+grafica per entrambe — un badge emoji nell'angolo del nodo invece di
+un bordo tratteggiato, per non entrare in conflitto con i bordi già
+usati per selezione/tipo scena. 👻 in basso a sinistra per le scene
+orfane (`nodo.level == Int.MAX_VALUE`, cioè non raggiunte dal BFS da
+START già esistente per il layout), ⛔ in basso a destra per i vicoli
+ciechi (scena TRANSITION senza scelte, scelte-disciplina né
+combattimento) — badge indipendenti dalla presenza di un'immagine di
+copertina sul nodo. Legenda della mappa aggiornata con entrambi i
+simboli.
+
+Il controllo "vicolo cieco" è stato aggiunto anche a `GraphValidator`
+(`core:data`) come WARNING, non ERROR: può trattarsi di un'uscita
+gestita da `gameMechanics`/`globalRules`, che il grafo — sia quello
+dell'editor sia quello del validatore — non modella. La logica duplica
+volutamente quella della mappa invece di riusarla: `core:data` non
+dipende da `:tool`, quindi l'estensione `Scene.outgoingSceneIds()`
+dell'editor non è raggiungibile da lì, e un solo riuso non vale
+l'inversione di dipendenza. Due nuovi test in `PackageValidatorTest`
+(`unaSceneTransitionSenzaUsciteDaUnAvvisoDiVicoloCieco`,
+`unaSceneEndingSenzaUsciteNonDaAvvisi`, quest'ultimo a garantire che
+una scena ENDING senza uscite — normale, è un finale — non generi
+l'avviso). `:tool:compileKotlin`/`:tool:test` e `:core:data:jvmTest`
+verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

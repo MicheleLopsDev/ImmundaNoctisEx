@@ -11,6 +11,7 @@ internal object GraphValidator {
 
     fun validate(manifest: Manifest): ValidationResult {
         val errors = mutableListOf<String>()
+        val warnings = mutableListOf<String>()
         val sceneIds = manifest.scenes.map { it.id }
         val knownIds = sceneIds.toSet()
 
@@ -47,6 +48,22 @@ internal object GraphValidator {
             }
         }
 
-        return ValidationResult(errors = errors)
+        // §19.7 (Michele, editor: "segnalare i vicoli ciechi"): una scena
+        // TRANSITION senza scelte, scelte-disciplina né combattimento
+        // non ha modo di continuare — il giocatore ci resta bloccato,
+        // salvo un salto d'ufficio da gameMechanics/globalRules che
+        // questo controllo (come il grafo visivo dell'editor) non
+        // modella. Avviso, non errore: può essere intenzionale.
+        manifest.scenes.forEach { scene ->
+            if (scene.sceneType == SceneType.TRANSITION &&
+                scene.choices.isEmpty() &&
+                scene.disciplineChoices.isEmpty() &&
+                scene.combat == null
+            ) {
+                warnings += "Scena '${scene.id}': vicolo cieco (TRANSITION senza scelte né combattimento)"
+            }
+        }
+
+        return ValidationResult(errors = errors, warnings = warnings)
     }
 }

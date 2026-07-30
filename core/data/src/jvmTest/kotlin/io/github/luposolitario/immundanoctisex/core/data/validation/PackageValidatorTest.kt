@@ -270,4 +270,25 @@ class PackageValidatorTest {
 
         assertTrue(result.errors.any { it.contains("sfx") && it.contains("vuota") })
     }
+
+    @Test
+    fun unaSceneTransitionSenzaUsciteDaUnAvvisoDiVicoloCieco() {
+        val start = scene("1", SceneType.START, Choice("c1", "vai", nextSceneId = "2"))
+        val vicoloCieco = scene("2", SceneType.TRANSITION)
+
+        val result = PackageValidator.validate(manifest(listOf(start, vicoloCieco)))
+
+        assertTrue(result.errors.isEmpty())
+        assertTrue(result.warnings.any { it.contains("'2'") && it.contains("vicolo cieco") })
+    }
+
+    @Test
+    fun unaSceneEndingSenzaUsciteNonDaAvvisi() {
+        val start = scene("1", SceneType.START, Choice("c1", "vai", nextSceneId = "2"))
+        val finale = scene("2", SceneType.ENDING)
+
+        val result = PackageValidator.validate(manifest(listOf(start, finale)))
+
+        assertTrue(result.warnings.none { it.contains("vicolo cieco") })
+    }
 }

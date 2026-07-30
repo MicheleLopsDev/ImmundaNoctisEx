@@ -553,7 +553,9 @@ fun MapScreen(
                 "🟩 collegamento valido  🟥 collegamento a scena inesistente  " +
                     "🟪 percorso da START alla scena sotto il mouse  " +
                     "grigio = fuori da quel percorso (anche se il collegamento esiste)  " +
-                    "🩷 scena START  💛 scena ENDING",
+                    "🩷 scena START  💛 scena ENDING  " +
+                    "👻 scena orfana (non raggiungibile da START)  " +
+                    "⛔ vicolo cieco (nessuna uscita)",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -1189,6 +1191,22 @@ fun MapScreen(
                     val immagineNodo = scenaNodo?.npcImage
                         ?: scenaNodo?.combat?.enemyImage
                         ?: scenaNodo?.backgroundImage
+                    // §19.6 (Michele: "evidenziare le scene orfane"): non
+                    // raggiungibile da START — oggi si notava solo dalla
+                    // posizione nell'ultimo livello della griglia, nessun
+                    // segno dedicato.
+                    val isOrfana = nodo.level == Int.MAX_VALUE
+                    // §19.7 (Michele: "segnalare i vicoli ciechi"): stessa
+                    // regola del nuovo avviso in GraphValidator
+                    // (core:data) — TRANSITION senza scelte, scelte-
+                    // disciplina né combattimento, il giocatore ci resta
+                    // bloccato salvo un salto d'ufficio non modellato dal
+                    // grafo visivo (stesso limite già esistente, non
+                    // nuovo).
+                    val isVicoloCieco = scenaNodo?.sceneType == SceneType.TRANSITION &&
+                        scenaNodo.choices.isEmpty() &&
+                        scenaNodo.disciplineChoices.isEmpty() &&
+                        scenaNodo.combat == null
                     // Colore per tipo di scena (30/07/2026, Michele: "colora
                     // di giallino chiaro gli end e di rosa chiaro gli start
                     // così saltano subito all'occhio") — priorità sulla
@@ -1366,6 +1384,25 @@ fun MapScreen(
                                     .clip(RoundedCornerShape(50))
                                     .background(if (nodo.healthy) Color(0xFF4CAF50) else Color(0xFFE53935))
                                     .border(1.dp, Color.White, RoundedCornerShape(50)),
+                            )
+                        }
+                        // §19.6/§19.7: badge indipendenti dall'immagine di
+                        // copertina (a differenza del pallino di salute
+                        // sopra, che serve solo quando l'immagine copre il
+                        // colore di sfondo) — sempre in basso, per non
+                        // sovrapporsi al pallino di salute in alto.
+                        if (isOrfana) {
+                            Text(
+                                "👻",
+                                fontSize = 12.sp,
+                                modifier = Modifier.align(Alignment.BottomStart).padding(2.dp),
+                            )
+                        }
+                        if (isVicoloCieco) {
+                            Text(
+                                "⛔",
+                                fontSize = 12.sp,
+                                modifier = Modifier.align(Alignment.BottomEnd).padding(2.dp),
                             )
                         }
                         // Colore fisso, non legato al tema: gli sfondi

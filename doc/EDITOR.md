@@ -900,26 +900,33 @@ esse viene riscritto verso la scena scelta — un solo bersaglio
 condiviso per l'intera cancellazione, non uno per scena (se servono
 bersagli diversi, si fanno cancellazioni separate).
 
-### 19.6 Evidenziare le scene orfane
+### 19.6 Evidenziare le scene orfane — FATTO (31/07/2026)
 
 Le scene non raggiungibili da START (`GraphNode.level == Int.MAX_VALUE`,
 già identificate internamente da `buildSceneGraph` per la loro
 posizione nell'ultimo livello della griglia) guadagnano un segno
-distintivo in più sulla mappa (es. bordo tratteggiato) — oggi si notano
-solo indirettamente dalla posizione, non c'è un modo per trovarle a
-colpo d'occhio su un libro grande.
+distintivo in più sulla mappa — oggi si notano solo indirettamente
+dalla posizione, non c'è un modo per trovarle a colpo d'occhio su un
+libro grande. Badge **"👻"** in basso a sinistra del nodo (non un
+bordo tratteggiato come ipotizzato in origine: più semplice da
+disegnare con un `Text`, e coesiste senza conflitti con bordo/
+riempimento già in uso per selezione/salute/tipo scena). Legenda
+aggiornata.
 
-### 19.7 Segnalare i vicoli ciechi
+### 19.7 Segnalare i vicoli ciechi — FATTO (31/07/2026)
 
 Una scena `TRANSITION` con `outgoingSceneIds()` vuoto (`SceneGraph.kt`:
 nessuna scelta, nessuna scelta-disciplina, nessun combattimento) è un
 vicolo cieco — il giocatore ci resta bloccato, a meno di un salto
 d'ufficio da `gameMechanics`/`globalRules` che il grafo visivo non
 modella (stesso limite già esistente di `buildSceneGraph`, non un
-limite nuovo introdotto qui). Segnalata sulla mappa (segno distintivo
-come le orfane, §19.6) e/o come nuovo **avviso** (non errore: può
+limite nuovo introdotto qui). Badge **"⛔"** in basso a destra del
+nodo (stesso principio di §19.6). **Nuovo avviso** (non errore: può
 essere intenzionale se coperto da una regola globale) in
-`PackageValidator`.
+`GraphValidator` (`core:data`) — stessa regola duplicata lì (il
+modulo non può riusare `Scene.outgoingSceneIds()`, che vive in
+`:tool`, ma la logica è identica: 4 righe, non vale la pena spostare
+il codice per questo).
 
 ### 19.8 Esportare la mappa come immagine PNG
 
