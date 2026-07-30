@@ -2438,6 +2438,29 @@ versionarli: tutti e quattro i libri di `content/` passano
 `ContenutiRealiValidiTest` (`:core:data:jvmTest`), non sono bozze
 rotte.
 
+**Merge `develop` → `main`, tag `v0.1.0` (30/07/2026)**: Michele
+concorda sul piano proposto — `main` era un fast-forward secco di
+`develop` (0 commit divergenti), fatto e taggato come primo punto
+fermo ("client sostanzialmente completo + editor grafico alla prima
+base"). Da qui in poi si continua a sviluppare feature per feature su
+`develop`, portando `main` a checkpoint precisi invece che a ogni
+commit.
+
+**Milestone client Android (`doc/MILESTONE-CLIENT.md`, 30/07/2026)**:
+Michele chiede di iniziare a pensare a due milestone separate, client e
+tool editor. Scelta iniziale per tracciarle: GitHub Milestone + Issues
+— ma `gh` CLI non è installato su questa macchina, il login è un passo
+interattivo che deve fare Michele. In attesa, la milestone vive come
+documento in `doc/` (stesso stile di `PIANO-SVILUPPO.md`), con ogni
+voce scritta in modo da poter diventare un'issue 1:1 quando `gh` sarà
+disponibile. Contenuto proposto da Claude, da confermare: chiudere il
+leak di memoria nativa (~140MB/partita), migrare le ~100 stringhe UI
+hard-coded a `strings.xml`, valutare (decisione, non necessariamente
+sostituzione) un motore GGUF alternativo a LiteRT-LM. Esplicitamente
+NON incluso (resta in `doc/UPGRADE.md`): reskin grafico, audio
+narrativo, NPU, immagini animate — tutte già rimandate per altre
+ragioni, non debiti da chiudere.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
