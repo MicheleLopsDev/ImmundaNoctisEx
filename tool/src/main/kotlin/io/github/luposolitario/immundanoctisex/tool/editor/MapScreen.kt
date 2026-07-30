@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.drag
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,7 +45,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,7 +59,6 @@ import io.github.luposolitario.immundanoctisex.core.data.validation.PackageValid
 import io.github.luposolitario.immundanoctisex.core.data.validation.ValidationResult
 import kotlinx.serialization.json.Json
 import java.io.File
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 // Mappa del libro (doc/EDITOR.md §6). Auto-layout gerarchico come punto
@@ -77,12 +78,34 @@ private val NODE_HEIGHT = 72.dp
 private val H_SPACING = 230.dp
 private val V_SPACING = 130.dp
 
+// Stato della vista mappa (zoom/pan/orientamento/posizioni trascinate a
+// mano), tenuto DA CHI CHIAMA MapScreen (EditorMain.kt) invece che come
+// `remember` locale (30/07/2026, bug segnalato da Michele: "dopo che ho
+// aperto il dettaglio di scena cambia l'orientamento" — in realtà
+// l'intero MapScreen viene distrutto e ricreato ogni volta che apri e
+// chiudi una scena, essendo un ramo diverso del `when` in EditorMain,
+// quindi ogni `remember` locale si azzerava: zoom, pan, orientamento,
+// posizioni trascinate, tutto perso solo per aver guardato una scena).
+// Con questo oggetto ricordato un livello sopra, sopravvive al giro
+// mappa -> scena -> mappa.
+class MapViewState {
+    val zoom = mutableStateOf(1f)
+    val panX = mutableStateOf(0f)
+    val panY = mutableStateOf(0f)
+    val orizzontale = mutableStateOf(false)
+    val posizioniManuali = mutableStateOf<Map<String, Offset>>(emptyMap())
+}
+
+@Composable
+fun rememberMapViewState(): MapViewState = remember { MapViewState() }
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MapScreen(
     file: File,
     manifest: Manifest,
     warnings: List<String>,
+    mapViewState: MapViewState,
     onTornaAvvio: () -> Unit,
     onSceneSelected: (String) -> Unit,
     salvataggioGiaConfermato: Boolean,
@@ -127,9 +150,9 @@ fun MapScreen(
         }
     }
 
-    var zoom by remember { mutableStateOf(1f) }
-    var panX by remember { mutableStateOf(0f) }
-    var panY by remember { mutableStateOf(0f) }
+    var zoom by mapViewState.zoom
+    var panX by mapViewState.panX
+    var panY by mapViewState.panY
     // Evidenziazione del vicinato (§6.1): al passaggio del mouse su un
     // nodo (non al click, che apre già il pannello di editing), i suoi
     // collegamenti diretti restano a piena opacità e il resto della
@@ -195,7 +218,7 @@ fun MapScreen(
     // uno vuole"), questo pulsante è l'unico modo di cambiare la
     // disposizione — livelli in colonna (verticale, default) o in riga
     // (orizzontale).
-    var orizzontale by remember { mutableStateOf(false) }
+    var orizzontale by mapViewState.orizzontale
 
     // Livello -> riga/colonna; le scene orfane (non raggiungibili da
     // START, vedi SceneGraph.kt) finiscono tutte sull'ultimo livello
@@ -231,10 +254,11 @@ fun MapScreen(
     // scarti dalla posizione auto-calcolata, non salvati nel JSON (le
     // scene non hanno coordinate nello schema) — si perdono ricaricando
     // il libro o premendo "Riordina automaticamente", di proposito.
-    // Azzerati quando cambia il grafo o l'orientamento, stesso criterio
-    // di `positions`: una disposizione diversa rende gli scarti vecchi
-    // privi di senso.
-    var posizioniManuali by remember(graph, orizzontale) { mutableStateOf<Map<String, Offset>>(emptyMap()) }
+    // Azzerati esplicitamente al cambio di orientamento (pulsante
+    // ↔/↕) e da "Riordina" — non più legati a un `remember` con chiave,
+    // perché ora questo stato è ricordato un livello sopra (vedi
+    // `MapViewState`) e sopravvive al giro mappa -> scena -> mappa.
+    var posizioniManuali by mapViewState.posizioniManuali
     fun posizioneEffettiva(id: String): Offset? = posizioniManuali[id] ?: positions[id]
 
     fun eseguiRicerca() {
@@ -303,7 +327,7 @@ fun MapScreen(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Button(onClick = { orizzontale = !orizzontale }) {
+                Button(onClick = { orizzontale = !orizzontale; posizioniManuali = emptyMap() }) {
                     Text(if (orizzontale) "↕ Verticale" else "↔ Orizzontale")
                 }
                 Button(onClick = { zoom = 1f; panX = 0f; panY = 0f; posizioniManuali = emptyMap() }) { Text("⟳ Riordina") }
@@ -492,42 +516,52 @@ fun MapScreen(
                                 if (nodoSottoMouse == nodo.sceneId) nodoSottoMouse = null
                             }
                             // Trascinamento manuale (§6.1): un click vero
-                            // (spostamento sotto soglia) apre ancora il
-                            // pannello di editing come prima; superata la
+                            // (nessun movimento oltre la soglia di sistema)
+                            // apre il pannello di editing; superata la
                             // soglia si considera un trascinamento e sposta
                             // il nodo invece di aprirlo.
                             // 30/07/2026, bug segnalato da Michele ("non
                             // apre più le scene"): detectDragGestures con
                             // onDragStart/onDragEnd NON scatta affatto per
-                            // un click fermo (spostamento zero) — serve un
-                            // movimento minimo perché Compose lo riconosca
-                            // come "inizio trascinamento", quindi onDragEnd
-                            // (e con lui onSceneSelected) non veniva mai
-                            // chiamato per un click semplice. Sostituito con
-                            // un rilevatore manuale (awaitEachGesture) che
-                            // vede SEMPRE la pressione e il rilascio, e
-                            // decide dopo il fatto se c'era stato un vero
-                            // spostamento.
+                            // un click fermo, perché al suo interno
+                            // awaitTouchSlopOrCancellation ritorna null se il
+                            // rilascio arriva prima della soglia — né
+                            // onDragStart né onDragEnd vengono mai chiamati.
+                            // Un primo rilevatore manuale (awaitPointerEvent
+                            // in ciclo) risolveva il click ma si bloccava a
+                            // volte ("a volte si blocca lo spostamento",
+                            // Michele) — un possibile evento senza il
+                            // cambiamento del puntatore atteso faceva
+                            // uscire dal ciclo con il tasto ancora premuto,
+                            // lasciando il gesto a metà. Sostituito con le
+                            // stesse primitive collaudate di
+                            // detectDragGestures (awaitTouchSlopOrCancellation
+                            // + drag), aggiungendo solo il ramo mancante:
+                            // se lo scarto non arriva mai, è un click.
                             .pointerInput(nodo.sceneId) {
                                 awaitEachGesture {
-                                    val giu = awaitFirstDown()
-                                    var accumulo = 0f
-                                    while (true) {
-                                        val evento = awaitPointerEvent()
-                                        val cambio = evento.changes.firstOrNull { it.id == giu.id } ?: break
-                                        if (cambio.positionChanged()) {
-                                            val delta = cambio.position - cambio.previousPosition
-                                            accumulo += abs(delta.x) + abs(delta.y)
-                                            cambio.consume()
-                                            val base = posizioneEffettiva(nodo.sceneId)
-                                            if (base != null) {
-                                                posizioniManuali = posizioniManuali +
-                                                    (nodo.sceneId to Offset(base.x + delta.x, base.y + delta.y))
-                                            }
-                                        }
-                                        if (!cambio.pressed) break
+                                    val giu = awaitFirstDown(requireUnconsumed = false)
+                                    var scartoOltreSoglia = Offset.Zero
+                                    val trascinamento = awaitTouchSlopOrCancellation(giu.id) { change, over ->
+                                        change.consume()
+                                        scartoOltreSoglia = over
                                     }
-                                    if (accumulo < 4f) onSceneSelected(nodo.sceneId)
+                                    if (trascinamento == null) {
+                                        onSceneSelected(nodo.sceneId)
+                                    } else {
+                                        val base = posizioneEffettiva(nodo.sceneId)
+                                        if (base != null) {
+                                            posizioniManuali = posizioniManuali + (nodo.sceneId to
+                                                Offset(base.x + scartoOltreSoglia.x, base.y + scartoOltreSoglia.y))
+                                        }
+                                        drag(trascinamento.id) { change ->
+                                            change.consume()
+                                            val basePos = posizioneEffettiva(nodo.sceneId) ?: return@drag
+                                            val delta = change.positionChange()
+                                            posizioniManuali = posizioniManuali +
+                                                (nodo.sceneId to Offset(basePos.x + delta.x, basePos.y + delta.y))
+                                        }
+                                    }
                                 }
                             },
                         contentAlignment = Alignment.Center,

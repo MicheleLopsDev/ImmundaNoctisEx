@@ -1691,6 +1691,52 @@ dal precedente (non un `--amend`), **non ancora pushato** — in attesa
 del controllo di Michele su questo fix prima di considerare chiusa la
 mappa.
 
+**Secondo giro (stesso giorno, dopo che Michele riprova)**: due nuove
+segnalazioni: "alle volte si blocca lo spostamento... se pero apri la
+scena poi ti sblocca il movimento" e "dopo che ho aperto il dettaglio
+di scena cambia l'orientamento, se prima avevo quello verticale passa
+all'orizzontale".
+
+- **Il blocco del trascinamento**: il rilevatore manuale scritto sopra
+  (`awaitEachGesture` con ciclo `awaitPointerEvent`) aveva un bordo
+  instabile — un evento senza il cambiamento atteso del puntatore
+  faceva uscire dal ciclo (`break`) mentre il tasto del mouse era
+  ancora premuto fisicamente, lasciando il gesto "a metà": il prossimo
+  `awaitFirstDown()` restava in attesa di una pressione che non
+  sarebbe mai arrivata finché non si rilasciava e ripremeva davvero.
+  Sostituito con le stesse primitive collaudate usate INTERNAMENTE da
+  `detectDragGestures` (`awaitTouchSlopOrCancellation` + `drag`,
+  entrambe di `androidx.compose.foundation.gestures`), aggiungendo solo
+  il ramo che a `detectDragGestures` manca: se lo scarto non supera mai
+  la soglia prima del rilascio, è un click vero (`onSceneSelected`);
+  se la supera, `drag()` gestisce da sé tutto il resto del gesto
+  (spostamento, rilascio, cancellazione) con la stessa robustezza di
+  qualunque altro trascinamento Compose nel progetto.
+- **Il cambio di orientamento**: causa diversa, più a monte. `MapScreen`
+  ed `EditorScena` sono due rami diversi di un `when` in
+  `EditorMain.kt` — ogni volta che apri una scena e torni indietro,
+  Compose distrugge e ricrea l'INTERO `MapScreen` da zero, quindi ogni
+  suo `remember` locale (zoom, pan, orientamento, posizioni trascinate
+  a mano, ricerca) si azzerava. Il pulsante orientamento mostra
+  l'azione ("premi per passare a...") non lo stato attuale, quindi
+  tornare al default sembrava un cambio di modalità attivo. Risolto
+  spostando zoom/pan/orientamento/posizioni manuali un livello sopra:
+  nuova classe `MapViewState` (`MapScreen.kt`, campi `mutableStateOf`
+  espliciti anziché `var ... by remember`) ricordata in `EditorMain.kt`
+  con `rememberMapViewState()` e passata come parametro a `MapScreen` —
+  sopravvive al giro mappa -> scena -> mappa perché vive fuori dal
+  ramo del `when` che viene distrutto. L'azzeramento delle posizioni
+  manuali al cambio di orientamento (prima implicito via
+  `remember(graph, orizzontale)`) è ora esplicito nel pulsante stesso;
+  il reset automatico al cambiare della STRUTTURA del grafo (aggiunta/
+  rimossa una scena) è stato deliberatamente tolto — era una mia scelta
+  di implementazione, non un requisito di Michele, e il pulsante
+  "⟳ Riordina" resta la via esplicita per ripulire tutto quando serve
+  davvero.
+
+Compilazione pulita, **19/19 test verdi** invariati. `:tool:run`
+verificato senza errori in log. Commit separato, non ancora pushato.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

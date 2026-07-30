@@ -68,6 +68,12 @@ fun main() = application {
     // di singola schermata: passare dalla mappa al pannello di una scena e
     // tornare indietro NON deve far ricomparire la richiesta.
     var salvataggioGiaConfermato by remember { mutableStateOf(false) }
+    // Stato della vista mappa (zoom/pan/orientamento/posizioni trascinate,
+    // MapScreen.kt) ricordato QUI, non dentro MapScreen: quello schermo
+    // viene distrutto e ricreato ogni volta che apri e chiudi una scena
+    // (ramo diverso del `when` sotto), un `remember` locale si perderebbe
+    // a ogni giro — bug segnalato da Michele il 30/07/2026.
+    val mapViewState = rememberMapViewState()
 
     // Dimensione di partenza generosa + resizable esplicito (30/07/2026,
     // Michele: "la finestra non è ridimensionabile ma si può solo
@@ -110,6 +116,7 @@ fun main() = application {
                         file = s.file,
                         manifest = s.manifest,
                         warnings = s.warnings,
+                        mapViewState = mapViewState,
                         onTornaAvvio = { schermata = Schermata.Avvio },
                         onSceneSelected = { sceneId ->
                             schermata = Schermata.EditorScena(s.file, s.manifest, s.warnings, sceneId)
