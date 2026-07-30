@@ -2524,6 +2524,22 @@ salvataggio a colori, rete di sicurezza), pannello risorse
 backup automatici (`.bak1`-`.bak5`) e il limite di ~350 scene.
 Referenziato da `doc/EDITOR.md` §17.
 
+**Milestone spostate su GitHub (30/07/2026)**: Michele ha installato
+`gh` CLI (`winget install --id GitHub.cli`) e fatto `gh auth login`
+(login via browser, account `MicheleLopsDev`, scope `repo` incluso) —
+sbloccato il passaggio rimandato quando le due milestone erano nate
+come semplici documenti. Create due Milestone GitHub vere con
+un'issue per voce:
+[Client Android](https://github.com/MicheleLopsDev/ImmundaNoctisEx/milestone/1)
+(#2 leak memoria, #3 migrazione strings.xml, #4 motore GGUF
+alternativo, #5 firma di release — quest'ultima chiusa subito perché
+già fatta) e
+[Tool editor](https://github.com/MicheleLopsDev/ImmundaNoctisEx/milestone/2)
+(#6 pacchettizzazione jpackage, #7 limite ~350 scene, #8 editor dei
+frammenti di prompt). `doc/MILESTONE-CLIENT.md`/`doc/MILESTONE-EDITOR.md`
+restano come versione discorsiva con tutto il perché — le issue
+rimandano lì per il dettaglio, non lo duplicano.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

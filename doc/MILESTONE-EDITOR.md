@@ -5,10 +5,15 @@ un elenco di idee libere — quelle restano in `doc/EDITOR.md` §13
 (fuori perimetro) o in `doc/UPGRADE.md` finché non vengono promosse
 qui da una decisione esplicita di Michele.
 
-**Perché un documento e non una GitHub Milestone**: stessa ragione
-della milestone client — `gh` CLI non è installato su questa macchina,
-il login è un passo interattivo da fare da Michele. Ogni voce sotto è
-scritta in modo da poter diventare un'issue 1:1 in seguito.
+**Ora è anche una vera GitHub Milestone** (30/07/2026, dopo il login
+di Michele con `gh auth login`):
+[Milestone "Tool editor"](https://github.com/MicheleLopsDev/ImmundaNoctisEx/milestone/2),
+con un'issue per voce:
+[#6 pacchettizzazione jpackage](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/6),
+[#7 limite ~350 scene](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/7),
+[#8 editor dei frammenti di prompt](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/8).
+Questo file resta la versione leggibile/discorsiva con tutto il
+perché — le issue rimandano qui per il dettaglio, non lo duplicano.
 
 **Origine (30/07/2026)**: seconda delle due milestone chieste da
 Michele dopo il merge `develop` → `main` (tag `v0.1.0`). L'editor

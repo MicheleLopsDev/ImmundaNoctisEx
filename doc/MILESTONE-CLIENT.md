@@ -6,12 +6,16 @@ obiettivi che Michele ha deciso di perseguire per il prossimo
 traguardo del client — se un'idea non è ancora decisa resta in
 `UPGRADE.md` finché non viene promossa qui.
 
-**Perché un documento e non una GitHub Milestone**: la scelta iniziale
-era GitHub Milestone + Issues, ma `gh` (GitHub CLI) non è installato
-su questa macchina e il login è un passo interattivo che deve fare
-Michele. Fino a quel momento questo file fa da milestone; ogni voce
-sotto è scritta in modo da poter diventare un'issue 1:1 quando `gh`
-sarà disponibile (titolo breve + corpo con perché/riferimenti).
+**Ora è anche una vera GitHub Milestone** (30/07/2026, dopo il login
+di Michele con `gh auth login`):
+[Milestone "Client Android"](https://github.com/MicheleLopsDev/ImmundaNoctisEx/milestone/1),
+con un'issue per voce:
+[#2 leak di memoria](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/2),
+[#3 migrazione strings.xml](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/3),
+[#4 motore GGUF alternativo](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/4),
+[#5 firma di release](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/5) (chiusa, fatta).
+Questo file resta la versione leggibile/discorsiva con tutto il
+perché — le issue rimandano qui per il dettaglio, non lo duplicano.
 
 **Origine (30/07/2026)**: dopo il merge di `develop` su `main` (tag
 `v0.1.0`, client sostanzialmente completo + editor grafico alla prima
