@@ -525,6 +525,10 @@ usa per le proprie impostazioni equivalenti
 
 ## 17. Riferimenti
 
+- `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per
+  scrivere libri (Michele e suo figlio): cosa vedi e cosa clicchi,
+  senza gergo tecnico. Questo documento resta quello per chi sviluppa
+  l'editor.
 - `doc/ETL.md` — pipeline di conversione Project Aon → JSON, la parte
   CLI di `:tool` che questo documento estende con una GUI.
 - `doc/SCHEMA-JSON.md` — schema completo di manifest/scene/choice/

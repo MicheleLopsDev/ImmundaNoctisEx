@@ -2508,6 +2508,22 @@ milestone: keystore e password vanno salvate ALTROVE (fuori da questo
 repository) a sua cura, perderle vorrebbe dire non poter più
 aggiornare un'installazione esistente con la stessa identità.
 
+**Manuale utente dell'editor (`doc/MANUALE-EDITOR.md`, 30/07/2026)**:
+Michele chiede la documentazione che spiega il funzionamento
+dell'editor — distinta da `doc/EDITOR.md` (specifica tecnica, per chi
+sviluppa): questa è per chi lo USA per scrivere libri (Michele stesso
+e suo figlio), niente gergo di programmazione. Contenuto verificato
+riga per riga sul codice attuale (etichette esatte dei pulsanti,
+colori, messaggi di errore) tramite un'esplorazione mirata dei
+sorgenti di `:tool/editor`, non scritto a memoria — per evitare che il
+manuale descriva un'interfaccia leggermente diversa da quella vera.
+Copre: avvio, apertura/creazione libro, navigazione della mappa
+(zoom/pan/riordino/ricerca/colori), editing di una scena (campi,
+salvataggio a colori, rete di sicurezza), pannello risorse
+(registrare/modificare/eliminare immagini e suoni), impostazioni,
+backup automatici (`.bak1`-`.bak5`) e il limite di ~350 scene.
+Referenziato da `doc/EDITOR.md` §17.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
