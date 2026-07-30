@@ -1818,6 +1818,39 @@ che si vedono identiche in uno screenshot, non quelle "logiche" della
 mappa (post pan/zoom, quelle usate da `posizioniManuali`). Compilazione
 pulita, 19/19 test verdi invariati.
 
+**Quinto giro (stesso giorno)**: Michele conferma con uno screenshot che
+il cursore reale (un pallino rosso, probabilmente un evidenziatore di
+sistema che segna il click) era vicino alla scena 7, ma dopo il
+trascinamento la scena 5 è finita lontanissima — cursore e riquadro in
+punti scollegati. Non più un'impressione soggettiva: una prova concreta
+che il riquadro NON segue il cursore come dovrebbe.
+
+Riscritto il gesto di trascinamento del nodo: prima rileggeva
+`posizioneEffettiva` (quindi lo stato Compose `posizioniManuali`) a
+OGNI fotogramma per calcolare la nuova posizione — un ciclo lettura ->
+scrittura -> lettura ripetuto, soggetto ai tempi della ricomposizione
+(ogni scrittura triggera una ricomposizione dell'intera mappa, e la
+lettura successiva dipende da quando quella ricomposizione si è
+effettivamente propagata). Ora la posizione di partenza si cattura UNA
+SOLA VOLTA in `onDragStart`, dentro una variabile locale alla coroutine
+del gesto (non nello stato Compose), e ogni `onDrag` si limita ad
+accumulare lì lo scarto e a SCRIVERE (mai rileggere) `posizioniManuali`
+— elimina strutturalmente la possibilità di una deriva tra letture e
+scritture in tempi diversi.
+
+Il flag "nodo in trascinamento" (prima un semplice booleano per
+bloccare il pan dello sfondo, giro precedente) ora porta anche QUALE
+scena, `nodoTrascinato: String?` — usato per estendere l'overlay di
+debug delle coordinate con una seconda riga ("· trascino N ->
+(x, y)") che mostra la posizione "logica" del nodo mentre lo trascini,
+affiancata alle coordinate grezze del cursore: la prossima volta un
+confronto numerico diretto invece di dover interpretare uno
+screenshot.
+
+Compilazione pulita, 19/19 test verdi invariati. Commit separato, non
+ancora pushato — **ancora da confermare** se questa riscrittura risolve
+per davvero, essendo il terzo tentativo sullo stesso sintomo.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

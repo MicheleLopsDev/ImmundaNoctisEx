@@ -149,17 +149,20 @@ fun MapScreen(
     var zoom by mapViewState.zoom
     var panX by mapViewState.panX
     var panY by mapViewState.panY
-    // Spostamento enorme segnalato da Michele trascinando un nodo in
-    // orientamento orizzontale ("un pochino più in basso" -> il nodo
-    // finiva molto più in basso del previsto): il pan dello sfondo e il
-    // trascinamento del nodo sono due rilevatori indipendenti sullo
-    // stesso gesto — probabile che si attivassero entrambi insieme (il
-    // nodo si sposta E la mappa fa pan nella stessa direzione,
-    // sommandosi). Questo flag blocca esplicitamente il pan mentre un
-    // nodo è sotto trascinamento, invece di affidarsi soltanto al
-    // meccanismo implicito di "evento già consumato" tra coroutine
-    // indipendenti.
-    var trascinamentoNodoAttivo by remember { mutableStateOf(false) }
+    // Spostamento enorme segnalato da Michele trascinando un nodo
+    // (confermato: cursore e riquadro finivano in punti lontanissimi tra
+    // loro, non solo un'impressione). Due rimedi insieme: (1) questo
+    // stato tiene anche QUALE nodo è sotto trascinamento — non solo un
+    // booleano — per bloccare il pan dello sfondo mentre trascini
+    // (evita che i due effetti si sommino) e per mostrarlo nell'overlay
+    // di debug delle coordinate; (2) il gesto stesso ora ancora la
+    // posizione di partenza una sola volta (`onDragStart`) e accumula lo
+    // scarto in una variabile locale alla coroutine invece di rileggere
+    // `posizioneEffettiva` a ogni fotogramma — elimina la possibilità
+    // che una lettura intermedia dello stato (soggetta ai tempi della
+    // ricomposizione) introduca una deriva tra letture e scritture
+    // successive.
+    var nodoTrascinato by remember { mutableStateOf<String?>(null) }
     // Coordinate del mouse a schermo (30/07/2026, Michele: "cosi la
     // prossima volta quando prendo una schermata è più semplice capire
     // dove ero") — posizione grezza nel riquadro della mappa (stessa
@@ -451,7 +454,7 @@ fun MapScreen(
                 .onPointerEvent(PointerEventType.Exit) { posizioneMouse = null }
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
-                        if (!trascinamentoNodoAttivo) {
+                        if (nodoTrascinato == null) {
                             change.consume()
                             panX += dragAmount.x
                             panY += dragAmount.y
@@ -556,15 +559,25 @@ fun MapScreen(
                                 detectTapGestures(onDoubleTap = { onSceneSelected(nodo.sceneId) })
                             }
                             .pointerInput(nodo.sceneId) {
+                                // Ancora locale alla coroutine del gesto
+                                // (non allo stato Compose): accumula qui lo
+                                // scarto e scrive SOLO su posizioniManuali,
+                                // non lo rilegge mai — evita qualunque
+                                // deriva dovuta ai tempi della
+                                // ricomposizione tra una lettura e la
+                                // scrittura successiva.
+                                var ancora = Offset.Zero
                                 detectDragGestures(
-                                    onDragStart = { trascinamentoNodoAttivo = true },
-                                    onDragEnd = { trascinamentoNodoAttivo = false },
-                                    onDragCancel = { trascinamentoNodoAttivo = false },
+                                    onDragStart = {
+                                        nodoTrascinato = nodo.sceneId
+                                        ancora = posizioneEffettiva(nodo.sceneId) ?: Offset.Zero
+                                    },
+                                    onDragEnd = { nodoTrascinato = null },
+                                    onDragCancel = { nodoTrascinato = null },
                                     onDrag = { change, dragAmount ->
                                         change.consume()
-                                        val base = posizioneEffettiva(nodo.sceneId) ?: return@detectDragGestures
-                                        posizioniManuali = posizioniManuali +
-                                            (nodo.sceneId to Offset(base.x + dragAmount.x, base.y + dragAmount.y))
+                                        ancora = Offset(ancora.x + dragAmount.x, ancora.y + dragAmount.y)
+                                        posizioniManuali = posizioniManuali + (nodo.sceneId to ancora)
                                     },
                                 )
                             },
@@ -609,9 +622,20 @@ fun MapScreen(
             // graphicsLayer di pan/zoom apposta, così restano leggibili
             // in un angolo fisso indipendentemente da dove sei sulla
             // mappa — la stessa posizione che si vede in uno screenshot.
-            posizioneMouse?.let { pos ->
+            if (posizioneMouse != null || nodoTrascinato != null) {
+                // Riga in più col nodo trascinato e la sua posizione
+                // "logica" (30/07/2026, dopo la segnalazione di uno
+                // spostamento enorme confermato dal confronto con la
+                // posizione reale del cursore): la prossima volta un
+                // confronto numerico diretto invece di dover indovinare
+                // dallo screenshot.
+                val etichettaTrascinamento = nodoTrascinato?.let { id ->
+                    val pos = posizioneEffettiva(id)
+                    if (pos != null) " · trascino $id -> (${pos.x.roundToInt()}, ${pos.y.roundToInt()})" else " · trascino $id"
+                }.orEmpty()
                 Text(
-                    "🖱 (${pos.x.roundToInt()}, ${pos.y.roundToInt()})",
+                    "🖱 ${posizioneMouse?.let { "(${it.x.roundToInt()}, ${it.y.roundToInt()})" } ?: "(fuori dal riquadro)"}" +
+                        etichettaTrascinamento,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))
