@@ -622,20 +622,23 @@ fun MapScreen(
             // graphicsLayer di pan/zoom apposta, così restano leggibili
             // in un angolo fisso indipendentemente da dove sei sulla
             // mappa — la stessa posizione che si vede in uno screenshot.
-            if (posizioneMouse != null || nodoTrascinato != null) {
-                // Riga in più col nodo trascinato e la sua posizione
-                // "logica" (30/07/2026, dopo la segnalazione di uno
-                // spostamento enorme confermato dal confronto con la
-                // posizione reale del cursore): la prossima volta un
-                // confronto numerico diretto invece di dover indovinare
-                // dallo screenshot.
-                val etichettaTrascinamento = nodoTrascinato?.let { id ->
+            // 30/07/2026, secondo giro: la riga della scena mostrava solo
+            // il nodo IN QUEL MOMENTO trascinato (`nodoTrascinato`), che
+            // torna null appena rilasci il tasto — quindi spariva proprio
+            // nell'istante in cui Michele faceva lo screenshot per
+            // controllare il risultato. Usa invece `nodoSottoMouse` (il
+            // hover, non il trascinamento): resta valorizzato finché il
+            // cursore sta sopra quel nodo, quindi resta visibile anche
+            // subito DOPO aver rilasciato — esattamente quando serve
+            // guardare il numero.
+            if (posizioneMouse != null || nodoSottoMouse != null) {
+                val etichettaScena = nodoSottoMouse?.let { id ->
                     val pos = posizioneEffettiva(id)
-                    if (pos != null) " · trascino $id -> (${pos.x.roundToInt()}, ${pos.y.roundToInt()})" else " · trascino $id"
+                    if (pos != null) " · scena $id -> (${pos.x.roundToInt()}, ${pos.y.roundToInt()})" else " · scena $id"
                 }.orEmpty()
                 Text(
                     "🖱 ${posizioneMouse?.let { "(${it.x.roundToInt()}, ${it.y.roundToInt()})" } ?: "(fuori dal riquadro)"}" +
-                        etichettaTrascinamento,
+                        etichettaScena,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.8f))

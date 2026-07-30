@@ -1851,6 +1851,25 @@ Compilazione pulita, 19/19 test verdi invariati. Commit separato, non
 ancora pushato — **ancora da confermare** se questa riscrittura risolve
 per davvero, essendo il terzo tentativo sullo stesso sintomo.
 
+**Sesto giro (stesso giorno)**: Michele riprova e localizza meglio il
+sintomo: **si verifica solo in orientamento orizzontale**, e lo
+sfasamento è **sempre verticale** (mai orizzontale) — un indizio
+concreto ancora da seguire fino in fondo. Segnala anche che l'overlay
+appena aggiunto non mostrava la riga della scena nel suo screenshot.
+
+Causa di QUESTO problema (diverso da quello dello spostamento):
+la riga extra era condizionata da `nodoTrascinato`, che torna `null`
+nell'ISTANTE in cui rilasci il tasto del mouse — cioè spariva proprio
+un attimo prima che Michele facesse lo screenshot per controllare il
+risultato. Sostituito con `nodoSottoMouse` (l'hover, non il
+trascinamento): resta valorizzato finché il cursore sta sopra quel
+nodo, quindi la riga resta leggibile anche subito DOPO aver rilasciato.
+
+Lo spostamento verticale in orizzontale resta da riprodurre con questo
+overlay più affidabile prima di azzardare un'altra ipotesi — troppe
+correzioni di fila sullo stesso sintomo senza una prova diretta
+rischiano di essere solo tentativi alla cieca.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
