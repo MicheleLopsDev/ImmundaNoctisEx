@@ -2047,6 +2047,42 @@ segnalato a Michele, non corretto qui perché fuori dallo scopo di
 questo giro e perché cambierebbe una parola che finisce nei prompt
 reali senza che sia stato lui a deciderlo.
 
+**§15.3 — Immagini: anteprima in scheda, sfondo del nodo**: due parti.
+
+- **Scheda di scena**: nuovo `AnteprimaImmagineRisorsa`
+  (`ResourceImagePreview.kt`) — carica `static:<id>` dal catalogo
+  bundled di §15.1 (istantaneo, offline) o `url:<link>` scaricato al
+  volo su un thread di sfondo con timeout breve (3s), degrado
+  silenzioso su un segnaposto se fallisce o è troppo lento, mai un
+  blocco dell'interfaccia. Nuovo `CampoImmagineConAnteprima` in
+  `SceneEditorScreen.kt` (stesso pattern di `DestinazioneField` già
+  esistente: suggerimenti dal catalogo in una lista sotto il campo,
+  resta testo libero per non impedire `url:` scritto a mano) — tolto
+  il vecchio commento che rimandava tutto "a quando il catalogo sarà
+  condiviso", condizione ormai vera da §15.1. Tre campi
+  (`backgroundImage`/`npcImage`/`combat.enemyImage`), **ognuno il suo
+  posto**, nessuna priorità qui perché possono coesistere.
+- **Nodo della mappa**: priorità decisa — **NPC** prima, poi
+  **nemico/bestia** (`combat.enemyImage`, stesso campo per entrambi),
+  infine **location** (`backgroundImage`). L'immagine riempie il nodo
+  SOPRA lo sfondo verde/rosso di salute già esistente (mai una
+  regressione: se il caricamento fallisce o è ancora in corso, il
+  colore di salute resta visibile sotto, dato che
+  `AnteprimaImmagineRisorsa` ora accetta un parametro
+  `mostraSegnaposto` per NON disegnare il proprio grigio placeholder
+  in questo contesto). Un pallino verde/rosso in alto a destra
+  sostituisce il riempimento come segnale di salute quando c'è
+  un'immagine (altrimenti sparirebbe sotto la foto); testo passa a
+  bianco con uno scrim scuro dietro per restare leggibile su
+  qualunque immagine.
+
+Compilazione pulita (nessun test nuovo: codice UI Compose, stesso
+criterio già seguito per il resto dell'editor — verificato a mano,
+non con test automatici). **Verifica visiva rimandata a Michele**: due
+tentativi di smoke test `:tool:run` in background non hanno raggiunto
+in tempo l'apertura reale della finestra (solo fasi di build viste nei
+log, nessun errore però) — non conclusivo quanto un controllo diretto.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

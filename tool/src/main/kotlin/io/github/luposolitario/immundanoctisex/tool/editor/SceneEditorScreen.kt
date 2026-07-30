@@ -35,18 +35,19 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.Combat
 import io.github.luposolitario.immundanoctisex.core.data.model.Discipline
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
+import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 
 // Pannello di editing di una scena (doc/EDITOR.md §7). La vista Maschera
 // copre narrativeText, choices, disciplineChoices, backgroundImage/
-// npcImage e combat. backgroundImage/npcImage restano campi di testo
-// libero (niente menu a tendina sul catalogo static: ancora: quel
-// catalogo vive oggi solo in :app —
-// SceneImageCatalog.kt/NpcImageCatalog.kt/EnemyImageCatalog.kt — non
-// condiviso con :core:data/:tool; servirebbe prima spostarlo in un posto
-// comune, decisione da prendere con Michele, non presa qui).
+// npcImage e combat. backgroundImage/npcImage/combat.enemyImage restano
+// campi di testo libero (serve poter scrivere `url:` a mano), ma con
+// suggerimenti dal catalogo chiuso e anteprima grafica (§15.3,
+// `CampoImmagineConAnteprima` più sotto) — il catalogo, prima confinato
+// in `:app`, ora ha una copia in `:tool` letta da `StaticResourceCatalog`
+// (§15.1).
 // Validazione locale (§7.3): narrativeText, ogni scelta/scelta-disciplina
 // (testo + destinazione, disciplina valida per le seconde) e i campi
 // obbligatori di un eventuale combattimento devono essere valorizzati
@@ -151,18 +152,26 @@ fun SceneEditorScreen(scene: Scene, tutteLeScene: List<Scene>, onSalva: (Scene) 
                 Spacer(Modifier.height(16.dp))
 
                 Text("Immagini", style = MaterialTheme.typography.titleMedium)
+                // Un'anteprima per ciascuna, ognuna nel proprio posto
+                // (§15.3, Michele: "se ci sono immagini nella scena
+                // devono essere caricate e reindirizzate anche
+                // graficamente nella scheda della scena") — a differenza
+                // del nodo della mappa (§15.3, una sola immagine per
+                // priorità), qui possono coesistere tutte e tre.
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = backgroundImage,
+                    CampoImmagineConAnteprima(
+                        valore = backgroundImage,
+                        etichetta = "Sfondo (static:id o url:...)",
+                        suggerimenti = StaticResourceCatalog.registry.locations.map { it.id },
                         onValueChange = { backgroundImage = it },
                         modifier = Modifier.weight(1f),
-                        label = { Text("Sfondo (static:id o url:...)") },
                     )
-                    OutlinedTextField(
-                        value = npcImage,
+                    CampoImmagineConAnteprima(
+                        valore = npcImage,
+                        etichetta = "Ritratto NPC (static:id o url:...)",
+                        suggerimenti = StaticResourceCatalog.registry.npcs,
                         onValueChange = { npcImage = it },
                         modifier = Modifier.weight(1f),
-                        label = { Text("Ritratto NPC (static:id o url:...)") },
                     )
                 }
                 Spacer(Modifier.height(16.dp))
@@ -185,11 +194,12 @@ fun SceneEditorScreen(scene: Scene, tutteLeScene: List<Scene>, onSalva: (Scene) 
                             modifier = Modifier.weight(2f),
                             label = { Text("Nome nemico") },
                         )
-                        OutlinedTextField(
-                            value = combatEnemyImage,
+                        CampoImmagineConAnteprima(
+                            valore = combatEnemyImage,
+                            etichetta = "Immagine (static:/url:)",
+                            suggerimenti = StaticResourceCatalog.registry.enemies,
                             onValueChange = { combatEnemyImage = it },
                             modifier = Modifier.weight(1f),
-                            label = { Text("Immagine (static:/url:)") },
                         )
                     }
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -393,6 +403,66 @@ private fun DestinazioneField(
                     }
                 }
             }
+        }
+    }
+}
+
+// Campo immagine con suggerimenti dal catalogo chiuso + anteprima
+// grafica (§15.3, Michele: "i toni devono essere fissi... così come la
+// parte delle immagini" + "devono essere caricate e reindirizzate
+// anche graficamente"). Stesso pattern di `DestinazioneField` sopra
+// (lista di suggerimenti in linea sotto il campo, non un menu
+// flottante) — resta testo libero apposta, per non impedire `url:`
+// scritto a mano: i suggerimenti riempiono il campo con
+// `static:<id>`, selezionarne uno non è obbligatorio.
+@Composable
+private fun CampoImmagineConAnteprima(
+    valore: String,
+    etichetta: String,
+    suggerimenti: List<String>,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var mostraSuggerimenti by remember { mutableStateOf(false) }
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = valore,
+            onValueChange = {
+                onValueChange(it)
+                mostraSuggerimenti = it.isNotBlank()
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(etichetta) },
+        )
+        if (mostraSuggerimenti) {
+            val termine = valore.removePrefix(ImageReference.STATIC_PREFIX).removePrefix(ImageReference.URL_PREFIX)
+            val corrispondenze = suggerimenti.filter { it.contains(termine, ignoreCase = true) }.take(6)
+            if (corrispondenze.isNotEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                ) {
+                    corrispondenze.forEach { id ->
+                        Text(
+                            "${ImageReference.STATIC_PREFIX}$id",
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onValueChange("${ImageReference.STATIC_PREFIX}$id")
+                                    mostraSuggerimenti = false
+                                }
+                                .padding(8.dp),
+                        )
+                    }
+                }
+            }
+        }
+        if (valore.isNotBlank()) {
+            Spacer(Modifier.height(4.dp))
+            AnteprimaImmagineRisorsa(valore, Modifier.fillMaxWidth().height(90.dp))
         }
     }
 }

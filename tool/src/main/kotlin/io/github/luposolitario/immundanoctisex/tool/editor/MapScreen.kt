@@ -531,6 +531,20 @@ fun MapScreen(
                     // opacità; con un nodo sotto mouse, solo lui e i suoi
                     // collegati diretti restano leggibili.
                     val opacitaNodo = if (nodoSottoMouse == null || nodo.sceneId in vicinato) 1f else 0.25f
+                    // Immagine di copertina del nodo (§15.3, Michele: "le
+                    // immagini nel caso ci siano devono essere
+                    // renderizzate come sfondo del grafo... se ci sono
+                    // NPC o NEMICO o BESTIA o LOCATION usando questo
+                    // ordine di preferenza"): NPC prima, poi il nemico del
+                    // combattimento (copre anche "bestia", stesso campo
+                    // `combat.enemyImage` per entrambi), infine lo sfondo
+                    // di location come ultima scelta. Una sola immagine
+                    // per nodo, mai tutte e tre insieme (a differenza
+                    // della scheda di scena, §15.3, dove convivono).
+                    val scenaNodo = scenesById[nodo.sceneId]
+                    val immagineNodo = scenaNodo?.npcImage
+                        ?: scenaNodo?.combat?.enemyImage
+                        ?: scenaNodo?.backgroundImage
                     Box(
                         modifier = Modifier
                             .offset { IntOffset(pos.x.roundToInt(), pos.y.roundToInt()) }
@@ -618,33 +632,60 @@ fun MapScreen(
                             },
                         contentAlignment = Alignment.Center,
                     ) {
+                        // Immagine di copertina (§15.3): riempie il nodo
+                        // SOPRA lo sfondo verde/rosso già impostato più in
+                        // alto — se il caricamento fallisce o è ancora in
+                        // corso, il colore di salute sotto resta visibile
+                        // come prima (nessuna regressione, solo un livello
+                        // in più quando c'è un'immagine da mostrare).
+                        if (immagineNodo != null) {
+                            AnteprimaImmagineRisorsa(immagineNodo, Modifier.fillMaxSize(), mostraSegnaposto = false)
+                            // Pallino di salute (30/07/2026): con
+                            // un'immagine di sfondo il riempimento
+                            // verde/rosso non si vede più, quindi la
+                            // salute del nodo (§6.2) resta leggibile in un
+                            // segno a parte invece di sparire.
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(4.dp)
+                                    .size(10.dp)
+                                    .clip(RoundedCornerShape(50))
+                                    .background(if (nodo.healthy) Color(0xFF4CAF50) else Color(0xFFE53935))
+                                    .border(1.dp, Color.White, RoundedCornerShape(50)),
+                            )
+                        }
                         // Colore fisso, non legato al tema: gli sfondi
                         // verde/rosso restano chiari per il significato di
                         // salute (§6.2) indipendentemente dal tema attivo.
-                        val scena = scenesById[nodo.sceneId]
-                        val etichetta = if (scena != null) "${nodo.sceneId} · ${codiceScena(scena)}" else nodo.sceneId
+                        // Sopra un'immagine invece il testo passa a
+                        // bianco con uno scrim scuro dietro, altrimenti
+                        // resterebbe illeggibile su una foto qualunque.
+                        val etichetta = if (scenaNodo != null) "${nodo.sceneId} · ${codiceScena(scenaNodo)}" else nodo.sceneId
                         // Riga 1: chiave (id+codice). Riga 2: estratto del
                         // testo narrato — riconoscere la scena a colpo
                         // d'occhio senza doverla aprire (30/07/2026,
                         // Michele).
                         Column(
-                            modifier = Modifier.padding(horizontal = 4.dp),
+                            modifier = Modifier
+                                .let { if (immagineNodo != null) it.background(Color.Black.copy(alpha = 0.55f)) else it }
+                                .padding(horizontal = 4.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Text(
                                 etichetta,
                                 fontSize = 11.sp,
                                 textAlign = TextAlign.Center,
-                                color = Color.Black,
+                                color = if (immagineNodo != null) Color.White else Color.Black,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
-                                scena?.narrativeText?.replace("\n", " ")?.trim().orEmpty(),
+                                scenaNodo?.narrativeText?.replace("\n", " ")?.trim().orEmpty(),
                                 fontSize = 9.sp,
                                 textAlign = TextAlign.Center,
-                                color = Color.DarkGray,
+                                color = if (immagineNodo != null) Color(0xFFE0E0E0) else Color.DarkGray,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                             )
