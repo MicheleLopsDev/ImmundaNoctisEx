@@ -24,8 +24,15 @@ local.properties
 # Contenuti Project Aon, solo uso personale locale — non vanno nel repo né nell'APK
 content/scenes.json
 
+# Backup di rotazione dell'editor (§10 EDITOR.md, BookStorage.kt):
+# copie automatiche a ogni salvataggio, non contenuto da versionare —
+# la cronologia la fa git sul file vero, non queste copie ridondanti.
+*.bak[0-9]
+
 # Libri convertiti da Project Aon per prove personali (29/07/2026, Michele:
-# "uso mio personale e di mio figlio... non deve contenere libri"): sorgenti
-# HTML e JSON convertiti, mai nel repo né nell'app — solo content/test-books/
-# (fixture piccole scritte a mano) è versionato e finisce nei test.
-doc/LIBRI/
+# "uso mio personale e di mio figlio... non deve contenere libri"):
+# sorgenti HTML e JSON convertiti, mai nell'APK. 30/07/2026, Michele:
+# "salva su git tutte le risorse anche i libri sotto doc che ci
+# servono per fare i test... è utile fare il revert con git se si
+# rompono" — versionati anche loro, per lo stesso motivo per cui è
+# versionato content/test-books/.

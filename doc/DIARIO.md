@@ -2402,6 +2402,42 @@ FontWeight") perché il risolutore ripiegava sulla firma Android più
 vicina per arità. Compilazione pulita, 38 test invariati (feature
 additiva, nessuna logica esistente toccata).
 
+**Cancella/modifica dal pannello "Risorse del libro" (§15.7, Michele:
+"dal menu delle risorse devi darmi la possibilità di cancellarle
+oppure di selezionarle e modificarle")**: chiesto se valesse solo per
+il registro `customResources` o anche per le immagini già in uso nelle
+scene — risposta: anche quelle. `SezioneImmaginiInUso`: 🗑 azzera il
+valore in TUTTE le scene che lo referenziano (un valore può comparire
+più volte, l'elenco è deduplicato), ✎ (solo per `url:`) lo sostituisce
+ovunque con un nuovo URL; se il valore era registrato in
+`customResources` il registro segue di pari passo.
+`SezioneRisorsePersonalizzate` (immagini non in uso + suoni): aggiunto
+✎ accanto al ✕ già esistente, carica la voce nello stesso modulo di
+aggiunta che diventa temporaneamente un modulo di modifica. Compilazione
+pulita, 38 test invariati (nessuna logica esistente toccata, solo nuovi
+percorsi additivi).
+
+**Decisione di Michele sulla verifica delle risorse**: "se l'editor
+inserisce immagini o mp3 non esistenti si assume la responsabilità per
+ora, successivamente dovremo implementare il check delle risorse" —
+NON implementato ora, idea registrata in `doc/UPGRADE.md` §8 per
+quando si deciderà di riprenderla.
+
+**Libri di prova e risorse ora in git (30/07/2026, Michele: "salva su
+git tutte le risorse anche i libri sotto doc che ci servono per fare i
+test ed è utile fare il revert con git se si rompono")**: cambio di
+politica esplicito rispetto a quanto scritto in precedenza
+(commento in `ConvertMain.kt`/vecchio `.gitignore`, "mai nel repo") —
+`doc/LIBRI/` (i 5 libri Project Aon convertiti + `ILLUSTRAZIONI.md`) e
+i libri di prova in `content/` (`la-megera.json`, `rampo.json`,
+`scenes.sample_new.json`, `una-nuova-scoperta.json`) versionati; i
+backup di rotazione `.bak1/.bak2/.bak3` (§10, copie automatiche a ogni
+salvataggio) restano IGNORATI apposta — sono ridondanti con la
+cronologia che git già offre sul file vero. Verificato prima di
+versionarli: tutti e quattro i libri di `content/` passano
+`ContenutiRealiValidiTest` (`:core:data:jvmTest`), non sono bozze
+rotte.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

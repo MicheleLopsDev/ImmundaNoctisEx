@@ -559,3 +559,23 @@ rifiuto, è un ordine di priorità: il client resta fermo finché
 l'editor (`doc/EDITOR.md` §15 e oltre) non è concluso. Da riprendere
 quando si deciderà il passaggio del client al registro risorse
 dinamico — stesso punto di decisione, motivazione aggiornata.
+
+## 8. Verifica di esistenza delle risorse `url:` nell'editor
+
+**Origine (30/07/2026)**: durante il lavoro sul pannello "Risorse del
+libro" (`doc/EDITOR.md` §15.7), Michele nota che l'editor accetta
+qualunque URL scritto a mano per un'immagine o un suono `url:`, senza
+controllare che punti davvero a un file esistente/raggiungibile.
+Decisione esplicita: **"se l'editor inserisce immagini o mp3 non
+esistenti si assume la responsabilità per ora"** — l'autore del libro
+resta responsabile di scrivere link corretti, l'editor non blocca né
+avvisa.
+
+**Rimandato, non dimenticato**: quando si riprenderà il tema, un
+controllo utile sarebbe una richiesta HTTP (HEAD o GET parziale) sugli
+URL registrati in `customResources`/usati nelle scene, per segnalare
+(come avviso, non errore bloccante — stesso principio del resto della
+validazione, §8 `doc/EDITOR.md`) i link morti prima che l'autore lo
+scopra giocando sul device. Va deciso quando farlo (a ogni apertura
+del libro? su richiesta con un pulsante? è un'operazione di rete, non
+istantanea) — nessuna decisione presa, solo l'idea registrata.

@@ -1,0 +1,160 @@
+{
+    "id": "la-megera",
+    "version": "1.0.0",
+    "title": "La megera",
+    "description": "",
+    "language": "en",
+    "genre": "FANTASY",
+    "disciplineChoices": [
+        {
+            "id": "WEAPONSKILL",
+            "name": "Weaponskill",
+            "description": "Mastery with a chosen weapon type, adding a bonus to Combat Skill when wielding it."
+        },
+        {
+            "id": "CAMOUFLAGE",
+            "name": "Camouflage",
+            "description": "The art of blending into terrain and shadow to move unseen."
+        },
+        {
+            "id": "HUNTING",
+            "name": "Hunting",
+            "description": "Skill at foraging and catching food in the wild, removing the need for meals."
+        },
+        {
+            "id": "SIXTH_SENSE",
+            "name": "Sixth Sense",
+            "description": "A heightened intuition that warns of danger and hidden threats."
+        },
+        {
+            "id": "TRACKING",
+            "name": "Tracking",
+            "description": "The ability to follow trails and read signs left by passage."
+        },
+        {
+            "id": "HEALING",
+            "name": "Healing",
+            "description": "The gift of mending wounds and restoring endurance without herbs."
+        },
+        {
+            "id": "MINDSHIELD",
+            "name": "Mindshield",
+            "description": "A mental ward against psychic intrusion and fear."
+        },
+        {
+            "id": "MINDBLAST",
+            "name": "Mindblast",
+            "description": "The power to strike an enemy's mind directly, aiding in combat."
+        },
+        {
+            "id": "ANIMAL_KINSHIP",
+            "name": "Animal Kinship",
+            "description": "An affinity with animals, calming beasts and reading their moods."
+        },
+        {
+            "id": "MIND_OVER_MATTER",
+            "name": "Mind Over Matter",
+            "description": "Telekinetic control, allowing objects to be moved by will alone."
+        }
+    ],
+    "deathSceneId": "morte",
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "narrativeText": "Scrivi qui l'inizio della tua storia.",
+            "choices": [
+                {
+                    "id": "c1",
+                    "choiceText": "Vai avanti",
+                    "nextSceneId": "2"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "narrativeText": "Scrivi qui il bivio: due strade diverse si aprono.",
+            "choices": [
+                {
+                    "id": "c2a",
+                    "choiceText": "Percorso A",
+                    "nextSceneId": "3"
+                },
+                {
+                    "id": "c2b",
+                    "choiceText": "Percorso B",
+                    "nextSceneId": "5"
+                }
+            ]
+        },
+        {
+            "id": "3",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "narrativeText": "Scrivi qui la prima scena del percorso A.",
+            "choices": [
+                {
+                    "id": "c3",
+                    "choiceText": "Vai avanti",
+                    "nextSceneId": "4"
+                }
+            ]
+        },
+        {
+            "id": "4",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "narrativeText": "Scrivi qui la seconda scena del percorso A.",
+            "choices": [
+                {
+                    "id": "c4",
+                    "choiceText": "Vai avanti",
+                    "nextSceneId": "7"
+                }
+            ]
+        },
+        {
+            "id": "5",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "narrativeText": "Scrivi qui la prima scena del percorso B.",
+            "choices": [
+                {
+                    "id": "c5",
+                    "choiceText": "Vai avanti",
+                    "nextSceneId": "6"
+                }
+            ]
+        },
+        {
+            "id": "6",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "narrativeText": "Scrivi qui la seconda scena del percorso B.",
+            "choices": [
+                {
+                    "id": "c6",
+                    "choiceText": "Vai avanti",
+                    "nextSceneId": "7"
+                }
+            ]
+        },
+        {
+            "id": "7",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "narrativeText": "Scrivi qui come finisce la storia, dopo la confluenza dei due percorsi.",
+            "outcome": "VICTORY"
+        },
+        {
+            "id": "morte",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "narrativeText": "La tua avventura finisce qui.",
+            "outcome": "DEFEAT"
+        }
+    ]
+}
