@@ -11,6 +11,16 @@ import kotlinx.serialization.Serializable
 // dal motore anche quando il pacchetto non ce l'ha.
 @Serializable
 data class Manifest(
+    // Posizioni dei nodi sulla mappa dell'editor grafico (:tool,
+    // EDITOR.md §19.12, Michele: "una mappa in testa con id e
+    // posizioni che viene saltata dal client... in testa come elemento
+    // separato... evita problemi con le diff"). Primo campo apposta:
+    // in un JSON serializzato in ordine di dichiarazione, resta un
+    // blocco isolato in cima al file invece di mescolarsi coi campi
+    // di contenuto — chi guarda un diff del libro lo riconosce a
+    // colpo d'occhio e può ignorarlo. Il motore/client non la legge
+    // mai (§19.12).
+    val posizioniMappa: Map<String, PosizioneScena> = emptyMap(),
     val id: String,
     val version: String,
     val title: String,

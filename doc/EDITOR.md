@@ -1068,12 +1068,56 @@ in riga"** e **"↕ Allinea in colonna"**. Il nodo con l'ID più basso
 resta ancorato alla sua posizione attuale; gli altri, in ordine di ID
 crescente, si dispongono a partire da lì con la stessa spaziatura già
 usata dall'auto-layout (`H_SPACING`/`V_SPACING`). Scarto scritto su
-`posizioniManuali` come un trascinamento a mano — non salvato nel
-JSON, si perde con "Riordina automaticamente".
+`posizioniManuali` come un trascinamento a mano — persistito nel JSON
+al prossimo salvataggio (§19.12), si azzera con "Riordina
+automaticamente" (e quell'azzeramento arriva anch'esso su disco al
+salvataggio successivo).
 
 Geometria in `AllineamentoGruppo.kt` (`allineaGruppo`, testata, 5
 test) — stesso principio di `RettangoloSelezione.kt`: calcolo puro
 separato dallo stato Compose che lo usa.
+
+### 19.12 Salvare le posizioni dei nodi nel libro — FATTO (31/07/2026)
+
+Aggiunta su richiesta di Michele durante gli stessi test ("quanto ci
+costerebbe salvare le posizioni delle scene nel json, ovviamente il
+client ignora la cosa, servirebbe solo all'editor?"): finora ogni
+sistemazione manuale della mappa (trascinamenti, §19.3, §19.11) si
+perdeva riaprendo il libro — l'auto-layout ripartiva sempre da zero.
+
+**Nuovo campo `Manifest.posizioniMappa: Map<String, PosizioneScena>`**
+(`core:data`, `id → {x, y}`), **primo campo del `data class`
+apposta** — Michele: "una mappa in testa con id e posizioni... in
+testa come elemento separato... evita problemi con le diff": in un
+JSON serializzato in ordine di dichiarazione resta un blocco isolato
+in cima al file invece di mescolarsi coi campi di contenuto scena per
+scena, riconoscibile a colpo d'occhio in un diff e ignorabile quando
+non interessa. Il motore/client Android non lo legge mai — non serve
+nemmeno dirglielo esplicitamente: `PackageRepository` carica già con
+`ignoreUnknownKeys = true`, un client più vecchio di questo campo lo
+salta senza saperlo.
+
+**Sincronizzazione solo ai bordi, non continua**: `posizioniManuali`
+(stato Compose ephemeral di `MapViewState`) resta l'unica fonte di
+verità DURANTE la sessione di editing, esattamente come prima —
+nessuna delle funzioni che la scrivono (trascinamento singolo/gruppo,
+allineamento, "Riordina") è stata toccata. La sincronizzazione avviene
+in due soli punti:
+- **al salvataggio** (`salvaSu`, `MapScreen.kt`): il `Manifest` viene
+  copiato con `posizioniMappa` valorizzato dallo stato corrente di
+  `posizioniManuali`, SOLO nell'istante di scrittura su disco;
+- **al caricamento di un libro da zero** (apertura, ripristino
+  backup, creazione nuova — non le mutazioni in-sessione dello stesso
+  libro, che lascerebbero intatte le posizioni correnti):
+  `MapViewState.caricaPosizioniDa(manifest)` idrata `posizioniManuali`
+  da `Manifest.posizioniMappa`.
+
+Effetto collaterale utile: prima di questa modifica `mapViewState`
+(vissuto per l'intera sessione dell'editor, non per singolo libro)
+poteva far "sanguinare" gli scarti di trascinamento da un libro
+all'altro se si tornava all'avvio e se ne apriva uno diverso senza
+premere "Riordina" — ora ogni apertura fresca idrata comunque
+`posizioniManuali` (anche a vuoto), azzerando quel residuo.
 
 ## 20. Riferimenti
 

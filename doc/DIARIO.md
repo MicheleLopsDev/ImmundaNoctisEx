@@ -3089,6 +3089,44 @@ selezionato resta sempre a piena opacità, la selezione ha priorità
 sull'attenuazione del passaggio del mouse. `:tool:compileKotlin`/
 `:tool:test` verdi.
 
+**Implementazione: §19.12 salvare le posizioni dei nodi nel libro
+(31/07/2026, Michele: "quanto ci costerebbe salvare le posizioni
+delle scene nel json... il client ignora la cosa servirebbe solo
+all'editor?")**: prima di rispondere, verificato che il costo fosse
+davvero basso — `PackageRepository` (il loader del client) ha già
+`ignoreUnknownKeys = true`, quindi il client ignora il campo per
+davvero, non solo nelle intenzioni. Proposto un campo su `Manifest`
+invece che su `Scene` (resta contenuto puro), sincronizzato solo ai
+DUE bordi (salvataggio/caricamento) invece che a ogni trascinamento —
+Michele chiede poi di metterlo "in testa come elemento separato" per
+evitare rumore nei diff del libro, confermando la stessa idea.
+
+Nuovo `PosizioneScena(x, y)` (`core:data`) e campo
+`Manifest.posizioniMappa: Map<String, PosizioneScena> = emptyMap()`,
+**primo parametro del data class** apposta — in un JSON serializzato
+in ordine di dichiarazione resta un blocco isolato in cima al file,
+non mescolato scena per scena. `MapViewState.caricaPosizioniDa()`
+(nuova, `MapScreen.kt`) idrata `posizioniManuali` dal manifest SOLO
+nei tre punti in cui `EditorMain.kt` carica un libro da zero
+(apertura, ripristino backup, creazione nuova) — non nelle mutazioni
+in-sessione dello stesso libro, che lascerebbero le posizioni
+correnti intatte. `salvaSu()` (`MapScreen.kt`) fa il percorso inverso
+solo nell'istante di scrittura su disco. `mapViewState` è stato
+spostato prima di `apriLibro()` in `EditorMain.kt` (doveva poter
+chiamare l'idratazione appena introdotta).
+
+Effetto collaterale utile, non cercato: prima di questa modifica gli
+scarti di trascinamento potevano "sanguinare" da un libro all'altro
+nella stessa sessione dell'editor (mai azzerati tornando all'avvio) —
+ora ogni apertura fresca li azzera comunque, idratando da un
+`posizioniMappa` magari vuoto.
+
+Nuovi test: `ManifestTest` (core:data — default vuoto, round-trip di
+serializzazione, un JSON senza il campo resta valido). Nessuna
+modifica ai validatori: il campo non ha implicazioni di gioco.
+`:core:data:jvmTest`, `:tool:compileKotlin`/`:tool:test` e
+`:app:testDebugUnitTest` (il client compila e passa invariato) verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

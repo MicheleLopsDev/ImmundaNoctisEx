@@ -78,6 +78,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
+import io.github.luposolitario.immundanoctisex.core.data.model.PosizioneScena
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import io.github.luposolitario.immundanoctisex.core.data.validation.PackageValidator
@@ -131,6 +132,20 @@ class MapViewState {
 
 @Composable
 fun rememberMapViewState(): MapViewState = remember { MapViewState() }
+
+// §19.12 (Michele: "una mappa in testa con id e posizioni che viene
+// saltata dal client"): hydrate di `posizioniManuali` da
+// `Manifest.posizioniMappa` — chiamata SOLO nei punti in cui
+// `EditorMain.kt` carica un libro da zero (apertura, ripristino
+// backup, creazione nuova), mai nelle mutazioni in-sessione del
+// manifest (altrimenti sovrascriverebbe posizioni appena trascinate
+// con quelle, magari vuote, dell'ultimo salvataggio su disco). Il
+// verso opposto (persistere `posizioniManuali` in `Manifest`) resta
+// SOLO al momento del salvataggio (`salvaSu` sotto) — nessun altro
+// posto tiene i due sincronizzati durante la sessione, di proposito.
+fun MapViewState.caricaPosizioniDa(manifest: Manifest) {
+    posizioniManuali.value = manifest.posizioniMappa.mapValues { (_, p) -> Offset(p.x, p.y) }
+}
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -215,7 +230,16 @@ fun MapScreen(
     var mostraConfermaAnnulla by remember { mutableStateOf(false) }
 
     fun salvaSu(destinazione: File) {
-        val json = Json { prettyPrint = true }.encodeToString(Manifest.serializer(), manifest)
+        // §19.12: le posizioni vive stanno in `mapViewState.posizioniManuali`
+        // per tutta la sessione (mai scritte nel `manifest` in memoria, vedi
+        // `caricaPosizioniDa` sopra) — finiscono nel `Manifest.posizioniMappa`
+        // solo qui, nell'istante in cui si scrive davvero su disco.
+        val manifestConPosizioni = manifest.copy(
+            posizioniMappa = mapViewState.posizioniManuali.value.mapValues { (_, offset) ->
+                PosizioneScena(offset.x, offset.y)
+            },
+        )
+        val json = Json { prettyPrint = true }.encodeToString(Manifest.serializer(), manifestConPosizioni)
         salvaLibro(destinazione, json, livelliBackup)
         messaggioSalvataggio = "✓ Salvato (backup in ${destinazione.name}.bak1)"
         backupDisponibile = true

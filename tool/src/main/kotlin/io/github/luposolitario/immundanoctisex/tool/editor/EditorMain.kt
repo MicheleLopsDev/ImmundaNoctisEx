@@ -113,11 +113,20 @@ fun main() = application {
     // sole la ricomposizione) — aggiornato ogni volta che un libro
     // viene aperto o creato con successo.
     var libriRecenti by remember { mutableStateOf(preferenze.libriRecenti) }
+    // Stato della vista mappa (zoom/pan/orientamento/posizioni trascinate,
+    // MapScreen.kt) ricordato QUI, non dentro MapScreen: quello schermo
+    // viene distrutto e ricreato ogni volta che apri e chiudi una scena
+    // (ramo diverso del `when` sotto), un `remember` locale si perderebbe
+    // a ogni giro — bug segnalato da Michele il 30/07/2026. Dichiarato
+    // PRIMA di `apriLibro` (31/07/2026, §19.12): quella funzione deve
+    // poter idratare `posizioniManuali` dal libro appena caricato.
+    val mapViewState = rememberMapViewState()
     fun apriLibro(file: File) {
         when (val esito = PackageRepository(FilePackageSource(file)).load()) {
             is PackageLoadResult.Success -> {
                 preferenze.aggiungiLibroRecente(file.absolutePath)
                 libriRecenti = preferenze.libriRecenti
+                mapViewState.caricaPosizioniDa(esito.manifest)
                 schermata = Schermata.Mappa(file, esito.manifest, esito.warnings)
             }
             is PackageLoadResult.Failure -> schermata = Schermata.LibroNonValido(esito.errors)
@@ -128,12 +137,6 @@ fun main() = application {
     // di singola schermata: passare dalla mappa al pannello di una scena e
     // tornare indietro NON deve far ricomparire la richiesta.
     var salvataggioGiaConfermato by remember { mutableStateOf(false) }
-    // Stato della vista mappa (zoom/pan/orientamento/posizioni trascinate,
-    // MapScreen.kt) ricordato QUI, non dentro MapScreen: quello schermo
-    // viene distrutto e ricreato ogni volta che apri e chiudi una scena
-    // (ramo diverso del `when` sotto), un `remember` locale si perderebbe
-    // a ogni giro — bug segnalato da Michele il 30/07/2026.
-    val mapViewState = rememberMapViewState()
 
     // Dimensione di partenza generosa + resizable esplicito (30/07/2026,
     // Michele: "la finestra non è ridimensionabile ma si può solo
@@ -261,8 +264,12 @@ fun main() = application {
                             onAnnullaUltimoBackup = {
                                 if (ripristinaUltimoBackup(s.file)) {
                                     when (val esito = PackageRepository(FilePackageSource(s.file)).load()) {
-                                        is PackageLoadResult.Success ->
+                                        is PackageLoadResult.Success -> {
+                                            // §19.12: il backup ripristinato può avere
+                                            // posizioni diverse da quelle in sessione.
+                                            mapViewState.caricaPosizioniDa(esito.manifest)
                                             schermata = Schermata.Mappa(s.file, esito.manifest, esito.warnings)
+                                        }
                                         is PackageLoadResult.Failure ->
                                             schermata = Schermata.LibroNonValido(esito.errors)
                                     }
@@ -309,6 +316,12 @@ fun main() = application {
                                     salvataggioGiaConfermato = true
                                     preferenze.aggiungiLibroRecente(nuovoFile.absolutePath)
                                     libriRecenti = preferenze.libriRecenti
+                                    // §19.12: nessuna posizione ancora (libro
+                                    // appena creato) — idrata comunque, per
+                                    // azzerare eventuali scarti rimasti da un
+                                    // libro aperto in precedenza nella stessa
+                                    // sessione dell'editor.
+                                    mapViewState.caricaPosizioniDa(manifestNuovo)
                                     schermata = Schermata.Mappa(nuovoFile, manifestNuovo, emptyList())
                                 }
                             },
