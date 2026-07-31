@@ -39,13 +39,25 @@ class InferencePreferences(context: Context) {
         get() = prefs.getBoolean(KEY_ASK_IMAGE, false)
         set(value) = prefs.edit().putBoolean(KEY_ASK_IMAGE, value).apply()
 
+    // Modalità Traduzione (31/07/2026, Michele: niente arricchimento, solo
+    // traduzione fedele) — quando attiva, toConfig() sotto ignora i 4
+    // valori salvati e usa un preset fisso: i valori restano comunque
+    // salvati, pronti per quando si torna alla modalità libera.
+    var translationMode: Boolean
+        get() = prefs.getBoolean(KEY_TRANSLATION_MODE, false)
+        set(value) = prefs.edit().putBoolean(KEY_TRANSLATION_MODE, value).apply()
+
     // La fotografia da passare al motore al caricamento.
-    fun toConfig(): InferenceConfig = InferenceConfig(
-        maxTokens = maxTokens,
-        temperature = temperature,
-        topK = topK,
-        topP = topP,
-    )
+    fun toConfig(): InferenceConfig = if (translationMode) {
+        InferenceConfig.TRANSLATION_PRESET
+    } else {
+        InferenceConfig(
+            maxTokens = maxTokens,
+            temperature = temperature,
+            topK = topK,
+            topP = topP,
+        )
+    }
 
     // Serve dopo una sessione di misure andata storta: si torna ai valori
     // provati senza dover ricordare quali fossero.
@@ -63,5 +75,6 @@ class InferencePreferences(context: Context) {
         private const val KEY_TOP_K = "top_k"
         private const val KEY_TOP_P = "top_p"
         private const val KEY_ASK_IMAGE = "ask_image_in_prompt"
+        private const val KEY_TRANSLATION_MODE = "translation_mode"
     }
 }

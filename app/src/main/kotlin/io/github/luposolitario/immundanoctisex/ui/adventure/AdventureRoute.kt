@@ -69,10 +69,15 @@ fun AdventureRoute(
             // una chiave esplicita come le altre: cambiarla in Modelli LLM
             // ricrea il narratore, effetto dalla prossima scena.
             val askImageInPrompt = container.inferencePreferences.askImageInPrompt
-            val narrator = remember(manifest, userLanguage, toneOverride, askImageInPrompt) {
+            // Modalità Traduzione (31/07/2026, Michele): stessa forma di
+            // askImageInPrompt sopra — chiave esplicita del remember, così
+            // il narratore si ricrea (testo diverso dalla prossima scena)
+            // appena cambia in Opzioni avanzate Modelli LLM.
+            val translationMode = container.inferencePreferences.translationMode
+            val narrator = remember(manifest, userLanguage, toneOverride, askImageInPrompt, translationMode) {
                 SceneNarrator(
                     engine = container.inferenceEngine,
-                    promptBuilder = PromptBuilder(askImageInPrompt),
+                    promptBuilder = PromptBuilder(askImageInPrompt, translationMode),
                     manifest = manifest,
                     userLanguage = userLanguage,
                     // AUTHOR (default) -> null, l'autore decide come sempre.

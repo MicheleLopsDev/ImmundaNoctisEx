@@ -52,11 +52,20 @@ class PromptBuilder(
     // codice tolto: utile per confrontare modelli diversi senza dover
     // toccare il codice ogni volta.
     private val askImageInPrompt: Boolean = false,
+    // Modalità Traduzione (31/07/2026, Michele: "non è tradci parola per
+    // parola ma traduci con i minori cambiamenti possibili mantenendo il
+    // senso"): Gemma non arricchisce più la scena, si limita a tradurla
+    // restando il più vicino possibile al testo sorgente. Sostituisce
+    // BASE_TEXT/CONSTRAINT_TEXT/CLOSING_TEXT con le varianti dedicate e
+    // salta l'enfasi sulle discipline (anch'essa un invito ad arricchire);
+    // il finale fabbricato (isSyntheticEnding) resta SEMPRE creativo in
+    // entrambe le modalità, non ha testo sorgente da cui restare vicini.
+    private val translationMode: Boolean = false,
 ) {
 
     fun build(context: PromptContext): String {
         val sections = buildList {
-            add(BASE_TEXT)
+            add(if (translationMode) BASE_TEXT_TRANSLATION else BASE_TEXT)
             // Le sezioni vuote NON si scrivono: un "[THE STORY SO FAR]"
             // seguito dal nulla confonde il modello e spreca contesto.
             if (!context.previousSceneText.isNullOrBlank()) add(PREVIOUS_SCENE_TEXT)
@@ -74,10 +83,18 @@ class PromptBuilder(
             }
             // L'enfasi sul soprannaturale si spende solo quando c'è
             // davvero una disciplina in gioco: contesto sprecato altrimenti.
-            if (context.disciplineChoices.isNotEmpty()) add(DISCIPLINE_EMPHASIS_TEXT)
-            add(if (context.isSyntheticEnding) SYNTHETIC_ENDING_CONSTRAINT_TEXT else CONSTRAINT_TEXT)
+            // Saltata anche in modalità traduzione: è un invito a dare
+            // "peso"/"ultraterreno" alla scena, cioè arricchimento.
+            if (context.disciplineChoices.isNotEmpty() && !translationMode) add(DISCIPLINE_EMPHASIS_TEXT)
+            add(
+                when {
+                    context.isSyntheticEnding -> SYNTHETIC_ENDING_CONSTRAINT_TEXT
+                    translationMode -> CONSTRAINT_TEXT_TRANSLATION
+                    else -> CONSTRAINT_TEXT
+                },
+            )
             add(outputFormat(context))
-            add(CLOSING_TEXT)
+            add(if (translationMode) CLOSING_TEXT_TRANSLATION else CLOSING_TEXT)
         }
         return fill(sections.joinToString("\n\n"), context)
     }
@@ -139,6 +156,12 @@ class PromptBuilder(
         val BASE_TEXT = "You are the narrator of an interactive gamebook. " +
             "Your task is to enrich and translate a scene for the player."
 
+        // Modalità Traduzione: niente "enrich", il compito è restare
+        // fedele al testo sorgente.
+        val BASE_TEXT_TRANSLATION = "You are the translator of an interactive gamebook. " +
+            "Your task is to translate a scene for the player, staying as close as possible " +
+            "to the source text."
+
         val PREVIOUS_SCENE_TEXT = "[THE STORY SO FAR]\n{previous_scene_text}"
 
         val SCENE_TEXT = "[CURRENT SCENE — source text in {source_language}]\n{scene_narrative_text}"
@@ -177,6 +200,29 @@ class PromptBuilder(
             "consistent with the '{genre}' genre and this tone: {tone_hints}. Keep all facts, " +
             "characters, items and events of the source text unchanged. Do NOT invent new events, " +
             "items or characters.\n" +
+            "2. Your answer must start DIRECTLY with the scene text. Do NOT repeat the story so far. " +
+            "Do NOT anticipate the continuations.\n" +
+            "3. Character speech goes between single quotes ' ', never between \".\n" +
+            "4. Never use the | character in the narrative text.\n" +
+            "5. NEVER generate game mechanics tags such as <ADD_ITEM> or <STAT_MOD>.\n" +
+            "6. The player character is {player_gender}: use the correct grammatical agreement.\n" +
+            "7. Use only real words that exist in {user_language}. Do NOT invent, distort or " +
+            "make up words that do not exist in that language."
+
+        // Modalità Traduzione (31/07/2026): stesse regole 2-7 di
+        // CONSTRAINT_TEXT (sono vincoli di formato/meccanica, non di
+        // stile), cambia solo la regola 1 — non "riscrivi arricchendo" ma
+        // "traduci col minimo di modifiche". Niente genere/tono qui: non
+        // ha senso "tradurre col tono cupo", la modalità li ignora per
+        // costruzione.
+        val CONSTRAINT_TEXT_TRANSLATION = "Follow these instructions EXACTLY:\n" +
+            "1. Translate the CURRENT SCENE text into {user_language}, staying as close as " +
+            "possible to the original wording and sentence structure. Make the MINIMUM changes " +
+            "needed for a natural, grammatically correct translation — do NOT translate word " +
+            "for word if that would sound unnatural, but do NOT enrich, elaborate, add " +
+            "descriptive details or rephrase freely either. Do NOT omit any information present " +
+            "in the source text. Keep all facts, characters, items and events of the source text " +
+            "unchanged. Do NOT invent new events, items or characters.\n" +
             "2. Your answer must start DIRECTLY with the scene text. Do NOT repeat the story so far. " +
             "Do NOT anticipate the continuations.\n" +
             "3. Character speech goes between single quotes ' ', never between \".\n" +
@@ -258,5 +304,8 @@ class PromptBuilder(
             "{available_locations}"
 
         val CLOSING_TEXT = "NARRATOR (in {user_language}, tone: {tone_hints}):"
+
+        // Niente tono in modalità traduzione: coerente con CONSTRAINT_TEXT_TRANSLATION sopra.
+        val CLOSING_TEXT_TRANSLATION = "NARRATOR (in {user_language}):"
     }
 }

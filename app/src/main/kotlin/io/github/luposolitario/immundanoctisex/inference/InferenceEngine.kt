@@ -43,6 +43,18 @@ data class InferenceConfig(
         const val DEFAULT_TEMPERATURE = 0.5f
         const val DEFAULT_TOP_K = 40
         const val DEFAULT_TOP_P = 0.9f
+
+        // Preset fisso per la Modalità Traduzione (31/07/2026,
+        // InferencePreferences.toConfig()): molto più bassa di
+        // DEFAULT_TEMPERATURE, per restare il più possibile fedele al
+        // testo sorgente invece di deviare in prosa creativa.
+        // maxTokens invariato (DEFAULT_MAX_TOKENS): resta un tetto, non
+        // una lunghezza imposta.
+        val TRANSLATION_PRESET = InferenceConfig(
+            temperature = 0.2f,
+            topK = 20,
+            topP = 0.85f,
+        )
     }
 }
 

@@ -243,4 +243,75 @@ class PromptBuilderTest {
         val prompt = PromptBuilder(askImageInPrompt = true).build(context(scene = scene(backgroundImage = "loc_market")))
         assertFalse(prompt.contains("IMAGE|location_id"))
     }
+
+    // --- Modalità Traduzione (31/07/2026) ---
+    // Michele: "non è tradci parola per parola ma traduci con i minori
+    // cambiamenti possibili mantenendo il senso" — Gemma non arricchisce
+    // più la scena, si limita a tradurla restando fedele al testo
+    // sorgente. Preset fisso dei parametri di generazione gestito da
+    // InferencePreferences, non da PromptBuilder: qui si verifica solo il
+    // testo del prompt.
+
+    @Test
+    fun modalitaTraduzioneNonChiedeDiArricchire() {
+        val prompt = PromptBuilder(translationMode = true).build(context())
+
+        // "enrich" compare comunque nel divieto esplicito ("do NOT
+        // enrich"): quello che non deve MAI comparire è l'istruzione
+        // positiva di CONSTRAINT_TEXT che chiede di arricchire.
+        assertFalse(
+            prompt.contains("enriching it with details"),
+            "non deve chiedere di arricchire:\n$prompt",
+        )
+        assertTrue(prompt.contains("do NOT enrich"))
+        assertTrue(prompt.contains("MINIMUM changes"))
+        assertTrue(prompt.contains("translator", ignoreCase = true))
+    }
+
+    @Test
+    fun modalitaTraduzioneOmetteLenfasiSulleDiscipline() {
+        val prompt = PromptBuilder(translationMode = true).build(
+            context(
+                disciplineChoices = listOf(
+                    DisciplineChoice(id = "d1", disciplineId = "SIXTH_SENSE", choiceText = "Ascolta", nextSceneId = "5"),
+                ),
+            ),
+        )
+
+        assertFalse(prompt.contains("KAI DISCIPLINES"), "l'enfasi è un invito ad arricchire, va saltata")
+        // La disciplina resta comunque da tradurre, come una scelta qualunque.
+        assertContains(prompt, "DISCIPLINE|SIXTH_SENSE|Ascolta")
+    }
+
+    @Test
+    fun ilFinaleFabbricatoRestaCreativoAncheInModalitaTraduzione() {
+        val vuota = scene().copy(
+            id = "__ex_synthetic_defeat__",
+            sceneType = SceneType.ENDING,
+            narrativeText = "",
+        )
+        val prompt = PromptBuilder(translationMode = true).build(context(scene = vuota, syntheticEnding = true))
+
+        // Nessun testo sorgente da cui restare fedeli: il finale fabbricato
+        // resta l'unico caso creativo, in ENTRAMBE le modalità.
+        assertTrue(prompt.contains("FINAL SCENE"))
+        assertTrue(prompt.contains("ends here in defeat"))
+    }
+
+    @Test
+    fun modalitaTraduzioneNonMenzionaIlTono() {
+        val prompt = PromptBuilder(translationMode = true).build(context())
+
+        assertFalse(prompt.contains("tone:"), "la modalità traduzione ignora tono e genere per costruzione")
+    }
+
+    @Test
+    fun modalitaTraduzioneSpentaSiComportaComeOggi() {
+        // Di default (translationMode = false) il comportamento non cambia
+        // rispetto a prima di questa feature.
+        val prompt = PromptBuilder().build(context())
+
+        assertTrue(prompt.contains("enrich", ignoreCase = true))
+        assertTrue(prompt.contains("tone:"))
+    }
 }

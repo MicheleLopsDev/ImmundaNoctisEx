@@ -35,6 +35,7 @@ data class AdvancedSettingsUi(
     val topK: String,
     val topP: Float,
     val askImageInPrompt: Boolean,
+    val translationMode: Boolean = false,
 )
 
 // "Impostazioni avanzate" ereditate da ModelActivity di v1, incluse le
@@ -52,6 +53,7 @@ fun AdvancedSettingsCard(
     onTopPChange: (Float) -> Unit,
     onTopPCommit: () -> Unit,
     onAskImageInPromptChange: (Boolean) -> Unit,
+    onTranslationModeChange: (Boolean) -> Unit,
     onReset: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -67,6 +69,31 @@ fun AdvancedSettingsCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
+            // Modalità Traduzione (31/07/2026, Michele): in cima alla card,
+            // così è chiaro che governa i controlli sotto — quando attiva
+            // Gemma si limita a tradurre (nessun arricchimento) e i
+            // parametri sotto passano a un preset fisso, non più modificabili.
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    SettingLabel(
+                        title = "Modalità Traduzione",
+                        explanation = "Gemma si limita a tradurre il testo del libro con le minime " +
+                            "modifiche possibili, senza arricchirlo. Più leggero da generare. " +
+                            "Disattiva i controlli sotto (usa un preset fisso al loro posto): il " +
+                            "testo cambia dalla prossima scena, i parametri dal prossimo " +
+                            "caricamento del modello.",
+                    )
+                }
+                Switch(checked = settings.translationMode, onCheckedChange = onTranslationModeChange)
+            }
+
+            Spacer(Modifier.height(12.dp))
+            HorizontalDivider()
+
             Spacer(Modifier.height(12.dp))
             SettingLabel(
                 title = "Token massimi",
@@ -77,6 +104,7 @@ fun AdvancedSettingsCard(
             OutlinedTextField(
                 value = settings.maxTokens,
                 onValueChange = onMaxTokensChange,
+                enabled = !settings.translationMode,
                 label = { Text("Token massimi") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -96,6 +124,7 @@ fun AdvancedSettingsCard(
                 value = settings.temperature,
                 onValueChange = onTemperatureChange,
                 onValueChangeFinished = onTemperatureCommit,
+                enabled = !settings.translationMode,
                 valueRange = 0f..1f,
             )
             ValueLabel("%.2f".format(settings.temperature))
@@ -110,6 +139,7 @@ fun AdvancedSettingsCard(
                 value = settings.topP,
                 onValueChange = onTopPChange,
                 onValueChangeFinished = onTopPCommit,
+                enabled = !settings.translationMode,
                 valueRange = 0f..1f,
             )
             ValueLabel("%.2f".format(settings.topP))
@@ -123,6 +153,7 @@ fun AdvancedSettingsCard(
             OutlinedTextField(
                 value = settings.topK,
                 onValueChange = onTopKChange,
+                enabled = !settings.translationMode,
                 label = { Text("Top-K") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -188,6 +219,7 @@ private fun AdvancedSettingsPreview() {
                 topK = InferenceConfig.DEFAULT_TOP_K.toString(),
                 topP = InferenceConfig.DEFAULT_TOP_P,
                 askImageInPrompt = false,
+                translationMode = false,
             ),
             onMaxTokensChange = {},
             onTemperatureChange = {},
@@ -196,6 +228,33 @@ private fun AdvancedSettingsPreview() {
             onTopPChange = {},
             onTopPCommit = {},
             onAskImageInPromptChange = {},
+            onTranslationModeChange = {},
+            onReset = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Impostazioni avanzate — Modalità Traduzione (scuro)", heightDp = 800)
+@Composable
+private fun AdvancedSettingsTranslationModePreview() {
+    ImmundaNoctisTheme(darkTheme = true) {
+        AdvancedSettingsCard(
+            settings = AdvancedSettingsUi(
+                maxTokens = InferenceConfig.DEFAULT_MAX_TOKENS.toString(),
+                temperature = InferenceConfig.TRANSLATION_PRESET.temperature,
+                topK = InferenceConfig.TRANSLATION_PRESET.topK.toString(),
+                topP = InferenceConfig.TRANSLATION_PRESET.topP,
+                askImageInPrompt = false,
+                translationMode = true,
+            ),
+            onMaxTokensChange = {},
+            onTemperatureChange = {},
+            onTemperatureCommit = {},
+            onTopKChange = {},
+            onTopPChange = {},
+            onTopPCommit = {},
+            onAskImageInPromptChange = {},
+            onTranslationModeChange = {},
             onReset = {},
         )
     }

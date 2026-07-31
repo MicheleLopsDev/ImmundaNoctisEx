@@ -106,6 +106,7 @@ fun ModelsScreen(
     onTopPChange: (Float) -> Unit,
     onTopPCommit: () -> Unit,
     onAskImageInPromptChange: (Boolean) -> Unit,
+    onTranslationModeChange: (Boolean) -> Unit,
     onResetSettings: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -208,6 +209,7 @@ fun ModelsScreen(
                 onTopPChange = onTopPChange,
                 onTopPCommit = onTopPCommit,
                 onAskImageInPromptChange = onAskImageInPromptChange,
+                onTranslationModeChange = onTranslationModeChange,
                 onReset = onResetSettings,
             )
 
@@ -527,6 +529,7 @@ private fun ModelsScreenPreview() {
             onTopPChange = {},
             onTopPCommit = {},
             onAskImageInPromptChange = {},
+            onTranslationModeChange = {},
             onResetSettings = {},
             onClose = {},
         )

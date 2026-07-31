@@ -153,6 +153,7 @@ fun ModelsRoute(
                 topK = inferencePreferences.topK.toString(),
                 topP = inferencePreferences.topP,
                 askImageInPrompt = inferencePreferences.askImageInPrompt,
+                translationMode = inferencePreferences.translationMode,
             ),
         )
     }
@@ -309,6 +310,10 @@ fun ModelsRoute(
             advanced = advanced.copy(askImageInPrompt = enabled)
             inferencePreferences.askImageInPrompt = enabled
         },
+        onTranslationModeChange = { enabled ->
+            advanced = advanced.copy(translationMode = enabled)
+            inferencePreferences.translationMode = enabled
+        },
         onResetSettings = {
             inferencePreferences.resetToDefaults()
             advanced = AdvancedSettingsUi(
@@ -317,6 +322,7 @@ fun ModelsRoute(
                 topK = inferencePreferences.topK.toString(),
                 topP = inferencePreferences.topP,
                 askImageInPrompt = inferencePreferences.askImageInPrompt,
+                translationMode = inferencePreferences.translationMode,
             )
         },
         onClose = onClose,

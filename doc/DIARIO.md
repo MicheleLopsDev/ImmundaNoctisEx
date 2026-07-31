@@ -3491,6 +3491,76 @@ serve una nuova release standalone per questo lavoro (a differenza di
 
 ---
 
+## Modalità Traduzione per il narratore LLM (31/07/2026)
+
+Idea di Michele, nata da una domanda esplorativa ("e se
+semplificassimo con due modalità sull'LLM?"): oggi `PromptBuilder` ha
+un solo compito fisso per Gemma, arricchire E tradurre la scena.
+Michele vuole una seconda modalità in cui Gemma fa SOLO da traduttore
+— non parola per parola (rischierebbe testo innaturale), ma "con i
+minori cambiamenti possibili mantenendo il senso", senza arricchire,
+aggiungere dettagli o riformulare liberamente. Motivazione: più
+leggero da generare (meno testo prodotto = più veloce), per chi vuole
+solo il libro originale tradotto senza la "voce" aggiuntiva del
+narratore. Pianificato con `EnterPlanMode` (individuati due precedenti
+quasi identici da riusare come stampo: `askImageInPrompt` per lo
+schema flag+prompt+persistenza, e il punto di intercettazione di
+`InferencePreferences.toConfig()` per il preset fisso dei parametri).
+
+**`PromptBuilder.kt`**: nuovo parametro di costruzione
+`translationMode`. Tre nuove costanti nel companion —
+`BASE_TEXT_TRANSLATION`, `CONSTRAINT_TEXT_TRANSLATION` (stesse regole
+2-7 di `CONSTRAINT_TEXT`, cambia solo la regola 1: tradurre col minimo
+di modifiche invece di riscrivere arricchendo, niente riferimento a
+genere/tono), `CLOSING_TEXT_TRANSLATION` (senza `tone:`) — selezionate
+in `build()` al posto delle equivalenti quando la modalità è attiva.
+`DISCIPLINE_EMPHASIS_TEXT` (l'enfasi "dagli peso, ultraterreno" sulle
+discipline Kai) si salta in modalità traduzione: è anch'essa un invito
+ad arricchire. Il finale fabbricato (`isSyntheticEnding`) resta
+SEMPRE creativo in entrambe le modalità — non ha testo sorgente da cui
+restare fedele, ha sempre la precedenza. Le scelte (`CHOICES_TEXT`,
+tag `CHOICE|`/`DISCIPLINE|`/`ENEMY|`) restano identiche in entrambe le
+modalità: erano già trattate come "da tradurre" prima di questa
+feature.
+
+**`InferenceEngine.kt`**: nuovo `InferenceConfig.TRANSLATION_PRESET`
+(temperatura 0.2, top-K 20, top-P 0.85 — molto più bassi dei default,
+per restare fedeli al testo sorgente invece di deviare in prosa
+creativa; `maxTokens` invariato, resta solo un tetto).
+`InferencePreferences.toConfig()` ritorna questo preset quando
+`translationMode` è attivo, ignorando (ma senza perdere) i 4 valori
+salvati manualmente.
+
+**UI** (`AdvancedSettingsCard.kt`, schermata Modelli LLM, stesso
+pattern esatto di `askImageInPrompt`): nuovo switch "Modalità
+Traduzione" in cima alla card, sopra il divider dei token — quando
+attivo, i 4 controlli sotto (token/temperatura/top-P/top-K) ricevono
+`enabled = false` e appaiono grigi (gestito da Material3, nessuna
+logica colore a mano). Due tempistiche diverse spiegate nel testo
+della card: il testo del prompt cambia dalla prossima scena (come
+tono/askImageInPrompt, `AdventureRoute.kt` ricrea il narratore via
+`remember` reattivo), i parametri numerici solo al prossimo
+caricamento del modello (bottone "Attiva", limite già esistente per
+chi cambia manualmente la temperatura, non introdotto da questa
+feature). Filo passato attraverso `ModelsScreen.kt` fino a
+`ModelsRoute.kt`/`AdventureRoute.kt`, persistito in
+`InferencePreferences` con la stessa chiave/pattern di
+`askImageInPrompt`.
+
+Nuovi test in `PromptBuilderTest.kt` (contenuto NON arricchito,
+enfasi disciplina saltata, finale fabbricato invariato, tono assente
+dalla chiusura, comportamento di default invariato a modalità
+spenta). Compilazione e suite completa di `:app` verdi.
+
+**Da verificare a mano su device (Michele)**: attivare la modalità,
+premere "Attiva" sul modello per far ripartire col preset fisso,
+controllare gli slider visibilmente grigi, giocare una scena e
+confrontare il testo con l'originale del libro (deve essere una
+traduzione fedele, non una riscrittura) — poi disattivare e verificare
+che i vecchi valori personalizzati siano ancora lì.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
