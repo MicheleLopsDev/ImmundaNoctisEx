@@ -43,8 +43,8 @@ android {
         applicationId = "io.github.luposolitario.immundanoctisex"
         minSdk = 34
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1"
+        versionCode = 2
+        versionName = "0.2"
 
         // BUG (27/07/2026, Michele: "il solito bug... non attiva dopo il
         // click"): un .gguf aggiunto a mano (link Hugging Face) finiva
