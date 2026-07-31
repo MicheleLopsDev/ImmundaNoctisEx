@@ -3076,6 +3076,19 @@ crescente a partire da lì, con la stessa spaziatura dell'auto-layout
 (`allineaGruppo`), 5 nuovi test in `AllineamentoGruppoTest`.
 `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Bug: nodi selezionati attenuati dal vicinato del mouse (31/07/2026,
+Michele: "i nodi selezionati non devono diventare grigi")**: durante
+i test della multi-selezione, passando il mouse da un nodo selezionato
+all'altro, gli altri nodi selezionati sembravano "deselezionarsi"
+visivamente — non era un problema di selezione (`sceneSelezionate`
+restava corretta, bordo blu presente), ma dell'attenuazione del
+vicinato (§6.1): `opacitaNodo` scende al 25% per qualunque nodo che
+non sia il vicinato diretto del nodo sotto il mouse, senza distinguere
+se quel nodo fa parte della selezione corrente. Corretto: un nodo
+selezionato resta sempre a piena opacità, la selezione ha priorità
+sull'attenuazione del passaggio del mouse. `:tool:compileKotlin`/
+`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

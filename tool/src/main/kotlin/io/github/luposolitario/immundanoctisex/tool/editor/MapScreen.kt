@@ -1310,7 +1310,15 @@ fun MapScreen(
                     // Vicinato (§6.1): fuori dal mouse-over, tutti a piena
                     // opacità; con un nodo sotto mouse, solo lui e i suoi
                     // collegati diretti restano leggibili.
-                    val opacitaNodo = if (nodoSottoMouse == null || nodo.sceneId in vicinato) 1f else 0.25f
+                    // 31/07/2026 (Michele, bug di test: passando il mouse
+                    // sui nodi selezionati durante una multi-selezione
+                    // "non devono diventare grigi"): un nodo selezionato
+                    // resta sempre a piena opacità, non importa dove sia
+                    // il mouse — la selezione ha priorità sull'attenuazione
+                    // del vicinato, altrimenti selezionare/ispezionare più
+                    // nodi in sequenza li fa sembrare deselezionati mentre
+                    // il mouse passa altrove.
+                    val opacitaNodo = if (nodoSottoMouse == null || nodo.sceneId in vicinato || isSelezionata) 1f else 0.25f
                     // Immagine di copertina del nodo (§15.3, Michele: "le
                     // immagini nel caso ci siano devono essere
                     // renderizzate come sfondo del grafo... se ci sono
