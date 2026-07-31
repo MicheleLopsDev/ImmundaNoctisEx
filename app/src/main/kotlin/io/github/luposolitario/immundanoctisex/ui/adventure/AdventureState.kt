@@ -11,6 +11,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.checkpointBudget
 import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
+import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.JourneyEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
@@ -28,6 +29,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.ItemOffers
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.MealRules
 import io.github.luposolitario.immundanoctisex.core.engine.mechanics.MechanicsExecutor
+import io.github.luposolitario.immundanoctisex.core.engine.sfx.SceneSfxResolver
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
 import io.github.luposolitario.immundanoctisex.core.engine.transition.TransitionEngine
@@ -620,7 +622,24 @@ class AdventureState(
     private var lastPlayedEnemyImage: String? = null
     private var lastPlayedNpcImage: String? = null
 
+    // Scene.sfx (31/07/2026, doc/UPGRADE.md §7): l'autore può sovrascrivere
+    // i 3 suoni automatici sopra con un mp3 scelto per questa scena
+    // (static: o url:, risolto e validato in fase di caricamento del
+    // libro). Override NON addittivo: se presente, si suona SOLO quello e
+    // si esce, i tre suoni automatici sotto non partono.
+    private var lastPlayedCustomSfx: String? = null
+
     private fun syncImageSounds() {
+        val customSfx = SceneSfxResolver.resolve(currentScene, manifest)
+        if (customSfx != null) {
+            if (customSfx != lastPlayedCustomSfx) {
+                ImageReference.parse(customSfx)?.let { soundEffectPlayer?.playCustomSfx(it) }
+            }
+            lastPlayedCustomSfx = customSfx
+            return
+        }
+        lastPlayedCustomSfx = null
+
         val bg = backgroundImage
         if (bg != null && bg != lastPlayedBackgroundImage) soundEffectPlayer?.playNamed(bg)
         lastPlayedBackgroundImage = bg

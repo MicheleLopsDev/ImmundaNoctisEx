@@ -160,6 +160,10 @@ dependencies {
     // linkano l'illustrazione originale invece di impacchettarne una
     // nuova nel catalogo static:.
     implementation(libs.coil.compose)
+    // Decodifica GIF/WebP animato (31/07/2026, richiesta di terzi a
+    // Michele su libri-fumetto animati, doc/UPGRADE.md §7) — stessa
+    // versione di coil-compose.
+    implementation(libs.coil.gif)
 
     // Le classi pure di :app (PromptBuilder, ResponseParser) si testano
     // da terminale come i moduli core: stesso stile kotlin.test.

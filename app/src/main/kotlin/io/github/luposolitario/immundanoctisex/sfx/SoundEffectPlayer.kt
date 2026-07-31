@@ -3,9 +3,18 @@ package io.github.luposolitario.immundanoctisex.sfx
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
+import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.music.MusicPlayer
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 import io.github.luposolitario.immundanoctisex.util.SoundEffectPreferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 // Effetti sonori brevi: il tiro del dado (22/07/2026, richiesta Michele),
 // poi mangiare/bere (stesso giorno, "ho aggiunto altri 2 suoni... se le
@@ -101,6 +110,22 @@ class SoundEffectPlayer(
     private var duckedByTts = false
     private val namedSoundStreamIds = mutableMapOf<String, Int>()
 
+    // Scene.sfx con valore url: (31/07/2026, doc/UPGRADE.md §7): mappa
+    // SEPARATA da namedSoundIds (chiave = hash dell'URL, vedi
+    // SfxDownloadCache) per non rischiare una collisione fra un ID scelto
+    // dall'autore e un nome-immagine già in uso da playNamed altrove.
+    // namedSoundStreamIds resta condivisa: lì serve solo fermare/duckare
+    // per stream-id, l'origine del suono non conta.
+    private val customSoundIds = mutableMapOf<String, Int?>()
+    private val sfxDownloadCache = SfxDownloadCache(File(context.cacheDir, "sfx-cache"))
+
+    // Job del download url: in corso, per poterlo annullare se la scena
+    // cambia di nuovo prima che finisca (A→B→A non deve far partire in
+    // ritardo il suono di una scena non più corrente). Cancellato insieme
+    // allo scope in release().
+    private var customSfxJob: Job? = null
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     init {
         pool.setOnLoadCompleteListener { _, sampleId, status ->
             if (status == 0) {
@@ -167,18 +192,52 @@ class SoundEffectPlayer(
     // errore — Michele: "l'importante è che non vada in errore", così può
     // procurare gli asset con calma senza rompere nulla nel frattempo.
     fun playNamed(name: String, folder: String = "images") {
-        val id = if (namedSoundIds.containsKey(name)) {
-            namedSoundIds[name]
+        playLooping(name, namedSoundIds) {
+            context.assets.openFd("sfx/$folder/$name.mp3").use { afd -> pool.load(afd, 1) }
+        }
+    }
+
+    // Scene.sfx (31/07/2026): sovrascrive il meccanismo automatico
+    // per-immagine con il suono scelto dall'autore per questa scena.
+    // static: riusa playNamed esistente invariato (stesso asset
+    // sfx/images/<id>.mp3 già usato dal meccanismo automatico). url:
+    // scarica (rete, quindi Dispatchers.IO) e torna esplicitamente sul
+    // thread main prima di toccare pool/le mappe condivise — invariante da
+    // preservare: oggi SoundPool è toccato sempre e solo dal thread main
+    // "per caso", non per progetto.
+    fun playCustomSfx(reference: ImageReference) {
+        when (reference) {
+            is ImageReference.Static -> playNamed(reference.catalogId)
+            is ImageReference.Url -> {
+                customSfxJob?.cancel()
+                customSfxJob = scope.launch {
+                    val file = sfxDownloadCache.localFileFor(reference.url) ?: return@launch
+                    withContext(Dispatchers.Main) {
+                        playFromFile(file.absolutePath, SfxDownloadCache.cacheKeyFor(reference.url))
+                    }
+                }
+            }
+        }
+    }
+
+    private fun playFromFile(path: String, key: String) {
+        playLooping(key, customSoundIds) { pool.load(path, 1).takeIf { it != 0 } }
+    }
+
+    // Logica comune a playNamed e playFromFile: carica (se non già in
+    // cache), mette in loop e gestisce ducking/pausa musica — estratta
+    // (31/07/2026) per essere riusata anche dai suoni url: scaricati.
+    private fun playLooping(key: String, loadedIds: MutableMap<String, Int?>, loadSample: () -> Int?) {
+        val id = if (loadedIds.containsKey(key)) {
+            loadedIds[key]
         } else {
-            val loadedId = runCatching {
-                context.assets.openFd("sfx/$folder/$name.mp3").use { afd -> pool.load(afd, 1) }
-            }.getOrNull()
-            namedSoundIds[name] = loadedId
+            val loadedId = runCatching { loadSample() }.getOrNull()
+            loadedIds[key] = loadedId
             loadedId
         } ?: return
 
         // Già in loop: lo si lascia continuare, niente seconda copia sopra.
-        if (name in namedSoundStreamIds) return
+        if (key in namedSoundStreamIds) return
 
         // Musica in pausa finché dura questo sottofondo — non più un timer
         // sulla durata stimata del file (ora è in loop, potrebbe durare
@@ -192,7 +251,7 @@ class SoundEffectPlayer(
             // esplicito (setDuckedByTts quando il TTS finisce di parlare,
             // o stopBackgroundSounds al cambio scena).
             runCatching { pool.play(id, volume, volume, 1, -1, 1f) }
-                .onSuccess { streamId -> if (streamId != 0) namedSoundStreamIds[name] = streamId }
+                .onSuccess { streamId -> if (streamId != 0) namedSoundStreamIds[key] = streamId }
         }
         if (id !in loaded) {
             pendingPlayOnLoad[id] = playAction
@@ -202,6 +261,7 @@ class SoundEffectPlayer(
     }
 
     fun release() {
+        scope.cancel()
         runCatching { pool.release() }
     }
 

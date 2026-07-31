@@ -78,6 +78,11 @@ class MainActivity : ComponentActivity() {
     // di zecca (by lazy sull'istanza Activity, non condiviso).
     override fun onDestroy() {
         container.musicPlayer.release()
+        // SoundEffectPlayer possiede ora un CoroutineScope per i download
+        // Scene.sfx url: (31/07/2026): senza release() qui sopravviverebbe
+        // alla chiusura dell'Activity insieme al suo eventuale download in
+        // corso.
+        container.soundEffectPlayer.release()
         super.onDestroy()
     }
 }

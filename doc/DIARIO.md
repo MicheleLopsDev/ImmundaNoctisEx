@@ -3410,6 +3410,87 @@ di tutti i moduli verdi.
 
 ---
 
+## Immagini animate (GIF/WebP) + Scene.sfx lato client (31/07/2026)
+
+Con l'editor concluso, Michele riprende i due lavori lato client
+rimasti in sospeso apposta (`doc/UPGRADE.md` §7): "sistemiamo la parte
+WebP e sfx così quando finiamo facciamo una nuova release". Pianificato
+prima con `EnterPlanMode` (due decisioni chieste esplicitamente a
+Michele via `AskUserQuestion`: silenzio senza fallback se un `Scene.sfx`
+`url:` non scarica; convenzione sul nome file (`_anim`) invece di un
+parametro nuovo per instradare solo i drawable animati su Coil, a zero
+rischio di flicker sul catalogo statico esistente).
+
+**Immagini animate**: aggiunta la dipendenza `coil-gif` (stessa
+versione di `coil-compose`). Nuovo `AnimatedImageLoader.kt`
+(`app/.../image/`) installa una volta per PROCESSO (guard
+`@Volatile installed`, richiamato da `AppContainer.init {}` ma non
+dentro il suo costruttore: `AppContainer` si ricrea a ogni rotazione
+schermo, un `Coil.setImageLoader` lì dentro ributterebbe via la cache
+immagini ad ogni rotazione) un `ImageLoader` globale con
+`ImageDecoderDecoder.Factory()` (API 28+, `minSdk=34` copre
+comodamente), che decodifica sia GIF sia WebP animato. In
+`CatalogOrUrlImage.kt`, un drawable il cui nome risorsa finisce per
+`_anim` passa da `AsyncImage` invece che `painterResource`; tutto il
+resto del catalogo (~50+ immagini, mai animate) resta invariato. Il
+ramo `url:` esistente guadagna gratis il supporto animato dallo stesso
+`ImageLoader`, nessuna modifica lì. Nessun asset `_anim` reale esiste
+ancora nel progetto: solo infrastruttura, un file di prova animato
+resta da procurare.
+
+**`Scene.sfx` lato client**: nuovo `SceneSfxResolver`
+(`core:engine/.../sfx/`, puro, 3 test) risolve `Scene.sfx` al suo
+valore `static:`/`url:` registrato in
+`Manifest.customResources.sounds` — funzione totale anche se il caso
+"id non trovato" è già strutturalmente irraggiungibile in produzione
+(`PackageRepository.load()` esegue sempre `PackageValidator.validate()`,
+che compone `SfxValidator`, prima di esporre un `Manifest`). Nuovo
+`SfxDownloadCache.kt` (`app/.../sfx/`, costruito su una `File` e non su
+un `Context` per poter essere testato in JVM puro senza
+Robolectric/mock, 4 test) scarica un `url:` via `HttpURLConnection`
+(niente libreria nuova, molto più semplice di
+`ModelDownloadWorker.kt`: nessun resume/notifica foreground, file da
+poche centinaia di KB) con scrittura atomica (`Files.move` +
+`ATOMIC_MOVE`, stesso pattern di `FileSessionStore.kt`), timeout 15s e
+tetto 5MB (guardia contro un link di terzi che riempirebbe lo storage),
+chiave di cache = hash SHA-256 dell'URL (mai l'ID scelto dall'autore:
+due libri diversi potrebbero riusare lo stesso ID per URL diversi).
+
+`SoundEffectPlayer.kt`: estratta da `playNamed` la logica comune
+"carica se serve + loop + ducking + pausa musica" in `playLooping`
+privato, riusata anche dal nuovo `playFromFile`. Nuova mappa
+`customSoundIds` separata da `namedSoundIds` (evita collisioni fra un
+ID scelto dall'autore e un nome-immagine già in uso altrove), mappa
+`namedSoundStreamIds` invece condivisa (serve solo fermare/duckare per
+stream-id). Nuovo `playCustomSfx(reference: ImageReference)`: ramo
+`Static` riusa `playNamed` invariato; ramo `Url` cancella un download
+precedente ancora in corso (`customSfxJob?.cancel()`, evita che un
+cambio scena rapido A→B→A faccia partire in ritardo il suono di una
+scena non più corrente), scarica su `Dispatchers.IO` e torna
+esplicitamente sul thread main prima di toccare `pool`/le mappe
+(invariante da preservare: oggi `SoundPool` è toccato sempre e solo dal
+thread main "per caso", non per progetto — introdurre un secondo
+thread senza quel `withContext` l'avrebbe rotta silenziosamente).
+`AdventureState.syncImageSounds()`: calcola
+`SceneSfxResolver.resolve(...)` in testa, e se presente e diverso
+dall'ultimo suonato lo suona e ESCE (override non addittivo, salta i 3
+suoni automatici per-immagine sotto). `MainActivity.onDestroy()` ora
+rilascia anche `soundEffectPlayer` (il nuovo `CoroutineScope` dei
+download non deve sopravvivere alla chiusura dell'Activity).
+
+Compilazione e suite completa di tutti i moduli (`:app`, `:core:engine`,
+`:core:data`, `:tool`) verdi. **Da verificare a mano su device**
+(nessun emulatore in questa sessione): un asset `_anim` che anima per
+davvero; un `Scene.sfx` `url:` reale che scarica/cacha/suona la prima
+volta e legge dalla cache la seconda; un `Scene.sfx` `static:` che
+suona come il meccanismo automatico di oggi (nessuna regressione);
+nessun flicker sulle immagini statiche esistenti; chiusura dell'app
+durante un download sfx in corso senza crash né suono orfano. Non
+serve una nuova release standalone per questo lavoro (a differenza di
+`:tool`, il client non ha un pacchetto distribuito separatamente).
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

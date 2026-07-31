@@ -8,6 +8,7 @@ import io.github.luposolitario.immundanoctisex.core.data.session.FileSessionStor
 import io.github.luposolitario.immundanoctisex.core.data.session.SessionStore
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.dice.RandomDiceRoller
+import io.github.luposolitario.immundanoctisex.image.AnimatedImageLoader
 import io.github.luposolitario.immundanoctisex.inference.InferenceEngine
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
@@ -37,6 +38,15 @@ import java.io.InputStream
 // MainActivity, al posto dei singleton con Context di v1. Qui vivono solo
 // le dipendenze condivise; i ViewModel per schermata se le fanno passare.
 class AppContainer(context: Context) {
+
+    // Immagini animate (31/07/2026, doc/UPGRADE.md §7): idempotente di
+    // proposito — AppContainer si ricrea a ogni rotazione schermo (`by
+    // lazy` sull'istanza Activity in MainActivity.kt), ma l'ImageLoader
+    // globale di Coil va installato una volta sola per processo, non
+    // ributtato via a ogni rotazione.
+    init {
+        AnimatedImageLoader.installOnce(context)
+    }
 
     val themePreferences = ThemePreferences(context)
 

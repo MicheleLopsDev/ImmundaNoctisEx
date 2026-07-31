@@ -576,6 +576,47 @@ differenza del resto di questa sezione, il supporto sfx **non è
 facoltativo**: è un campo dello schema già attivo, il client deve
 saperlo suonare quando presente.
 
+**FATTO (31/07/2026)** — infrastruttura completa per entrambi i lavori,
+tutta la suite di test verde su tutti i moduli:
+- **Immagini animate**: dipendenza `coil-gif` aggiunta; nuovo
+  `AnimatedImageLoader` (`app/.../image/`) installa una volta per
+  processo (non per istanza di `AppContainer`, che si ricrea a ogni
+  rotazione schermo) un `ImageLoader` globale con
+  `ImageDecoderDecoder.Factory()`. `CatalogOrUrlImage.kt` instrada su
+  Coil/`AsyncImage` solo i drawable il cui nome finisce per `_anim`
+  (convenzione scelta con Michele per zero rischio di flicker sulle
+  immagini statiche esistenti); il ramo `url:` esistente guadagna
+  gratis il supporto animato dallo stesso `ImageLoader`.
+  **Manca ancora**: un vero asset `_anim.webp`/`.gif` di prova — questo
+  lavoro ha costruito solo l'infrastruttura, nessun asset animato reale
+  esiste nel progetto.
+- **`Scene.sfx` lato client**: nuovo `SceneSfxResolver`
+  (`core:engine`, puro/testato) risolve l'ID in `Scene.sfx` al suo
+  valore `static:`/`url:` registrato in
+  `Manifest.customResources.sounds`. Nuovo `SfxDownloadCache`
+  (`app/.../sfx/`) scarica e mette in cache su file un `url:` (hash
+  SHA-256 dell'url come chiave, scrittura atomica, timeout 15s, tetto
+  5MB, testato in JVM puro). `SoundEffectPlayer.playCustomSfx(...)`:
+  ramo `static:` riusa `playNamed` invariato, ramo `url:` scarica su
+  `Dispatchers.IO` e torna sul thread main prima di toccare
+  `SoundPool`. `AdventureState.syncImageSounds()` suona l'sfx
+  personalizzato quando presente e SALTA (override non addittivo) i 3
+  suoni automatici per-immagine. Fallimento di download = silenzio per
+  quella scena, nessun fallback (decisione esplicita di Michele).
+  `MainActivity.onDestroy()` ora rilascia anche `soundEffectPlayer` (il
+  nuovo `CoroutineScope` dei download non deve sopravvivere alla
+  chiusura dell'Activity).
+- **Da verificare a mano su device** (nessun emulatore disponibile in
+  questa sessione): un asset `_anim` che anima per davvero; un
+  `Scene.sfx` `url:` reale che scarica/cacha/suona; un `Scene.sfx`
+  `static:` che suona come il meccanismo automatico di oggi; nessun
+  flicker sulle immagini statiche esistenti; chiusura dell'app durante
+  un download sfx in corso senza crash né suono orfano.
+- Non serve una nuova release standalone per questo lavoro: a
+  differenza di `:tool` (release GitHub), il client (`:app`) non ha un
+  pacchetto distribuito separatamente — resta valido il ciclo di build/
+  verifica su device abituale.
+
 ## 8. Verifica di esistenza delle risorse `url:` nell'editor
 
 **Origine (30/07/2026)**: durante il lavoro sul pannello "Risorse del
