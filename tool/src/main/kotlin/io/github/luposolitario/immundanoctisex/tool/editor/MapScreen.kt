@@ -52,7 +52,9 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
@@ -267,6 +269,14 @@ fun MapScreen(
     // unità già usata da `viewportSize`), non nella mappa "logica"
     // (post pan/zoom): è quella che si vede identica nello screenshot.
     var posizioneMouse by remember { mutableStateOf<Offset?>(null) }
+    // Rettangolo di selezione (§19.10, Michele: "serve la multi
+    // selezione tramite rettangolo quando ci sono tante foglie, è più
+    // comodo"): coppia (inizio, punto attuale) in coordinate SCHERMO
+    // (le stesse di `posizioneMouse`, prima di pan/zoom) — serve solo
+    // per disegnare l'overlay, la conversione a coordinate logiche
+    // (quelle di `posizioneEffettiva`) avviene al momento del test di
+    // intersezione contro i nodi, non qui.
+    var rettangoloSelezione by remember { mutableStateOf<Pair<Offset, Offset>?>(null) }
     // Evidenziazione del vicinato (§6.1): al passaggio del mouse su un
     // nodo (non al click, che apre già il pannello di editing), i suoi
     // collegamenti diretti restano a piena opacità e il resto della
@@ -376,6 +386,17 @@ fun MapScreen(
     // `MapViewState`) e sopravvive al giro mappa -> scena -> mappa.
     var posizioniManuali by mapViewState.posizioniManuali
     fun posizioneEffettiva(id: String): Offset? = posizioniManuali[id] ?: positions[id]
+
+    // §19.10: geometria pura in RettangoloSelezione.kt (testata a
+    // parte) — qui solo l'adattamento allo stato di questa schermata
+    // (pan/zoom correnti, posizioni effettive dei nodi).
+    fun nodiNelRettangoloAttuale(inizio: Offset, fine: Offset): Set<String> {
+        val pan = Offset(panX, panY)
+        val a = schermoALogico(inizio, pan, zoom)
+        val b = schermoALogico(fine, pan, zoom)
+        val posizioni = graph.nodes.mapNotNull { nodo -> posizioneEffettiva(nodo.sceneId)?.let { nodo.sceneId to it } }.toMap()
+        return nodiNelRettangolo(graph.nodes, posizioni, a, b, NODE_WIDTH.value, NODE_HEIGHT.value)
+    }
 
     // §15.4 (Michele: "riordino automatico alla pressione del tasto
     // centrale"): stessa azione del pulsante "⟳ Riordina", estratta qui
@@ -1146,14 +1167,53 @@ fun MapScreen(
                 .onPointerEvent(PointerEventType.Press) {
                     if (it.button == PointerButton.Tertiary) riordina()
                 }
+                // 31/07/2026: `matcher` esplicito al solo tasto sinistro
+                // (stessa correzione già fatta per `detectTapGestures`,
+                // vedi §19.1) — necessario ORA che il tasto destro sullo
+                // sfondo ha un gesto proprio (rettangolo di selezione,
+                // sotto): senza il filtro, un trascinamento col destro
+                // farebbe pan E rettangolo insieme, i due gesti in
+                // competizione sugli stessi eventi.
                 .pointerInput(Unit) {
-                    detectDragGestures { change, dragAmount ->
+                    detectDragGestures(matcher = PointerMatcher.Primary) { delta ->
                         if (nodoTrascinato == null) {
-                            change.consume()
-                            panX += dragAmount.x
-                            panY += dragAmount.y
+                            panX += delta.x
+                            panY += delta.y
                         }
                     }
+                }
+                // §19.10 (Michele: "serve la multi selezione tramite
+                // rettangolo quando ci sono tante foglie, è più comodo"):
+                // trascinamento col tasto DESTRO sullo sfondo. Non parte
+                // se il trascinamento comincia SOPRA un nodo
+                // (`nodoSottoMouse != null`): in quel caso il tasto destro
+                // apre già il menu contestuale del nodo (vedi
+                // `onPointerEvent(Press)` più sotto, che non consuma
+                // l'evento) — senza questa guardia i due gestori
+                // reagirebbero entrambi allo stesso trascinamento.
+                // Ctrl tenuto premuto AGGIUNGE alla selezione esistente
+                // (stessa convenzione del click singolo), altrimenti la
+                // sostituisce — calcolato una volta sola all'inizio,
+                // non ricalcolato mentre si trascina.
+                .pointerInput(Unit) {
+                    var baseSelezione = emptySet<String>()
+                    detectDragGestures(
+                        matcher = PointerMatcher.mouse(PointerButton.Secondary),
+                        onDragStart = { inizio ->
+                            if (nodoSottoMouse == null) {
+                                baseSelezione = if (ctrlPremuto) sceneSelezionate else emptySet()
+                                rettangoloSelezione = inizio to inizio
+                            }
+                        },
+                        onDragEnd = { rettangoloSelezione = null },
+                        onDragCancel = { rettangoloSelezione = null },
+                        onDrag = { delta ->
+                            val (inizio, attuale) = rettangoloSelezione ?: return@detectDragGestures
+                            val nuovoFine = attuale + delta
+                            rettangoloSelezione = inizio to nuovoFine
+                            sceneSelezionate = baseSelezione + nodiNelRettangoloAttuale(inizio, nuovoFine)
+                        },
+                    )
                 }
                 // Click sullo sfondo (fuori da qualunque nodo) toglie la
                 // selezione con contorno blu — coerente con l'aspettativa
@@ -1402,8 +1462,18 @@ fun MapScreen(
                                 // dello stesso scarto a ogni frame.
                                 // Trascinare un nodo non selezionato continua
                                 // a muovere solo quel nodo, come prima.
+                                // 31/07/2026: `matcher` esplicito al solo
+                                // tasto sinistro (§19.10) — il destro sui
+                                // nodi resta riservato al menu contestuale
+                                // (`onPointerEvent(Press)` sopra) e al
+                                // rettangolo di selezione quando parte
+                                // dallo sfondo; senza il filtro un
+                                // trascinamento col destro iniziato su un
+                                // nodo avrebbe anche spostato il nodo
+                                // mentre il menu era aperto.
                                 var ancore = emptyMap<String, Offset>()
                                 detectDragGestures(
+                                    matcher = PointerMatcher.Primary,
                                     onDragStart = {
                                         nodoTrascinato = nodo.sceneId
                                         val gruppo = if (nodo.sceneId in sceneSelezionate && sceneSelezionate.size >= 2) {
@@ -1415,9 +1485,8 @@ fun MapScreen(
                                     },
                                     onDragEnd = { nodoTrascinato = null },
                                     onDragCancel = { nodoTrascinato = null },
-                                    onDrag = { change, dragAmount ->
-                                        change.consume()
-                                        ancore = ancore.mapValues { (_, pos) -> Offset(pos.x + dragAmount.x, pos.y + dragAmount.y) }
+                                    onDrag = { delta ->
+                                        ancore = ancore.mapValues { (_, pos) -> Offset(pos.x + delta.x, pos.y + delta.y) }
                                         posizioniManuali = posizioniManuali + ancore
                                     },
                                 )
@@ -1583,6 +1652,21 @@ fun MapScreen(
                             )
                         }
                     }
+                }
+            }
+
+            // §19.10: overlay del rettangolo di selezione, fuori dal
+            // `graphicsLayer` di pan/zoom apposta (stesso motivo delle
+            // coordinate del mouse sotto) — le coordinate sono già in
+            // spazio schermo, disegnarlo dentro il graphicsLayer lo
+            // scalerebbe/sposterebbe insieme alla mappa invece di
+            // restare fisso rispetto al gesto del mouse.
+            rettangoloSelezione?.let { (inizio, fine) ->
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val angolo = Offset(minOf(inizio.x, fine.x), minOf(inizio.y, fine.y))
+                    val dimensione = Size(kotlin.math.abs(fine.x - inizio.x), kotlin.math.abs(fine.y - inizio.y))
+                    drawRect(color = Color(0xFF1E88E5).copy(alpha = 0.12f), topLeft = angolo, size = dimensione)
+                    drawRect(color = Color(0xFF1E88E5), topLeft = angolo, size = dimensione, style = Stroke(width = 1.5f))
                 }
             }
 

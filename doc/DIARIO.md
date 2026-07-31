@@ -2998,6 +2998,41 @@ pacchetto provato su macchina pulita funziona. Issue #6 chiusa,
 milestone "Tool editor" completa salvo la #8 (editor dei frammenti di
 prompt, ferma in attesa di una specifica dedicata da Michele).
 
+**Implementazione: §19.10 selezione a rettangolo (31/07/2026,
+Michele: "serve la multi selezione tramite rettangolo quando ci sono
+tante foglie, è più comodo")**: chiesto durante i test, dopo la
+chiusura del giro §19. Prima di scrivere codice, chiarito con Michele
+il gesto di attivazione (tasto destro trascinato sullo sfondo, non
+Shift o un pulsante di modalità — il destro sullo sfondo oggi non fa
+nulla, nessun conflitto) e il criterio di selezione (intersezione, non
+contenimento totale).
+
+Farlo convivere col pan ha richiesto la STESSA correzione già
+documentata in §19.1 (31/07, verificata di nuovo sui sorgenti invece
+di essere presunta per analogia): `detectDragGestures` in commonMain è
+button-agnostico come `detectTapGestures` era risultato allora — senza
+un `matcher` esplicito, il tasto destro sullo sfondo avrebbe fatto pan
+E rettangolo insieme. Resi espliciti `PointerMatcher.Primary` sia il
+pan dello sfondo sia il trascinamento dei nodi (§19.3), il rettangolo
+usa `PointerMatcher.mouse(PointerButton.Secondary)` — tre gesti sullo
+stesso spazio, ciascuno sul proprio pulsante. Guardia aggiuntiva: se
+il trascinamento comincia sopra un nodo (`nodoSottoMouse != null`), il
+rettangolo non parte — quel caso è già il menu contestuale del nodo
+(§17.1). Ctrl tenuto premuto durante il trascinamento aggiunge alla
+selezione esistente, coerente con la convenzione già in uso sul click
+singolo (§17.3).
+
+Geometria estratta in funzioni pure testate
+(`RettangoloSelezione.kt`: `schermoALogico` inverte la trasformazione
+del `graphicsLayer` di pan/zoom, `nodiNelRettangolo` fa il test di
+intersezione) — 7 nuovi test in `RettangoloSelezioneTest`. Rettangolo
+disegnato come overlay `Canvas` fuori dal `graphicsLayer`, in
+coordinate schermo dirette. Nessun giro manuale sull'app per la parte
+di gesto vero e proprio (nessun ambiente grafico automatizzabile in
+questa sessione), verificato a compilazione/test e a lettura attenta
+dei sorgenti Compose Desktop estratti. `:tool:compileKotlin`/
+`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

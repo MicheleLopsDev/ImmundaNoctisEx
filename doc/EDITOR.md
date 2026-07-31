@@ -993,6 +993,53 @@ immagini).
   l'impaginazione — altrimenti l'esportazione PNG (§19.8) resta la
   soluzione pratica.
 
+### 19.10 Selezione a rettangolo — FATTO (31/07/2026)
+
+Aggiunta dopo la chiusura del giro §19.1-§19.8, su richiesta diretta
+di Michele durante i test ("serve la multi selezione tramite
+rettangolo quando ci sono tante foglie, è più comodo"): con tanti nodi
+sulla mappa, selezionarli uno per uno con Ctrl+click diventa scomodo.
+
+**Gesto**: trascinamento col **tasto destro** sullo sfondo (non su un
+nodo) disegna un rettangolo; al rilascio entrano in selezione tutti i
+nodi che il rettangolo tocca anche solo in parte (criterio a
+intersezione, non a contenimento totale — più comodo quando il
+rettangolo non è preciso). Scelto il tasto destro invece che
+Shift+trascina o un pulsante di modalità dedicato: il tasto destro
+sullo sfondo oggi non fa nulla, nessun conflitto con un gesto
+esistente; il sinistro trascinato continua a fare pan come sempre.
+**Ctrl** tenuto premuto durante il trascinamento aggiunge alla
+selezione esistente invece di sostituirla, stessa convenzione già in
+uso per il click singolo (§17.3). Se il trascinamento comincia SOPRA
+un nodo, il rettangolo non parte affatto: in quel caso il tasto destro
+apre già il menu contestuale del nodo (§17.1), i due gesti non
+convivono sullo stesso punto di partenza.
+
+**Correzione necessaria per farlo convivere col pan** (stessa lezione
+di §19.1, verificata di nuovo sui sorgenti invece che presunta):
+`detectDragGestures` in commonMain è button-agnostico come
+`detectTapGestures` — senza un `matcher` esplicito, un trascinamento
+col tasto destro sullo sfondo avrebbe fatto pan E rettangolo insieme,
+i due gesti in competizione sugli stessi eventi. Il pan (background) e
+il trascinamento dei nodi (§6.1/§19.3) sono stati resi espliciti
+`PointerMatcher.Primary` (solo sinistro); il rettangolo usa
+`PointerMatcher.mouse(PointerButton.Secondary)` (solo destro) — tre
+gesti sullo stesso spazio, ciascuno sul proprio pulsante, nessuna
+sovrapposizione.
+
+Geometria (conversione schermo→logico, test di intersezione)
+estratta in funzioni pure testate (`RettangoloSelezione.kt`,
+`schermoALogico`/`nodiNelRettangolo`) — stesso principio di
+`SceneGraph.kt`/`NuovaScena.kt`: la logica di calcolo separata dal
+gesto Compose che la usa. Rettangolo disegnato come overlay
+`Canvas` fuori dal `graphicsLayer` di pan/zoom (coordinate schermo
+dirette, non scalate).
+
+**Nota per §19.3** (trascinare un gruppo insieme): una volta
+selezionato un gruppo col rettangolo, trascinare uno qualunque dei
+nodi selezionati sposta già tutto il gruppo — nessuna funzione nuova
+richiesta, §19.3 non distingue come si è formata la selezione.
+
 ## 20. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per
