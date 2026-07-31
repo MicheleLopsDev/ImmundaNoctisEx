@@ -994,6 +994,15 @@ hanno senso su un'immagine statica e restano fuori.
   `ScalaTesto`.
 - **Etichetta "orfana"/"vicolo cieco" poco leggibile**: grigio troppo
   chiaro sul giallo di ENDING — scurito.
+- **Manca l'estratto del testo narrato** (Michele: "scrivi nei
+  riquadri il testo narrato visibile"): la mappa interattiva mostra
+  anche una seconda riga con l'inizio del testo della scena (§6.1),
+  l'esportazione mostrava solo l'etichetta id+codice. `Graphics2D` non
+  ha un equivalente pronto del taglio a due righe con ellissi di
+  Compose (`Text(maxLines, overflow)`) — nuova funzione
+  `disegnaTestoACapo()` in `MapExport.kt`: a capo parola per parola
+  misurando la larghezza col `FontMetrics` del font/dimensione
+  correnti, ellissi sull'ultima riga se restano parole non disegnate.
 
 Verificato anche visivamente (non solo a test): esportato un libro di
 prova identico a quello di Michele e confrontato il PNG prima/dopo la

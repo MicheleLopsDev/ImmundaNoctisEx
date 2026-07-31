@@ -108,6 +108,50 @@ class MapExportTest {
         assertTrue(luminositaBordo < luminositaRiempimento - 200)
     }
 
+    // §19.8 (Michele, 31/07/2026: "scrivi nei riquadri il testo narrato
+    // visibile"): verifica che l'estratto venga disegnato per davvero,
+    // non solo che il PNG sia valido — conta i pixel "scuri" (testo)
+    // nella fascia sotto l'etichetta id+codice, deve essercene di più
+    // con un testo narrato lungo che con uno vuoto.
+    @Test
+    fun esportaConTestoNarratoDisegnaPiuTestoDiUnaSceneSenzaTesto() {
+        val conTesto = scene("1", SceneType.START).copy(
+            narrativeText = "Un testo narrato abbastanza lungo da riempire almeno due righe nel riquadro del nodo esportato",
+        )
+        val senzaTesto = scene("1", SceneType.START).copy(narrativeText = "")
+        val posizioni = mapOf("1" to Offset(0f, 0f))
+
+        val destConTesto = File(dir, "con-testo.png")
+        val destSenzaTesto = File(dir, "senza-testo.png")
+        val mConTesto = manifest(listOf(conTesto))
+        val mSenzaTesto = manifest(listOf(senzaTesto))
+
+        esportaMappaComeImmagine(
+            destConTesto, buildSceneGraph(mConTesto).nodes, buildSceneGraph(mConTesto).edges,
+            mConTesto.scenes.associateBy { it.id }, posizioni,
+            temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+        )
+        esportaMappaComeImmagine(
+            destSenzaTesto, buildSceneGraph(mSenzaTesto).nodes, buildSceneGraph(mSenzaTesto).edges,
+            mSenzaTesto.scenes.associateBy { it.id }, posizioni,
+            temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+        )
+
+        fun pixelScuriNellaFasciaDelTesto(file: File): Int {
+            val immagine = ImageIO.read(file)
+            var conteggio = 0
+            for (y in 63..92) {
+                for (x in 48..214) {
+                    val c = Color(immagine.getRGB(x, y))
+                    if (c.red + c.green + c.blue < 500) conteggio++
+                }
+            }
+            return conteggio
+        }
+
+        assertTrue(pixelScuriNellaFasciaDelTesto(destConTesto) > pixelScuriNellaFasciaDelTesto(destSenzaTesto))
+    }
+
     @Test
     fun esportaSenzaScenePosizionateNonScriveNulla() {
         val m = manifest(listOf(scene("1", SceneType.START)))

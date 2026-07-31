@@ -3232,6 +3232,24 @@ giro manuale). Un nuovo test verifica il bordo pixel per pixel
 (luminosità bordo nettamente più bassa del riempimento, non solo "il
 codice compila"). `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Seguito: "scrivi nei riquadri il testo narrato visibile"
+(31/07/2026)**: mancava ancora la seconda riga con l'estratto del
+testo narrato che la mappa interattiva mostra da tempo (§6.1) —
+Michele lo chiede subito dopo aver visto i primi PNG corretti.
+`Graphics2D` non ha l'equivalente del taglio a due righe con ellissi
+di Compose (`Text(maxLines = 2, overflow = Ellipsis)`): scritta a
+mano `disegnaTestoACapo()` (`MapExport.kt`) — a capo parola per
+parola misurando la larghezza col `FontMetrics` del font/dimensione
+correnti, ellissi sull'ultima riga se restano parole non disegnate.
+Verificato di nuovo a occhio, non solo a test: rigenerato lo stesso
+libro di prova con testi narrati scritti apposta (alcuni corti, che
+stanno in due righe senza troncare, altri lunghi, che troncano con
+"…") e controllato che non si sovrapponesse all'etichetta "orfana" in
+basso. Nuovo test conta i pixel scuri nella fascia del testo,
+confrontando una scena con testo lungo contro una a testo vuoto (deve
+essercene di più con testo, non solo "il PNG è valido").
+`:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

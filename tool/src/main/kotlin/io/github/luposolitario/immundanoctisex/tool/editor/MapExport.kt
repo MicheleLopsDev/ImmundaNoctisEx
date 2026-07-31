@@ -6,6 +6,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.Font
+import java.awt.Graphics2D
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
@@ -31,6 +32,40 @@ private fun caricaFontAwt(font: FontEditor): Font? {
     } catch (e: Exception) {
         null
     }
+}
+
+// §19.8 (Michele, 31/07/2026: "scrivi nei riquadri il testo narrato
+// visibile"): stesso taglio a due righe con ellissi della mappa
+// interattiva (Text con maxLines/overflow, MapScreen.kt), ma
+// Graphics2D non ha un equivalente pronto — a capo manuale parola per
+// parola, misurando la larghezza col `FontMetrics` del font/dimensione
+// correnti, poi ellissi sull'ultima riga se restano parole non
+// disegnate.
+private fun disegnaTestoACapo(g: Graphics2D, testo: String, x: Int, yPrimaRiga: Int, larghezzaMax: Int, altezzaRiga: Int, righeMax: Int) {
+    if (testo.isBlank() || righeMax <= 0) return
+    val metriche = g.fontMetrics
+    val parole = testo.split(Regex("\\s+")).filter { it.isNotEmpty() }
+    val righe = mutableListOf<String>()
+    var indice = 0
+    while (indice < parole.size && righe.size < righeMax) {
+        var riga = parole[indice]
+        indice++
+        while (indice < parole.size) {
+            val candidata = "$riga ${parole[indice]}"
+            if (metriche.stringWidth(candidata) > larghezzaMax) break
+            riga = candidata
+            indice++
+        }
+        righe += riga
+    }
+    if (indice < parole.size && righe.isNotEmpty()) {
+        var ultima = righe.last()
+        while (ultima.isNotEmpty() && metriche.stringWidth("$ultima…") > larghezzaMax) {
+            ultima = ultima.dropLast(1)
+        }
+        righe[righe.lastIndex] = "$ultima…"
+    }
+    righe.forEachIndexed { i, riga -> g.drawString(riga, x, yPrimaRiga + i * altezzaRiga) }
 }
 
 // §19.8 (Michele: "esportare la mappa come immagine"): disegna l'INTERA
@@ -132,6 +167,24 @@ fun esportaMappaComeImmagine(
         g.color = Color.BLACK
         val etichetta = if (scena != null) "${nodo.sceneId} · ${codiceScena(scena)}" else nodo.sceneId
         g.drawString(etichetta, pos.x.toInt() + 8, pos.y.toInt() + 20)
+
+        // Riga 2-3: estratto del testo narrato, stessa idea della mappa
+        // interattiva ("riconoscere la scena a colpo d'occhio senza
+        // doverla aprire") — mancava del tutto nell'esportazione.
+        val testoNarrato = scena?.narrativeText?.replace("\n", " ")?.trim()
+        if (!testoNarrato.isNullOrEmpty()) {
+            g.font = font(Font.PLAIN, 9f)
+            g.color = Color(0x40, 0x40, 0x40)
+            val altezzaRigaNarrato = (9f * moltiplicatore).toInt() + 2
+            disegnaTestoACapo(
+                g, testoNarrato,
+                x = pos.x.toInt() + 8,
+                yPrimaRiga = pos.y.toInt() + 20 + altezzaRigaNarrato,
+                larghezzaMax = NODE_W.toInt() - 16,
+                altezzaRiga = altezzaRigaNarrato,
+                righeMax = 2,
+            )
+        }
 
         // §19.6/§19.7: stessi due avvisi della mappa interattiva, come
         // etichetta testuale invece che badge emoji — Graphics2D non
