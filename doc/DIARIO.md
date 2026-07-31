@@ -3658,6 +3658,53 @@ dell'interfaccia quando lo streaming finisce e i pulsanti compaiono.
 
 ---
 
+## Bug del convertitore: Tabella dei Numeri Casuali senza tiro del dado (31/07/2026)
+
+Michele segnala (screenshot + log) una scena di "Flight from the Dark"
+(scena 275) mostrata come un `AlertDialog` con DUE scelte manuali
+("Se il numero è 0–4, vai a 345" / "Se il numero è 5–9, vai a 74")
+invece del tiro del dado a bottone singolo — sospetta "un problema del
+libro" ma chiede se automatizzare la scelta o almeno dare un dado
+prima di far scegliere all'utente "confidando nella sua onestà".
+
+**Diagnosi**: `AdventureState.requiresRoll`/`DiceZone` (single bottone
+"Tira il Dado del Destino", tiro vero via `DiceRoller`, risoluzione
+automatica per intervallo `minRoll`/`maxRoll` — commento nel codice:
+"v1 fiutava il testo... qui il trigger è STRUTTURALE") **fanno già
+esattamente quello che Michele chiede**. Il problema non è nel motore
+né nella UI: è che le due `Choice` di questa scena non hanno
+`minRoll`/`maxRoll` valorizzati, quindi `ChoiceAvailability
+.rollChoices` le ignora e la scena cade nel ramo normale
+(`ChoicesZone`). Causa profonda trovata in
+`tool/.../etl/ProjectAonHtmlParser.kt:137`: `pickedRangeRegex`
+richiedeva la parola "picked" incollata al numero
+(`picked?(?: a number)? (\d)`) — ma il testo reale del libro è "the
+number **you have picked is** 0–4" (parola di mezzo "is", mai prevista
+dalla regex) e per la seconda scelta "the number **is** 5–9" (nessuna
+parola "picked" affatto, si riferisce a un "Pick a number" detto una
+volta sola nella prosa sopra). Nessuna delle due scelte reali
+matchava mai.
+
+**Fix**: regex riancorata su "number" invece che su "picked", con fino
+a 20 caratteri liberi prima di "is" per coprire entrambe le forme
+(`number\b.{0,20}?\bis\s+(\d)(?:\s*[-–]\s*(\d))?\b`). Estratta la
+logica in `ProjectAonHtmlParser.rollRangeFor(text): Pair<Int, Int>?`
+(prima inline), testabile senza dover costruire un intero file XHTML —
+nuovo `ProjectAonHtmlParserTest.kt` (il parser non aveva NESSUN test
+prima d'ora), 4 casi: le due frasi esatte del log di Michele (con e
+senza "picked"), un numero singolo senza intervallo, un testo senza
+tabella dei numeri (nessun falso positivo). Suite `:tool` verde.
+
+**Limite onestamente comunicato a Michele**: il fix vale per le
+PROSSIME conversioni — il libro già convertito che sta testando
+(`content/scenes.json`, non versionato, non in questo repository) va
+riconvertito dal sorgente Project Aon per correggere anche la scena
+275 già presente, oppure patchato a mano in `:tool`. Nessuna modifica
+lato client (`AdventureState`/`DiceZone`/`ChoicesZone`): il motore
+faceva già la cosa giusta, mancavano solo i dati in ingresso.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

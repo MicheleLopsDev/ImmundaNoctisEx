@@ -134,7 +134,28 @@ object ProjectAonHtmlParser {
     private val winRegex = Regex("""\bif you (?:win|kill|defeat|slay)\b""", RegexOption.IGNORE_CASE)
     private val evadeRegex = Regex("""\bevade\b""", RegexOption.IGNORE_CASE)
     private val evadeRoundsRegex = Regex("""after (\w+) rounds? of combat""", RegexOption.IGNORE_CASE)
-    private val pickedRangeRegex = Regex("""picked?(?: a number)? (\d)(?:\s*[-–]\s*(\d))?""", RegexOption.IGNORE_CASE)
+    // BUG (31/07/2026, Michele: scena della Tabella dei Numeri Casuali
+    // mostrata come 2 scelte manuali invece del tiro del dado a bottone
+    // singolo — DiceZone/requiresRoll in AdventureState.kt esistono già e
+    // funzionano, il problema era qui: la vecchia regex richiedeva la
+    // parola "picked" incollata al numero ("picked 0", "picked a number 0"),
+    // ma il testo reale di Project Aon varia — "the number you have
+    // picked IS 0–4" (parola di mezzo "is") o perfino "the number IS 5–9"
+    // (senza "picked" affatto, riferendosi a un "pick a number" detto una
+    // volta sola nella prosa sopra). Ancorata su "number" invece che su
+    // "picked", con fino a 20 caratteri liberi prima di "is" per coprire
+    // entrambe le forme.
+    private val pickedRangeRegex = Regex("""number\b.{0,20}?\bis\s+(\d)(?:\s*[-–]\s*(\d))?\b""", RegexOption.IGNORE_CASE)
+
+    // Estratta per essere testabile senza dover passare da un intero file
+    // XHTML (il parser vero lavora su Jsoup.parse(File), qui serve solo la
+    // logica della regex).
+    internal fun rollRangeFor(text: String): Pair<Int, Int>? {
+        val range = pickedRangeRegex.find(text) ?: return null
+        val min = range.groupValues[1].toInt()
+        val max = range.groupValues[2].toIntOrNull() ?: min
+        return min to max
+    }
     private val combatLineRegex = Regex("""^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(\d+)""", RegexOption.IGNORE_CASE)
     private val deductRegex = Regex("""Deduct (\d+) points? from your COMBAT SKILL""", RegexOption.IGNORE_CASE)
     private val exactSectHrefRegex = Regex("""^#sect(\d+)$""")
@@ -268,18 +289,16 @@ object ProjectAonHtmlParser {
 
                 else -> {
                     choiceCounter++
-                    val range = pickedRangeRegex.find(text)
+                    val range = rollRangeFor(text)
                     if (range == null) {
                         choices += Choice(id = "choice_${raw.id}_$choiceCounter", choiceText = text, nextSceneId = linkedSceneId)
                     } else {
-                        val min = range.groupValues[1].toInt()
-                        val max = range.groupValues[2].toIntOrNull() ?: min
                         choices += Choice(
                             id = "choice_${raw.id}_$choiceCounter",
                             choiceText = text,
                             nextSceneId = linkedSceneId,
-                            minRoll = min,
-                            maxRoll = max,
+                            minRoll = range.first,
+                            maxRoll = range.second,
                         )
                     }
                 }
