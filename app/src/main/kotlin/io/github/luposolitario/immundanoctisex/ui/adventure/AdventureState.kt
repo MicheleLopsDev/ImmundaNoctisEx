@@ -170,6 +170,15 @@ class AdventureState(
     var isLoadingModel: Boolean by mutableStateOf(expectsNarration)
         private set
 
+    // Terzo stato, distinto da "sta caricando" (01/08/2026, Michele:
+    // "se il motore è spento... dammi l'opportunità di giocare anche
+    // senza motore attivo"): il modello è sul telefono ma nessuno lo sta
+    // caricando — invece di forzare un'attesa di 15-20s in silenzio, si
+    // chiede esplicitamente se avviarlo ora o continuare col testo
+    // originale. Vedi awaitEngineChoice()/beginLoadingEngineNow() sotto.
+    var awaitingEngineChoice: Boolean by mutableStateOf(false)
+        private set
+
     // Terzo valore dello stato del narratore unificato (UI.md: IDLE /
     // GENERATING / SPEAKING) — il cerchio d'oro nel banner si accende
     // anche qui, non solo mentre Gemma scrive.
@@ -338,13 +347,34 @@ class AdventureState(
     }
 
     // Il motore non e' partito (modello mancante o inizializzazione
-    // fallita): si torna al testo del pacchetto invece di lasciare
-    // "il narratore scrive" per sempre.
+    // fallita) o il giocatore ha scelto di continuare senza (vedi
+    // awaitEngineChoice() sotto): si torna al testo del pacchetto invece
+    // di lasciare "il narratore scrive" per sempre.
     fun narrationUnavailable() {
+        awaitingEngineChoice = false
         isGenerating = false
         isLoadingModel = false
         if (narrative.isBlank()) narrative = currentScene.narrativeText
         playPendingMealSoundIfAny()
+    }
+
+    // Il modello è sul telefono ma il motore è spento e nessuno lo sta
+    // caricando: AdventureRoute chiama questo invece di avviare subito
+    // ensureModelLoaded(), per lasciare la scelta al giocatore.
+    fun awaitEngineChoice() {
+        isGenerating = false
+        isLoadingModel = false
+        awaitingEngineChoice = true
+    }
+
+    // Il giocatore ha scelto "Avvia il motore ora": prepara lo stato
+    // PRIMA che AdventureRoute lanci davvero ensureModelLoaded() in una
+    // coroutine — stesso schema di startNarration/narrationUnavailable,
+    // lo stato cambia qui, il lavoro vero parte fuori.
+    fun beginLoadingEngineNow() {
+        awaitingEngineChoice = false
+        isGenerating = true
+        isLoadingModel = true
     }
 
     val isEnding: Boolean get() = currentScene.sceneType == SceneType.ENDING

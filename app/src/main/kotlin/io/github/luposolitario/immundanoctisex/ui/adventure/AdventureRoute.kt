@@ -21,6 +21,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEndin
 import io.github.luposolitario.immundanoctisex.inference.PromptBuilder
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
 import io.github.luposolitario.immundanoctisex.tts.TtsService
+import kotlinx.coroutines.launch
 
 // Raccordo dell'Avventura: carica il pacchetto, costruisce lo stato di
 // gioco dalla sessione (nuova o ripresa dall'auto-save) e monta la scena.
@@ -114,17 +115,41 @@ fun AdventureRoute(
             }
 
             // Il modello si carica alla prima scena e poi resta caricato.
-            // Se non parte, si degrada sul testo del pacchetto.
+            // Tre esiti distinti (01/08/2026, Michele): già pronto -> si
+            // gioca subito; qualcun altro lo sta già caricando (es.
+            // l'auto-load di AppNavigation.kt) -> si aspetta senza
+            // avviarne un secondo (ensureModelLoaded aspetta il lock
+            // condiviso di AppContainer); spento e nessuno lo sta
+            // caricando -> si chiede al giocatore invece di forzare
+            // un'attesa di 15-20s in silenzio.
             LaunchedEffect(state) {
-                if (container.ensureModelLoaded()) {
-                    state.startNarration(previousSceneText = null)
-                } else {
-                    state.narrationUnavailable()
+                val model = container.modelPreferences.selectedModel
+                when {
+                    container.isModelReady(model) || container.isModelLoading -> {
+                        if (container.ensureModelLoaded()) {
+                            state.startNarration(previousSceneText = null)
+                        } else {
+                            state.narrationUnavailable()
+                        }
+                    }
+                    !container.modelPreferences.isDownloaded(model) -> state.narrationUnavailable()
+                    else -> state.awaitEngineChoice()
                 }
             }
             AdventureScreen(
                 state = state,
                 onExitToHome = onExitToHome,
+                onStartEngineNow = {
+                    state.beginLoadingEngineNow()
+                    scope.launch {
+                        if (container.ensureModelLoaded()) {
+                            state.startNarration(previousSceneText = null)
+                        } else {
+                            state.narrationUnavailable()
+                        }
+                    }
+                },
+                onSkipEngine = { state.narrationUnavailable() },
                 onReloadCheckpoint = { slot ->
                     state.loadCheckpoint(slot)?.let { checkpoint ->
                         container.sessionStore.saveSession(checkpoint)

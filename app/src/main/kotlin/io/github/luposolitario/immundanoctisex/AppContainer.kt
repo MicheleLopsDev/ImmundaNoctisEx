@@ -2,6 +2,9 @@ package io.github.luposolitario.immundanoctisex
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageSource
 import io.github.luposolitario.immundanoctisex.core.data.session.FileSessionStore
@@ -31,6 +34,8 @@ import io.github.luposolitario.immundanoctisex.util.SoundEffectPreferences
 import io.github.luposolitario.immundanoctisex.util.StatusCardColorPreferences
 import io.github.luposolitario.immundanoctisex.util.ThemePreferences
 import io.github.luposolitario.immundanoctisex.util.TtsPreferences
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.io.InputStream
 
@@ -142,18 +147,51 @@ class AppContainer(context: Context) {
     var loadedModelId: String? = null
         private set
 
+    // BUG (01/08/2026, Michele: "cerca di far salire su il modello ma
+    // visto che ci vuole un po' tu puoi andare nella schermata dei
+    // modelli e premere avvia mentre sta per farlo avviare"): l'auto-load
+    // all'avvio (AppNavigation.kt) e un'attivazione manuale in Modelli
+    // LLM potevano chiamare ENTRAMBI engine.load() in parallelo sullo
+    // stesso motore nativo, nessuna esclusione reciproca. loadMutex
+    // serializza ogni load() vero; isModelLoading è lo stesso stato
+    // osservabile DA QUALUNQUE schermata (a differenza di loadedModelId,
+    // var semplice letta oggi solo come istantanea una tantum) — serve
+    // per disabilitare "Attiva" e per far sapere ad AdventureRoute se
+    // conviene aspettare invece di proporre di avviare un secondo
+    // caricamento.
+    private val loadMutex = Mutex()
+
+    var isModelLoading: Boolean by mutableStateOf(false)
+        private set
+
+    // Il modello richiesto è DAVVERO pronto all'uso ora, senza dover
+    // toccare load()? Usata da AdventureRoute per distinguere "già
+    // pronto" da "spento"/"in caricamento" prima di decidere cosa fare.
+    fun isModelReady(model: DownloadableModel): Boolean =
+        engineFor(model.engineType).isLoaded && loadedModelId == model.id
+
     // Carica il modello selezionato se è già sul telefono. Restituisce
     // false senza rumore se non c'è: il gioco parte comunque, col testo
     // originale del pacchetto.
     suspend fun ensureModelLoaded(): Boolean {
         val model = modelPreferences.selectedModel
-        val engine = engineFor(model.engineType)
-        if (engine.isLoaded && loadedModelId == model.id) return true
+        if (isModelReady(model)) return true
         if (!modelPreferences.isDownloaded(model)) return false
-        return switchToEngine(model.engineType)
-            .load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
-            .isSuccess
-            .also { if (it) loadedModelId = model.id }
+        isModelLoading = true
+        try {
+            return loadMutex.withLock {
+                // Ricontrollo DENTRO il lock: se un'altra chiamata (es.
+                // l'auto-load all'avvio) ha già finito di caricare questo
+                // stesso modello mentre aspettavamo, non c'è nulla da rifare.
+                if (isModelReady(model)) return@withLock true
+                switchToEngine(model.engineType)
+                    .load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
+                    .isSuccess
+                    .also { if (it) loadedModelId = model.id }
+            }
+        } finally {
+            isModelLoading = false
+        }
     }
 
     // Cambio motore a caldo (Michele 22/07/2026: "un tasto per rendere
@@ -166,14 +204,23 @@ class AppContainer(context: Context) {
     // LiteRT-LM <-> GGUF), si scarica prima l'altro — un modello alla
     // volta, mai due processi nativi multi-GB insieme.
     suspend fun activateModel(model: DownloadableModel): Result<Unit> {
+        if (isModelReady(model)) return Result.success(Unit)
         android.util.Log.i("AppContainer", "activateModel: ${model.id}, activeEngineType=$activeEngineType")
-        val engine = switchToEngine(model.engineType)
-        android.util.Log.i("AppContainer", "activateModel: switchToEngine tornato, chiamo load()")
-        return engine.load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
-            .onSuccess {
-                modelPreferences.selectedModelId = model.id
-                loadedModelId = model.id
+        isModelLoading = true
+        try {
+            return loadMutex.withLock {
+                if (isModelReady(model)) return@withLock Result.success(Unit)
+                val engine = switchToEngine(model.engineType)
+                android.util.Log.i("AppContainer", "activateModel: switchToEngine tornato, chiamo load()")
+                engine.load(modelPreferences.fileFor(model), inferencePreferences.toConfig())
+                    .onSuccess {
+                        modelPreferences.selectedModelId = model.id
+                        loadedModelId = model.id
+                    }
             }
+        } finally {
+            isModelLoading = false
+        }
     }
 
     private fun engineFor(type: EngineType): InferenceEngine = when (type) {

@@ -82,7 +82,6 @@ fun ModelsRoute(
     // null finche' non si e' ancora giocata/attivata una scena in questa
     // esecuzione dell'app.
     var activeModelId by remember { mutableStateOf(container.loadedModelId) }
-    var isActivating by remember { mutableStateOf(false) }
     var activateError by remember { mutableStateOf<String?>(null) }
     // Il nome digitato prima di aprire il selettore file: il risultato
     // arriva in una callback separata, che non ha più accesso al form.
@@ -205,7 +204,12 @@ fun ModelsRoute(
             preferences.selectedModelId = model.id
         },
         activeModelId = activeModelId,
-        isActivating = isActivating,
+        // Stato condiviso (01/08/2026, corsa fra auto-load all'avvio e
+        // "Attiva" manuale): AppContainer.isModelLoading è UNA sola fonte
+        // di verità, letta da questa schermata come da AdventureRoute —
+        // niente più stato locale che non sapeva di un caricamento
+        // partito altrove.
+        isActivating = container.isModelLoading,
         activateError = activateError,
         onActivate = { model ->
             // Log al tocco (27/07/2026, Michele: "premo Attiva e non parte
@@ -213,11 +217,9 @@ fun ModelsRoute(
             // entrare nel motore (o un motore che non logga nulla, vedi il
             // bug di LLamaAndroid.isLoad) non lascia traccia in logcat.
             Log.i("ModelsRoute", "onActivate: tocco su ${model.id} (${model.displayName})")
-            isActivating = true
             activateError = null
             scope.launch {
                 val result = container.activateModel(model)
-                isActivating = false
                 result.onSuccess {
                     selectedModelId = model.id
                     activeModelId = model.id

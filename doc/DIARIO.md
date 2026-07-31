@@ -3753,6 +3753,67 @@ Compilazione e suite `:app` verdi.
 
 ---
 
+## Corsa fra caricamento automatico e attivazione manuale del modello (01/08/2026)
+
+Michele nota una conseguenza dell'auto-load di ieri: il caricamento di
+un modello multi-GB richiede diversi secondi (15-20s, vedi log MISURA),
+e in quella finestra può entrare in Modelli LLM e premere "Attiva"
+sullo stesso modello — `AppContainer.ensureModelLoaded()` (l'auto-load)
+e `activateModel()` (il tocco manuale) chiamavano ENTRAMBI
+`engine.load()` senza alcuna esclusione reciproca, una corsa vera sullo
+stesso motore nativo. Chiede anche un comportamento più preciso
+all'ingresso in Avventura: se il motore è già pronto, giocare subito;
+se sta caricando, aspettare con un segnale chiaro; se è spento e
+nessuno lo sta caricando, offrire la scelta esplicita fra avviarlo ora
+o continuare col testo originale — non più un'attesa forzata di
+15-20s in silenzio.
+
+**`AppContainer.kt`**: nuovo `loadMutex: Mutex` attorno a ogni vera
+chiamata `engine.load()` (sia in `ensureModelLoaded()` sia in
+`activateModel()`), con un doppio controllo "è già pronto?" prima e
+subito dentro il lock — se un'altra chiamata ha finito nel frattempo,
+niente ricaricamento. Nuova proprietà osservabile
+`isModelLoading: Boolean` (prima volta che `AppContainer`, classe DI
+semplice non Composable, espone stato Compose osservabile — necessario
+perché va letto da schermate diverse che non condividono un `remember`
+comune, a differenza di `loadedModelId` che oggi è solo un'istantanea
+letta una volta). Nuovo `isModelReady(model)` che riusa `engineFor`
+privato invece di duplicare quella logica altrove.
+
+**`ModelsRoute.kt`**: lo stato locale `isActivating` (che non sapeva
+nulla di un caricamento partito altrove, es. dall'auto-load)
+sostituito dalla lettura diretta di `container.isModelLoading` — una
+sola fonte di verità, nessuna modifica a `ModelCard`/
+`AdvancedSettingsCard` (il parametro esisteva già).
+
+**`AdventureState.kt`**: nuovo stato `awaitingEngineChoice` e due
+metodi, `awaitEngineChoice()` (motore spento, si chiede) e
+`beginLoadingEngineNow()` (il giocatore ha scelto di avviarlo) — stesso
+stile di `startNarration()`/`narrationUnavailable()` già esistenti.
+Il pezzo "motore in caricamento" esisteva già quasi del tutto
+(`isLoadingModel`, testo dedicato "Il narratore apre il libro…" in
+`NarratorThinking.kt`): bastava sistemare la corsa lato `AppContainer`
+perché tornasse a funzionare come previsto.
+
+**`AdventureRoute.kt`**: il `LaunchedEffect` che avviava sempre e
+comunque `ensureModelLoaded()` ora distingue tre esiti — già pronto o
+in caricamento altrove (si aspetta il lock condiviso, mai un secondo
+caricamento), non scaricato (comportamento di sempre), spento e libero
+(`state.awaitEngineChoice()`). Due nuove callback verso
+`AdventureScreen`: avvia ora / continua senza motore.
+
+**`AdventureScreen.kt`**: nuovo composable `EngineOfflinePrompt`
+(stesso stile di `DiceZone`/`EndingZone`, due bottoni), mostrato al
+posto di `NarratorThinking` quando `awaitingEngineChoice` è vero, e un
+nuovo ramo nel `when` principale per non mostrare scelte cliccabili
+finché non si decide.
+
+Compilazione e suite `:app` verdi. Nessun test automatico nuovo (area
+già priva di test unitari: coinvolge Context/coroutine/motori nativi,
+verifica vera solo su device).
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

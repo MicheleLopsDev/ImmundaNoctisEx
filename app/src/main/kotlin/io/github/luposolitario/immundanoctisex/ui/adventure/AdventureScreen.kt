@@ -64,6 +64,11 @@ fun AdventureScreen(
     state: AdventureState,
     onExitToHome: () -> Unit,
     onReloadCheckpoint: (Int) -> Unit,
+    // Scelta "motore spento" (01/08/2026, Michele): compaiono solo
+    // quando state.awaitingEngineChoice è vero — default no-op per non
+    // dover toccare tutte le @Preview di questo file.
+    onStartEngineNow: () -> Unit = {},
+    onSkipEngine: () -> Unit = {},
     // Scelto in Opzioni (UI.md schermata 7, FontPreferences): il flusso
     // centrale della scena, non il resto della UI. Default = Material
     // (quando la Route non lo passa, es. le @Preview).
@@ -212,7 +217,13 @@ fun AdventureScreen(
             // resta solo sotto, verso la card di stato.
             modifier = Modifier.weight(1f).fillMaxWidth().padding(top = 0.dp, bottom = 8.dp),
         ) {
-            if (state.narrative.isBlank() && state.isGenerating) {
+            if (state.awaitingEngineChoice) {
+                // Motore spento, nessuno lo sta caricando (01/08/2026,
+                // Michele): non si forza un'attesa di 15-20s in silenzio,
+                // si chiede.
+                Spacer(Modifier.height(48.dp))
+                EngineOfflinePrompt(onStartNow = onStartEngineNow, onSkip = onSkipEngine)
+            } else if (state.narrative.isBlank() && state.isGenerating) {
                 // Il narratore sta scrivendo: nessun testo originale da
                 // leggere, solo l'attesa RACCONTATA (UI.md §Flusso).
                 // Spacer della stessa altezza della riga dell'icona
@@ -283,6 +294,9 @@ fun AdventureScreen(
 
         when {
             state.combatSession != null -> CombatActiveZone(state, diceColor)
+            // In attesa che il giocatore scelga se avviare il motore
+            // (01/08/2026): niente scelte cliccabili finché non decide.
+            state.awaitingEngineChoice -> Unit
             // Finché il narratore scrive non si mostrano scelte né nemico:
             // apparirebbero col testo originale per poi cambiare sotto gli
             // occhi (UI.md: prima lo streaming, POI i pulsanti).
@@ -513,6 +527,28 @@ private fun ChoicesZone(state: AdventureState) {
                 }
             },
         )
+    }
+}
+
+// Motore spento, nessuno lo sta caricando (01/08/2026, Michele: "prima
+// di giocare se il motore è spento... dammi l'opportunità di giocare
+// anche senza motore attivo"): invece di forzare un'attesa di 15-20s in
+// silenzio, si chiede. Stesso stile di DiceZone/EndingZone sotto.
+@Composable
+private fun EngineOfflinePrompt(onStartNow: () -> Unit, onSkip: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text("Il motore non è ancora attivo.", fontWeight = FontWeight.Bold)
+        Text(
+            "Puoi avviarlo ora (può richiedere una ventina di secondi) oppure continuare " +
+                "a leggere il testo originale del libro.",
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        Button(onClick = onStartNow, modifier = Modifier.fillMaxWidth()) {
+            Text("Avvia il motore")
+        }
+        OutlinedButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
+            Text("Continua senza motore")
+        }
     }
 }
 
