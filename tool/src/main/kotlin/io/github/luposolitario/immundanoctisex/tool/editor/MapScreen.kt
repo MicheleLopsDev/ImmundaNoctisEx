@@ -78,8 +78,8 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
-import io.github.luposolitario.immundanoctisex.core.data.model.PosizioneScena
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
+import io.github.luposolitario.immundanoctisex.core.data.model.ScenePosition
 import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import io.github.luposolitario.immundanoctisex.core.data.validation.PackageValidator
 import io.github.luposolitario.immundanoctisex.core.data.validation.ValidationResult
@@ -140,7 +140,7 @@ fun rememberMapViewState(): MapViewState = remember { MapViewState() }
 
 // §19.12 (Michele: "una mappa in testa con id e posizioni che viene
 // saltata dal client"): hydrate di `posizioniManuali` da
-// `Manifest.posizioniMappa` — chiamata SOLO nei punti in cui
+// `Manifest.scenePositions` — chiamata SOLO nei punti in cui
 // `EditorMain.kt` carica un libro da zero (apertura, ripristino
 // backup, creazione nuova), mai nelle mutazioni in-sessione del
 // manifest (altrimenti sovrascriverebbe posizioni appena trascinate
@@ -148,8 +148,13 @@ fun rememberMapViewState(): MapViewState = remember { MapViewState() }
 // verso opposto (persistere `posizioniManuali` in `Manifest`) resta
 // SOLO al momento del salvataggio (`salvaSu` sotto) — nessun altro
 // posto tiene i due sincronizzati durante la sessione, di proposito.
+// Nome del campo in `Manifest` in inglese (31/07/2026, Michele:
+// "tutti gli attributi devono essere per standard scritti in
+// inglese"): stessa convenzione già rispettata da ogni altro campo
+// del modello dati, `posizioniMappa`/`PosizioneScena` erano
+// un'eccezione introdotta per errore con §19.12, corretta qui.
 fun MapViewState.caricaPosizioniDa(manifest: Manifest) {
-    posizioniManuali.value = manifest.posizioniMappa.mapValues { (_, p) -> Offset(p.x, p.y) }
+    posizioniManuali.value = manifest.scenePositions.mapValues { (_, p) -> Offset(p.x, p.y) }
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
@@ -242,11 +247,11 @@ fun MapScreen(
     fun salvaSu(destinazione: File) {
         // §19.12: le posizioni vive stanno in `mapViewState.posizioniManuali`
         // per tutta la sessione (mai scritte nel `manifest` in memoria, vedi
-        // `caricaPosizioniDa` sopra) — finiscono nel `Manifest.posizioniMappa`
+        // `caricaPosizioniDa` sopra) — finiscono nel `Manifest.scenePositions`
         // solo qui, nell'istante in cui si scrive davvero su disco.
         val manifestConPosizioni = manifest.copy(
-            posizioniMappa = mapViewState.posizioniManuali.value.mapValues { (_, offset) ->
-                PosizioneScena(offset.x, offset.y)
+            scenePositions = mapViewState.posizioniManuali.value.mapValues { (_, offset) ->
+                ScenePosition(offset.x, offset.y)
             },
         )
         val json = Json { prettyPrint = true }.encodeToString(Manifest.serializer(), manifestConPosizioni)

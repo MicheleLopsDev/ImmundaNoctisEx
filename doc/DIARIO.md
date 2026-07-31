@@ -3101,8 +3101,8 @@ DUE bordi (salvataggio/caricamento) invece che a ogni trascinamento —
 Michele chiede poi di metterlo "in testa come elemento separato" per
 evitare rumore nei diff del libro, confermando la stessa idea.
 
-Nuovo `PosizioneScena(x, y)` (`core:data`) e campo
-`Manifest.posizioniMappa: Map<String, PosizioneScena> = emptyMap()`,
+Nuovo `ScenePosition(x, y)` (`core:data`) e campo
+`Manifest.scenePositions: Map<String, ScenePosition> = emptyMap()`,
 **primo parametro del data class** apposta — in un JSON serializzato
 in ordine di dichiarazione resta un blocco isolato in cima al file,
 non mescolato scena per scena. `MapViewState.caricaPosizioniDa()`
@@ -3118,8 +3118,8 @@ chiamare l'idratazione appena introdotta).
 Effetto collaterale utile, non cercato: prima di questa modifica gli
 scarti di trascinamento potevano "sanguinare" da un libro all'altro
 nella stessa sessione dell'editor (mai azzerati tornando all'avvio) —
-ora ogni apertura fresca li azzera comunque, idratando da un
-`posizioniMappa` magari vuoto.
+ora ogni apertura fresca li azzera comunque, idratando da uno
+`scenePositions` magari vuoto.
 
 Nuovi test: `ManifestTest` (core:data — default vuoto, round-trip di
 serializzazione, un JSON senza il campo resta valido). Nessuna
@@ -3172,6 +3172,28 @@ una singola scena (fuori perimetro dichiarato di questo primo giro,
 insieme a "Riordina automaticamente" e il cambio orientamento, che
 restano reset non annullabili). 7 nuovi test in
 `CronologiaDocumentoTest`. `:tool:compileKotlin`/`:tool:test` verdi.
+
+**Audit nomenclatura: attributi del modello dati in inglese
+(31/07/2026, Michele: "tutti gli attributi devono essere per standard
+scritti in inglese controlla la documentazione e i validatori e tutto
+il resto")**: verificato l'intero `core:data/model` (14 classi, ogni
+campo) — un solo punto rompeva la convenzione, introdotto proprio
+stasera con §19.12: `Manifest.posizioniMappa`/`PosizioneScena`, unica
+eccezione italiana in un modello altrimenti interamente in inglese
+(`Scene`, `Combat`, `Choice`, `GlobalRule`, `CustomResourceEntry`...).
+Validatori già puliti, nessuna modifica lì. Rinominati in
+`scenePositions`/`ScenePosition` (`Manifest.kt`, file
+`PosizioneScena.kt` → `ScenePosition.kt`, `ManifestTest.kt`,
+`MapScreen.kt`) — i commenti nel codice e i nomi delle funzioni di
+test restano in italiano, coerenti con la convenzione di progetto
+(`CLAUDE.md`): a cambiare sono solo gli identificatori del modello
+dati (gli "attributi" citati da Michele), non il resto del codice
+dell'editor (`:tool`, dove funzioni/variabili sono italiane fin
+dall'inizio del progetto e non fanno parte dello schema JSON).
+Corretto anche `content/rampo.json` (libro di test di Michele, non
+versionato) per non perdere le posizioni già salvate durante le prove
+di stasera. `:core:data:jvmTest`, `:tool:compileKotlin`/`:tool:test` e
+`:app:testDebugUnitTest` verdi.
 
 ---
 

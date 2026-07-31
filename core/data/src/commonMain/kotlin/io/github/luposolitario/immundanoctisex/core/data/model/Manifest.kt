@@ -20,7 +20,7 @@ data class Manifest(
     // di contenuto — chi guarda un diff del libro lo riconosce a
     // colpo d'occhio e può ignorarlo. Il motore/client non la legge
     // mai (§19.12).
-    val posizioniMappa: Map<String, PosizioneScena> = emptyMap(),
+    val scenePositions: Map<String, ScenePosition> = emptyMap(),
     val id: String,
     val version: String,
     val title: String,

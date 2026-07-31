@@ -7,4 +7,4 @@ import kotlinx.serialization.Serializable
 // la legge mai (PackageRepository carica con `ignoreUnknownKeys =
 // true`, un pacchetto senza questo campo resta valido com'è oggi).
 @Serializable
-data class PosizioneScena(val x: Float, val y: Float)
+data class ScenePosition(val x: Float, val y: Float)

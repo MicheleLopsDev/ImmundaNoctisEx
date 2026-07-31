@@ -1090,7 +1090,7 @@ client ignora la cosa, servirebbe solo all'editor?"): finora ogni
 sistemazione manuale della mappa (trascinamenti, §19.3, §19.11) si
 perdeva riaprendo il libro — l'auto-layout ripartiva sempre da zero.
 
-**Nuovo campo `Manifest.posizioniMappa: Map<String, PosizioneScena>`**
+**Nuovo campo `Manifest.scenePositions: Map<String, ScenePosition>`**
 (`core:data`, `id → {x, y}`), **primo campo del `data class`
 apposta** — Michele: "una mappa in testa con id e posizioni... in
 testa come elemento separato... evita problemi con le diff": in un
@@ -1109,13 +1109,23 @@ nessuna delle funzioni che la scrivono (trascinamento singolo/gruppo,
 allineamento, "Riordina") è stata toccata. La sincronizzazione avviene
 in due soli punti:
 - **al salvataggio** (`salvaSu`, `MapScreen.kt`): il `Manifest` viene
-  copiato con `posizioniMappa` valorizzato dallo stato corrente di
+  copiato con `scenePositions` valorizzato dallo stato corrente di
   `posizioniManuali`, SOLO nell'istante di scrittura su disco;
 - **al caricamento di un libro da zero** (apertura, ripristino
   backup, creazione nuova — non le mutazioni in-sessione dello stesso
   libro, che lascerebbero intatte le posizioni correnti):
   `MapViewState.caricaPosizioniDa(manifest)` idrata `posizioniManuali`
-  da `Manifest.posizioniMappa`.
+  da `Manifest.scenePositions`.
+
+**Nomenclatura corretta il 31/07/2026** (Michele: "tutti gli
+attributi devono essere per standard scritti in inglese"): il campo e
+la classe erano stati chiamati `posizioniMappa`/`PosizioneScena` per
+errore — unica eccezione in tutto `core:data`, dove ogni altro
+attributo del modello (`Scene`, `Combat`, `Choice`, `GlobalRule`,
+`CustomResourceEntry`...) è già in inglese. Rinominati in
+`scenePositions`/`ScenePosition`; i commenti nel codice restano in
+italiano come da convenzione del progetto (`CLAUDE.md`) — solo gli
+identificatori del modello dati sono cambiati.
 
 Effetto collaterale utile: prima di questa modifica `mapViewState`
 (vissuto per l'intera sessione dell'editor, non per singolo libro)
