@@ -1124,6 +1124,77 @@ all'altro se si tornava all'avvio e se ne apriva uno diverso senza
 premere "Riordina" — ora ogni apertura fresca idrata comunque
 `posizioniManuali` (anche a vuoto), azzerando quel residuo.
 
+### 19.13 Annulla/ripeti in sessione (Ctrl+Z/Ctrl+Y) — FATTO (31/07/2026)
+
+Richiesta di Michele ("implementiamo ctrl-z e ctrl-y, il primo torna a
+n-1 l'altro ti riporta a n") — DIVERSA da "↩ Annulla" (§17.5, ripristino
+da `.bak1` su disco, sopravvive a un riavvio dell'editor): questa è
+una cronologia **in memoria**, granulare passo-passo, persa alla
+chiusura dell'editor.
+
+**Discussione preliminare, prima di scrivere codice** (Michele l'ha
+chiesta esplicitamente: "fammi capire sta cosa"): il punto delicato
+non è la meccanica di annulla/ripeti in sé, ma il fatto che oggi lo
+stato del libro è **spezzato in due pezzi separati** — `manifest`
+(contenuto, in `Schermata.Mappa`) e `posizioniManuali` (posizioni dei
+nodi, in `MapViewState`), sincronizzati solo al salvataggio (§19.12).
+Un'azione dell'utente può toccare l'uno, l'altro o entrambi: la
+cronologia li tratta come un'unica cosa, un `Documento` che li
+contiene insieme.
+
+**Due decisioni prese insieme prima di implementare**:
+1. **Niente serializzazione vera** (modalità più semplice, confermata
+   da Michele): uno "scatto" di cronologia è solo un riferimento a un
+   `Manifest`/una mappa di posizioni già immutabili — non una
+   conversione a JSON. `Manifest` è già un `data class`, "congelare"
+   uno stato costa quanto tenere un puntatore.
+2. **Cronologia LINEARE, non ad albero** — confermato esplicitamente
+   da Michele: *"si perde, ctrl+y può tornare a quel esatto istante
+   solo se non hai fatto nulla altrimenti si sostituisce"*. Una nuova
+   azione dopo un annulla scarta sempre la pila "avanti", non la
+   conserva per un ramo alternativo.
+
+**Implementazione**: `Documento(manifest, posizioni)` +
+`CronologiaDocumento` (`CronologiaDocumento.kt`, pura, testata — 7
+test) con due pile (`indietro`/`avanti`) e tre operazioni:
+`registraCheckpoint` (chiamata SUBITO PRIMA di una modifica, con lo
+stato com'era fino a un attimo fa), `annulla`/`ripeti` (ricevono lo
+stato ATTUALE dal chiamante, per poterlo mettere nella pila opposta).
+Vive dentro `MapViewState.cronologia` — stesso ciclo di vita di
+`posizioniManuali`, sopravvive al giro mappa → scena → mappa,
+azzerata (`reimposta()`) negli stessi tre punti in cui si idratano le
+posizioni (§19.12): apertura libro, ripristino backup, creazione
+nuova — un libro diverso non eredita la cronologia di quello
+precedente nella stessa sessione dell'editor.
+
+**Un solo checkpoint per gesto continuo**: un trascinamento (singolo o
+di gruppo, §19.3) registra il checkpoint una volta sola a
+`onDragStart`, PRIMA che `onDrag` inizi a scrivere `posizioniManuali`
+a ogni fotogramma — altrimenti un solo trascinamento produrrebbe
+centinaia di scatti in cronologia, inutilizzabile.
+
+**Un solo punto istrumentato copre più azioni**: `onManifestCambiato`
+(`EditorMain.kt`) è il funnel comune di "Risorse personalizzate",
+"Proprietà del libro", "JSON del libro", lega/rimuovi legame e
+duplica gruppo — tutte quelle azioni, dentro `MapScreen.kt`, passano
+dallo stesso callback. Istrumentare la definizione del callback una
+volta sola (registra il checkpoint prima di riassegnare `schermata`)
+copre tutti quei casi insieme, senza toccare ciascuna funzione
+singolarmente. `onEliminaScene` e §19.11 (allinea in riga/colonna)
+sono istrumentati a parte, avendo un percorso proprio.
+
+**Fuori perimetro di questo primo giro** (deliberatamente, per
+restare nella "modalità più semplice"): le modifiche fatte DENTRO la
+scheda di una singola scena (testo, scelte, combattimento) non sono
+ancora undo-abili passo-passo — solo il rientro alla mappa dopo
+"Salva"/"Annulla" su una scena, se e quando verrà istrumentato,
+conterebbe come UN scatto per l'intera modifica della scena, non uno
+per tasto premuto nel campo di testo. "Riordina automaticamente" e il
+cambio di orientamento restano reset non annullabili, come oggi.
+
+Scorciatoie attive solo con il focus sulla mappa (stesso ambito di
+Canc/Esc, §17.1/§17.3) — non ancora dentro la scheda di una scena.
+
 ## 20. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per

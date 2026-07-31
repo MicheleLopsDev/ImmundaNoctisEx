@@ -3137,6 +3137,42 @@ vivono in entrambi i posti. Aggiunte anche lì, stesso criterio di
 l'allineamento non tocca collegamenti né duplica nulla).
 `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Implementazione: §19.13 annulla/ripeti in sessione, Ctrl+Z/Ctrl+Y
+(31/07/2026, Michele: "implementiamo ctrl-z e ctrl-y... dobbiamo
+gestire il fatto che gli spostamenti e le modifiche devono essere
+sempre serializzati prima fammi capire sta cosa")**: richiesta
+esplicita di spiegare l'approccio PRIMA di scrivere codice — spiegato
+che lo stato del libro è oggi spezzato in due (`manifest` in
+`Schermata.Mappa`, `posizioniManuali` in `MapViewState`, sincronizzati
+solo al salvataggio, §19.12) e che la cronologia deve trattarli come
+un'unica cosa. Chiarito il dubbio sulla "serializzazione": non serve
+JSON, dato che `Manifest` è già un `data class` immutabile — "prendere
+uno snapshot" costa quanto un riferimento. Michele conferma la
+modalità più semplice, poi chiede di chiarire ANCHE il comportamento
+di Ctrl+Y: spiegato con un esempio concreto (A→B→C, annulla due volte,
+poi un'azione nuova invece di ripetere) che B e C andrebbero scartate
+— Michele conferma esplicitamente: **"si perde, ctrl+y può tornare a
+quel esatto istante solo se non hai fatto nulla altrimenti si
+sostituisce"** — cronologia LINEARE, non ad albero.
+
+Implementato `Documento(manifest, posizioni)` + `CronologiaDocumento`
+(nuovo `CronologiaDocumento.kt`, pura: due pile indietro/avanti,
+`registraCheckpoint`/`annulla`/`ripeti`/`reimposta`), dentro
+`MapViewState.cronologia` (stesso ciclo di vita di `posizioniManuali`,
+azzerata negli stessi tre punti di caricamento "da zero" di §19.12).
+Un solo checkpoint per trascinamento (registrato a `onDragStart`, non
+a ogni fotogramma di `onDrag` — altrimenti centinaia di scatti per un
+solo gesto). Un solo punto istrumentato (`onManifestCambiato` in
+`EditorMain.kt`) copre insieme Risorse personalizzate/Proprietà del
+libro/JSON del libro/lega-rimuovi-legame/duplica gruppo, dato che
+passano tutti dallo stesso callback — `onEliminaScene` e "Allinea in
+riga/colonna" istrumentati a parte. Scorciatoie Ctrl+Z/Ctrl+Y attive
+col focus sulla mappa (come Canc/Esc), non ancora dentro la scheda di
+una singola scena (fuori perimetro dichiarato di questo primo giro,
+insieme a "Riordina automaticamente" e il cambio orientamento, che
+restano reset non annullabili). 7 nuovi test in
+`CronologiaDocumentoTest`. `:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

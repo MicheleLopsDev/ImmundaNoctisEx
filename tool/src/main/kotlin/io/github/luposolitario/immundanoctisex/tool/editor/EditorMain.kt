@@ -127,6 +127,10 @@ fun main() = application {
                 preferenze.aggiungiLibroRecente(file.absolutePath)
                 libriRecenti = preferenze.libriRecenti
                 mapViewState.caricaPosizioniDa(esito.manifest)
+                // §19.13: un libro diverso non deve ereditare la
+                // cronologia di annulla/ripeti di quello aperto prima
+                // nella stessa sessione dell'editor.
+                mapViewState.cronologia.reimposta()
                 schermata = Schermata.Mappa(file, esito.manifest, esito.warnings)
             }
             is PackageLoadResult.Failure -> schermata = Schermata.LibroNonValido(esito.errors)
@@ -234,6 +238,7 @@ fun main() = application {
                             // ormai superato se si chiamasse una volta per
                             // scena in un ciclo.
                             onEliminaScene = { ids, ricollegaAId ->
+                                mapViewState.cronologia.registraCheckpoint(Documento(s.manifest, mapViewState.posizioniManuali.value))
                                 val manifestRicollegato = if (ricollegaAId != null) {
                                     ricollegaRiferimenti(s.manifest, ids, ricollegaAId)
                                 } else {
@@ -243,10 +248,39 @@ fun main() = application {
                                 schermata = Schermata.Mappa(s.file, manifestSenzaScene, s.warnings)
                             },
                             // §15.7: cambio generico del manifest senza
-                            // navigare via dalla mappa — usato oggi solo dal
-                            // pannello "Risorse personalizzate".
+                            // navigare via dalla mappa — usato oggi da
+                            // "Risorse personalizzate", "Proprietà del
+                            // libro", "JSON del libro", lega/rimuovi
+                            // legame e duplica gruppo (tutti dentro
+                            // MapScreen.kt passano da qui): UN SOLO punto
+                            // da istrumentare per la cronologia (§19.13)
+                            // copre tutti quei casi insieme.
                             onManifestCambiato = { manifestAggiornato ->
+                                mapViewState.cronologia.registraCheckpoint(Documento(s.manifest, mapViewState.posizioniManuali.value))
                                 schermata = Schermata.Mappa(s.file, manifestAggiornato, s.warnings)
+                            },
+                            // §19.13 (Michele: "implementiamo ctrl-z e
+                            // ctrl-y"): la cronologia vive in
+                            // `mapViewState` (sopravvive al giro mappa ->
+                            // scena -> mappa, stesso motivo di
+                            // `posizioniManuali`); qui solo l'esecuzione,
+                            // che tocca `schermata` (solo EditorMain.kt
+                            // può riassegnarla).
+                            onAnnullaModifica = {
+                                val statoAttuale = Documento(s.manifest, mapViewState.posizioniManuali.value)
+                                val precedente = mapViewState.cronologia.annulla(statoAttuale)
+                                if (precedente != null) {
+                                    mapViewState.posizioniManuali.value = precedente.posizioni
+                                    schermata = Schermata.Mappa(s.file, precedente.manifest, s.warnings)
+                                }
+                            },
+                            onRipetiModifica = {
+                                val statoAttuale = Documento(s.manifest, mapViewState.posizioniManuali.value)
+                                val successivo = mapViewState.cronologia.ripeti(statoAttuale)
+                                if (successivo != null) {
+                                    mapViewState.posizioniManuali.value = successivo.posizioni
+                                    schermata = Schermata.Mappa(s.file, successivo.manifest, s.warnings)
+                                }
                             },
                             salvataggioGiaConfermato = salvataggioGiaConfermato,
                             onSalvataggioConfermato = { salvataggioGiaConfermato = true },
@@ -268,6 +302,10 @@ fun main() = application {
                                             // §19.12: il backup ripristinato può avere
                                             // posizioni diverse da quelle in sessione.
                                             mapViewState.caricaPosizioniDa(esito.manifest)
+                                            // §19.13: la cronologia di annulla/ripeti
+                                            // precedente non ha più senso su uno stato
+                                            // tornato indietro da un backup su disco.
+                                            mapViewState.cronologia.reimposta()
                                             schermata = Schermata.Mappa(s.file, esito.manifest, esito.warnings)
                                         }
                                         is PackageLoadResult.Failure ->
@@ -322,6 +360,9 @@ fun main() = application {
                                     // libro aperto in precedenza nella stessa
                                     // sessione dell'editor.
                                     mapViewState.caricaPosizioniDa(manifestNuovo)
+                                    // §19.13: stesso motivo, niente cronologia
+                                    // ereditata da un libro precedente.
+                                    mapViewState.cronologia.reimposta()
                                     schermata = Schermata.Mappa(nuovoFile, manifestNuovo, emptyList())
                                 }
                             },

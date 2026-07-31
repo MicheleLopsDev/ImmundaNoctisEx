@@ -128,6 +128,11 @@ class MapViewState {
     // Diversa dall'hover (nodoSottoMouse, si perde appena sposti il
     // mouse) e dal doppio click (che apre il pannello).
     val sceneSelezionate = mutableStateOf<Set<String>>(emptySet())
+    // §19.13 (Ctrl+Z/Ctrl+Y): non uno stato Compose — nessuna UI legge
+    // direttamente le pile della cronologia, solo `annulla`/`ripeti`,
+    // che invece FANNO scattare la ricomposizione riassegnando
+    // `schermata`/`posizioniManuali` (stati Compose veri) nel chiamante.
+    val cronologia = CronologiaDocumento()
 }
 
 @Composable
@@ -165,6 +170,11 @@ fun MapScreen(
     onFileCambiato: (File) -> Unit,
     livelliBackup: Int,
     onAnnullaUltimoBackup: () -> Unit,
+    // §19.13 (Ctrl+Z/Ctrl+Y): la logica di annulla/ripeti vive in
+    // EditorMain.kt (solo lì `schermata` è riassegnabile) — qui solo il
+    // tasto scorciatoia, stesso pattern di tutti gli altri callback.
+    onAnnullaModifica: () -> Unit,
+    onRipetiModifica: () -> Unit,
 ) {
     val graph = remember(manifest) { buildSceneGraph(manifest) }
     val scenesById = remember(manifest) { manifest.scenes.associateBy { it.id } }
@@ -550,6 +560,7 @@ fun MapScreen(
     // dall'auto-layout, non salvato nel JSON, si perde con "Riordina".
     fun allineaSelezione(inRiga: Boolean) {
         if (sceneSelezionate.size < 2) return
+        mapViewState.cronologia.registraCheckpoint(Documento(manifest, posizioniManuali))
         val posizioniAttuali = sceneSelezionate.associateWith { posizioneEffettiva(it) ?: Offset.Zero }
         val spaziatura = if (inRiga) H_SPACING.value else V_SPACING.value
         posizioniManuali = posizioniManuali + allineaGruppo(sceneSelezionate, posizioniAttuali, orizzontale = inRiga, spaziatura = spaziatura)
@@ -1180,6 +1191,24 @@ fun MapScreen(
                             sceneSelezionate = emptySet()
                             true
                         }
+                        // §19.13 (Michele: "implementiamo ctrl-z e
+                        // ctrl-y"): cronologia lineare in memoria, non il
+                        // ripristino da backup su disco di "↩ Annulla"
+                        // (§17.5) — copre le azioni di struttura sulla
+                        // mappa (trascinamenti, allineamenti, elimina,
+                        // lega/rimuovi legame, duplica gruppo, pannelli
+                        // che passano da `onManifestCambiato`), non
+                        // ancora le modifiche dentro la scheda di una
+                        // singola scena (fuori perimetro di questo primo
+                        // giro, §19.13).
+                        evento.key == Key.Z && ctrlPremuto -> {
+                            onAnnullaModifica()
+                            true
+                        }
+                        evento.key == Key.Y && ctrlPremuto -> {
+                            onRipetiModifica()
+                            true
+                        }
                         else -> false
                     }
                 }
@@ -1552,6 +1581,13 @@ fun MapScreen(
                                 detectDragGestures(
                                     matcher = PointerMatcher.Primary,
                                     onDragStart = {
+                                        // §19.13: un solo scatto di cronologia
+                                        // per l'INTERO trascinamento, registrato
+                                        // qui prima che `onDrag` inizi a
+                                        // scrivere su `posizioniManuali` — mai
+                                        // dentro `onDrag` stesso (un fotogramma
+                                        // per scatto sarebbe inutilizzabile).
+                                        mapViewState.cronologia.registraCheckpoint(Documento(manifest, posizioniManuali))
                                         nodoTrascinato = nodo.sceneId
                                         val gruppo = if (nodo.sceneId in sceneSelezionate && sceneSelezionate.size >= 2) {
                                             sceneSelezionate
