@@ -3619,6 +3619,45 @@ nessun catalogo GGUF/form aggiungi modello/gestione catalogo.
 
 ---
 
+## Release v0.2.0 + bug swipe-back in avventura (31/07/2026)
+
+Confermata la Modalità Traduzione come "quasi immediata" da Michele.
+Bump versione client a 0.2 (`versionCode 2`), tag annotato `v0.2.0`
+creato in locale (stessa convenzione di `v0.1.0`, non pushato — il
+push resta a Michele) con il riepilogo della milestone dalla v0.1.0:
+immagini animate + Scene.sfx, Modalità Traduzione, fix crash
+buildLlama, UI Modelli semplificata. APK di release rigenerato e
+inviato.
+
+**Bug**: "se sono nell'avventura e faccio swipe per tornare indietro
+mi può riportare alla creazione del personaggio, questo non deve
+essere possibile, mi deve portare al menù". Causa in
+`navigation/AppNavigation.kt`: la navigazione è un `ArrayDeque<Route>`
+fatto a mano (non Navigation Compose), e il `BackHandler` globale
+faceva solo `backStack.removeLast()`. Il percorso per arrivare a
+`ADVENTURE` è HOME → ADVENTURE_SETUP → CHARACTER_CREATION → ADVENTURE,
+quindi lo stack conteneva ancora `CHARACTER_CREATION` come "penultima
+schermata" — il back di sistema ripescava esattamente quella, mentre
+il bottone esplicito "Torna al menu" (che invece fa
+`activeSession = null; backStack.clear(); route = HOME`) era sempre
+stato corretto. Fix: estratta `exitAdventureToHome()` (stessa logica
+di prima, ora condivisa), il `BackHandler` la usa quando
+`route == Route.ADVENTURE` invece del pop generico — rientrare in
+CHARACTER_CREATION a partita già in corso non ha comunque senso
+(ricreerebbe un personaggio sopra una sessione esistente).
+`AdventureRoute(onExitToHome = ...)` ora punta alla stessa funzione
+condivisa (`::exitAdventureToHome`) invece di duplicare la logica.
+Compilazione verde.
+
+Michele propone anche (non ancora implementato, in attesa di
+conferma): tenere sempre visibile il bottone "Scegli cosa fare"
+(`ChoicesZone` in `AdventureScreen.kt`, oggi nascosto del tutto
+durante `state.isGenerating` — quel ramo del `when` è `Unit`) ma in
+grigio durante la generazione, per non far saltare l'altezza
+dell'interfaccia quando lo streaming finisce e i pulsanti compaiono.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

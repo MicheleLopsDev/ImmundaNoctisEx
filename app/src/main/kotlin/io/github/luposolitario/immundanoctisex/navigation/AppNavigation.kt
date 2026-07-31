@@ -76,8 +76,29 @@ fun AppNavigation(
         route = destination
     }
 
+    // Uscita dall'avventura verso il menu: stessa funzione sia per il
+    // bottone "Torna al menu" sia per il back di sistema sotto (vedi
+    // BUG 31/07/2026 qui sotto).
+    fun exitAdventureToHome() {
+        activeSession = null
+        backStack.clear()
+        route = Route.HOME
+    }
+
+    // BUG (31/07/2026, Michele: "se sono nell'avventura e faccio swipe
+    // per tornare indietro mi può riportare alla creazione del
+    // personaggio"): il back generico faceva solo backStack.removeLast(),
+    // che dentro ADVENTURE ripesca CHARACTER_CREATION (l'ultima
+    // schermata attraversata per arrivarci) — rientrarci a partita in
+    // corso non ha senso, ricreerebbe un personaggio sopra una sessione
+    // già esistente. Da ADVENTURE il back deve comportarsi come il
+    // bottone "Torna al menu", non come un pop generico.
     BackHandler(enabled = backStack.isNotEmpty()) {
-        route = backStack.removeLast()
+        if (route == Route.ADVENTURE) {
+            exitAdventureToHome()
+        } else {
+            route = backStack.removeLast()
+        }
     }
 
     when (route) {
@@ -121,11 +142,7 @@ fun AppNavigation(
                 AdventureRoute(
                     container = container,
                     session = session,
-                    onExitToHome = {
-                        activeSession = null
-                        backStack.clear()
-                        route = Route.HOME
-                    },
+                    onExitToHome = ::exitAdventureToHome,
                     isDarkTheme = isDarkTheme,
                 )
             }
