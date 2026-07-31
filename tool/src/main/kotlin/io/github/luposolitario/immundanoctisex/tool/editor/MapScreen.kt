@@ -560,7 +560,13 @@ fun MapScreen(
             File(destinazione.parentFile, "${destinazione.name}.png")
         }
         val posizioni = graph.nodes.associate { it.sceneId to (posizioneEffettiva(it.sceneId) ?: Offset.Zero) }
-        esportaMappaComeImmagine(conEstensione, graph.nodes, graph.edges, scenesById, posizioni, temaScuro, fontScelto, scalaTesto)
+        // 31/07/2026 (Michele: "mettiamo in alto il nome del file
+        // stesso formato che usiamo per caricare i libri"): stessa
+        // stringa di "Libri recenti" (`riepilogoLibro`, EditorMain.kt).
+        esportaMappaComeImmagine(
+            conEstensione, graph.nodes, graph.edges, scenesById, posizioni, temaScuro, fontScelto, scalaTesto,
+            intestazione = riepilogoLibro(file.name, manifest),
+        )
     }
 
     // §19.11 (Michele: "un'opzione per riarrangiare solo i nodi

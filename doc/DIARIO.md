@@ -3250,6 +3250,33 @@ confrontando una scena con testo lungo contro una a testo vuoto (deve
 essercene di più con testo, non solo "il PNG è valido").
 `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Ultimo seguito: intestazione col nome del libro (31/07/2026,
+Michele: "se nel export mettiamo in alto il nome del file stesso
+formato che usiamo per caricare i libri?")**: la stessa riga di "Libri
+recenti" (§17.4: `nomeFile - titolo - genere - lingua - descrizione
+breve`, quest'ultima troncata a 30 caratteri) era costruita inline
+solo dentro `EditorMain.kt` — estratta in una funzione condivisa
+`riepilogoLibro()` (testata, `EditorMainTest` nuovo) invece di
+duplicare la stessa logica in `MapExport.kt`, un solo punto da
+cambiare se il formato evolve. Nuova fascia dedicata in cima
+all'immagine (`INTESTAZIONE_H`), separata dal margine dei nodi
+apposta — i nodi non hanno perso spazio, l'intestazione ha il suo
+sopra. Colore del testo dell'intestazione adattato al tema (a
+differenza del testo dei nodi, che siede sempre su un riempimento
+chiaro fisso, l'intestazione siede direttamente sullo sfondo di
+pagina, che cambia col tema). Riusata `disegnaTestoACapo()` con
+`righeMax = 1` per il taglio a una riga sola con ellissi se il
+riepilogo non ci sta. Verificato di nuovo a occhio col solito libro di
+prova. Due nuovi test (uno sull'intestazione disegnata per davvero,
+due su `riepilogoLibro()`); aggiornate le coordinate pixel dei test
+precedenti (tutto il contenuto della mappa si è spostato giù di
+`INTESTAZIONE_H`). `:tool:compileKotlin`/`:tool:test` verdi.
+
+Con questo il ciclo di correzioni sull'esportazione PNG aperto da
+Michele stasera si può considerare chiuso: bordo, etichetta,
+tema/font/scala testo, testo narrato, intestazione — tutti verificati
+sia a test sia a occhio.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

@@ -1003,10 +1003,23 @@ hanno senso su un'immagine statica e restano fuori.
   `disegnaTestoACapo()` in `MapExport.kt`: a capo parola per parola
   misurando la larghezza col `FontMetrics` del font/dimensione
   correnti, ellissi sull'ultima riga se restano parole non disegnate.
+- **Manca un'intestazione col nome del libro** (Michele: "mettiamo in
+  alto il nome del file stesso formato che usiamo per caricare i
+  libri"): nuova fascia dedicata in cima all'immagine (`INTESTAZIONE_H`,
+  separata dal margine dei nodi apposta — i nodi mantengono lo stesso
+  respiro di prima), con la STESSA riga di "Libri recenti" (§17.4:
+  `nomeFile - titolo - genere - lingua - descrizione breve`). La
+  stringa era costruita inline solo in `EditorMain.kt`, estratta in
+  `riepilogoLibro()` (testata) per essere riusata anche qui — un solo
+  posto da cambiare se il formato evolve. Colore del testo
+  dell'intestazione adattato al tema (chiaro su sfondo scuro, scuro su
+  sfondo chiaro): a differenza del testo dei nodi, che siede sempre su
+  un riempimento chiaro fisso, l'intestazione siede direttamente sullo
+  sfondo di pagina, che invece cambia col tema.
 
-Verificato anche visivamente (non solo a test): esportato un libro di
-prova identico a quello di Michele e confrontato il PNG prima/dopo la
-correzione.
+Verificato anche visivamente (non solo a test), a ogni correzione:
+esportato un libro di prova identico a quello di Michele e confrontato
+il PNG prima/dopo ciascuna modifica.
 
 **Perché solo PNG e non una stampa vera**: valutata la differenza di
 difficoltà con Michele — un'immagine esportabile è fattibile con

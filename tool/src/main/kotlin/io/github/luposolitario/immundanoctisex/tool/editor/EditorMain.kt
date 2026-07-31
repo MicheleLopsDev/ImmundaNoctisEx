@@ -76,6 +76,16 @@ private sealed class Schermata {
     data object Impostazioni : Schermata()
 }
 
+// Riassunto di un libro (§17.4, "Libri recenti") — riusata anche
+// nell'intestazione dell'esportazione PNG (§19.8, 31/07/2026, Michele:
+// "mettiamo in alto il nome del file stesso formato che usiamo per
+// caricare i libri"): stessa stringa in entrambi i posti, un solo
+// punto da cambiare se il formato evolve.
+fun riepilogoLibro(nomeFile: String, manifest: Manifest): String {
+    val descrizioneBreve = manifest.description.take(30) + if (manifest.description.length > 30) "…" else ""
+    return "$nomeFile - ${manifest.title} - ${manifest.genre} - ${manifest.language} - $descrizioneBreve"
+}
+
 fun main() = application {
     var schermata by remember { mutableStateOf<Schermata>(Schermata.Avvio) }
     // Impostazioni (§16.1, Michele: "importi dal client le font
@@ -461,9 +471,7 @@ private fun AvvioScreen(
                 TextButton(onClick = { onApriRecente(percorso) }) {
                     val nomeFile = File(percorso).name
                     val etichetta = if (manifest != null) {
-                        val descrizioneBreve = manifest.description.take(30) +
-                            if (manifest.description.length > 30) "…" else ""
-                        "$nomeFile - ${manifest.title} - ${manifest.genre} - ${manifest.language} - $descrizioneBreve"
+                        riepilogoLibro(nomeFile, manifest)
                     } else {
                         "$nomeFile (non leggibile)"
                     }

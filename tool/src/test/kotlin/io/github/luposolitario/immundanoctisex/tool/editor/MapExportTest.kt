@@ -52,6 +52,7 @@ class MapExportTest {
         esportaMappaComeImmagine(
             destinazione, graph.nodes, graph.edges, m.scenes.associateBy { it.id }, posizioni,
             temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+            intestazione = "libro.json - Test - FANTASY - en - Test",
         )
 
         assertTrue(destinazione.exists())
@@ -70,6 +71,7 @@ class MapExportTest {
         esportaMappaComeImmagine(
             destinazione, graph.nodes, graph.edges, m.scenes.associateBy { it.id }, posizioni,
             temaScuro = true, font = FontEditor.CINZEL, scalaTesto = ScalaTesto.GRANDE,
+            intestazione = "libro.json - Test - FANTASY - en - Test",
         )
 
         assertTrue(destinazione.exists())
@@ -94,14 +96,16 @@ class MapExportTest {
         esportaMappaComeImmagine(
             destinazione, graph.nodes, graph.edges, m.scenes.associateBy { it.id }, posizioni,
             temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+            intestazione = "libro.json - Test - FANTASY - en - Test",
         )
 
         val immagine = ImageIO.read(destinazione)
-        // Nodo logico a (0,0) -> pixel (40,40) per via del margine.
-        // Bordo: proprio sul contorno superiore, lontano dagli angoli
-        // arrotondati. Riempimento: centro del nodo.
-        val pixelBordo = Color(immagine.getRGB(40 + 95, 40))
-        val pixelRiempimento = Color(immagine.getRGB(40 + 95, 40 + 36))
+        // Nodo logico a (0,0) -> pixel (40, 70): 40 di margine + 30 di
+        // fascia intestazione (§19.8, "mettiamo in alto il nome del
+        // file"). Bordo: proprio sul contorno superiore, lontano dagli
+        // angoli arrotondati. Riempimento: centro del nodo.
+        val pixelBordo = Color(immagine.getRGB(40 + 95, 70))
+        val pixelRiempimento = Color(immagine.getRGB(40 + 95, 70 + 36))
         val luminositaBordo = pixelBordo.red + pixelBordo.green + pixelBordo.blue
         val luminositaRiempimento = pixelRiempimento.red + pixelRiempimento.green + pixelRiempimento.blue
 
@@ -130,17 +134,21 @@ class MapExportTest {
             destConTesto, buildSceneGraph(mConTesto).nodes, buildSceneGraph(mConTesto).edges,
             mConTesto.scenes.associateBy { it.id }, posizioni,
             temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+            intestazione = "libro.json - Test - FANTASY - en - Test",
         )
         esportaMappaComeImmagine(
             destSenzaTesto, buildSceneGraph(mSenzaTesto).nodes, buildSceneGraph(mSenzaTesto).edges,
             mSenzaTesto.scenes.associateBy { it.id }, posizioni,
             temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+            intestazione = "libro.json - Test - FANTASY - en - Test",
         )
 
         fun pixelScuriNellaFasciaDelTesto(file: File): Int {
             val immagine = ImageIO.read(file)
             var conteggio = 0
-            for (y in 63..92) {
+            // +30 rispetto a prima: fascia dei nodi spostata giù dalla
+            // fascia dell'intestazione (§19.8).
+            for (y in 93..122) {
                 for (x in 48..214) {
                     val c = Color(immagine.getRGB(x, y))
                     if (c.red + c.green + c.blue < 500) conteggio++
@@ -152,6 +160,46 @@ class MapExportTest {
         assertTrue(pixelScuriNellaFasciaDelTesto(destConTesto) > pixelScuriNellaFasciaDelTesto(destSenzaTesto))
     }
 
+    // §19.8 (Michele, 31/07/2026: "mettiamo in alto il nome del file
+    // stesso formato che usiamo per caricare i libri"): verifica che
+    // l'intestazione venga disegnata per davvero, non solo passata
+    // come parametro — conta i pixel scuri nella fascia dedicata in
+    // cima all'immagine (sopra tutti i nodi).
+    @Test
+    fun esportaDisegnaLIntestazioneInCima() {
+        val m = manifest(listOf(scene("1", SceneType.START)))
+        val graph = buildSceneGraph(m)
+        val posizioni = mapOf("1" to Offset(0f, 0f))
+
+        val destConIntestazione = File(dir, "con-intestazione.png")
+        val destSenzaIntestazione = File(dir, "senza-intestazione.png")
+
+        esportaMappaComeImmagine(
+            destConIntestazione, graph.nodes, graph.edges, m.scenes.associateBy { it.id }, posizioni,
+            temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+            intestazione = "rampo.json - La lama nera - FANTASY - it - Un'avventura di prova",
+        )
+        esportaMappaComeImmagine(
+            destSenzaIntestazione, graph.nodes, graph.edges, m.scenes.associateBy { it.id }, posizioni,
+            temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+            intestazione = "",
+        )
+
+        fun pixelScuriInCima(file: File): Int {
+            val immagine = ImageIO.read(file)
+            var conteggio = 0
+            for (y in 0..29) {
+                for (x in 0 until immagine.width) {
+                    val c = Color(immagine.getRGB(x, y))
+                    if (c.red + c.green + c.blue < 500) conteggio++
+                }
+            }
+            return conteggio
+        }
+
+        assertTrue(pixelScuriInCima(destConIntestazione) > pixelScuriInCima(destSenzaIntestazione))
+    }
+
     @Test
     fun esportaSenzaScenePosizionateNonScriveNulla() {
         val m = manifest(listOf(scene("1", SceneType.START)))
@@ -161,6 +209,7 @@ class MapExportTest {
         esportaMappaComeImmagine(
             destinazione, graph.nodes, graph.edges, m.scenes.associateBy { it.id }, emptyMap(),
             temaScuro = false, font = FontEditor.ALMENDRA, scalaTesto = ScalaTesto.MEDIO,
+            intestazione = "libro.json - Test - FANTASY - en - Test",
         )
 
         assertTrue(!destinazione.exists())

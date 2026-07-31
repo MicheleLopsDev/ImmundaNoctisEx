@@ -19,6 +19,11 @@ import javax.imageio.ImageIO
 private const val NODE_W = 190f
 private const val NODE_H = 72f
 private const val MARGINE = 40f
+// Fascia dedicata all'intestazione (§19.8, sotto) — separata dal
+// margine dei nodi apposta: i nodi mantengono lo stesso respiro di
+// prima, l'intestazione ha il suo spazio sopra invece di doverci
+// entrare dentro.
+private const val INTESTAZIONE_H = 30f
 
 // Stesso font .ttf scelto nelle impostazioni dell'editor (§16.1),
 // caricato qui con l'API di java.awt invece di quella Compose — due
@@ -93,6 +98,12 @@ fun esportaMappaComeImmagine(
     temaScuro: Boolean,
     font: FontEditor,
     scalaTesto: ScalaTesto,
+    // 31/07/2026 (Michele: "mettiamo in alto il nome del file stesso
+    // formato che usiamo per caricare i libri"): stessa stringa di
+    // "Libri recenti" (`riepilogoLibro()`, EditorMain.kt), calcolata
+    // dal chiamante — qui arriva già pronta, non serve conoscere né
+    // `File` né `Manifest` per costruirla.
+    intestazione: String,
 ) {
     val posizioniValide = nodi.mapNotNull { nodo -> posizioni[nodo.sceneId]?.let { nodo.sceneId to it } }.toMap()
     if (posizioniValide.isEmpty()) return
@@ -101,10 +112,10 @@ fun esportaMappaComeImmagine(
     val minY = posizioniValide.values.minOf { it.y }
     val maxX = posizioniValide.values.maxOf { it.x } + NODE_W
     val maxY = posizioniValide.values.maxOf { it.y } + NODE_H
-    fun px(offset: Offset) = Offset(offset.x - minX + MARGINE, offset.y - minY + MARGINE)
+    fun px(offset: Offset) = Offset(offset.x - minX + MARGINE, offset.y - minY + MARGINE + INTESTAZIONE_H)
 
     val larghezza = (maxX - minX + MARGINE * 2).toInt().coerceAtLeast(1)
-    val altezza = (maxY - minY + MARGINE * 2).toInt().coerceAtLeast(1)
+    val altezza = (maxY - minY + MARGINE * 2 + INTESTAZIONE_H).toInt().coerceAtLeast(1)
 
     val fontBase = caricaFontAwt(font)
     val moltiplicatore = scalaTesto.moltiplicatore
@@ -123,6 +134,24 @@ fun esportaMappaComeImmagine(
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     g.color = coloreSfondo
     g.fillRect(0, 0, larghezza, altezza)
+
+    // Intestazione: stessa riga di "Libri recenti" (nome file - titolo
+    // - genere - lingua - descrizione breve), non i colori fissi dei
+    // nodi — qui il testo siede direttamente sullo sfondo di pagina,
+    // che CAMBIA col tema, quindi anche il colore del testo deve
+    // adattarsi (chiaro su sfondo scuro, scuro su sfondo chiaro). Una
+    // sola riga con ellissi se non ci sta (`disegnaTestoACapo`,
+    // `righeMax = 1`, riusata anche per il taglio a una riga sola).
+    g.font = font(Font.BOLD, 13f)
+    g.color = if (temaScuro) Color(0xEE, 0xEE, 0xEE) else Color.BLACK
+    disegnaTestoACapo(
+        g, intestazione,
+        x = MARGINE.toInt(),
+        yPrimaRiga = (INTESTAZIONE_H * 0.7f).toInt(),
+        larghezzaMax = larghezza - MARGINE.toInt() * 2,
+        altezzaRiga = INTESTAZIONE_H.toInt(),
+        righeMax = 1,
+    )
 
     // Archi sotto i nodi — stessa palette verde/rosso di risoluzione già
     // usata sulla mappa interattiva (§6.2).
