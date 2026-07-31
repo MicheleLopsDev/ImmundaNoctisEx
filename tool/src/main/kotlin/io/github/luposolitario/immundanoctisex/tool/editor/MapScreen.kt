@@ -1431,16 +1431,35 @@ fun MapScreen(
                                     // tenendo premuto ctrl"): Ctrl aggiunge/
                                     // toglie questo nodo dall'insieme
                                     // selezionato invece di sostituirlo.
+                                    // 31/07/2026 (Michele, bug di test:
+                                    // "sposta solo il primo nodo" trascinando
+                                    // un nodo già selezionato): `onPress`
+                                    // scatta PRIMA che il gestore di
+                                    // trascinamento sotto (§19.3) legga
+                                    // `sceneSelezionate` per capire se
+                                    // muovere un gruppo — senza questa
+                                    // guardia, premere un nodo già dentro
+                                    // una selezione di 2+ la collassava
+                                    // (o, con Ctrl, lo toglieva dal gruppo)
+                                    // un istante prima che il trascinamento
+                                    // potesse vederla intera. Stessa
+                                    // convenzione già in uso per il tasto
+                                    // destro (§17.1): premere un nodo GIÀ
+                                    // nella selezione multipla la preserva
+                                    // sempre, non importa se poi diventa un
+                                    // trascinamento o resta un semplice
+                                    // click.
                                     onPress = {
                                         focusMappa.requestFocus()
-                                        sceneSelezionate = if (ctrlPremuto) {
-                                            if (nodo.sceneId in sceneSelezionate) {
+                                        val giaNelGruppo = nodo.sceneId in sceneSelezionate && sceneSelezionate.size >= 2
+                                        sceneSelezionate = when {
+                                            giaNelGruppo -> sceneSelezionate
+                                            ctrlPremuto -> if (nodo.sceneId in sceneSelezionate) {
                                                 sceneSelezionate - nodo.sceneId
                                             } else {
                                                 sceneSelezionate + nodo.sceneId
                                             }
-                                        } else {
-                                            setOf(nodo.sceneId)
+                                            else -> setOf(nodo.sceneId)
                                         }
                                     },
                                     onDoubleTap = { onSceneSelected(nodo.sceneId) },

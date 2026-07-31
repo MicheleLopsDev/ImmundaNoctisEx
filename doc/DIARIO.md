@@ -3033,6 +3033,23 @@ questa sessione), verificato a compilazione/test e a lettura attenta
 dei sorgenti Compose Desktop estratti. `:tool:compileKotlin`/
 `:tool:test` verdi.
 
+**Bug reale trovato da Michele testando il trascinamento di gruppo
+(31/07/2026): "sposta solo il primo nodo"** — esattamente il rischio
+segnalato poco sopra sul non aver potuto fare un giro manuale
+sull'app. Causa: due `pointerInput` indipendenti sullo stesso nodo,
+click-select (`onPress`) e trascinamento-gruppo (§19.3), competono
+sullo stesso evento di pressione — `onPress` scatta PRIMA e altera
+`sceneSelezionate` (la sostituisce con un singolo nodo senza Ctrl,
+oppure lo toglie dal gruppo con Ctrl) un istante prima che
+`onDragStart` la legga per decidere se muovere un gruppo: la trova già
+rotta, quindi trascina sempre un solo nodo. Corretto applicando ai
+nodi la STESSA regola già in uso per il tasto destro (§17.1): premere
+un nodo già dentro una selezione di 2+ preserva sempre l'intera
+selezione, che il gesto diventi poi un trascinamento o resti un
+semplice click — non più un collasso automatico su ogni pressione.
+Eseguibile locale rigenerato (`:tool:createDistributable`) per il
+riavvio di prova di Michele. `:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
