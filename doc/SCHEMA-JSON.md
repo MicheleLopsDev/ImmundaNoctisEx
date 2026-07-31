@@ -424,12 +424,16 @@ blocca mai). I comandi si eseguono **in ordine di scrittura** quando
 il giocatore entra nella scena; se un comando produce un salto di
 scena, i comandi successivi non vengono eseguiti.
 
-Questi comandi normalmente li scrive **Gemma** (l'IA narratore), non
-l'autore — l'IA li genera dentro tag tipo `<addItem .../>` nel testo,
-che il motore converte in questa forma `command`+`params` (vedi
-`content/config.json` per la mappa completa tag→comando). Ma
-**nel JSON del libro l'autore può scriverli anche a mano**, esattamente
-in questo formato — è quello che fanno già i libri di test in
+**Correzione 31/07/2026** (Michele, verificato nel codice prima di
+cambiare questa riga): questi comandi li scrive **sempre l'autore**, a
+mano, direttamente nel JSON del libro — mai Gemma. Un vecchio design
+(`content/config.json`, rimosso il 31/07/2026) prevedeva che l'IA li
+generasse dentro tag XML-like nel testo (`<addItem .../>`), convertiti
+poi in questa forma `command`+`params` da un meccanismo mai realmente
+scritto — nessun codice ha mai letto quella mappa, e il prompt stesso
+ordina esplicitamente a Gemma di non generare MAI quei tag (coerente
+col vincolo non negoziabile "si serializzano i fatti, i bonus si
+calcolano", CLAUDE.md). È quello che fanno già i libri di test in
 `content/test-books/`.
 
 ### 8.1 Tabella comandi
@@ -437,27 +441,22 @@ in questo formato — è quello che fanno già i libri di test in
 | `command` | Parametri in `params` | Effetto |
 |---|---|---|
 | `addItem` | `itemName` (str), `itemType` (str: `WEAPON`\|`BACKPACK_ITEM`\|`SPECIAL_ITEM`\|`GOLD`), `quantity` (str numerica, default 1), `combatUsable` (str `"true"`/`"false"`, default false), `effect` (str, es. `"HEAL:4"`), `weaponType` (str, solo se `itemType=WEAPON`, vedi §9) | Aggiunge l'oggetto all'inventario dell'eroe. Se lo zaino/le armi sono già pieni, l'oggetto **si scarta in silenzio** (nessun errore) — per lasciare scegliere al giocatore cosa prendere, usa `offerItem` (ultima riga di questa tabella) invece. |
-| `removeItem` | `itemName` (str), `quantity` (str numerica, default 1) | Rimuove N unità. Se il giocatore ne ha meno di N, rimuove solo quel che c'è, senza errore. *(status: TO_IMPLEMENT in config.json — non ancora generato da Gemma, ma già eseguito dal motore se scritto a mano.)* |
+| `removeItem` | `itemName` (str), `quantity` (str numerica, default 1) | Rimuove N unità. Se il giocatore ne ha meno di N, rimuove solo quel che c'è, senza errore. |
 | `removeAllItems` | `type` (str: uno dei 4 `ItemType`) | Svuota tutti gli oggetti di quel tipo. |
 | `healStat` | `statName` (str, solo `"ENDURANCE"` ha effetto), `amount` (str numerica oppure `"FULL"`) | Cura la Resistenza fino al massimo (coerceIn 0..massimo effettivo). `"FULL"` = riporta al massimo. |
 | `applyStatModifier` | `statName` (`"ENDURANCE"` \| `"COMBAT_SKILL"`), `amount` (intero, può essere negativo) | `ENDURANCE`: modifica subito `currentEndurance` (un fatto). `COMBAT_SKILL`: aggiunge un modificatore narrativo attivo (`StatModifier`), sommato dal motore quando serve — non un valore diretto. |
 | `requireAction` | `action` (str, solo `"EAT_MEAL"` ha effetto), `penaltyStat` (str), `penaltyValue` (str, es. `"-3"`) | Se l'eroe ha la disciplina HUNTING: nessun effetto (si sfama gratis). Altrimenti, se possiede almeno un Pasto: lo consuma e cura +1 Resistenza. Altrimenti: applica la penalità dichiarata come un `applyStatModifier`. |
 | `setFlag` | `flagName` (str), `value` (str) | Imposta un flag di sessione (usato da `globalRules`/`requiredFlag`/`checkItemAndJump` ecc). |
 | `rollForQuantity` | `item` (str), `baseValue` (str numerica, default 0), `itemType` (str, opzionale, default `GOLD`) | Tira il dado (0-9) **in silenzio** (il motore, non il giocatore) e aggiunge `baseValue + tiro` unità dell'oggetto. Se il totale è ≤ 0, non aggiunge nulla. |
-| `rollOnItemTable` | `outcomes` (array di oggetti, vedi sotto) | Tira il dado (0-9) **in silenzio** e assegna l'oggetto dell'intervallo che copre il tiro. **Vincolo validato**: gli intervalli devono coprire 0-9 per intero, senza sovrapposizioni (vedi §10). *(status: TO_IMPLEMENT in config.json.)* |
+| `rollOnItemTable` | `outcomes` (array di oggetti, vedi sotto) | Tira il dado (0-9) **in silenzio** e assegna l'oggetto dell'intervallo che copre il tiro. **Vincolo validato**: gli intervalli devono coprire 0-9 per intero, senza sovrapposizioni (vedi §10). |
 | `checkStatAndJump` | `statName` (str: `"ENDURANCE"` \| `"COMBAT_SKILL"` \| nome di una variabile di sessione), `operator` (simbolo o parola, §7), `value` (intero), `targetScene` (str) | Se la condizione è vera, salta subito a `targetScene`. |
-| `checkItemAndJump` | `itemName` (str), `quantity` (str numerica, default 1), `operator` (`"HAS"` default \| `"NOT_HAS"`), `nextSceneId_TRUE` (str), `nextSceneId_FALSE` (str, opzionale) | Controlla il possesso e salta al ramo giusto. Se il ramo falso non è dichiarato, nessun salto quando la condizione è falsa. *(status: TO_IMPLEMENT in config.json.)* |
+| `checkItemAndJump` | `itemName` (str), `quantity` (str numerica, default 1), `operator` (`"HAS"` default \| `"NOT_HAS"`), `nextSceneId_TRUE` (str), `nextSceneId_FALSE` (str, opzionale) | Controlla il possesso e salta al ramo giusto. Se il ramo falso non è dichiarato, nessun salto quando la condizione è falsa. |
 | `handleRandomChoice` | `outcomes` (array, stessa forma di `rollOnItemTable` ma con `nextSceneId` invece di un oggetto) | **Tira il giocatore** (appare il Dado del Destino in UI): il tiro sceglie a quale scena saltare tra gli intervalli dichiarati. |
 | `handleSkillCheck` | `checkType` (str libera), `discipline` (str, opzionale), `modifier` (intero, opzionale), `outcomes` (array come sopra) | **Tira il giocatore**: come `handleRandomChoice`, ma se `discipline` è dichiarata e l'eroe la possiede, il tiro riceve `+modifier` prima di cercare l'esito. |
 | `handleConditionalAction` | `condition` (`"HAS_ITEM"` \| `"NOT_HAS_ITEM"` \| `"HAS_DISCIPLINE"` \| `"NOT_HAS_DISCIPLINE"`), `itemName` (str, se la condizione riguarda un oggetto), `disciplineName` (str, se la condizione riguarda una disciplina), `action` (oggetto annidato `{ "command": ..., "params": {...} }`) | Se la condizione è vera, esegue il comando annidato in `action` come se fosse scritto direttamente in `gameMechanics`. `itemName`/`disciplineName` sono parametri allo stesso livello di `condition`, non dentro `action`. |
 | `setGlobalVar` | `varName` (str), `value` (str), `operation` (solo `"SET"` ha effetto) | Imposta una variabile numerica di sessione a `value` (se `value` non è un numero, diventa un flag testuale invece). |
 | `updateGlobalVar` | `varName` (str), `value` (intero), `operation` (solo `"ADD"` ha effetto) | Somma `value` (può essere negativo) alla variabile esistente. |
-| `offerItem` | `itemName` (str), `itemType` (str), `quantity` (str, default 1), `combatUsable` (str, default false), `effect` (str, opzionale), `weaponType` (str, opzionale) | **Non eseguito automaticamente all'ingresso in scena.** Mette l'oggetto "sul banco": il giocatore lo vede in UI e lo prende lui stesso, uno alla volta, col pulsante "Prendi" — mai un `addItem` silenzioso che scarta ciò che eccede la capienza. **Mai generato da Gemma**, solo scritto a mano dall'autore. Non è nemmeno registrato in `content/config.json` per questo motivo. |
-
-*(I comandi marcati "TO_IMPLEMENT" in `content/config.json` non
-vengono ancora generati automaticamente da Gemma dentro le scene, ma
-il motore li esegue regolarmente se un autore li scrive a mano nel
-JSON — la marcatura riguarda solo la generazione IA, non l'esecuzione.)*
+| `offerItem` | `itemName` (str), `itemType` (str), `quantity` (str, default 1), `combatUsable` (str, default false), `effect` (str, opzionale), `weaponType` (str, opzionale) | **Non eseguito automaticamente all'ingresso in scena.** Mette l'oggetto "sul banco": il giocatore lo vede in UI e lo prende lui stesso, uno alla volta, col pulsante "Prendi" — mai un `addItem` silenzioso che scarta ciò che eccede la capienza. Scritto a mano dall'autore, come tutti i comandi di questa tabella (vedi nota sopra §8.1). |
 
 ### 8.2 Forma di un `outcome` in `rollOnItemTable`/`handleRandomChoice`/`handleSkillCheck`
 
@@ -582,9 +581,6 @@ Solo un **avviso**, non blocca il caricamento:
   succede DOPO che lo schema qui descritto viene caricato).
 - `doc/ETL.md` — pipeline di conversione di libri Project Aon in
   questo formato.
-- `content/config.json` — la mappa completa tag-XML-like-di-Gemma →
-  comando `gameMechanics` (regex, parametri, per chi deve capire cosa
-  genera l'IA prima che diventi questo schema).
 - `content/scenes.sample.json` — libro di esempio completo e
   giocabile.
 - `content/test-books/` — libri minimi, uno per ogni caratteristica

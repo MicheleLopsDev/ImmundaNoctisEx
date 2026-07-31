@@ -8,7 +8,7 @@ import java.util.Locale
 // è il testo libero che finisce nel prompt inglese ("Rewrite... in
 // {user_language}"): l'inglese è la lingua del NOME, non una traduzione
 // da fare — Gemma segue meglio istruzioni in inglese anche per output
-// italiano (PromptFragments.kt). `locale` serve al TTS (Tappa 2): la
+// italiano (PromptBuilder.kt). `locale` serve al TTS (Tappa 2): la
 // voce deve parlare la stessa lingua del testo, non sempre italiano.
 enum class OutputLanguage(val displayName: String, val promptValue: String, val locale: Locale) {
     ITALIAN("Italiano", "Italian", Locale.ITALIAN),

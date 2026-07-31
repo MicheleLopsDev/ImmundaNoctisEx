@@ -35,7 +35,7 @@ data class InferenceConfig(
     companion object {
         const val DEFAULT_MAX_TOKENS = 10240
         // Abbassata da 0,7 (27/07/2026, Michele: meno inventiva, in
-        // accompagnamento alla regola 7 di PromptFragments.constraintText
+        // accompagnamento alla regola 7 di PromptBuilder.CONSTRAINT_TEXT
         // contro le parole inventate — es. "bruffi" su Gemma 4B). Non
         // tocca chi ha già un valore personale salvato in
         // InferencePreferences, solo il default per chi non l'ha mai

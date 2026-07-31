@@ -95,9 +95,11 @@ esplicitamente di aspettare quei due prima di riconsiderare la musica
 resta quindi ANCORA APERTA, solo più vicina alla chiusura.
 
 ### Costo stimato se approvata (tracciato sul codice reale)
-Additivo quasi ovunque: frammento in `config.json` + `PromptFragments` +
-sezione in `PromptBuilder` (~15 righe totali, stesso schema di
-`enemyFormatText`); 1 campo su `Scene`. L'**unica modifica vera** è in
+Additivo quasi ovunque: nuova costante di frammento + sezione in
+`PromptBuilder` (~15 righe totali, stesso schema di `ENEMY_FORMAT_TEXT`
+— 31/07/2026: `PromptFragments`/`config.json` non esistono più, tutto
+il prompt vive in `PromptBuilder.kt`, vedi DIARIO.md); 1 campo su
+`Scene`. L'**unica modifica vera** è in
 `ResponseParser` (~30 righe + test): `narrativeOf()` e `parse()` devono
 estrarre i marcatori e restituire la prosa ripulita. Servono poi i file
 audio e un player (roba di Fase 7).
@@ -375,7 +377,7 @@ parole inventate in meno, a parità di scena tradotta".
 **Strada più economica da provare PRIMA di un secondo motore**: il
 vincolo 1 del prompt oggi dice solo "non inventare nuovi eventi,
 personaggi, oggetti" — non vieta esplicitamente di inventare PAROLE
-che non esistono in italiano. Un ritocco di `PromptFragments`
+che non esistono in italiano. Un ritocco di `PromptBuilder.kt`
 testabile in un pomeriggio, senza toccare l'infrastruttura.
 
 **Non schedulato**: nessuna azione finché Michele non porta una

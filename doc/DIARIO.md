@@ -3324,6 +3324,90 @@ asset Android via `assets.srcDir`), nessuna copia duplicata da
 sincronizzare. `:app:testDebugUnitTest`, `:core:data:jvmTest` e suite
 completa verdi — nessun test esercitava le entry rimosse.
 
+**Seguito, stessa sera: il file sparisce del tutto (31/07/2026)**.
+Michele rilancia: **"la prima cosa da fare è capire quanto questo
+file continui a essere utile... mi sembra che abbia un'utilità
+limitata solo a quel pezzo... le espressioni regolari comunque
+vanno riscritte da zero"** — dubita che valga la pena progettare un
+editor grafico per un file ridotto a un solo blocco davvero editabile
+circondato da regex tecniche. Sollevate due ipotesi puntuali da
+verificare nel codice, non a naso:
+
+1. **`end_guff_tag`** (pulizia di `<|eot_id|>`): sospettato morto,
+   **confermato** — nessuno dei due motori (`LiteRtLmEngine`,
+   `LlamaCppEngine`) ripulisce mai quel token, la stringa non compare
+   in nessun altro file Kotlin del progetto.
+2. **`start_adventure_prompt`**: sospettato residuo di un vecchio
+   design con inizi comuni generati e randomizzati per tutti i libri —
+   **smentito**: nonostante il nome fuorviante, è il template usato
+   per OGNI scena narrata durante l'intera partita (`SceneNarrator`
+   lo richiama a ogni turno, non solo all'inizio); tutti e 13 i suoi
+   parametri sono davvero referenziati da `PromptBuilder`, ciascuno
+   condizionato al contesto giusto. Nessun residuo di generazione
+   randomizzata nel codice attuale.
+
+Michele chiede prima di rinominarlo (per il nome fuorviante), poi
+di ripensare la gestione visto che si sta comunque
+"reingegnerizzando questo pezzo". Analisi fatta leggendo per intero
+`PromptFragments.kt`/`PromptBuilder.kt`: **anche `choice_line` e
+`discipline_line`** (le due entry rimaste "vive" nel giro precedente)
+si sono rivelate morte allo stesso identico modo — `ResponseParser`
+ha un parser a formato pipe tutto suo, scritto direttamente in
+Kotlin, che non legge `config.json` per nessuna delle due. Quindi era
+viva UNA SOLA entry su 19 di partenza (`start_adventure_prompt`), e
+solo per il suo campo `parameters` — mai la sua `regex`. E anche
+quella si è rivelata una copia esatta dei default Kotlin, mantenuta
+sincronizzata a mano senza che nulla lo imponesse: i commenti datati
+dentro `PromptFragments.kt` (es. "'OPTIONAL' TOLTO, 21/07/2026,
+prova di Michele su LM Studio") dimostrano che le tarature vere sono
+sempre state fatte DIRETTAMENTE sul Kotlin, mai passando dal JSON —
+il meccanismo "modificalo senza ricompilare" non è mai stato il
+canale reale, ed è comunque un beneficio debole dato che l'asset è
+comunque dentro l'APK (serve sempre un rebuild per provarlo sul
+device). `config.json` è anche un'unica configurazione GLOBALE (non
+per libro): niente giustifica la duplicazione con relativo rischio
+di disallineamento tra le due copie mai imposto da un test.
+
+Michele conferma la rimozione completa e pone un vincolo preciso per
+il refactoring: **"separa bene le responsabilità del prompt in un
+singolo file kt in modo che se un domani ci debba mettere mano so che
+devo guardare solo una classe"**. Fatto: `PromptFragments.kt` e
+`PromptBuilder.kt` uniti in un solo file (`PromptBuilder.kt`) — i 13
+frammenti di testo diventano `private companion object` costanti
+della classe `PromptBuilder` (non più una `data class` iniettabile:
+nessun test costruiva mai un `PromptFragments` diverso dal default,
+l'iniettabilità non serviva più a nulla). Rimossi insieme:
+`content/config.json` (il file), `PromptFragments.fromConfig()`, la
+funzione `promptFragments(context)` e la lettura da `assets` in
+`AdventureRoute.kt`, 3 test in `PromptBuilderTest` che esercitavano
+solo `fromConfig`. Ripulita anche la configurazione Gradle diventata
+orfana: il commento su `kotlinx-serialization-json` in
+`app/build.gradle.kts` (non serviva più al prompt, resta per il
+catalogo modelli) e il source-set `resources.srcDir(content)` dei
+test di `:app` (nessun test dell'app legge più risorse dal classpath,
+verificato con un giro di grep mirato). Aggiornati anche i commenti
+sparsi che citavano `PromptFragments.kt` (`InferenceEngine.kt`,
+`LanguagePreferences.kt`) e i riferimenti a `content/config.json`
+nella documentazione di riferimento (`PIANO-SVILUPPO.md`, `UPGRADE.md`,
+`SCHEMA-JSON.md`, `EDITOR.md`) — quest'ultimo aveva anche
+un'affermazione ormai chiaramente sbagliata ("questi comandi
+normalmente li scrive Gemma dentro tag XML-like, che il motore
+converte..."): corretta, dato che è proprio il vincolo non
+negoziabile "si serializzano i fatti, i bonus si calcolano" a
+escludere quel design fin dall'inizio — non era mai stato scritto
+nessun convertitore, era un'aspirazione di un progetto precedente
+alla scrittura di quel vincolo.
+
+**Issue #8 di fatto risolta dai fatti, non da una scelta**: con
+`content/config.json` sparito del tutto, non esiste più nessun file
+per cui costruire un editor grafico — la domanda "ha senso un editor
+per questo file" non è più un giudizio di design, il file non c'è
+più. Prossimo passo: proporre a Michele di chiudere #8.
+
+`:app:compileDebugKotlin`, `:app:testDebugUnitTest` (17 test in
+`PromptBuilderTest`, erano 20 prima dei 3 rimossi) e suite completa
+di tutti i moduli verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

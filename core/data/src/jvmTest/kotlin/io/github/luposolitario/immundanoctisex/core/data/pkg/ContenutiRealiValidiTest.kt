@@ -23,15 +23,16 @@ class ContenutiRealiValidiTest {
         },
     )
 
-    // config.json è il registro tag del prompt, static-resources.json è
-    // il registro risorse dell'editor (§15.1, EDITOR.md) — nessuno dei
-    // due è un libro (Manifest), vanno esclusi dalla validazione insieme
-    // (30/07/2026: static-resources.json aggiunto in una sessione
-    // precedente aveva fatto fallire questo test senza che me ne
-    // accorgessi, non avendo mai rilanciato :core:data:jvmTest da allora
-    // — lezione: dopo aver toccato content/, riverificare anche i test
-    // degli altri moduli, non solo di quello che si sta modificando).
-    private val fileNonLibro = setOf("config.json", "static-resources.json")
+    // static-resources.json è il registro risorse dell'editor (§15.1,
+    // EDITOR.md), non un libro (Manifest): va escluso dalla validazione
+    // (30/07/2026: aggiunto in una sessione precedente aveva fatto
+    // fallire questo test senza che me ne accorgessi, non avendo mai
+    // rilanciato :core:data:jvmTest da allora — lezione: dopo aver
+    // toccato content/, riverificare anche i test degli altri moduli,
+    // non solo di quello che si sta modificando). config.json (il
+    // vecchio registro tag del prompt) è stato rimosso il 31/07/2026,
+    // non serve più escluderlo.
+    private val fileNonLibro = setOf("static-resources.json")
 
     private fun libriReali(): List<File> =
         contentDir.walkTopDown()

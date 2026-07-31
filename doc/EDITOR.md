@@ -70,7 +70,9 @@ Dentro:
 - Backup automatico su disco, nessuna integrazione Git (§10).
 
 Fuori (rimandato, §13):
-- Editor dei frammenti di prompt (`content/config.json`).
+- Editor dei frammenti di prompt (31/07/2026: `content/config.json`
+  rimosso, i frammenti vivono ora in `PromptBuilder.kt`, `:app` —
+  in discussione se l'editor abbia ancora senso, vedi §13).
 
 ## 5. Flusso di avvio
 
@@ -325,11 +327,32 @@ tecnologia tra l'uno e l'altro:
 
 ## 13. Fuori perimetro (rimandato)
 
-- **Editor dei frammenti di prompt** (`content/config.json`): previsto
-  dalla memoria di sessione come parte dello stesso tool, ma **non in
-  questa prima versione** — specifica a parte in un secondo momento,
-  per non appesantire questo documento con un ambito ancora da
-  esplorare.
+- **Editor dei frammenti di prompt** (issue #8): previsto dalla memoria
+  di sessione come parte dello stesso tool, ma **non in questa prima
+  versione** — specifica a parte in un secondo momento, per non
+  appesantire questo documento con un ambito ancora da esplorare.
+
+  **Aggiornamento 31/07/2026**: prima di scrivere la specifica,
+  ripulito `content/config.json` da tutto ciò che era codice morto
+  (verificato nel codice, non a naso) — 15 entry `gameMechanic` mai
+  lette a runtime, poi anche `end_guff_tag` (nessun motore ripulisce
+  `<|eot_id|>`) e infine `choice_line`/`discipline_line` (anche queste
+  mai lette: `ResponseParser` ha un parser a pipe tutto suo, indipendente
+  dal file). L'ULTIMA entry viva (`start_adventure_prompt`, i frammenti
+  di testo del prompt per Gemma) e la sua unica lettura
+  (`PromptFragments.fromConfig()`) sono state a loro volta rimosse: era
+  una copia esatta dei default Kotlin, mai la fonte reale delle
+  modifiche nella pratica (le tarature erano già dirette sul Kotlin),
+  e un'unica configurazione GLOBALE (non per libro) non giustifica un
+  livello di override esterno. `content/config.json` **non esiste
+  più**: tutto il prompt vive ora in un'unica classe,
+  `PromptBuilder.kt` (`:app`), su richiesta esplicita di Michele
+  ("separa bene le responsabilità del prompt in un singolo file kt...
+  so che devo guardare solo una classe").
+
+  **Domanda aperta, non ancora richiusa**: con `config.json` sparito,
+  ha ancora senso un editor grafico per questo? Valutazione in corso
+  con Michele — vedi `doc/DIARIO.md` per il ragionamento completo.
 
 ## 14. Bozze grafiche (mockup)
 

@@ -199,51 +199,6 @@ class PromptBuilderTest {
         assertContains(prompt, "neutral")
     }
 
-    @Test
-    fun configRottaOAssente_usaIDefaultSenzaEccezioni() {
-        assertEquals(PromptFragments.DEFAULTS, PromptFragments.fromConfig("{ non è json"))
-        assertEquals(PromptFragments.DEFAULTS, PromptFragments.fromConfig(""))
-        assertEquals(PromptFragments.DEFAULTS, PromptFragments.fromConfig("""{"tags":[]}"""))
-    }
-
-    @Test
-    fun configValida_sovrascriveSoloIFrammentiPresenti() {
-        val config = """
-            {
-              "tags": [
-                {
-                  "id": "start_adventure_prompt",
-                  "parameters": [
-                    { "name": "baseText", "value": "Sei il narratore." },
-                    { "name": "closingText", "value": "" }
-                  ]
-                }
-              ]
-            }
-        """.trimIndent()
-
-        val fragments = PromptFragments.fromConfig(config)
-
-        assertEquals("Sei il narratore.", fragments.baseText)
-        // Frammento vuoto o assente -> default.
-        assertEquals(PromptFragments.DEFAULTS.closingText, fragments.closingText)
-        assertEquals(PromptFragments.DEFAULTS.sceneText, fragments.sceneText)
-    }
-
-    @Test
-    fun ilConfigVeroDelProgettoSiLegge() {
-        val configJson = requireNotNull(javaClass.classLoader.getResourceAsStream("config.json")) {
-            "content/config.json non trovato sul classpath di test"
-        }.bufferedReader().use { it.readText() }
-
-        val fragments = PromptFragments.fromConfig(configJson)
-
-        // Non è il default: i frammenti arrivano davvero dal file.
-        assertTrue(fragments.baseText.isNotBlank())
-        assertContains(fragments.outputFormatText, "--- TAGS ---")
-        assertContains(fragments.constraintText, "{user_language}")
-    }
-
     // --- Sfondo di scena: askImageInPrompt (27/07/2026) ---
     // L'esperimento del 20/07/2026 ("Gemma suggerisce lo sfondo quando il
     // pacchetto non ne ha uno valido") era stato disattivato il 26/07

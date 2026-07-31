@@ -97,14 +97,9 @@ android {
     }
     sourceSets {
         getByName("main") {
-            // Il libro incluso nell'APK: content/ (scenes.sample.json,
-            // config.json) montato come cartella asset, niente copie.
+            // Il libro incluso nell'APK: content/ (scenes.sample.json)
+            // montato come cartella asset, niente copie.
             assets.srcDir(rootDir.resolve("content"))
-        }
-        getByName("test") {
-            // Gli stessi contenuti sul classpath dei test JVM: i parser si
-            // verificano contro i file VERI, non contro copie da allineare.
-            resources.srcDir(rootDir.resolve("content"))
         }
     }
 
@@ -114,7 +109,9 @@ dependencies {
     implementation(project(":core:data"))
     implementation(project(":core:engine"))
 
-    // Serve a leggere i frammenti del prompt da content/config.json.
+    // Serve al catalogo modelli LLM (ModelCatalog.kt) e alle preferenze
+    // salvate (ModelPreferences.kt) — non più al prompt (PromptBuilder.kt
+    // non legge più nessun JSON esterno, 31/07/2026).
     implementation(libs.kotlinx.serialization.json)
 
     // Download del modello in background con notifica (Fase 4).

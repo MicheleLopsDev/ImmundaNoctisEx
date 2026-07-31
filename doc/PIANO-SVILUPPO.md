@@ -44,7 +44,8 @@ quei due blocchi. Sorgenti v1 = miniera di riuso, MAI dipendenza.
 | Tool di conversione, pipeline, fonti, legale | `doc/ETL.md` |
 | Vincoli di piattaforma, misure, soglie | `doc/CRITICITA.md` |
 | Formato scene/manifest | `content/scenes.sample.json` |
-| Tag meccaniche e frammenti prompt | `content/config.json` |
+| Meccaniche di gioco (comandi, parametri) | `doc/SCHEMA-JSON.md` §8 |
+| Frammenti del prompt per Gemma | `PromptBuilder.kt` (`:app`, 31/07/2026 — `content/config.json` rimosso, un solo file) |
 | Cosa è riusabile da v1 | `doc/MATERIALE-REGOLE-V1.md`, `doc/ANALISI-FLUSSO-PROMPT-V1.md`, `doc/INVENTARIO-ASSET.md` |
 | Cosa è riusabile dalla UI v1, convenzione @Preview | `doc/ANALISI-UI-V1.md` |
 | Storia delle decisioni | `doc/DIARIO.md` |

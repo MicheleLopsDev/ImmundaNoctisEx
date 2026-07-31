@@ -19,7 +19,6 @@ import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
 import io.github.luposolitario.immundanoctisex.inference.PromptBuilder
-import io.github.luposolitario.immundanoctisex.inference.PromptFragments
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
 import io.github.luposolitario.immundanoctisex.tts.TtsService
 
@@ -73,7 +72,7 @@ fun AdventureRoute(
             val narrator = remember(manifest, userLanguage, toneOverride, askImageInPrompt) {
                 SceneNarrator(
                     engine = container.inferenceEngine,
-                    promptBuilder = PromptBuilder(promptFragments(context), askImageInPrompt),
+                    promptBuilder = PromptBuilder(askImageInPrompt),
                     manifest = manifest,
                     userLanguage = userLanguage,
                     // AUTHOR (default) -> null, l'autore decide come sempre.
@@ -158,11 +157,3 @@ fun AdventureRoute(
         }
     }
 }
-
-// I frammenti del prompt vivono in content/config.json, montato negli
-// asset dell'APK. Config assente o rotta -> default hardcoded.
-private fun promptFragments(context: android.content.Context): PromptFragments =
-    runCatching {
-        context.assets.open("config.json").bufferedReader().use { it.readText() }
-    }.map { PromptFragments.fromConfig(it) }
-        .getOrDefault(PromptFragments.DEFAULTS)
