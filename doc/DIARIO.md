@@ -3277,6 +3277,22 @@ Michele stasera si può considerare chiuso: bordo, etichetta,
 tema/font/scala testo, testo narrato, intestazione — tutti verificati
 sia a test sia a occhio.
 
+**Seconda release dell'editor: v1.1.0 (31/07/2026, Michele: "fai
+tutte le commit del caso le push e prepariamoci a fare una nuova
+release")**: verificato prima che tutto fosse già committato e
+pushato (solo `content/rampo.json`, libro di test, escluso come
+sempre). Chiesto a Michele se bump di versione o refresh della v1.0.0
+esistente — sceglie il bump: da v1.0.0 il giro §19 completo era
+sostanza sufficiente per una versione nuova, non solo un refresh
+silenzioso. `packageVersion` in `tool/build.gradle.kts` portato a
+1.1.0, suite completa riverificata verde, `.exe` di prova avviato e
+stabile prima di generare i pacchetti veri. Pubblicata la release
+[`editor-v1.1.0`](https://github.com/MicheleLopsDev/ImmundaNoctisEx/releases/tag/editor-v1.1.0)
+(portable.zip + msi), note con l'elenco di cosa è cambiato dalla
+v1.0.0 (interazioni sulla mappa, persistenza/annulla-ripeti,
+esportazione PNG) — la v1.0.0 resta disponibile a parte, non
+sovrascritta.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

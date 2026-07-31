@@ -63,6 +63,17 @@ versione 1.0.0) con tutto il codice del giro §19 (voce 4 sotto).
 **Ultimo passo confermato da Michele il 31/07/2026**: provato su una
 macchina pulita, funziona.
 
+**Seconda release, [`editor-v1.1.0`](https://github.com/MicheleLopsDev/ImmundaNoctisEx/releases/tag/editor-v1.1.0)
+(31/07/2026, Michele: "prepariamoci a fare una nuova release")**:
+versione bump a 1.1.0 (`tool/build.gradle.kts`) — non solo un
+refresh degli asset come le volte precedenti, ma un numero di
+versione nuovo: dalla v1.0.0 il giro §19 completo (selezione a
+rettangolo, duplica/allinea/trascina gruppo, Ctrl+Z/Ctrl+Y, posizioni
+dei nodi persistite nel libro, esportazione PNG riscritta più volte
+dopo i bug trovati da Michele durante i test) è abbastanza sostanza da
+meritare una versione minore nuova, non solo un refresh silenzioso
+della v1.0.0.
+
 ### 2. Verificare il limite dimensionale (~350 scene)
 
 `doc/EDITOR.md` §11 fissa un tetto auto-imposto di ~350 scene per
