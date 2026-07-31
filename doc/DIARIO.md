@@ -3050,6 +3050,32 @@ semplice click — non più un collasso automatico su ogni pressione.
 Eseguibile locale rigenerato (`:tool:createDistributable`) per il
 riavvio di prova di Michele. `:tool:compileKotlin`/`:tool:test` verdi.
 
+**Regola generale di Michele: ordinamento deterministico per ID
+(31/07/2026)**: chiesto a Michele quale criterio usare per ordinare i
+nodi selezionati in un futuro riarrangiamento riga/colonna (vedi
+sotto), risponde chiarendo che non è una domanda specifica a quel
+caso: **"l'id è sempre quello che qualifica la posizione più basso è
+più su si trova è una condizione deterministica e lo pensata fino
+dal'inizio per evitare problemi... questo penso chiarisca il tuo
+dubbio e tutti i dubbi successivi per ogni cosa relativa a questo tipo
+di problematiche"**. Salvata in memoria di sessione
+(`ordinamento_deterministico_per_id`): per qualunque futura esigenza
+di ordinare un insieme di scene senza un ordine naturale già dato dal
+grafo, usare l'ID (numerico se possibile) senza richiedere conferma —
+stesso criterio già in uso altrove nell'editor (ordine di "Lega scena
+X→Y", "Duplica gruppo").
+
+**Implementazione: §19.11 allineare la selezione in riga/colonna
+(31/07/2026)**: con la regola d'ordine confermata, implementata la
+richiesta che Michele aveva segnato come "da pensare" poco prima. Due
+pulsanti in barra ("↔ Allinea in riga" / "↕ Allinea in colonna",
+attivi con 2+ selezionate): il nodo con l'ID più basso resta ancorato
+alla sua posizione attuale, gli altri si dispongono in ordine di ID
+crescente a partire da lì, con la stessa spaziatura dell'auto-layout
+(`H_SPACING`/`V_SPACING`). Geometria pura in `AllineamentoGruppo.kt`
+(`allineaGruppo`), 5 nuovi test in `AllineamentoGruppoTest`.
+`:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

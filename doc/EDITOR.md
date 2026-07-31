@@ -1040,6 +1040,41 @@ selezionato un gruppo col rettangolo, trascinare uno qualunque dei
 nodi selezionati sposta già tutto il gruppo — nessuna funzione nuova
 richiesta, §19.3 non distingue come si è formata la selezione.
 
+**Bug scoperto testando §19.3 dopo l'introduzione del rettangolo**
+(Michele: "sposta solo il primo nodo"): il click-select (`onPress`) e
+il trascinamento-gruppo sono due `pointerInput` indipendenti sullo
+stesso nodo — `onPress` scattava PRIMA e collassava sempre
+`sceneSelezionate` a un solo nodo (o, con Ctrl, toglieva proprio il
+nodo premuto dal gruppo) un istante prima che il trascinamento
+potesse leggerla intera. Corretto applicando ai nodi la stessa regola
+già in uso per il tasto destro (§17.1): premere un nodo già dentro una
+selezione di 2+ preserva sempre l'intera selezione.
+
+### 19.11 Allineare la selezione in riga o colonna — FATTO (31/07/2026)
+
+Aggiunta durante gli stessi test, su richiesta di Michele ("dobbiamo
+dare un'opzione per riarrangiare solo i nodi selezionati in verticale
+o in orizzontale... questa è difficile però quindi pensiamoci") — il
+punto delicato non era la geometria (banale: spaziare N nodi in fila,
+riusando la stessa spaziatura dell'auto-layout) ma **l'ordine**: in
+che sequenza disporli. Risolto da Michele con una regola generale,
+non solo per questo caso: **"l'id è sempre quello che qualifica la
+posizione, più basso è più su... condizione deterministica pensata fin
+dall'inizio per evitare problemi"** — stesso criterio già in uso
+altrove nell'editor (ordine di "Lega scena X→Y", "Duplica gruppo").
+
+Due pulsanti in barra (attivi con 2+ scene selezionate): **"↔ Allinea
+in riga"** e **"↕ Allinea in colonna"**. Il nodo con l'ID più basso
+resta ancorato alla sua posizione attuale; gli altri, in ordine di ID
+crescente, si dispongono a partire da lì con la stessa spaziatura già
+usata dall'auto-layout (`H_SPACING`/`V_SPACING`). Scarto scritto su
+`posizioniManuali` come un trascinamento a mano — non salvato nel
+JSON, si perde con "Riordina automaticamente".
+
+Geometria in `AllineamentoGruppo.kt` (`allineaGruppo`, testata, 5
+test) — stesso principio di `RettangoloSelezione.kt`: calcolo puro
+separato dallo stato Compose che lo usa.
+
 ## 20. Riferimenti
 
 - `doc/MANUALE-EDITOR.md` — guida pratica per chi USA l'editor per

@@ -517,6 +517,20 @@ fun MapScreen(
         esportaMappaComeImmagine(conEstensione, graph.nodes, graph.edges, scenesById, posizioni)
     }
 
+    // §19.11 (Michele: "un'opzione per riarrangiare solo i nodi
+    // selezionati in verticale o in orizzontale"): geometria in
+    // `AllineamentoGruppo.kt` (testata) — qui solo l'adattamento allo
+    // stato di questa schermata (posizioni effettive, spaziatura della
+    // stessa griglia usata dall'auto-layout). Scrive su
+    // `posizioniManuali` come il trascinamento a mano: uno scarto
+    // dall'auto-layout, non salvato nel JSON, si perde con "Riordina".
+    fun allineaSelezione(inRiga: Boolean) {
+        if (sceneSelezionate.size < 2) return
+        val posizioniAttuali = sceneSelezionate.associateWith { posizioneEffettiva(it) ?: Offset.Zero }
+        val spaziatura = if (inRiga) H_SPACING.value else V_SPACING.value
+        posizioniManuali = posizioniManuali + allineaGruppo(sceneSelezionate, posizioniAttuali, orizzontale = inRiga, spaziatura = spaziatura)
+    }
+
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
             // 30/07/2026, Michele: prima due Row separate (una a sinistra
@@ -575,6 +589,18 @@ fun MapScreen(
                     onClick = { centraSuSelezione() },
                     enabled = sceneSelezionate.isNotEmpty(),
                 ) { Text("🎯 Centra selezione") }
+                // §19.11 (Michele: "un'opzione per riarrangiare solo i
+                // nodi selezionati in verticale o in orizzontale") —
+                // attivi solo con 2+ selezionate, un ordinamento da solo
+                // non ha senso.
+                Button(
+                    onClick = { allineaSelezione(inRiga = true) },
+                    enabled = sceneSelezionate.size >= 2,
+                ) { Text("↔ Allinea in riga") }
+                Button(
+                    onClick = { allineaSelezione(inRiga = false) },
+                    enabled = sceneSelezionate.size >= 2,
+                ) { Text("↕ Allinea in colonna") }
                 Button(onClick = { mostraRisorsePersonalizzate = true }) { Text("🔗 Risorse url:") }
                 Button(onClick = ::esportaImmagine) { Text("🖼 Esporta come immagine") }
                 Button(onClick = { orizzontale = !orizzontale; posizioniManuali = emptyMap() }) {
