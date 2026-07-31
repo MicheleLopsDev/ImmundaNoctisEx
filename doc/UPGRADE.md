@@ -405,6 +405,18 @@ sono spesso più lente da decomprimere su CPU a parità di dimensione),
 oppure — unica via per la GPU vera — riaprire la porta della
 compilazione nativa che Michele aveva scartato a inizio ricerca.
 
+**DEPRIORITIZZATA (31/07/2026, parole di Michele)**: "pur mantenendo
+la feature gguf non è una cosa utile visto che il motore di Gemma 4
+4b per adesso è più che accettabile, l'unica miglioria sarà
+l'introduzione dell'NPU per Snapdragon quando sarà disponibile una
+versione stabile". Non un abbandono: `NativeLlamaCppEngine`/`:llama`
+restano nel codice (dietro il flag `buildLlama`, vedi il fix del
+31/07/2026 in `app/build.gradle.kts` che rende compilabile anche il
+percorso senza), ma non è più un fronte di lavoro attivo — Gemma 4B
+via LiteRT-LM basta così com'è. Il prossimo vero miglioramento
+all'inferenza è **l'NPU** (§6), non un secondo motore GGUF. Vedi
+memoria di sessione `npu_da_tenere_docchio`.
+
 ## 4. Altre proposte raccolte
 
 ### Già PREDISPOSTE nel design chiuso (i contratti reggono)
