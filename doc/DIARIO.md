@@ -3195,6 +3195,43 @@ versionato) per non perdere le posizioni già salvate durante le prove
 di stasera. `:core:data:jvmTest`, `:tool:compileKotlin`/`:tool:test` e
 `:app:testDebugUnitTest` verdi.
 
+**Bug: esportazione PNG illeggibile e senza le impostazioni grafiche
+(31/07/2026, Michele: "non esporta con le impostazioni grafiche e
+sopratutto non so se è a causa dei colori ma non si legge")** —
+segnalato con uno screenshot del PNG esportato di un libro di prova.
+Individuata subito una causa concreta guardando lo screenshot: le
+scene START/ENDING (1, 5, morte nell'immagine) non avevano ALCUN
+bordo visibile. Causa: `MapExport.kt` copiava lo stesso criterio di
+bordo della mappa interattiva (`coloreTipo` come bordo), ma quel
+criterio in MapScreen.kt ha senso solo per restare visibile SOPRA
+un'immagine di copertina — l'esportazione non disegna mai immagini di
+copertina (scelta deliberata di §19.8), quindi bordo e riempimento
+finivano sempre identici. Per "impostazioni grafiche" chiesto
+esplicitamente a Michele cosa intendesse (etichetta mancante, tema,
+font/scala testo, o solo il bordo) — risposta: tutti e tre tranne
+"solo il bordo" da solo, cioè tutti tranne l'ultima opzione.
+
+Corretto: bordo sempre scuro indipendente dal tipo di scena;
+etichetta con id+codice scena come sulla mappa interattiva (mancava,
+mostrava solo l'id nudo); `esportaMappaComeImmagine()` riceve ora
+`temaScuro`/`fontScelto`/`scalaTesto` (nuovi parametri, passati da
+`EditorMain.kt` via `MapScreen.kt` — prima l'esportazione non li
+vedeva affatto) — sfondo scuro col tema scuro (i riempimenti dei nodi
+restano sempre chiari, stesso "colore fisso" della mappa
+interattiva), font `.ttf` caricato con `java.awt.Font.createFont`
+dagli stessi bytes già usati da Compose (`caricaFontAwt()`, nuova),
+dimensioni scalate per lo stesso moltiplicatore di `ScalaTesto`.
+Scurita anche l'etichetta "orfana"/"vicolo cieco" (grigio troppo
+chiaro sul giallo di ENDING).
+
+Verificato non solo a test ma ANCHE a occhio: esportato un libro
+identico a quello di Michele (stessa struttura 1→2→3→4→5 + "morte"
+orfana) in chiaro e in scuro, guardato entrambi i PNG prima di
+considerare il bug chiuso — non ripetuto l'errore di §19.3 (nessun
+giro manuale). Un nuovo test verifica il bordo pixel per pixel
+(luminosità bordo nettamente più bassa del riempimento, non solo "il
+codice compila"). `:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

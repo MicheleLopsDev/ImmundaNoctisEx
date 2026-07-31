@@ -313,6 +313,13 @@ fun main() = application {
                                     }
                                 }
                             },
+                            // §19.8 (bug 31/07/2026, Michele: "non esporta con
+                            // le impostazioni grafiche"): l'esportazione PNG
+                            // deve vedere le stesse preferenze del resto
+                            // dell'editor, non valori fissi.
+                            temaScuro = temaScuro,
+                            fontScelto = fontScelto,
+                            scalaTesto = scalaTesto,
                         )
                         is Schermata.EditorScena -> {
                             val scena = s.manifest.scenes.first { it.id == s.sceneId }

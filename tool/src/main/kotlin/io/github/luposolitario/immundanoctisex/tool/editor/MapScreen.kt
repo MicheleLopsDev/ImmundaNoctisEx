@@ -180,6 +180,13 @@ fun MapScreen(
     // tasto scorciatoia, stesso pattern di tutti gli altri callback.
     onAnnullaModifica: () -> Unit,
     onRipetiModifica: () -> Unit,
+    // §19.8 (bug 31/07/2026, Michele: "non esporta con le impostazioni
+    // grafiche"): l'esportazione PNG deve rispecchiare tema/font/scala
+    // testo correnti dell'editor, non valori fissi — ricevuti da
+    // EditorMain.kt, dove vivono le preferenze (§16.1).
+    temaScuro: Boolean,
+    fontScelto: FontEditor,
+    scalaTesto: ScalaTesto,
 ) {
     val graph = remember(manifest) { buildSceneGraph(manifest) }
     val scenesById = remember(manifest) { manifest.scenes.associateBy { it.id } }
@@ -553,7 +560,7 @@ fun MapScreen(
             File(destinazione.parentFile, "${destinazione.name}.png")
         }
         val posizioni = graph.nodes.associate { it.sceneId to (posizioneEffettiva(it.sceneId) ?: Offset.Zero) }
-        esportaMappaComeImmagine(conEstensione, graph.nodes, graph.edges, scenesById, posizioni)
+        esportaMappaComeImmagine(conEstensione, graph.nodes, graph.edges, scenesById, posizioni, temaScuro, fontScelto, scalaTesto)
     }
 
     // §19.11 (Michele: "un'opzione per riarrangiare solo i nodi

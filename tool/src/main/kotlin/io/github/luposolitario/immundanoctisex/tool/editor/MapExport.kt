@@ -8,6 +8,7 @@ import java.awt.Color
 import java.awt.Font
 import java.awt.RenderingHints
 import java.awt.image.BufferedImage
+import java.io.ByteArrayInputStream
 import java.io.File
 import javax.imageio.ImageIO
 
@@ -17,6 +18,20 @@ import javax.imageio.ImageIO
 private const val NODE_W = 190f
 private const val NODE_H = 72f
 private const val MARGINE = 40f
+
+// Stesso font .ttf scelto nelle impostazioni dell'editor (§16.1),
+// caricato qui con l'API di java.awt invece di quella Compose — due
+// mondi di rendering diversi, lo stesso file bytes funziona per
+// entrambi. Ripiega su SansSerif di sistema se il file manca o non è
+// un font valido (§EDITOR.md: nessun fallimento blocca l'esportazione).
+private fun caricaFontAwt(font: FontEditor): Font? {
+    val bytes = font.javaClass.classLoader.getResourceAsStream("fonts/${font.file}")?.readBytes() ?: return null
+    return try {
+        Font.createFont(Font.TRUETYPE_FONT, ByteArrayInputStream(bytes))
+    } catch (e: Exception) {
+        null
+    }
+}
 
 // §19.8 (Michele: "esportare la mappa come immagine"): disegna l'INTERA
 // mappa logica (tutti i nodi/archi, indipendente da pan/zoom/viewport
@@ -36,6 +51,13 @@ fun esportaMappaComeImmagine(
     archi: List<GraphEdge>,
     scenesById: Map<String, Scene>,
     posizioni: Map<String, Offset>,
+    // 31/07/2026 (Michele, bug di test: "non esporta con le
+    // impostazioni grafiche... non si legge"): il PNG ignorava tema,
+    // font e scala testo dell'editor — ora li riceve dal chiamante
+    // (MapScreen.kt) invece di usare sempre gli stessi valori fissi.
+    temaScuro: Boolean,
+    font: FontEditor,
+    scalaTesto: ScalaTesto,
 ) {
     val posizioniValide = nodi.mapNotNull { nodo -> posizioni[nodo.sceneId]?.let { nodo.sceneId to it } }.toMap()
     if (posizioniValide.isEmpty()) return
@@ -49,10 +71,22 @@ fun esportaMappaComeImmagine(
     val larghezza = (maxX - minX + MARGINE * 2).toInt().coerceAtLeast(1)
     val altezza = (maxY - minY + MARGINE * 2).toInt().coerceAtLeast(1)
 
+    val fontBase = caricaFontAwt(font)
+    val moltiplicatore = scalaTesto.moltiplicatore
+    fun font(stile: Int, dimensione: Float): Font =
+        fontBase?.deriveFont(stile, dimensione * moltiplicatore) ?: Font("SansSerif", stile, (dimensione * moltiplicatore).toInt())
+
+    // Colore di sfondo della pagina legato al tema (§16.1) — i
+    // riempimenti dei nodi restano SEMPRE quelli chiari (stesso
+    // principio della mappa interattiva, "colore fisso, non legato al
+    // tema": il significato di salute/tipo non deve dipendere dal tema
+    // attivo), cambia solo lo sfondo intorno.
+    val coloreSfondo = if (temaScuro) Color(0x12, 0x12, 0x12) else Color.WHITE
+
     val immagine = BufferedImage(larghezza, altezza, BufferedImage.TYPE_INT_ARGB)
     val g = immagine.createGraphics()
     g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-    g.color = Color.WHITE
+    g.color = coloreSfondo
     g.fillRect(0, 0, larghezza, altezza)
 
     // Archi sotto i nodi — stessa palette verde/rosso di risoluzione già
@@ -68,8 +102,6 @@ fun esportaMappaComeImmagine(
         )
     }
 
-    g.font = Font("SansSerif", Font.BOLD, 13)
-    val fontEtichetta = Font("SansSerif", Font.ITALIC, 10)
     nodi.forEach { nodo ->
         val pos = posizioniValide[nodo.sceneId]?.let(::px) ?: return@forEach
         val scena = scenesById[nodo.sceneId]
@@ -82,12 +114,24 @@ fun esportaMappaComeImmagine(
         }
         g.color = coloreTipo ?: (if (nodo.healthy) Color(0xE8, 0xF5, 0xE9) else Color(0xFF, 0xEB, 0xEE))
         g.fillRoundRect(pos.x.toInt(), pos.y.toInt(), NODE_W.toInt(), NODE_H.toInt(), 12, 12)
-        g.color = coloreTipo ?: Color.BLACK
+        // 31/07/2026 (Michele, bug di test: "non si legge"): la mappa
+        // interattiva usa `coloreTipo` anche come bordo, ma solo per
+        // restare visibile SOPRA un'immagine di copertina che copre il
+        // riempimento (§15.3) — qui non ci sono mai immagini di
+        // copertina (deliberatamente, sopra), quindi quel bordo
+        // finiva identico al riempimento: un nodo START/ENDING senza
+        // alcun contorno visibile. Bordo sempre scuro, indipendente
+        // dal tipo di scena e dal tema (i nodi restano chiari sempre).
+        g.color = Color.BLACK
         g.drawRoundRect(pos.x.toInt(), pos.y.toInt(), NODE_W.toInt(), NODE_H.toInt(), 12, 12)
 
-        g.font = Font("SansSerif", Font.BOLD, 13)
+        // Riga 1: id + codice scena, stessa etichetta della mappa
+        // interattiva (MapScreen.kt) — prima mancava, mostrava solo
+        // l'id nudo.
+        g.font = font(Font.BOLD, 13f)
         g.color = Color.BLACK
-        g.drawString(nodo.sceneId, pos.x.toInt() + 8, pos.y.toInt() + 20)
+        val etichetta = if (scena != null) "${nodo.sceneId} · ${codiceScena(scena)}" else nodo.sceneId
+        g.drawString(etichetta, pos.x.toInt() + 8, pos.y.toInt() + 20)
 
         // §19.6/§19.7: stessi due avvisi della mappa interattiva, come
         // etichetta testuale invece che badge emoji — Graphics2D non
@@ -98,13 +142,16 @@ fun esportaMappaComeImmagine(
         val isVicoloCieco = scena?.sceneType == SceneType.TRANSITION &&
             scena.choices.isEmpty() && scena.disciplineChoices.isEmpty() && scena.combat == null
         if (isOrfana || isVicoloCieco) {
-            g.font = fontEtichetta
-            g.color = Color(0x60, 0x60, 0x60)
-            val etichetta = listOfNotNull(
+            g.font = font(Font.ITALIC, 10f)
+            // Grigio più scuro del precedente (0x60 -> 0x40): sui nodi
+            // ENDING (sfondo giallo chiaro) il grigio medio aveva un
+            // contrasto troppo basso per essere letto agevolmente.
+            g.color = Color(0x40, 0x40, 0x40)
+            val etichettaAvviso = listOfNotNull(
                 "orfana".takeIf { isOrfana },
                 "vicolo cieco".takeIf { isVicoloCieco },
             ).joinToString(" · ")
-            g.drawString(etichetta, pos.x.toInt() + 8, pos.y.toInt() + NODE_H.toInt() - 8)
+            g.drawString(etichettaAvviso, pos.x.toInt() + 8, pos.y.toInt() + NODE_H.toInt() - 8)
         }
     }
 

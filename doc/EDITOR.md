@@ -968,6 +968,37 @@ mappa interattiva:
 Evidenziazioni legate al mouse (vicinato, percorso di ricerca) non
 hanno senso su un'immagine statica e restano fuori.
 
+**Bug corretti dopo il primo giro di test di Michele (31/07/2026,
+"non esporta con le impostazioni grafiche... non si legge")**:
+- **Bordo invisibile su START/ENDING**: la mappa interattiva usa il
+  colore del tipo di scena anche come bordo, ma solo perché serve a
+  restare visibile SOPRA un'immagine di copertina che copre il
+  riempimento (§15.3) — l'esportazione non disegna mai immagini di
+  copertina (sopra), quindi quel bordo finiva identico al
+  riempimento: un nodo rosa su bordo rosa, giallo su giallo, senza
+  alcun contorno visibile. Il bordo dell'esportazione ora è SEMPRE
+  scuro, indipendente dal tipo di scena.
+- **Manca l'id+codice scena nell'etichetta**: la mappa interattiva
+  mostra "1 · SC-START-1", l'esportazione mostrava solo "1" nudo —
+  allineata.
+- **Tema/font/scala testo fissi**: l'esportazione ignorava
+  completamente le preferenze dell'editor (§16.1) — sfondo sempre
+  bianco, sempre `SansSerif`, sempre la stessa dimensione. Ora riceve
+  `temaScuro`/`fontScelto`/`scalaTesto` da `EditorMain.kt` (nuovi
+  parametri di `MapScreen`/`esportaMappaComeImmagine`): sfondo scuro
+  col tema scuro attivo (i riempimenti dei nodi restano SEMPRE
+  chiari, stesso principio "colore fisso" della mappa interattiva),
+  stesso font `.ttf` caricato con l'API di `java.awt.Font` invece di
+  quella Compose (due mondi di rendering diversi, stesso file bytes),
+  dimensioni del testo moltiplicate per lo stesso fattore di
+  `ScalaTesto`.
+- **Etichetta "orfana"/"vicolo cieco" poco leggibile**: grigio troppo
+  chiaro sul giallo di ENDING — scurito.
+
+Verificato anche visivamente (non solo a test): esportato un libro di
+prova identico a quello di Michele e confrontato il PNG prima/dopo la
+correzione.
+
 **Perché solo PNG e non una stampa vera**: valutata la differenza di
 difficoltà con Michele — un'immagine esportabile è fattibile con
 sforzo contenuto (riusa il disegno già scritto), mentre una stampa
