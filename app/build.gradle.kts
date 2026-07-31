@@ -136,6 +136,15 @@ dependencies {
         // emoji crash" — verificare se risolve anche il crash UTF-8 su
         // caratteri accentati italiani trovato con 1.7.0 (vedi DIARIO.md).
         runtimeOnly("com.llamatik:library:1.9.1")
+        // compileOnly, stesso motivo di Llamatik sopra (31/07/2026, bug
+        // scoperto generando un APK con buildLlama=false per la prima
+        // volta dopo il branch sperimentale): NativeLlamaCppEngine.kt
+        // importa i tipi di :llama SEMPRE, indipendentemente dal flag —
+        // senza questa riga il modulo non è nel classpath di compilazione
+        // e la build fallisce con "Unresolved reference 'llama'". compileOnly
+        // risolve i tipi senza impacchettare il suo .so nell'APK (che
+        // altrimenti confliggerebbe con quello di Llamatik).
+        compileOnly(project(":llama"))
     }
 
     // LiteRT-LM dichiara coroutines 1.9.0 nel POM ma è compilato con
