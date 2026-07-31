@@ -194,6 +194,7 @@ fun ModelsRoute(
         isDarkTheme = isDarkTheme,
         models = catalogModels,
         customModels = customModels,
+        ggufAvailable = BuildConfig.NATIVE_LLAMA_AVAILABLE,
         selectedModelId = selectedModelId,
         downloadedIds = downloadedIds,
         token = token,

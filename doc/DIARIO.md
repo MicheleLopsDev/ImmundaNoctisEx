@@ -3561,6 +3561,64 @@ che i vecchi valori personalizzati siano ancora lì.
 
 ---
 
+## Crash all'avvio con buildLlama=false + UI Modelli semplificata (31/07/2026)
+
+Michele manda il log di un crash immediato all'avvio: `NoClassDefFoundError:
+android.llama.cpp.LLamaAndroid` da `AppContainer.<init>` →
+`NativeLlamaCppEngine.<init>`. Causa: il fix di stamattina
+(`compileOnly(project(":llama"))` per far compilare `:app` con
+`buildLlama=false`) risolveva solo la compilazione — a runtime quella
+classe non è mai impacchettata nell'APK in quella configurazione, e
+`AppContainer` costruiva `NativeLlamaCppEngine()` incondizionatamente
+(il suo costruttore tocca subito `LLamaAndroid.instance()`). Risultato:
+crash al 100% ad ogni avvio, non solo se il motore nativo veniva
+davvero scelto — **anche l'APK di release consegnato stamattina era
+rotto così**. Fix: `nativeLlamaCppEngine` ora è `null` quando
+`BuildConfig.NATIVE_LLAMA_AVAILABLE` è falso, mai istanziato;
+`inferenceEngine`/`engineFor` ripiegano su LiteRT-LM per lo stesso
+motivo già visto altrove nel progetto ("il gioco non si blocca mai").
+Rigenerato e reinviato l'APK di release corretto.
+
+Da lì Michele nota una conseguenza logica: se il motore nativo non
+c'è, tutta la UI di gestione modelli GGUF (catalogo "Consigliati",
+form "Aggiungi modello personalizzato", import/export del catalogo)
+diventa inutile — propone due alternative (semplificare la UI, oppure
+buildare sempre con `buildLlama=true`) e chiede una discriminante
+sull'interfaccia. Pianificato con `EnterPlanMode` + due
+`AskUserQuestion`: scelta "semplifica la UI" (non sempre
+`buildLlama=true`), e "nascondi tutto il GGUF" — non solo il motore
+nativo, anche Llamatik (`EngineType.LLAMA_CPP`, motore CPU-only,
+sempre incluso a runtime anche con `buildLlama=false`).
+
+**`ModelsScreen.kt`**: nuovo parametro `ggufAvailable: Boolean` (non
+letto direttamente da `BuildConfig` dentro il composable — che è
+fisso per build — ma passato dall'esterno, così i due `@Preview`
+mostrano entrambi gli stati senza ricompilare). Quando falso: `models`/
+`customModels` filtrati a `engineType == EngineType.LITERT_LM` (isola
+esattamente i due Gemma 4 E4B/E2B, sempre `LITERT_LM` per costruzione
+in `ModelCatalog.kt` — zero modifiche al catalogo stesso), sezioni
+`CatalogManagementCard` e `AddCustomModelCard` nascoste del tutto (non
+solo svuotate), riga di testo onesta sotto il sottotitolo che spiega
+perché. Token HF e Impostazioni avanzate restano sempre visibili
+(non sono legati al GGUF). `ModelsRoute.kt`: una riga sola,
+`ggufAvailable = BuildConfig.NATIVE_LLAMA_AVAILABLE` passato alla
+chiamata — `catalogModels`/`customModels`/`storageInfo` restano
+calcolati sulla lista COMPLETA (lo spazio occupato su disco resta
+onesto anche per un eventuale modello GGUF scaricato in una sessione
+precedente con `buildLlama=true` e rimasto sul telefono, semplicemente
+non più gestibile da qui finché non si ricompila con `buildLlama=true`
+— nessuna perdita di dati).
+
+`ModelCatalog.kt`/`ModelPreferences.kt`/`engineTypeFor` invariati:
+tutto reversibile ricompilando con `buildLlama=true`. Compilazione e
+suite `:app` verdi in entrambe le configurazioni di `buildLlama`.
+
+**Da verificare a mano su device (Michele)**: build standard, aprire
+Modelli LLM, controllare che si vedano solo le due card Gemma 4,
+nessun catalogo GGUF/form aggiungi modello/gestione catalogo.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

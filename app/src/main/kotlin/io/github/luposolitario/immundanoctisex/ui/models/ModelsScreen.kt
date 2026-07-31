@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.model.DownloadableModel
+import io.github.luposolitario.immundanoctisex.model.EngineType
 import io.github.luposolitario.immundanoctisex.model.ModelCatalog
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
@@ -60,6 +61,12 @@ fun ModelsScreen(
     isDarkTheme: Boolean,
     models: List<DownloadableModel>,
     customModels: List<DownloadableModel>,
+    // Build senza motore GGUF (31/07/2026, Michele: "senza guff tutto il
+    // resto è inutile"): BuildConfig.NATIVE_LLAMA_AVAILABLE è fisso per
+    // build, quindi arriva qui come parametro (non letto direttamente nel
+    // composable) — permette anche di vedere ENTRAMBI gli stati nei due
+    // @Preview sotto, senza dover ricompilare con buildLlama diverso.
+    ggufAvailable: Boolean,
     selectedModelId: String,
     downloadedIds: Set<String>,
     token: String,
@@ -122,6 +129,24 @@ fun ModelsScreen(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (!ggufAvailable) {
+                Text(
+                    "Questa build include solo Gemma 4 (LiteRT-LM): il supporto per modelli " +
+                        "GGUF personalizzati è disattivato.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            // Senza motore GGUF, mostrare solo i modelli LiteRT-LM (i due
+            // fissi Gemma 4 E4B/E2B): il resto del catalogo/dei modelli
+            // personalizzati non caricherebbe mai col motore giusto.
+            val visibleModels = if (ggufAvailable) models else models.filter { it.engineType == EngineType.LITERT_LM }
+            val visibleCustomModels = if (ggufAvailable) {
+                customModels
+            } else {
+                customModels.filter { it.engineType == EngineType.LITERT_LM }
+            }
 
             activateError?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
@@ -134,7 +159,7 @@ fun ModelsScreen(
             val anyDownloadRunning = downloadState is DownloadUiState.Running
 
             Text("Consigliati", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-            models.forEach { model ->
+            visibleModels.forEach { model ->
                 ModelCard(
                     model = model,
                     selected = model.id == selectedModelId,
@@ -152,17 +177,19 @@ fun ModelsScreen(
                 )
             }
 
-            CatalogManagementCard(
-                error = catalogError,
-                isImporting = isImportingCatalog,
-                onExport = onExportCatalog,
-                onImport = onImportCatalog,
-                onReset = onResetCatalog,
-            )
+            if (ggufAvailable) {
+                CatalogManagementCard(
+                    error = catalogError,
+                    isImporting = isImportingCatalog,
+                    onExport = onExportCatalog,
+                    onImport = onImportCatalog,
+                    onReset = onResetCatalog,
+                )
+            }
 
-            if (customModels.isNotEmpty()) {
+            if (visibleCustomModels.isNotEmpty()) {
                 Text("I tuoi modelli", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                customModels.forEach { model ->
+                visibleCustomModels.forEach { model ->
                     ModelCard(
                         model = model,
                         selected = model.id == selectedModelId,
@@ -181,12 +208,14 @@ fun ModelsScreen(
                 }
             }
 
-            AddCustomModelCard(
-                error = addModelError,
-                isImporting = isImportingFromStorage,
-                onAdd = onAddCustomModel,
-                onPickFromStorage = onPickFromStorage,
-            )
+            if (ggufAvailable) {
+                AddCustomModelCard(
+                    error = addModelError,
+                    isImporting = isImportingFromStorage,
+                    onAdd = onAddCustomModel,
+                    onPickFromStorage = onPickFromStorage,
+                )
+            }
 
             // Con file da GB, sapere quanto stai occupando è informazione
             // dovuta (in v1 il percorso si vedeva solo per le scene).
@@ -490,12 +519,70 @@ private fun ModelsScreenPreview() {
             isDarkTheme = true,
             models = ModelCatalog.all,
             customModels = emptyList(),
+            ggufAvailable = true,
             selectedModelId = ModelCatalog.default.id,
             downloadedIds = emptySet(),
             token = "",
             downloadState = DownloadUiState.Running(downloaded = 1_200_000_000, total = 3_659_530_240),
             runningModelId = ModelCatalog.default.id,
             storageInfo = "Modelli sul telefono: 1 — 3,66 GB occupati",
+            advancedSettings = AdvancedSettingsUi(
+                maxTokens = "10240",
+                temperature = 0.7f,
+                topK = "40",
+                topP = 0.9f,
+                askImageInPrompt = false,
+            ),
+            onSelectModel = {},
+            activeModelId = null,
+            isActivating = false,
+            activateError = null,
+            onActivate = {},
+            onTokenChange = {},
+            onDownload = {},
+            onCancel = {},
+            onDelete = {},
+            onAddCustomModel = { _, _, _ -> },
+            onRemoveCustomModel = {},
+            addModelError = null,
+            isImportingFromStorage = false,
+            onPickFromStorage = {},
+            catalogError = null,
+            isImportingCatalog = false,
+            onExportCatalog = {},
+            onImportCatalog = {},
+            onResetCatalog = {},
+            onMaxTokensChange = {},
+            onTemperatureChange = {},
+            onTemperatureCommit = {},
+            onTopKChange = {},
+            onTopPChange = {},
+            onTopPCommit = {},
+            onAskImageInPromptChange = {},
+            onTranslationModeChange = {},
+            onResetSettings = {},
+            onClose = {},
+        )
+    }
+}
+
+// Build senza motore GGUF (31/07/2026, buildLlama=false): solo i due
+// Gemma 4 fissi, niente Consigliati/gestione catalogo/modello personalizzato.
+@Preview(showBackground = true, name = "Modelli — solo Gemma 4 (scuro)", heightDp = 700)
+@Composable
+private fun ModelsScreenSoloGemmaPreview() {
+    ImmundaNoctisTheme(darkTheme = true) {
+        ModelsScreen(
+            isDarkTheme = true,
+            models = ModelCatalog.all,
+            customModels = emptyList(),
+            ggufAvailable = false,
+            selectedModelId = ModelCatalog.default.id,
+            downloadedIds = emptySet(),
+            token = "",
+            downloadState = DownloadUiState.Idle,
+            runningModelId = null,
+            storageInfo = null,
             advancedSettings = AdvancedSettingsUi(
                 maxTokens = "10240",
                 temperature = 0.7f,
