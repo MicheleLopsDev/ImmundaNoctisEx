@@ -94,6 +94,27 @@ prompt. È il pezzo più grande e meno definito di questa milestone:
 **serve prima una specifica dedicata** (come già deciso), non si parte
 dal codice — piano ancora da ricevere da Michele.
 
+**Pulizia preliminare fatta il 31/07/2026** (Michele: "per prima cosa
+credo vada ripulito, c'è tutta una parte xml che non serve"): prima
+di pensare alla schermata, tolte dal file 15 entry `gameMechanic` con
+regex che matchavano tag XML-like (`<addItem>`, `<statMod>`,
+`<skillCheck>`, ecc.) — verificato nel codice che **nessuna** fosse
+davvero letta a runtime: `PromptFragments.fromConfig()` estrae solo
+l'entry `start_adventure_prompt`, il parsing reale della risposta di
+Gemma (`ResponseParser.kt`) usa un formato a pipe completamente
+diverso (introdotto apposta perché "in v1 erano tag XML e il modello
+li sbagliava"), e il prompt stesso ordina esplicitamente a Gemma di
+non generare mai quei tag. Motivazione di Michele, tecnicamente
+corretta e allineata al vincolo "si serializzano i fatti, i bonus si
+calcolano": *"un LLM locale resta abbastanza stupido e può supportare
+solo scelte semplici non tag, poi il file scene gestisce tutto e se
+serve aggiungerò lì gli attributi"* — i meccanismi di gioco restano
+dichiarati staticamente in `Scene.gameMechanics`, mai decisi
+dall'output del modello. Restano solo le 4 entry davvero usate:
+`choice_line`, `discipline_line`, `start_adventure_prompt`,
+`end_guff_tag`. Il file scende da 309 a un centinaio di righe — la
+futura schermata dell'editor avrà meno terreno da coprire.
+
 ### 4. Interazioni avanzate sulla mappa (`doc/EDITOR.md` §19, 30/07/2026) — FATTO (31/07/2026)
 
 Giro nato da un confronto diretto con Michele su cosa manca ancora

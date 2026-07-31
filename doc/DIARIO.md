@@ -3293,6 +3293,37 @@ v1.0.0 (interazioni sulla mappa, persistenza/annulla-ripeti,
 esportazione PNG) — la v1.0.0 resta disponibile a parte, non
 sovrascritta.
 
+**Pulizia di `content/config.json` prima dell'editor dei prompt
+(31/07/2026, issue #8, Michele: "non ho capito cosa sia #8,
+generalizzare il file?")**: spiegato cosa NON è (#8 non tocca lo
+schema del file, è solo una schermata dell'editor per modificarlo
+senza scrivere JSON/regex a mano, stessa idea già fatta per le scene).
+Michele guarda il file e nota subito: **"c'è tutta una parte xml che
+non serve giusto?"** — verificato nel codice prima di rispondere
+(agente Explore dedicato), non solo a naso: `PromptFragments.fromConfig()`
+estrae SOLO l'entry `start_adventure_prompt`; il parsing reale della
+risposta di Gemma (`ResponseParser.kt`) usa un formato a pipe
+(`CHOICE|...`), non i tag XML-like che il resto del file definiva
+(`<addItem>`, `<statMod>`, `<skillCheck>`, ecc. — 15 entry
+`gameMechanic` su 19 totali); il prompt stesso ordina esplicitamente a
+Gemma di non generarli mai. Nessun test le esercita. Confermato:
+codice/dati morti, residuo di un design v1 abbandonato (tag XML che
+il modello sbagliava, sostituiti dal formato a pipe attuale).
+
+Michele conferma e motiva la scelta di design, non solo la pulizia:
+**"un llm locale resta abbastanza stupido e può supportare solo
+scelte semplici non tag, poi il file scene gestisce tutto e se serve
+aggiungerò lì gli attributi"** — coerente col vincolo di progetto "si
+serializzano i fatti, i bonus si calcolano" (`Scene.gameMechanics`
+dichiarato staticamente, mai deciso dall'LLM). Rimosse le 15 entry
+`gameMechanic`; restano le 4 davvero usate (`choice_line`,
+`discipline_line`, `start_adventure_prompt`, `end_guff_tag`) — il
+file scende da 309 a un centinaio di righe. Un'unica copia del file
+nel repository (`content/config.json`, montato direttamente come
+asset Android via `assets.srcDir`), nessuna copia duplicata da
+sincronizzare. `:app:testDebugUnitTest`, `:core:data:jvmTest` e suite
+completa verdi — nessun test esercitava le entry rimosse.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
