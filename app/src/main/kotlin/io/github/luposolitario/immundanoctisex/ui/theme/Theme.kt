@@ -7,6 +7,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 
 // Tema portato da v1 (ui/theme/Theme.kt): schemi chiaro/scuro completi.
@@ -64,6 +65,33 @@ private fun lightScheme(accent: AccentColor) = lightColorScheme(
     onSurfaceVariant = LightOnSurfaceVariant,
 )
 
+// Tutto il testo in grassetto (01/08/2026, Michele: su alcuni sfondi
+// illustrati la parte alta dei testi normali non si legge bene) — invece
+// di toccare ogni singolo Text() in giro per la UI, si ridefinisce QUI la
+// tipografia di default: ogni composable che legge
+// MaterialTheme.typography.qualcosa (la stragrande maggioranza, senza
+// override) diventa bold da solo. I pochi Text() che già forzavano
+// fontWeight = FontWeight.Bold a mano restano bold, nessun conflitto.
+private val BoldTypography = Typography().let { base ->
+    Typography(
+        displayLarge = base.displayLarge.copy(fontWeight = FontWeight.Bold),
+        displayMedium = base.displayMedium.copy(fontWeight = FontWeight.Bold),
+        displaySmall = base.displaySmall.copy(fontWeight = FontWeight.Bold),
+        headlineLarge = base.headlineLarge.copy(fontWeight = FontWeight.Bold),
+        headlineMedium = base.headlineMedium.copy(fontWeight = FontWeight.Bold),
+        headlineSmall = base.headlineSmall.copy(fontWeight = FontWeight.Bold),
+        titleLarge = base.titleLarge.copy(fontWeight = FontWeight.Bold),
+        titleMedium = base.titleMedium.copy(fontWeight = FontWeight.Bold),
+        titleSmall = base.titleSmall.copy(fontWeight = FontWeight.Bold),
+        bodyLarge = base.bodyLarge.copy(fontWeight = FontWeight.Bold),
+        bodyMedium = base.bodyMedium.copy(fontWeight = FontWeight.Bold),
+        bodySmall = base.bodySmall.copy(fontWeight = FontWeight.Bold),
+        labelLarge = base.labelLarge.copy(fontWeight = FontWeight.Bold),
+        labelMedium = base.labelMedium.copy(fontWeight = FontWeight.Bold),
+        labelSmall = base.labelSmall.copy(fontWeight = FontWeight.Bold),
+    )
+}
+
 @Composable
 fun ImmundaNoctisTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -72,7 +100,7 @@ fun ImmundaNoctisTheme(
 ) {
     MaterialTheme(
         colorScheme = if (darkTheme) darkScheme(accentColor) else lightScheme(accentColor),
-        typography = Typography(),
+        typography = BoldTypography,
         content = content,
     )
 }

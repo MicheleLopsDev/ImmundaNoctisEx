@@ -71,6 +71,18 @@ fun AppNavigation(
         }
     }
 
+    // Attiva subito il modello già scaricato (01/08/2026, Michele: "se c'è
+    // un modello come il 4B già scaricato devi attivarmelo appena avvii e
+    // non aspettare una attivazione manuale"): prima ensureModelLoaded()
+    // partiva solo entrando in ADVENTURE (AdventureRoute.kt) o premendo
+    // "Attiva" a mano in Modelli LLM — un'app appena aperta mostrava il
+    // modello come scaricato ma non ancora in uso. Nessun rumore se il
+    // modello non c'è ancora sul telefono: ensureModelLoaded() degrada già
+    // da sé (ritorna false), il gioco parte comunque col testo originale.
+    LaunchedEffect(Unit) {
+        container.ensureModelLoaded()
+    }
+
     fun navigateTo(destination: Route) {
         backStack.addLast(route)
         route = destination

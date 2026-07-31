@@ -3703,6 +3703,54 @@ riconvertito dal sorgente Project Aon per correggere anche la scena
 lato client (`AdventureState`/`DiceZone`/`ChoicesZone`): il motore
 faceva già la cosa giusta, mancavano solo i dati in ingresso.
 
+**Aggiornamento stesso giorno**: verificato l'impatto sugli altri 4
+libri già convertiti in `doc/LIBRI/` (tracciati in git — Michele aveva
+deciso il 30/07 di versionarli apposta per poterli ripristinare con
+git in caso di problemi). Riconvertiti tutti a file temporanei prima
+di toccare gli originali, per non perdere eventuali correzioni manuali
+fatte nell'editor: scelte con `minRoll` riconosciute correttamente,
+prima → dopo — 02fotw 0→45, 03tcok 0→36, 04tcod 0→21, 05sots 0→10
+(oltre a 01fftd 7→27 di prima). Il bug era quindi sistemico su tutti e
+5, non solo su Flight from the Dark, e più grave altrove (zero scelte
+corrette prima del fix). Applicati tutti e 5, commit e **push** su
+`develop` su richiesta esplicita di Michele ("tenere pulito il
+tutto") — pushato anche il tag `v0.2.0` creato la sessione precedente
+ma mai inviato.
+
+---
+
+## Tre correzioni UI da test su device (01/08/2026)
+
+Michele torna con screenshot e tre richieste dopo aver giocato:
+
+1. **Testi poco leggibili su alcuni sfondi illustrati** ("la parte
+   alta di questi testi con quello sfondo non si legge") — vuole tutti
+   i font in grassetto. Invece di toccare i singoli `Text()` sparsi in
+   tutta la UI, ridefinita la tipografia di default in `Theme.kt`:
+   nuova `BoldTypography` che copia ogni stile Material3 di default
+   (`Typography()`) con `fontWeight = FontWeight.Bold`, usata al posto
+   di `Typography()` in `ImmundaNoctisTheme`. Chiunque legga
+   `MaterialTheme.typography.qualcosa` senza override diventa bold da
+   solo — i pochi `Text()` che già forzavano `FontWeight.Bold` a mano
+   restano bold, nessun conflitto.
+2. **Modello scaricato non attivo all'avvio** ("se c'è un modello come
+   il 4B già scaricato devi attivarmelo appena avvii, non aspettare
+   un'attivazione manuale") — `ensureModelLoaded()` partiva solo
+   entrando in `ADVENTURE` (`AdventureRoute.kt`) o premendo "Attiva" a
+   mano in Modelli LLM: un'app appena aperta mostrava il modello come
+   scaricato ma non ancora in uso finché non si faceva una di quelle
+   due cose. Nuovo `LaunchedEffect(Unit)` in `AppNavigation.kt`
+   (accanto a quello già esistente per la musica) che chiama
+   `container.ensureModelLoaded()` non appena l'app si apre — degrada
+   già da sé se il modello non c'è (ritorna `false`), nessuna modifica
+   difensiva necessaria.
+3. **Icona cartella poco distinguibile** ("deve essere solida e non
+   vuota") — `Icons.Default.FolderOpen` (bottone "Carica libro" in
+   `HomeScreen.kt`, quasi tutto contorno) sostituita con
+   `Icons.Default.Folder` (piena).
+
+Compilazione e suite `:app` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

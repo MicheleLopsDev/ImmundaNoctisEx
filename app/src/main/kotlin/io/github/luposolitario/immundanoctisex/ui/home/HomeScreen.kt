@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -69,7 +69,12 @@ fun HomeScreen(
                     actions = {
                         IconButton(onClick = onLoadBookClick) {
                             Icon(
-                                imageVector = Icons.Default.FolderOpen,
+                                // Folder pieno invece di FolderOpen (01/08/2026,
+                                // Michele: "deve essere solida e non vuota non
+                                // la distinguo bene") — la cartella "aperta" è
+                                // quasi tutto contorno, poco visibile sugli
+                                // sfondi illustrati.
+                                imageVector = Icons.Default.Folder,
                                 contentDescription = "Carica libro",
                             )
                         }
