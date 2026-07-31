@@ -3127,6 +3127,16 @@ modifica ai validatori: il campo non ha implicazioni di gioco.
 `:core:data:jvmTest`, `:tool:compileKotlin`/`:tool:test` e
 `:app:testDebugUnitTest` (il client compila e passa invariato) verdi.
 
+**Bug: "Allinea in riga/colonna" mancava dal menu tasto destro
+(31/07/2026, Michele: "tenendo premuto ctrl faccio click con il dx non
+appare l'opzione di arrangio automatico")**: le due azioni di §19.11
+erano state aggiunte SOLO come pulsanti in barra, non come voci del
+menu contestuale — a differenza di Duplica gruppo/Lega/Elimina, che
+vivono in entrambi i posti. Aggiunte anche lì, stesso criterio di
+"Duplica gruppo" (2+ selezionate, nessun vincolo sulle scene START:
+l'allineamento non tocca collegamenti né duplica nulla).
+`:tool:compileKotlin`/`:tool:test` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

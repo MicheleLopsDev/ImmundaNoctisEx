@@ -1698,6 +1698,30 @@ fun MapScreen(
                                     },
                                 )
                             }
+                            // §19.11 (Michele, bug di test: "tenendo
+                            // premuto ctrl faccio click con il dx non
+                            // appare l'opzione di arrangio automatico" —
+                            // esisteva solo in barra, non nel menu
+                            // contestuale): stesso criterio di "Duplica
+                            // gruppo" sopra, 2+ selezionate, nessun
+                            // vincolo sulle scene START (l'allineamento
+                            // non tocca collegamenti né duplica nulla).
+                            if (sceneSelezionate.size >= 2) {
+                                DropdownMenuItem(
+                                    text = { Text("↔ Allinea in riga") },
+                                    onClick = {
+                                        menuContestualePer = null
+                                        allineaSelezione(inRiga = true)
+                                    },
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("↕ Allinea in colonna") },
+                                    onClick = {
+                                        menuContestualePer = null
+                                        allineaSelezione(inRiga = false)
+                                    },
+                                )
+                            }
                             // §19.1: solo con ESATTAMENTE due scene
                             // selezionate — un'opzione per direzione,
                             // "Lega" se il collegamento non esiste

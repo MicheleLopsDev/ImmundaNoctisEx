@@ -1064,14 +1064,19 @@ dall'inizio per evitare problemi"** — stesso criterio già in uso
 altrove nell'editor (ordine di "Lega scena X→Y", "Duplica gruppo").
 
 Due pulsanti in barra (attivi con 2+ scene selezionate): **"↔ Allinea
-in riga"** e **"↕ Allinea in colonna"**. Il nodo con l'ID più basso
-resta ancorato alla sua posizione attuale; gli altri, in ordine di ID
-crescente, si dispongono a partire da lì con la stessa spaziatura già
-usata dall'auto-layout (`H_SPACING`/`V_SPACING`). Scarto scritto su
-`posizioniManuali` come un trascinamento a mano — persistito nel JSON
-al prossimo salvataggio (§19.12), si azzera con "Riordina
-automaticamente" (e quell'azzeramento arriva anch'esso su disco al
-salvataggio successivo).
+in riga"** e **"↕ Allinea in colonna"**, presenti anche nel **menu
+tasto destro** con lo stesso criterio di "Duplica gruppo" (2+
+selezionate) — aggiunti lì il 31/07/2026 dopo un bug di test di
+Michele: le due azioni esistevano solo in barra, non raggiungibili col
+tasto destro come le altre azioni di gruppo (Duplica, Lega/Rimuovi
+legame, Elimina). Il nodo con l'ID più basso resta ancorato alla sua
+posizione attuale; gli altri, in ordine di ID crescente, si dispongono
+a partire da lì con la stessa spaziatura già usata dall'auto-layout
+(`H_SPACING`/`V_SPACING`). Scarto scritto su `posizioniManuali` come
+un trascinamento a mano — persistito nel JSON al prossimo salvataggio
+(§19.12), si azzera con "Riordina automaticamente" (e
+quell'azzeramento arriva anch'esso su disco al salvataggio
+successivo).
 
 Geometria in `AllineamentoGruppo.kt` (`allineaGruppo`, testata, 5
 test) — stesso principio di `RettangoloSelezione.kt`: calcolo puro
