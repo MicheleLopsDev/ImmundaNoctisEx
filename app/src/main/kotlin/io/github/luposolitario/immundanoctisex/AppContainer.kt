@@ -104,7 +104,18 @@ class AppContainer(context: Context) {
     // modelli multi-GB in memoria insieme.
     private val liteRtLmEngine = LiteRtLmEngine(context)
     private val llamaCppEngine = LlamaCppEngine()
-    private val nativeLlamaCppEngine = NativeLlamaCppEngine()
+
+    // BUG (31/07/2026, crash immediato all'avvio su device con
+    // buildLlama=false, log: "NoClassDefFoundError: android.llama.cpp
+    // .LLamaAndroid"): il costruttore di NativeLlamaCppEngine tocca subito
+    // LLamaAndroid.instance() (init eager della proprietà), e con
+    // buildLlama=false quella classe è solo compileOnly (vedi
+    // app/build.gradle.kts) — presente a compile-time ma MAI impacchettata
+    // nell'APK. Costruirlo incondizionatamente qui crashava ad ogni avvio,
+    // non solo se il motore nativo veniva davvero scelto. Ora null quando
+    // BuildConfig.NATIVE_LLAMA_AVAILABLE è falso, mai istanziato.
+    private val nativeLlamaCppEngine: NativeLlamaCppEngine? =
+        if (BuildConfig.NATIVE_LLAMA_AVAILABLE) NativeLlamaCppEngine() else null
 
     // Quale motore serve DAVVERO adesso: il resto dell'app (SceneNarrator
     // e giù) continua a parlare solo con InferenceEngine, non sa che ne
@@ -116,7 +127,12 @@ class AppContainer(context: Context) {
         get() = when (activeEngineType) {
             EngineType.LITERT_LM -> liteRtLmEngine
             EngineType.LLAMA_CPP -> llamaCppEngine
-            EngineType.LLAMA_CPP_NATIVE -> nativeLlamaCppEngine
+            // Ripiego su LiteRT-LM se un modello selezionato in una
+            // sessione precedente (con buildLlama=true) è rimasto marcato
+            // LLAMA_CPP_NATIVE nelle preferenze: mai un crash, engine.load()
+            // fallirà in modo leggibile su un file del formato sbagliato
+            // (il gioco degrada sul testo originale, non si blocca mai).
+            EngineType.LLAMA_CPP_NATIVE -> nativeLlamaCppEngine ?: liteRtLmEngine
         }
 
     // Quale modello e' DAVVERO caricato nel motore in questo momento —
@@ -163,7 +179,7 @@ class AppContainer(context: Context) {
     private fun engineFor(type: EngineType): InferenceEngine = when (type) {
         EngineType.LITERT_LM -> liteRtLmEngine
         EngineType.LLAMA_CPP -> llamaCppEngine
-        EngineType.LLAMA_CPP_NATIVE -> nativeLlamaCppEngine
+        EngineType.LLAMA_CPP_NATIVE -> nativeLlamaCppEngine ?: liteRtLmEngine
     }
 
     private suspend fun switchToEngine(type: EngineType): InferenceEngine {
