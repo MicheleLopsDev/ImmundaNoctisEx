@@ -74,6 +74,32 @@ dopo i bug trovati da Michele durante i test) è abbastanza sostanza da
 meritare una versione minore nuova, non solo un refresh silenzioso
 della v1.0.0.
 
+**Terza release, `editor-v1.2.0` (01/08/2026)**: bump a 1.2.0 in
+`tool/build.gradle.kts`. Dalla v1.1.0 l'editor ha guadagnato tre cose,
+tutte nate da lavoro sui libri veri e non da rifinitura:
+
+- **`EDITOR_BUILD_MARKER`** stampato all'avvio e scritto nel titolo
+  della finestra (`EditorMain.kt`), sullo stampo del `BUILD_MARKER`
+  dell'app: la stessa convenzione che nella sessione del 01/08 ha
+  smascherato due volte un test fatto su una build vecchia.
+- **Tabella dei Numeri Casuali riconosciuta in tutte le forme reali**
+  presenti nei libri, dopo due giri di correzione (il secondo per una
+  regressione mia, che aveva perso le forme che il primo prendeva —
+  scoperta solo da un controllo esaustivo, non dal confronto dei
+  totali).
+- **Estrazione dei `rollModifiers`** dal testo inglese: le scene in cui
+  il tiro va modificato prima del confronto (Disciplina Kai, ENDURANCE,
+  oggetto, flag) ora si convertono da sole invece di essere scartate
+  di proposito, e ciò che il convertitore non sa tradurre finisce nel
+  report finale invece di essere indovinato in silenzio.
+
+Pacchetti generati e verificati localmente:
+`ImmundaNoctisEx-Editor-1.2.0.msi` (96 MB) e la cartella portatile
+zippata `ImmundaNoctisEx-Editor-1.2.0-portable.zip` (94 MB), entrambi
+in `tool/build/compose/binaries/main/`. **Il caricamento sulla GitHub
+Release lo fa Michele**: la `gh` CLI non è installata su questa
+macchina.
+
 ### 2. Verificare il limite dimensionale (~350 scene)
 
 `doc/EDITOR.md` §11 fissa un tetto auto-imposto di ~350 scene per
