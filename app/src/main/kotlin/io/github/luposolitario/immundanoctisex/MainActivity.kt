@@ -100,4 +100,4 @@ class MainActivity : ComponentActivity() {
 // questa riga va toccata ad ogni modifica di codice, così Michele legge
 // "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
 // ricompilato l'ultima versione o una vecchia.
-private const val BUILD_MARKER = "2026-08-01-02 fix: ensureEngineLoaded per ogni scena (non solo la prima, moveTo)"
+private const val BUILD_MARKER = "2026-08-01-03 feat: interruttore Motore attivo (Impostazioni avanzate)"
