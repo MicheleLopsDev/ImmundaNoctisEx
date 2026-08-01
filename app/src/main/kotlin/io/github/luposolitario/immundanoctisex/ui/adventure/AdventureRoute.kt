@@ -111,6 +111,11 @@ fun AdventureRoute(
                     autoReadEnabled = container.ttsPreferences.autoReadEnabled,
                     userLocale = container.languagePreferences.outputLanguage.locale,
                     soundEffectPlayer = container.soundEffectPlayer,
+                    // BUG (01/08/2026): ogni scena (non solo la prima)
+                    // deve poter aspettare un caricamento del motore già
+                    // in corso — vedi il commento su AdventureState per
+                    // il dettaglio.
+                    ensureEngineLoaded = { container.ensureModelLoaded() },
                 )
             }
 

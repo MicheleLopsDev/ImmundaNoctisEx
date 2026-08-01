@@ -72,6 +72,21 @@ class AdventureState(
     // come narratore e TTS, stesso trattamento — se manca, il gioco resta
     // silenzioso invece di rompersi.
     private val soundEffectPlayer: SoundEffectPlayer? = null,
+    // BUG (01/08/2026, Michele: "l'avventura in inglese... dopo un paio di
+    // volte il motore si è avviato"): il controllo a tre vie di
+    // AdventureRoute (pronto/in caricamento/spento) scattava solo
+    // all'ingresso in avventura — moveTo() chiama startNarration()
+    // direttamente ad ogni scena successiva, e SceneNarrator.narrate() ha
+    // un suo controllo indipendente (engine.isLoaded) che degrada in
+    // silenzio se il caricamento in background non è ancora finito.
+    // Risultato: scena 1 muta, poi le scene dopo iniziano a tradursi da
+    // sole appena il motore finisce di caricare, senza alcun segnale.
+    // Questa callback (AppContainer.ensureModelLoaded, iniettata da
+    // AdventureRoute) si richiama PRIMA di ogni narrazione, non solo la
+    // prima: aspetta un caricamento già in corso invece di arrendersi
+    // subito. Default no-op (true) per i test/@Preview che non
+    // costruiscono un AppContainer vero.
+    private val ensureEngineLoaded: suspend () -> Boolean = { true },
 ) {
     val gameState = GameState(session)
 
@@ -281,6 +296,17 @@ class AdventureState(
         soundEffectPlayer?.play(SoundEffect.EAT)
     }
 
+    // Sticky per la sessione (01/08/2026, BUG Michele: "l'avventura in
+    // inglese... dopo un paio di volte il motore si è avviato"): una volta
+    // deciso "niente motore" — dichiarato dal giocatore
+    // (awaitEngineChoice -> skip), modello assente, o caricamento fallito
+    // — le scene successive non ritentano da sole. Senza questo, moveTo()
+    // (che chiama startNarration() per OGNI scena, non solo la prima)
+    // avrebbe riacceso la traduzione a sorpresa non appena il motore
+    // avviato in background finiva di caricare, contraddicendo la scelta
+    // fatta.
+    private var engineOptedOut = false
+
     // Avvia (o riavvia) la narrazione della scena corrente. Lo streaming
     // è BUFFERIZZATO: si aggiorna la UI al massimo ogni ~90ms, altrimenti
     // ogni token farebbe ricomporre l'intera schermata (CRITICITA.md).
@@ -298,11 +324,28 @@ class AdventureState(
         // ferma mai davanti a una schermata vuota.
         narrative = if (expectsNarration || narrator.isReady) "" else currentScene.narrativeText
         isGenerating = true
-        // Se si arriva qui il modello e' caricato: da qui in poi l'attesa
-        // e' quella (breve) della generazione.
-        isLoadingModel = false
+        // BUG (01/08/2026): qui non è detto che il modello sia già
+        // caricato — vale solo per la primissima scena, già filtrata da
+        // AdventureRoute prima di chiamare startNarration(). Per le scene
+        // successive (moveTo -> startNarration diretto) il motore
+        // potrebbe essere ancora in caricamento in background: se non ha
+        // ancora rinunciato per questa sessione (engineOptedOut), si
+        // aspetta invece di arrendersi subito — vedi il controllo dentro
+        // la coroutine sotto.
+        val engineMightStillBeStarting = !engineOptedOut && !narrator.isReady
+        isLoadingModel = engineMightStillBeStarting
 
         narrationJob = scope.launch {
+            if (engineMightStillBeStarting) {
+                // Aspetta un caricamento già in corso (l'auto-load
+                // all'avvio, o un "Avvia il motore" scelto in una scena
+                // precedente) invece di far decidere a
+                // SceneNarrator.narrate() — che degraderebbe subito e in
+                // silenzio guardando solo l'istantanea attuale di
+                // engine.isLoaded.
+                ensureEngineLoaded()
+                isLoadingModel = false
+            }
             var lastUpdate = 0L
             narrator.narrate(
                 scene = currentScene,
@@ -349,8 +392,12 @@ class AdventureState(
     // Il motore non e' partito (modello mancante o inizializzazione
     // fallita) o il giocatore ha scelto di continuare senza (vedi
     // awaitEngineChoice() sotto): si torna al testo del pacchetto invece
-    // di lasciare "il narratore scrive" per sempre.
+    // di lasciare "il narratore scrive" per sempre. engineOptedOut = true
+    // rende la decisione valida per TUTTA la sessione (vedi
+    // startNarration sopra): niente ritentativi a sorpresa sulle scene
+    // successive.
     fun narrationUnavailable() {
+        engineOptedOut = true
         awaitingEngineChoice = false
         isGenerating = false
         isLoadingModel = false

@@ -3836,6 +3836,55 @@ partita. Compilazione e suite verdi.
 
 ---
 
+## Il controllo motore-avviato bypassato da scena 2 in poi (01/08/2026)
+
+Michele segnala (log alla mano) un comportamento strano: entrando in
+un'avventura già in corso ("Continua", non "Nuova Avventura") il
+motore era in fase di avvio ma non lo segnalava — scena 1 mostrata
+subito in inglese senza traduzione, poi "dopo un paio di volte" la
+traduzione ha iniziato a comparire da sola. Chiede di ricontrollare
+tutto: "c'è qualcosa che sta scappando".
+
+**Diagnosi dal log**: il modello finisce di caricare
+("Modello caricato su GPU") ben prima del primo `PROMPT completo`
+loggato — quindi il ritardo osservato non è nel caricamento in sé, ma
+nel FATTO che nessuna richiesta di narrazione arriva a `SceneNarrator`
+finché il motore non è già pronto per conto suo. Causa trovata
+leggendo il codice, non solo il log: il controllo a tre vie aggiunto
+ieri (pronto / in caricamento / spento) vive nel `LaunchedEffect`
+di `AdventureRoute.kt`, che scatta **una sola volta**, alla primissima
+scena. Ogni scena successiva raggiunta con una scelta passa da
+`AdventureState.moveTo()`, che chiama `startNarration()`
+**direttamente** — bypassando quel controllo. `SceneNarrator.narrate()`
+ha un controllo indipendente e già esistente (`if (!engine.isLoaded)`
+→ degrado silenzioso sul testo originale, nessuna attesa, nessun log)
+che guarda solo l'istantanea del momento. Risultato: la scena 1 (o
+qualunque scena raggiunta mentre il motore sta ancora finendo di
+caricare in background) resta muta senza preavviso, e le scene dopo
+"si accendono da sole" appena l'auto-load — che nel frattempo continua
+a girare indipendentemente da qualunque scelta fatta in UI — finisce
+per conto proprio.
+
+**Fix in `AdventureState.kt`**: nuovo parametro di costruzione
+`ensureEngineLoaded: suspend () -> Boolean` (iniettato da
+`AdventureRoute.kt` come `{ container.ensureModelLoaded() }`,
+default no-op `{ true }` per test/@Preview). `startNarration()` ora,
+per QUALUNQUE scena (non solo la prima), se il narratore non è ancora
+pronto aspetta questa callback PRIMA di chiamare `narrator.narrate()`
+— stesso lock condiviso di `AppContainer` già usato dal controllo
+d'ingresso, mostrando "Il narratore apre il libro…" invece di restare
+muta. Nuovo flag di sessione `engineOptedOut`, impostato in
+`narrationUnavailable()` (chiamata sia quando il modello manca/il
+caricamento fallisce, sia quando il giocatore sceglie esplicitamente
+"Continua senza motore"): una volta deciso "niente motore" per questa
+sessione, le scene successive non ritentano da sole — prima questa
+scelta non era davvero definitiva, il motore poteva riaccendersi a
+sorpresa a metà partita contraddicendola.
+
+Compilazione e suite `:app` verdi.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
