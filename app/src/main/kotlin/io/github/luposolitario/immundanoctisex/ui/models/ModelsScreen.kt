@@ -87,6 +87,7 @@ fun ModelsScreen(
     isActivating: Boolean,
     activateError: String?,
     onActivate: (DownloadableModel) -> Unit,
+    onDeactivate: () -> Unit,
     onTokenChange: (String) -> Unit,
     onDownload: (DownloadableModel) -> Unit,
     onCancel: () -> Unit,
@@ -171,6 +172,7 @@ fun ModelsScreen(
                     downloadBlockedByOther = anyDownloadRunning && model.id != runningModelId,
                     onSelect = { onSelectModel(model) },
                     onActivate = { onActivate(model) },
+                    onDeactivate = onDeactivate,
                     onDownload = { onDownload(model) },
                     onCancel = onCancel,
                     onDelete = { onDelete(model) },
@@ -201,6 +203,7 @@ fun ModelsScreen(
                         downloadBlockedByOther = anyDownloadRunning && model.id != runningModelId,
                         onSelect = { onSelectModel(model) },
                         onActivate = { onActivate(model) },
+                        onDeactivate = onDeactivate,
                         onDownload = { onDownload(model) },
                         onCancel = onCancel,
                         onDelete = { onDelete(model) },
@@ -260,6 +263,10 @@ private fun ModelCard(
     downloadBlockedByOther: Boolean,
     onSelect: () -> Unit,
     onActivate: () -> Unit,
+    // Lo stesso bottone rosso spegne il motore (01/08/2026, Michele:
+    // "deve essere possibile disattivare il motore premendo su quello
+    // attivato"): prima era solo un'etichetta di stato disabilitata.
+    onDeactivate: () -> Unit,
     onDownload: () -> Unit,
     onCancel: () -> Unit,
     onDelete: () -> Unit,
@@ -344,8 +351,13 @@ private fun ModelCard(
                         // lo stesso di "Scarica" e di troppi altri bottoni,
                         // non si distingueva come azione pronta).
                         Button(
-                            onClick = onActivate,
-                            enabled = !active && !isActivating,
+                            // Attivo -> lo stesso bottone spegne il motore
+                            // (01/08/2026): il badge "In uso ora" sopra
+                            // resta a dire QUALE modello è caricato, così
+                            // il bottone può portare l'azione invece dello
+                            // stato.
+                            onClick = if (active) onDeactivate else onActivate,
+                            enabled = !isActivating,
                             colors = if (active) {
                                 ButtonDefaults.buttonColors(
                                     containerColor = MaterialTheme.colorScheme.error,
@@ -365,7 +377,7 @@ private fun ModelCard(
                             Text(
                                 when {
                                     isActivating -> "Attivazione…"
-                                    active -> "Attivato"
+                                    active -> "Disattiva"
                                     else -> "Attiva"
                                 },
                             )
@@ -540,6 +552,7 @@ private fun ModelsScreenPreview() {
             isActivating = false,
             activateError = null,
             onActivate = {},
+            onDeactivate = {},
             onTokenChange = {},
             onDownload = {},
             onCancel = {},
@@ -598,6 +611,7 @@ private fun ModelsScreenSoloGemmaPreview() {
             isActivating = false,
             activateError = null,
             onActivate = {},
+            onDeactivate = {},
             onTokenChange = {},
             onDownload = {},
             onCancel = {},

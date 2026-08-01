@@ -3954,6 +3954,20 @@ la scelta "Avvia il motore" / "Continua senza motore".
 
 Compilazione e suite `:app` verdi.
 
+**Secondo giro, stesso giorno** — Michele: "deve essere possibile
+disattivare il motore premendo su quello attivato e poi devono vincere
+le regole che abbiamo detto". Il bottone rosso della card attiva era
+solo un'etichetta di stato disabilitata ("Attivato",
+`enabled = !active && !isActivating`): ora è cliccabile e spegne il
+motore, testo "Disattiva". Lo stato "quale modello è caricato" resta
+comunicato dal badge **"In uso ora"** già presente sopra il bottone —
+liberato da quel compito, il bottone può portare l'azione invece dello
+stato. Passa per la stessa identica strada dell'interruttore in
+Impostazioni avanzate (`AppContainer.disableEngine()`), quindi valgono
+le regole già definite: resta spento anche riaprendo l'app, si
+riaccende solo con "Attiva" (subito) o con un download completato
+(dalla sessione successiva).
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

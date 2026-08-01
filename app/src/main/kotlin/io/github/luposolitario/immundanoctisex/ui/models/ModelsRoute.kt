@@ -244,6 +244,21 @@ fun ModelsRoute(
                 }
             }
         },
+        // Spegnimento dal bottone rosso della card attiva (01/08/2026,
+        // Michele: "deve essere possibile disattivare il motore premendo
+        // su quello attivato e poi devono vincere le regole che abbiamo
+        // detto") — stessa identica strada dell'interruttore in
+        // Impostazioni avanzate: da qui in poi vale engineEnabled=false
+        // (niente auto-load all'avvio, la scelta in avventura ricompare),
+        // finché non si riattiva a mano o si scarica un modello nuovo.
+        onDeactivate = {
+            activateError = null
+            scope.launch {
+                container.disableEngine()
+                activeModelId = null
+                advanced = advanced.copy(engineEnabled = false)
+            }
+        },
         onTokenChange = { newToken ->
             token = newToken
             preferences.huggingFaceToken = newToken
