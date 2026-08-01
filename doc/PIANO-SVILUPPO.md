@@ -48,6 +48,7 @@ quei due blocchi. Sorgenti v1 = miniera di riuso, MAI dipendenza.
 | Frammenti del prompt per Gemma | `PromptBuilder.kt` (`:app`, 31/07/2026 — `content/config.json` rimosso, un solo file) |
 | Cosa è riusabile da v1 | `doc/MATERIALE-REGOLE-V1.md`, `doc/ANALISI-FLUSSO-PROMPT-V1.md`, `doc/INVENTARIO-ASSET.md` |
 | Cosa è riusabile dalla UI v1, convenzione @Preview | `doc/ANALISI-UI-V1.md` |
+| Libri di prova per verificare una feature su device | `doc/LIBRI-DI-PROVA.md` |
 | Storia delle decisioni | `doc/DIARIO.md` |
 | Idee rinviate (NON schedulate, non implementare) | `doc/UPGRADE.md` |
 
