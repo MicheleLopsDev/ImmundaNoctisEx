@@ -298,16 +298,30 @@ fun SceneEditorScreen(
                             DisposableEffect(Unit) { onDispose { controllerSfx.ferma() } }
                             var inRiproduzioneSfx by remember { mutableStateOf(false) }
                             Spacer(Modifier.width(8.dp))
+                            // Lo stesso pulsante FERMA la riproduzione
+                            // (01/08/2026): un suono di scena può essere un
+                            // tappeto musicale di minuti (vedi il tetto di
+                            // 25MB in SfxDownloadCache lato client), e prima
+                            // il pulsante restava disabilitato fino alla
+                            // fine del brano — l'unico modo di zittirlo era
+                            // chiudere la maschera.
                             Button(
                                 onClick = {
-                                    inRiproduzioneSfx = true
-                                    scope.launch {
-                                        controllerSfx.riproduci(sfxUrl)
-                                        inRiproduzioneSfx = false
+                                    if (inRiproduzioneSfx) {
+                                        // ferma() chiude il Player: la
+                                        // chiamata bloccante dentro
+                                        // riproduci() ritorna e la coroutine
+                                        // rimette il flag a false da sé.
+                                        controllerSfx.ferma()
+                                    } else {
+                                        inRiproduzioneSfx = true
+                                        scope.launch {
+                                            controllerSfx.riproduci(sfxUrl)
+                                            inRiproduzioneSfx = false
+                                        }
                                     }
                                 },
-                                enabled = !inRiproduzioneSfx,
-                            ) { Text(if (inRiproduzioneSfx) "▶ in riproduzione…" else "▶ Ascolta") }
+                            ) { Text(if (inRiproduzioneSfx) "■ Ferma" else "▶ Ascolta") }
                         }
                     }
                 }
@@ -664,22 +678,26 @@ private fun CampoImmagineConAnteprima(
                     // 30/07/2026, Michele: "se fa play del sound non
                     // permettere di fare di nuovo click altrimenti
                     // cliccando più volte succede un casino" — più
-                    // riproduzioni in corso insieme si sovrappongono.
-                    // Pulsante disabilitato finché quella in corso non
-                    // finisce per davvero (riproduci è sospendibile
-                    // apposta, vedi ResourceSoundPlayer.kt).
+                    // riproduzioni in corso insieme si sovrappongono. Il
+                    // secondo click quindi non ri-suona: FERMA (01/08/2026,
+                    // stesso motivo del pulsante sopra) — un suono di
+                    // libreria può durare minuti, e prima l'unico modo di
+                    // zittirlo era chiudere il pannello.
                     var inRiproduzione by remember(valore) { mutableStateOf(false) }
                     Spacer(Modifier.height(4.dp))
                     Button(
                         onClick = {
-                            inRiproduzione = true
-                            scope.launch {
-                                controllerSuono.riproduci(urlSuono)
-                                inRiproduzione = false
+                            if (inRiproduzione) {
+                                controllerSuono.ferma()
+                            } else {
+                                inRiproduzione = true
+                                scope.launch {
+                                    controllerSuono.riproduci(urlSuono)
+                                    inRiproduzione = false
+                                }
                             }
                         },
-                        enabled = !inRiproduzione,
-                    ) { Text(if (inRiproduzione) "▶ in riproduzione…" else "▶ Ascolta") }
+                    ) { Text(if (inRiproduzione) "■ Ferma" else "▶ Ascolta") }
                 }
             }
         }

@@ -4048,6 +4048,23 @@ condivisi fra i due player: stesso canale audio qualunque cosa suoni.
 
 Compilazione e suite `:app` verdi. Il test vero resta da fare su device.
 
+**Stessa cosa lato editor** (Michele: "devi aggiornare questa cosa anche
+per l'editor"). L'anteprima audio di `:tool` non ha il problema del
+player — usa JLayer, che riproduce in streaming dallo stream MP3 senza
+decomprimere tutto in memoria né limiti di dimensione — ma aveva il
+problema *speculare* sul lato interfaccia: il pulsante "▶ Ascolta"
+diventava "▶ in riproduzione…" e restava **disabilitato fino alla fine
+del brano**, scelta ragionevole quando un sfx durava due secondi
+(30/07/2026, "non permettere di fare di nuovo click altrimenti succede
+un casino"), insostenibile con un tappeto musicale di 6-8 minuti:
+l'unico modo di zittirlo era chiudere la maschera. Ora il secondo click
+FERMA (testo "■ Ferma", `SoundPlayerController.ferma()` già esistente —
+chiude il `Player`, la chiamata bloccante ritorna e la coroutine rimette
+il flag da sé). Corretti entrambi i punti: l'anteprima di `Scene.sfx`
+nell'editor di scena e quella della libreria risorse. Il vincolo
+originale resta rispettato — due riproduzioni non si sovrappongono mai.
+Compilazione e test `:tool` verdi.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
