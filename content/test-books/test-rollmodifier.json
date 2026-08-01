@@ -1,0 +1,313 @@
+{
+    "id": "test-rollmodifier",
+    "version": "1.0.0",
+    "title": "Prova dei tiri con bonus",
+    "description": "Libro di prova per Scene.rollModifiers: il tiro della Tabella dei Numeri Casuali modificato da un bonus condizionale. Crea il personaggio CON il Sesto Senso per vedere il bonus, e una seconda volta SENZA per il confronto.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": [
+        "calm"
+    ],
+    "disciplineChoices": [
+        {
+            "id": "WEAPONSKILL",
+            "name": "Weaponskill",
+            "description": "Mastery with a chosen weapon type, adding a bonus to Combat Skill when wielding it."
+        },
+        {
+            "id": "CAMOUFLAGE",
+            "name": "Camouflage",
+            "description": "The art of blending into terrain and shadow to move unseen."
+        },
+        {
+            "id": "HUNTING",
+            "name": "Hunting",
+            "description": "Skill at foraging and catching food in the wild, removing the need for meals."
+        },
+        {
+            "id": "SIXTH_SENSE",
+            "name": "Sixth Sense",
+            "description": "A heightened intuition that warns of danger and hidden threats."
+        },
+        {
+            "id": "TRACKING",
+            "name": "Tracking",
+            "description": "The ability to follow trails and read signs left by passage."
+        },
+        {
+            "id": "HEALING",
+            "name": "Healing",
+            "description": "The gift of mending wounds and restoring endurance without herbs."
+        },
+        {
+            "id": "MINDSHIELD",
+            "name": "Mindshield",
+            "description": "A mental ward against psychic intrusion and fear."
+        },
+        {
+            "id": "MINDBLAST",
+            "name": "Mindblast",
+            "description": "The power to strike an enemy's mind directly, aiding in combat."
+        },
+        {
+            "id": "ANIMAL_KINSHIP",
+            "name": "Animal Kinship",
+            "description": "An affinity with animals, calming beasts and reading their moods."
+        },
+        {
+            "id": "MIND_OVER_MATTER",
+            "name": "Mind Over Matter",
+            "description": "Telekinetic control, allowing objects to be moved by will alone."
+        }
+    ],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": [
+                "calm"
+            ],
+            "backgroundImage": "static:loc_tavern",
+            "locationName": "Prova 1: bonus fisso",
+            "narrativeText": "TEST 1 - fixed modifier, always +5. Whatever the die shows, the line above the button must read 'you rolled: N +5 = N+5'. Every possible total (5 to 14) leads to scene 2, so this test is deterministic: it only checks that the number is EXPLAINED.",
+            "rollModifiers": [
+                {
+                    "amount": 5
+                }
+            ],
+            "choices": [
+                {
+                    "id": "c1a",
+                    "choiceText": "Totale 0-4 (impossibile qui): vai a 2",
+                    "nextSceneId": "2",
+                    "minRoll": 0,
+                    "maxRoll": 4,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                },
+                {
+                    "id": "c1b",
+                    "choiceText": "Totale 5-14: vai alla prova 2",
+                    "nextSceneId": "2",
+                    "minRoll": 5,
+                    "maxRoll": 14,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": [
+                "tense"
+            ],
+            "backgroundImage": "static:loc_market",
+            "locationName": "Prova 2: Sesto Senso",
+            "narrativeText": "TEST 2 - conditional modifier: +2 only with the Kai Discipline of Sixth Sense. WITH it the total is 2-11 and scene 5 becomes reachable; WITHOUT it the total is 0-9 and scene 5 can NEVER be reached. Play it a few times.",
+            "rollModifiers": [
+                {
+                    "amount": 2,
+                    "condition": {
+                        "type": "DISCIPLINE",
+                        "values": [
+                            "SIXTH_SENSE"
+                        ]
+                    }
+                }
+            ],
+            "choices": [
+                {
+                    "id": "c2a",
+                    "choiceText": "Totale 0-4: vai a 3",
+                    "nextSceneId": "3",
+                    "minRoll": 0,
+                    "maxRoll": 4,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                },
+                {
+                    "id": "c2b",
+                    "choiceText": "Totale 5-9: vai a 4",
+                    "nextSceneId": "4",
+                    "minRoll": 5,
+                    "maxRoll": 9,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                },
+                {
+                    "id": "c2c",
+                    "choiceText": "Totale 10-11: vai a 5",
+                    "nextSceneId": "5",
+                    "minRoll": 10,
+                    "maxRoll": 11,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "3",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": [
+                "dark"
+            ],
+            "backgroundImage": "static:loc_alley",
+            "locationName": "Esito basso",
+            "narrativeText": "Total 0-4. Without Sixth Sense this is the most likely outcome. Go back and roll again, or move on to test 3.",
+            "choices": [
+                {
+                    "id": "c3a",
+                    "choiceText": "Tira di nuovo (torna alla prova 2)",
+                    "nextSceneId": "2",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                },
+                {
+                    "id": "c3b",
+                    "choiceText": "Vai alla prova 3",
+                    "nextSceneId": "6",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "4",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": [
+                "calm"
+            ],
+            "backgroundImage": "static:loc_harbor",
+            "locationName": "Esito medio",
+            "narrativeText": "Total 5-9. Reachable both with and without the discipline.",
+            "choices": [
+                {
+                    "id": "c4a",
+                    "choiceText": "Tira di nuovo (torna alla prova 2)",
+                    "nextSceneId": "2",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                },
+                {
+                    "id": "c4b",
+                    "choiceText": "Vai alla prova 3",
+                    "nextSceneId": "6",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "5",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": [
+                "lively"
+            ],
+            "backgroundImage": "static:loc_warehouse",
+            "locationName": "Esito alto: solo col bonus",
+            "narrativeText": "Total 10-11. This scene is UNREACHABLE without the Sixth Sense bonus: a raw die is 0-9. If you got here without that discipline, something is wrong.",
+            "choices": [
+                {
+                    "id": "c5a",
+                    "choiceText": "Tira di nuovo (torna alla prova 2)",
+                    "nextSceneId": "2",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                },
+                {
+                    "id": "c5b",
+                    "choiceText": "Vai alla prova 3",
+                    "nextSceneId": "6",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "6",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": [
+                "dark"
+            ],
+            "backgroundImage": "static:loc_alley",
+            "locationName": "Prova 3: malus da ferite",
+            "narrativeText": "TEST 3 - a malus that depends on the state of the game: -3 only while your ENDURANCE is below 10. At full health nothing changes; badly wounded, the same die sends you elsewhere. Hard to trigger on purpose: it is here mainly to prove that a condition on the character is read at the right moment.",
+            "rollModifiers": [
+                {
+                    "amount": -3,
+                    "condition": {
+                        "type": "ENDURANCE",
+                        "operator": "<",
+                        "threshold": 10
+                    }
+                }
+            ],
+            "choices": [
+                {
+                    "id": "c6a",
+                    "choiceText": "Totale -3..4: vai al finale",
+                    "nextSceneId": "7",
+                    "minRoll": -3,
+                    "maxRoll": 4,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                },
+                {
+                    "id": "c6b",
+                    "choiceText": "Totale 5-9: vai al finale",
+                    "nextSceneId": "7",
+                    "minRoll": 5,
+                    "maxRoll": 9,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "7",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "toneHints": [
+                "calm"
+            ],
+            "backgroundImage": "static:loc_tavern",
+            "locationName": "Fine della prova",
+            "narrativeText": "Test finished. What should have been checked: the number is explained above the button ('you rolled: 5 +2 = 7'), the destination matches the TOTAL and not the raw die, and scene 5 is reachable only with Sixth Sense.",
+            "choices": [],
+            "disciplineChoices": [],
+            "gameMechanics": [],
+            "outcome": "VICTORY"
+        }
+    ]
+}
