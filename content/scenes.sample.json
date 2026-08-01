@@ -88,6 +88,7 @@
             "genre": "FANTASY",
             "toneHints": ["lively", "tense"],
             "backgroundImage": "static:loc_market",
+            "npcImage": "static:test_tie_anim",
             "locationName": "Market Square",
             "narrativeText": "The market square roars with life: merchants bark prices over crates of spice and cloth, a juggler draws a ring of children, and somewhere a dog barks at nothing. Yet beneath the noise you feel eyes tracking your steps, a prickle at the back of your neck that never quite resolves into a face. Near the fountain, a hunched beggar catches your gaze and jerks his chin toward a gap between two shuttered stalls, murmuring directions to the old quarter before melting back into the crowd.",
             "choices": [
@@ -110,6 +111,7 @@
             "genre": "FANTASY",
             "toneHints": ["dark", "suspenseful"],
             "backgroundImage": "static:loc_alley",
+            "npcImage": "url:https://shoelace.style/assets/images/tie.webp",
             "locationName": "Old Quarter",
             "narrativeText": "The alley narrows as the old quarter swallows the daylight, damp stone walls pressing close on either side. Ahead, the warehouse door stands ajar, and shapes shift in the gloom before it, too still to be idle, too many to be chance. Something about the doorway's silence sets your instincts screaming. You could trust your training to find a safer path, or simply walk forward and meet whatever waits with steel in hand.",
             "choices": [

@@ -3814,6 +3814,28 @@ verifica vera solo su device).
 
 ---
 
+## Asset di prova per le immagini animate (01/08/2026)
+
+Michele conferma via test che la corsa fra motori è risolta. Per
+verificare finalmente la Parte 1 di ieri (WebP/GIF animati, mai
+provata con un vero file animato) trova un WebP open-source animato
+su shoelace.style (`tie.webp`, libreria UI open-source, uso di test)
+e chiede un file di prova sia in modalità `static:` sia `url:`.
+
+Scaricato e verificato (chunk `VP8X`/`ANIM`/`ANMF` nell'header:
+davvero animato, non solo un frame). Copiato in
+`app/src/main/res/drawable-nodpi/test_tie_anim.webp`, registrato come
+`test_tie_anim` in `NpcImageCatalog.kt`/`NpcImages.kt` (marcato
+esplicitamente come asset di prova, da togliere a verifica chiusa).
+Nel libro di esempio versionato (`content/scenes.sample.json`, quello
+mostrato di default in Home — "The Warehouse Letter"): scena 2
+(`npcImage: "static:test_tie_anim"`), scena 3
+(`npcImage: "url:https://shoelace.style/assets/images/tie.webp"`) —
+stesso identico file animato, entrambe le strade nella stessa
+partita. Compilazione e suite verdi.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

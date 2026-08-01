@@ -37,6 +37,9 @@ fun npcImageRes(name: String?): Int? {
         "beast_anaconda" -> R.drawable.beast_anaconda
         "beast_familiar" -> R.drawable.beast_familiar
         "beast_rats" -> R.drawable.beast_rats
+        // Asset di prova per le immagini animate (01/08/2026), vedi
+        // NpcImageCatalog.kt.
+        "test_tie_anim" -> R.drawable.test_tie_anim
         else -> null
     }
 }
