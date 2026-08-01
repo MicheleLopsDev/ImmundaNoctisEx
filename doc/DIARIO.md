@@ -3885,6 +3885,31 @@ Compilazione e suite `:app` verdi.
 
 ---
 
+## Marcatore di build in logcat (01/08/2026)
+
+Due log successivi di Michele senza nessuna traccia di attività del
+motore (`LiteRtLmEngine`/`SceneNarrator` assenti) avevano insospettito
+entrambi — poi chiarito che in quei test **non c'era nessun modello
+scaricato** (quindi `ensureModelLoaded()` esce subito senza toccare
+nessun motore, comportamento corretto, non un bug). Nel dubbio se
+stesse testando l'ultima build o una precedente, Michele chiede una
+soluzione strutturale: "aggiungi un log incrementale che ogni volta
+che modifichi qualcosa modifichi, così guardo solo quello e non sono
+costretto a controllare i vari file... un log di versione io lo faccio
+sempre".
+
+**`MainActivity.kt`**: nuova costante `BUILD_MARKER` (stringa libera,
+data + breve descrizione dell'ultima modifica) loggata subito in
+`onCreate()` con tag `"BuildMarker"` — `Log.i("BuildMarker",
+"BUILD_MARKER = $BUILD_MARKER")`. Convenzione per le prossime sessioni:
+aggiornare quella riga ad OGNI modifica di codice prima di far
+ricompilare a Michele, così un filtro logcat su "BuildMarker" basta a
+confermare se il device ha davvero l'ultima versione.
+
+Compilazione verde.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

@@ -1,6 +1,7 @@
 package io.github.luposolitario.immundanoctisex
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -24,6 +25,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Marcatore di build (01/08/2026, richiesta Michele: "un log di
+        // versione io lo faccio sempre... così guardo solo quello e non
+        // sono costretto a controllare i vari file per sapere se sto
+        // guardando la nuova versione"). AGGIORNARE questa riga ad OGNI
+        // modifica di codice prima di ricompilare — filtra logcat sul tag
+        // "BuildMarker" per vedere subito se il device sta girando
+        // l'ultima build o una vecchia.
+        Log.i("BuildMarker", "BUILD_MARKER = $BUILD_MARKER")
         setContent {
             val systemDark = isSystemInDarkTheme()
             var darkTheme by remember {
@@ -86,3 +95,9 @@ class MainActivity : ComponentActivity() {
         super.onDestroy()
     }
 }
+
+// Stringa del marcatore di build (vedi commento in onCreate) — SOLO
+// questa riga va toccata ad ogni modifica di codice, così Michele legge
+// "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
+// ricompilato l'ultima versione o una vecchia.
+private const val BUILD_MARKER = "2026-08-01-02 fix: ensureEngineLoaded per ogni scena (non solo la prima, moveTo)"
