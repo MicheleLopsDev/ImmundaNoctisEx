@@ -134,26 +134,50 @@ object ProjectAonHtmlParser {
     private val winRegex = Regex("""\bif you (?:win|kill|defeat|slay)\b""", RegexOption.IGNORE_CASE)
     private val evadeRegex = Regex("""\bevade\b""", RegexOption.IGNORE_CASE)
     private val evadeRoundsRegex = Regex("""after (\w+) rounds? of combat""", RegexOption.IGNORE_CASE)
-    // BUG (31/07/2026, Michele: scena della Tabella dei Numeri Casuali
-    // mostrata come 2 scelte manuali invece del tiro del dado a bottone
-    // singolo — DiceZone/requiresRoll in AdventureState.kt esistono già e
-    // funzionano, il problema era qui: la vecchia regex richiedeva la
-    // parola "picked" incollata al numero ("picked 0", "picked a number 0"),
-    // ma il testo reale di Project Aon varia — "the number you have
-    // picked IS 0–4" (parola di mezzo "is") o perfino "the number IS 5–9"
-    // (senza "picked" affatto, riferendosi a un "pick a number" detto una
-    // volta sola nella prosa sopra). Ancorata su "number" invece che su
-    // "picked", con fino a 20 caratteri liberi prima di "is" per coprire
-    // entrambe le forme.
-    private val pickedRangeRegex = Regex("""number\b.{0,20}?\bis\s+(\d)(?:\s*[-–]\s*(\d))?\b""", RegexOption.IGNORE_CASE)
+    // Tabella dei Numeri Casuali (31/07/2026, Michele: la scena appariva
+    // come scelte manuali invece del tiro del dado a bottone singolo —
+    // DiceZone/requiresRoll lato client funzionano già, il problema è
+    // sempre stato qui). Il testo di Project Aon usa MOLTE forme per la
+    // stessa cosa, verificate una per una sui 5 libri convertiti
+    // (01/08/2026, controllo esaustivo su tutte le scene che citano la
+    // tabella):
+    //   "If you have picked a number 0–4"      -> ramo "picked"
+    //   "If you have picked 0–1"               -> ramo "picked"
+    //   "If the number you have picked is 0–4" -> ramo "number ... is"
+    //   "If the number is 5–9"                 -> ramo "number ... is"
+    //   "If it is 2–4"                         -> ramo "it is"
+    // Il secondo giro di correzioni è servito perché la versione del
+    // 31/07, ancorata solo su "number ... is", aveva RIMOSSO il supporto
+    // per le prime due (regressione: prendeva 27 scelte su 01fftd ma ne
+    // perdeva altre 11).
+    private val pickedRangeRegex = Regex(
+        """(?:\bpicked\b(?:\s+a\s+number)?\s+|\bnumber\b.{0,25}?\bis\s+|\bit\s+is\s+)(\d+)(?:\s*[-–—−]\s*(\d+))?\b""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    // "Pick a number... se hai la Disciplina X puoi aggiungere 2... se il
+    // TOTALE è 0–3": il numero estratto viene modificato da un bonus
+    // CONDIZIONALE (una disciplina, un oggetto) prima del confronto.
+    // minRoll/maxRoll del nostro schema si confrontano col tiro GREZZO
+    // (ChoiceAvailability.forRoll), quindi convertirle qui sarebbe
+    // peggio che non convertirle: il gioco ignorerebbe il bonus e
+    // manderebbe il giocatore nella scena sbagliata. Restano scelte
+    // manuali finché lo schema non saprà esprimere un modificatore
+    // (92 casi sui 5 libri, vedi doc/DIARIO.md 01/08/2026).
+    private val totaleModificatoRegex = Regex("""\btotal\b""", RegexOption.IGNORE_CASE)
 
     // Estratta per essere testabile senza dover passare da un intero file
     // XHTML (il parser vero lavora su Jsoup.parse(File), qui serve solo la
     // logica della regex).
     internal fun rollRangeFor(text: String): Pair<Int, Int>? {
+        if (totaleModificatoRegex.containsMatchIn(text)) return null
         val range = pickedRangeRegex.find(text) ?: return null
-        val min = range.groupValues[1].toInt()
+        val min = range.groupValues[1].toIntOrNull() ?: return null
         val max = range.groupValues[2].toIntOrNull() ?: min
+        // Il tiro grezzo della Tabella è 0-9: un intervallo che ne esce
+        // (es. "7–11") è per forza un totale già modificato da un bonus,
+        // anche quando la frase non usa la parola "total".
+        if (min > 9 || max > 9 || min > max) return null
         return min to max
     }
     private val combatLineRegex = Regex("""^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(\d+)""", RegexOption.IGNORE_CASE)

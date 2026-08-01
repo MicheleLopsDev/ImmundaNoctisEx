@@ -4103,6 +4103,63 @@ Due trappole incontrate e risolte:
 Il task NON è agganciato a nessun altro: dipende da un device
 collegato, non deve far fallire una build normale.
 
+---
+
+## Tabella dei Numeri Casuali, secondo giro: la mia stessa regressione (01/08/2026)
+
+Facendo il punto delle cose da verificare, Michele chiede cosa avrebbe
+dovuto controllare sui 4 libri riconvertiti il 31/07 — domanda giusta:
+la verifica proposta ("giocali finché non incroci una scena col tiro")
+era impraticabile e poco affidabile. Sostituita con un **controllo
+esaustivo automatico**: per ogni scena che cita la Tabella dei Numeri
+Casuali, verificare che abbia almeno una scelta con `minRoll`.
+
+Risultato: **74 scene la citavano senza avere nessun tiro**. Analisi
+delle forme testuali reali (non a intuito: raccolte e contate su tutti
+e 5 i libri):
+
+1. **Regressione introdotta da me il 31/07** — la regex nuova, ancorata
+   su `"number ... is"`, aveva smesso di riconoscere `"If you have
+   picked a number 0–4"` e `"If you have picked 0–1"`, che la vecchia
+   prendeva. Avevo guadagnato forme e perso le altre, e il conteggio
+   "7 → 27" mi era sembrato una conferma sufficiente. Non lo era: il
+   confronto era solo sul totale, mai sulle scene mancanti.
+2. **Forma mai gestita**: `"If it is 2–4"` (si riferisce al numero
+   nominato nella frase precedente).
+3. **Caso che NON va convertito affatto** (92 occorrenze): *"Pick a
+   number... se hai la Disciplina Sesto Senso aggiungi 2... se il
+   TOTALE è 0–3"*. Il tiro è modificato da un bonus **condizionale**
+   (disciplina, rango Kai, ENDURANCE corrente), e gli intervalli escono
+   da 0-9 (es. 7–11) o vanno in negativo (−3–3). `minRoll`/`maxRoll` si
+   confrontano col tiro GREZZO (`ChoiceAvailability.forRoll`):
+   convertirle sarebbe **peggio** che lasciarle manuali, perché il
+   gioco ignorerebbe il bonus e manderebbe il giocatore nella scena
+   sbagliata. Restano scelte manuali per scelta esplicita — servirebbe
+   un modificatore nello schema (vedi "aperto" sotto).
+
+Regex riscritta con tre rami alterni (`picked` / `number … is` /
+`it is`) più due guardie: scarto se la frase parla di `total`, e se
+l'intervallo esce da 0-9 (un "7–11" è per forza già modificato, anche
+senza la parola "total"). 5 nuovi test sulle forme reali, inclusi due
+che verificano che i tiri con bonus NON vengano convertiti.
+
+Libri riconvertiti, tiri riconosciuti — 31/07 → oggi: 01fftd 27→**38**,
+02fotw 45→**50**, 03tcok 36→**36**, 04tcod 21→**41**, 05sots 10→**22**.
+Ricontrollo finale: **zero** scene con la tabella e un tiro puro non
+riconosciuto. I due casi residui sono entrambi tiri modificati
+(sottrai 2 se sei Guardiano; sottrai 3 se ENDURANCE < 10),
+correttamente esclusi.
+
+**Aperto, da decidere con Michele**: i ~92 tiri con bonus condizionale
+restano scelte manuali (il giocatore fa il conto a mente e sceglie).
+Per automatizzarli servirebbe un campo tipo `rollModifier` sulle
+scelte, con la condizione che lo attiva (disciplina posseduta, rango,
+soglia di ENDURANCE) — una feature di schema, non un fix di parsing.
+
+---
+
+### Dettaglio storico (fino al 21/07/2026)
+
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
 Razr senza IA (Home, creazione, scena, combat a due modalità, scheda,
 diario, checkpoint, auto-save atomico).

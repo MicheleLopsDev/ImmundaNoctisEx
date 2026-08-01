@@ -42,4 +42,42 @@ class ProjectAonHtmlParserTest {
     fun testoSenzaTabellaDeiNumeriRestituisceNull() {
         assertNull(ProjectAonHtmlParser.rollRangeFor("If you wish to take the right path into the wood, turn to 85."))
     }
+
+    // Forme raccolte dal controllo esaustivo sui 5 libri convertiti
+    // (01/08/2026): la versione precedente della regex, ancorata solo su
+    // "number ... is", le perdeva tutte e tre.
+
+    @Test
+    fun laFormaConPickedANumberVieneRiconosciuta() {
+        assertEquals(0 to 4, ProjectAonHtmlParser.rollRangeFor("If you have picked a number 0–4, turn to 343."))
+    }
+
+    @Test
+    fun laFormaConPickedSenzaLaParolaNumberVieneRiconosciuta() {
+        assertEquals(0 to 1, ProjectAonHtmlParser.rollRangeFor("If you have picked 0–1, turn to 53."))
+    }
+
+    @Test
+    fun laFormaAbbreviataItIsVieneRiconosciuta() {
+        // Si riferisce al numero estratto, nominato nella frase precedente.
+        assertEquals(2 to 4, ProjectAonHtmlParser.rollRangeFor("If it is 2–4, turn to 274."))
+    }
+
+    // --- Casi che NON vanno convertiti: tiro modificato da un bonus ---
+    // "Pick a number... se hai la Disciplina X aggiungi 2... se il totale
+    // è 0–3": minRoll/maxRoll si confrontano col tiro GREZZO, convertirli
+    // ignorerebbe il bonus e manderebbe il giocatore nella scena sbagliata.
+
+    @Test
+    fun unTotaleConBonusNonDiventaUnTiro() {
+        assertNull(ProjectAonHtmlParser.rollRangeFor("If your total score is now 0–3, turn to 58."))
+        assertNull(ProjectAonHtmlParser.rollRangeFor("If your total is now 4–6, turn to 167."))
+    }
+
+    @Test
+    fun unIntervalloFuoriDaZeroNoveNonDiventaUnTiro() {
+        // 7–11 è impossibile con un tiro grezzo 0-9: c'è per forza un
+        // modificatore, anche senza la parola "total" nella frase.
+        assertNull(ProjectAonHtmlParser.rollRangeFor("If it is 7–11, turn to 329."))
+    }
 }
