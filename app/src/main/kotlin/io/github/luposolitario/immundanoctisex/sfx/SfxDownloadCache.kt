@@ -100,6 +100,15 @@ class SfxDownloadCache(private val cacheDir: File) {
 
         private const val TIMEOUT_MS = 15_000
         private const val BUFFER_SIZE = 64 * 1024
-        private const val MAX_BYTES = 5L * 1024 * 1024
+
+        // 25 MB, non più 5 (01/08/2026): il primo tetto era tarato su
+        // "effetto sonoro breve, poche centinaia di KB", ma un suono
+        // personalizzato di scena può legittimamente essere un tappeto
+        // musicale di qualche minuto — i due file di prova scelti da
+        // Michele (SoundHelix, 6 e 8 minuti) pesano 8,5 e 10,8 MB e
+        // sarebbero falliti in silenzio. 25 MB copre comodamente un mp3
+        // lungo restando una guardia vera contro un link palesemente
+        // sbagliato (un video, un archivio) che riempirebbe lo storage.
+        private const val MAX_BYTES = 25L * 1024 * 1024
     }
 }

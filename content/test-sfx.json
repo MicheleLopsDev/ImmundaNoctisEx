@@ -1,0 +1,192 @@
+{
+    "id": "test-sfx",
+    "version": "1.0.0",
+    "title": "Prova dei suoni personalizzati",
+    "description": "Libro di prova per Scene.sfx con sorgenti url: (SoundHelix, generate proceduralmente, libere da diritti). Non un'avventura vera: cinque scene brevi per sentire i suoni.",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": [
+        "calm"
+    ],
+    "customResources": {
+        "images": [],
+        "sounds": [
+            {
+                "id": "traccia_lunga",
+                "url": "url:https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+            },
+            {
+                "id": "traccia_ritmica",
+                "url": "url:https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3"
+            }
+        ]
+    },
+    "disciplineChoices": [
+        {
+            "id": "WEAPONSKILL",
+            "name": "Weaponskill",
+            "description": "Mastery with a chosen weapon type, adding a bonus to Combat Skill when wielding it."
+        },
+        {
+            "id": "CAMOUFLAGE",
+            "name": "Camouflage",
+            "description": "The art of blending into terrain and shadow to move unseen."
+        },
+        {
+            "id": "HUNTING",
+            "name": "Hunting",
+            "description": "Skill at foraging and catching food in the wild, removing the need for meals."
+        },
+        {
+            "id": "SIXTH_SENSE",
+            "name": "Sixth Sense",
+            "description": "A heightened intuition that warns of danger and hidden threats."
+        },
+        {
+            "id": "TRACKING",
+            "name": "Tracking",
+            "description": "The ability to follow trails and read signs left by passage."
+        },
+        {
+            "id": "HEALING",
+            "name": "Healing",
+            "description": "The gift of mending wounds and restoring endurance without herbs."
+        },
+        {
+            "id": "MINDSHIELD",
+            "name": "Mindshield",
+            "description": "A mental ward against psychic intrusion and fear."
+        },
+        {
+            "id": "MINDBLAST",
+            "name": "Mindblast",
+            "description": "The power to strike an enemy's mind directly, aiding in combat."
+        },
+        {
+            "id": "ANIMAL_KINSHIP",
+            "name": "Animal Kinship",
+            "description": "An affinity with animals, calming beasts and reading their moods."
+        },
+        {
+            "id": "MIND_OVER_MATTER",
+            "name": "Mind Over Matter",
+            "description": "Telekinetic control, allowing objects to be moved by will alone."
+        }
+    ],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": [
+                "mysterious"
+            ],
+            "backgroundImage": "static:loc_tavern",
+            "locationName": "Sala della prova",
+            "narrativeText": "SCENE 1 - custom sound: track A (SoundHelix-Song-1), downloaded from the network on first use. It should start playing shortly after this scene appears, and the automatic per-image sound must NOT play over it.",
+            "sfx": "traccia_lunga",
+            "choices": [
+                {
+                    "id": "choice_1_1",
+                    "choiceText": "Go to scene 2 (different sound)",
+                    "nextSceneId": "2",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "2",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": [
+                "lively"
+            ],
+            "backgroundImage": "static:loc_market",
+            "locationName": "Piazza della prova",
+            "narrativeText": "SCENE 2 - custom sound: track B (SoundHelix-Song-13). Track A must stop and this one take over: two different sounds must never overlap.",
+            "sfx": "traccia_ritmica",
+            "choices": [
+                {
+                    "id": "choice_2_1",
+                    "choiceText": "Go to scene 3 (no custom sound)",
+                    "nextSceneId": "3",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "3",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": [
+                "dark"
+            ],
+            "backgroundImage": "static:loc_alley",
+            "locationName": "Vicolo della prova",
+            "narrativeText": "SCENE 3 - no custom sound declared. Here the usual automatic per-image sound takes over again, exactly as in any other book.",
+            "choices": [
+                {
+                    "id": "choice_3_1",
+                    "choiceText": "Go to scene 4 (track A again, from cache)",
+                    "nextSceneId": "4",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "4",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "toneHints": [
+                "mysterious"
+            ],
+            "backgroundImage": "static:loc_harbor",
+            "locationName": "Porto della prova",
+            "narrativeText": "SCENE 4 - track A again, the same file as scene 1. This time it must come from the local cache: it should start noticeably faster, and with the phone offline it must still play.",
+            "sfx": "traccia_lunga",
+            "choices": [
+                {
+                    "id": "choice_4_1",
+                    "choiceText": "End the test",
+                    "nextSceneId": "5",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "5",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "toneHints": [
+                "calm"
+            ],
+            "backgroundImage": "static:loc_warehouse",
+            "locationName": "Fine della prova",
+            "narrativeText": "Test finished. Sounds checked: download from the network, switching between two different sounds, fallback to the automatic sound, and playback from cache.",
+            "choices": [],
+            "disciplineChoices": [],
+            "gameMechanics": [],
+            "endingOutcome": "VICTORY"
+        }
+    ]
+}

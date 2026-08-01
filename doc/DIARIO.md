@@ -4005,6 +4005,51 @@ Compilazione e suite `:app` verdi.
 
 ---
 
+## Sfx url: su MediaPlayer, non SoundPool (01/08/2026)
+
+WebP animato **confermato funzionante** da Michele (verifica su device
+chiusa, l'asset di prova `test_tie_anim` resta in attesa che si decida
+se toglierlo). Si passa al test degli sfx: Michele porta due mp3
+open-source generati proceduralmente (SoundHelix, liberi da diritti) e
+chiede un libro di prova che li usi come `url:`.
+
+Creato `content/test-sfx.json` (5 scene, validato col CLI del progetto:
+scena 1 traccia A, scena 2 traccia B, scena 3 nessun sfx per vedere il
+ritorno al suono automatico, scena 4 di nuovo traccia A per la cache,
+scena 5 finale). Ma prima ancora di generare l'APK, due limiti nostri
+sono venuti fuori guardando i file veri:
+
+1. **Tetto della cache troppo basso**: i due file pesano 8,5 e 10,8 MB,
+   contro i 5 MB di `SfxDownloadCache.MAX_BYTES` — sarebbero falliti in
+   silenzio. Il tetto era tarato sull'idea "effetto sonoro breve, poche
+   centinaia di KB", ma un suono di scena può legittimamente essere un
+   tappeto musicale di qualche minuto. Alzato a **25 MB**: copre un mp3
+   lungo restando una guardia vera contro un link palesemente sbagliato.
+2. **Player sbagliato**, più serio: `playFromFile` caricava l'mp3
+   scaricato in **SoundPool**, che decomprime tutto in memoria come PCM
+   ed è pensato per colpi secchi — 6 minuti di audio diventano ~60MB di
+   PCM e verrebbero rifiutati. Ironia: il commento in cima a
+   `SoundEffectPlayer` documentava già la distinzione giusta
+   ("SoundPool invece di MediaPlayer... quello lo usa MusicPlayer" per i
+   file lunghi in loop), ma il percorso `url:` aggiunto il 31/07 era
+   finito comunque su SoundPool.
+
+Chiesto a Michele come procedere (`AskUserQuestion`), scelta:
+**MediaPlayer per gli url:**. Nuovo `customSfxPlayer: MediaPlayer?` in
+`SoundEffectPlayer` — preparato su `Dispatchers.IO` (legge e decodifica
+dal disco, non deve bloccare la UI) e avviato sul thread main come
+tutto il resto della classe. Gli `static:` restano su SoundPool: sono
+gli asset brevi bundlati nell'APK, il player giusto per loro.
+Re-implementati per il nuovo player loop, stop al cambio scena
+(`stopBackgroundSounds`, che ora cancella anche un download/preparazione
+ancora in corso), abbassamento volume durante il TTS (`setDuckedByTts`),
+pausa/ripresa della musica e `release()`. `AudioAttributes` estratti e
+condivisi fra i due player: stesso canale audio qualunque cosa suoni.
+
+Compilazione e suite `:app` verdi. Il test vero resta da fare su device.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
