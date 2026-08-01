@@ -79,9 +79,12 @@ fun ModelsRoute(
     var catalogError by remember { mutableStateOf<String?>(null) }
     var isImportingCatalog by remember { mutableStateOf(false) }
     // Quale modello e' DAVVERO nel motore ora (non solo selezionato):
-    // null finche' non si e' ancora giocata/attivata una scena in questa
-    // esecuzione dell'app.
-    var activeModelId by remember { mutableStateOf(container.loadedModelId) }
+    // letto DIRETTAMENTE dal container, mai copiato in uno stato locale
+    // (BUG 01/08/2026, vedi AppContainer.loadedModelId): una copia presa
+    // alla composizione non si accorgeva mai della fine di un auto-load
+    // partito all'avvio dell'app, e le card restavano su "Attiva" mentre
+    // il motore stava già traducendo.
+    val activeModelId = container.loadedModelId
     var activateError by remember { mutableStateOf<String?>(null) }
     // Il nome digitato prima di aprire il selettore file: il risultato
     // arriva in una callback separata, che non ha più accesso al form.
@@ -234,10 +237,9 @@ fun ModelsRoute(
                 val result = container.activateModel(model)
                 result.onSuccess {
                     selectedModelId = model.id
-                    activeModelId = model.id
-                    // activateModel() riaccende sempre engineEnabled (un
-                    // tocco esplicito vince su uno spegnimento precedente):
-                    // lo stato locale della card segue la preferenza vera.
+                    // activeModelId si aggiorna da sé (container.loadedModelId
+                    // è osservabile). activateModel() riaccende sempre
+                    // engineEnabled: lo stato della card segue la preferenza.
                     advanced = advanced.copy(engineEnabled = true)
                 }.onFailure { error ->
                     activateError = error.message ?: "Attivazione non riuscita."
@@ -255,7 +257,6 @@ fun ModelsRoute(
             activateError = null
             scope.launch {
                 container.disableEngine()
-                activeModelId = null
                 advanced = advanced.copy(engineEnabled = false)
             }
         },
@@ -269,10 +270,12 @@ fun ModelsRoute(
             preferences.deleteModel(model)
             downloadedIds = downloadedIds - model.id
             // BUG (22/07/2026, Michele: "anche se ho cancellato un modello
-            // questo risulta attivo"): il file spariva ma activeModelId
-            // restava quello, e la card continuava a mostrare "In uso ora"
-            // per un modello che non esiste più sul telefono.
-            if (activeModelId == model.id) activeModelId = null
+            // questo risulta attivo"): il file spariva ma la card
+            // continuava a mostrare "In uso ora" per un modello che non
+            // esiste più sul telefono. Ora si scarica per davvero dal
+            // motore (01/08/2026) invece di azzerare solo lo stato della
+            // schermata — il motore ce l'aveva ancora in RAM.
+            scope.launch { container.unloadIfLoaded(model) }
         },
         onAddCustomModel = { url, name, requiresToken ->
             if (url.isNotBlank()) {
@@ -361,10 +364,7 @@ fun ModelsRoute(
                 // Spegnerlo invece scarica il motore dalla memoria SUBITO
                 // (AppContainer.disableEngine), non aspetta la prossima
                 // apertura dell'app.
-                scope.launch {
-                    container.disableEngine()
-                    activeModelId = null
-                }
+                scope.launch { container.disableEngine() }
             }
         },
         onResetSettings = {

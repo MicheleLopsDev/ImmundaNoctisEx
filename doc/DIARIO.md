@@ -3970,6 +3970,41 @@ riaccende solo con "Attiva" (subito) o con un download completato
 
 ---
 
+## Le card non vedevano la fine dell'auto-load (01/08/2026)
+
+Michele, con screenshot: apre l'app, entra subito in Modelli LLM,
+aspetta — **entrambe le card restano su "Attiva" verde**, nessun badge
+"In uso ora" — ma poi fa partire l'avventura ed è **tradotta**. Cioè
+il motore era caricato e la UI diceva il contrario. (Il
+`BUILD_MARKER = 2026-08-01-04` nel log conferma per la prima volta,
+senza discussioni, che stava girando la build giusta: la convenzione
+introdotta poche ore prima ha ripagato subito.)
+
+**Causa**: `AppContainer.loadedModelId` era un `var` normale — Compose
+non lo osserva — e `ModelsRoute` ne teneva una COPIA locale presa una
+volta sola alla composizione
+(`remember { mutableStateOf(container.loadedModelId) }`). Entrando in
+Modelli mentre l'auto-load stava ancora caricando, quella copia
+leggeva `null` e non si aggiornava mai più: quando il caricamento
+finiva, il container sapeva, la schermata no. Lo stesso identico
+errore già corretto per `isModelLoading` poche ore prima, rimasto qui.
+
+**Fix**: `loadedModelId` diventa `by mutableStateOf(null)` (osservabile,
+una sola fonte di verità) e `ModelsRoute` lo legge direttamente
+(`val activeModelId = container.loadedModelId`), senza copie né
+assegnazioni locali sparse in `onActivate`/`onDeactivate`/`onDelete`.
+
+Nel farlo è emerso che la cancellazione del modello in uso azzerava
+solo lo stato della schermata (aggiramento del 22/07/2026) lasciando
+il motore caricato in RAM col file ormai sparito: nuovo
+`AppContainer.unloadIfLoaded(model)` che lo scarica per davvero. NON
+tocca `engineEnabled` — cancellare un file è una conseguenza, non la
+scelta di spegnere il motore.
+
+Compilazione e suite `:app` verdi.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

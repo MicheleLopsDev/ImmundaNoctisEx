@@ -144,7 +144,15 @@ class AppContainer(context: Context) {
     // diverso da modelPreferences.selectedModelId, che e' solo la scelta
     // salvata (STATO.md: si serializzano i fatti). Serve alla schermata
     // Modelli per sapere quale card e' "in uso ora" davvero.
-    var loadedModelId: String? = null
+    // BUG (01/08/2026, Michele: entra in Modelli LLM mentre l'auto-load
+    // sta ancora caricando, entrambe le card dicono "Attiva" — poi
+    // l'avventura è tradotta lo stesso, cioè il motore ERA caricato e la
+    // UI mentiva): era un var normale, che Compose non osserva, e
+    // ModelsRoute ne teneva una COPIA presa una volta sola alla
+    // composizione — quando l'auto-load finiva, quella copia restava
+    // null per sempre. Osservabile come isModelLoading: una sola fonte
+    // di verità, letta direttamente dalle schermate.
+    var loadedModelId: String? by mutableStateOf(null)
         private set
 
     // BUG (01/08/2026, Michele: "cerca di far salire su il modello ma
@@ -242,6 +250,21 @@ class AppContainer(context: Context) {
     // resta spento finché non si preme di nuovo "Attiva".
     suspend fun disableEngine() {
         inferencePreferences.engineEnabled = false
+        loadMutex.withLock {
+            runCatching { inferenceEngine.unload() }
+            loadedModelId = null
+        }
+    }
+
+    // Il file del modello in uso è stato cancellato: il motore ce l'ha
+    // ancora in RAM, ma tenerlo caricato non ha più senso (e la card
+    // direbbe "In uso ora" per un modello che non esiste più sul
+    // telefono — BUG del 22/07/2026, prima aggirato azzerando solo lo
+    // stato locale della schermata). NON tocca engineEnabled: è una
+    // conseguenza della cancellazione, non la scelta di spegnere il
+    // motore — al prossimo avvio riparte con un altro modello.
+    suspend fun unloadIfLoaded(model: DownloadableModel) {
+        if (loadedModelId != model.id) return
         loadMutex.withLock {
             runCatching { inferenceEngine.unload() }
             loadedModelId = null

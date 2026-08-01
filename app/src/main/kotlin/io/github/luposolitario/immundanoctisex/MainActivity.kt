@@ -100,4 +100,4 @@ class MainActivity : ComponentActivity() {
 // questa riga va toccata ad ogni modifica di codice, così Michele legge
 // "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
 // ricompilato l'ultima versione o una vecchia.
-private const val BUILD_MARKER = "2026-08-01-04 feat: bottone Disattiva sulla card del modello attivo"
+private const val BUILD_MARKER = "2026-08-01-05 fix: le card ora vedono la fine dell'auto-load (loadedModelId osservabile)"
