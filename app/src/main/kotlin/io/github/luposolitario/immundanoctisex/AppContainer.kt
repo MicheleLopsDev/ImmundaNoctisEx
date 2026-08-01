@@ -299,7 +299,13 @@ class AppContainer(context: Context) {
     // "devo poter caricare vari file") lo sostituisce a runtime, senza
     // riavviare l'app.
     var packageRepository = PackageRepository(
-        AssetPackageSource(context, "scenes.sample.json"),
+        // In test-books/ insieme agli altri libri (01/08/2026, Michele:
+        // "tieni sempre quello che si trova in test-books"): prima ne
+        // esistevano due copie, una qui in radice e una lì, con la
+        // seconda rimasta indietro di quattro immagini. `content/` è
+        // montata come cartella asset dal build, quindi il percorso
+        // dell'asset include la sottocartella.
+        AssetPackageSource(context, "test-books/scenes.sample.json"),
     )
         private set
 

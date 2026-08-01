@@ -16,11 +16,12 @@ quando serve contesto sulle scelte architetturali o di design del progetto.
 Tutti i documenti di progetto vivono in `doc/`, ad eccezione di `README.md`
 (visione e design, resta in radice) e di questo stesso `CLAUDE.md`.
 
-`content/` contiene i contenuti di gioco: `scenes.sample.json` (libro di
-esempio incluso nell'APK e caricato di default — non spostarlo, è un
-asset per percorso fisso) e `test-books/` (libri di prova, uno per
-feature: elenco commentato in `doc/LIBRI-DI-PROVA.md`, si portano sul
-telefono con `./gradlew pushTestBooks`). `scenes.json` (libro Project
+`content/test-books/` contiene i libri di gioco versionati: uno per
+feature da verificare, più `scenes.sample.json` (il libro incluso
+nell'APK e caricato di default — `AppContainer` lo apre come asset
+`test-books/scenes.sample.json`, cambiarne il percorso rompe l'avvio).
+Elenco commentato in `doc/LIBRI-DI-PROVA.md`, si portano sul telefono
+con `./gradlew pushTestBooks`. `scenes.json` (libro Project
 Aon, uso locale) non è versionato.
 
 In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:

@@ -39,8 +39,8 @@ class CicloVitaPartitaTest {
     }
 
     private fun manifest(): Manifest {
-        val stream = requireNotNull(javaClass.classLoader.getResourceAsStream("scenes.sample.json")) {
-            "content/scenes.sample.json non trovato sul classpath di test"
+        val stream = requireNotNull(javaClass.classLoader.getResourceAsStream("test-books/scenes.sample.json")) {
+            "content/test-books/scenes.sample.json non trovato sul classpath di test"
         }
         return json.decodeFromString(stream.bufferedReader().use { it.readText() })
     }

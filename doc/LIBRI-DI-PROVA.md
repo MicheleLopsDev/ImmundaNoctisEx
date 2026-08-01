@@ -13,9 +13,9 @@ significa poter tornare indietro se una modifica li rompe.
 
 ## Come si usano
 
-I libri stanno in `content/`, che il build monta come cartella asset:
-l'APK carica di default solo `content/scenes.sample.json`. Tutti gli
-altri si aprono col **side-load** — l'icona cartella in Home.
+I libri stanno in `content/test-books/`, che il build monta come
+cartella asset: l'APK carica di default solo `scenes.sample.json`.
+Tutti gli altri si aprono col **side-load** — l'icona cartella in Home.
 
 Per averli sul telefono senza copiarli a mano:
 
@@ -34,13 +34,14 @@ modifichi un libro.
 ### `scenes.sample.json` — "The Warehouse Letter"
 7 scene, un combattimento, scelte-disciplina. **Non è un test**: è il
 libro incluso nell'APK e caricato all'avvio, l'unico che l'utente vede
-senza fare side-load. Contiene anche le due scene di prova delle
-**immagini animate** (`test_tie_anim` come `static:` alla scena 2 e come
-`url:` alla scena 3).
+senza fare side-load. (Le scene di prova delle immagini animate sono state spostate in
+`test-webp-animato.json` quando la verifica si è chiusa: l'asset di
+prova pesava 1,2 MB nell'APK.)
 
-> **Non spostarlo da `content/`**: `AppContainer` lo carica come asset
-> per percorso fisso (`AssetPackageSource(context, "scenes.sample.json")`).
-> La copia dentro `test-books/` è un duplicato.
+> **Non rinominarlo né spostarlo**: `AppContainer` lo apre come asset
+> per percorso fisso (`test-books/scenes.sample.json`). Fino al
+> 01/08/2026 ne esistevano due copie — una in `content/` e una qui, con
+> la seconda rimasta indietro di quattro immagini: ora è una sola.
 
 ---
 
@@ -62,6 +63,13 @@ default).
 | `test_image_with_combat.json` | Combattimento **senza** sfondo dichiarato: il blocco tag deve contenere `ENEMY` e `IMAGE` nella stessa risposta. |
 | `test_image_enemy_npc.json` | I ritratti (22/07/2026): `Combat.enemyImage` accanto al nome, `Scene.npcImage` sotto il testo. La **stessa** immagine compare prima come incontro pacifico e poi come nemico — è il campo scelto dall'autore a decidere, non l'immagine. La scena 7 ha un combattimento *senza* ritratto, per il fallback. |
 | `test_image_url.json` | Riferimento `url:` (29/07/2026): deve produrre un **avviso**, mai un errore. Usa `example.invalid` (RFC 2606), che non risolve mai: in app l'immagine semplicemente non appare. Un link vero non si mette qui perché questo file finisce nell'APK. |
+
+### `test-webp-animato.json` — "Prova delle immagini animate"
+Un `url:` verso un WebP **animato** open-source: l'immagine sotto il
+testo deve muoversi, non restare un fotogramma fisso. Usa solo `url:`
+perché la variante `static:` richiederebbe un asset dentro l'APK — la
+convenzione per quelli è il suffisso `_anim` nel nome del drawable
+(vedi `CatalogOrUrlImage.kt`).
 
 ---
 

@@ -32,11 +32,6 @@ object NpcImageCatalog {
         "beast_anaconda",
         "beast_familiar",
         "beast_rats",
-        // Asset di prova per la verifica delle immagini animate
-        // (01/08/2026, Michele: WebP open-source da shoelace.style, per
-        // testare sia static: sia url: con lo stesso file — doc/UPGRADE.md
-        // §7). Non un NPC vero, da togliere quando la verifica è chiusa.
-        "test_tie_anim",
     )
 
     fun isValid(name: String?): Boolean = name != null && name in NPCS

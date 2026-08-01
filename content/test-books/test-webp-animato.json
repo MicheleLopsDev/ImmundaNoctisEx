@@ -1,0 +1,105 @@
+{
+    "id": "test-webp-animato",
+    "version": "1.0.0",
+    "title": "Prova delle immagini animate",
+    "description": "Libro di prova per le immagini animate (WebP/GIF). Usa un url: verso un WebP animato open-source (shoelace.style): l'immagine sotto il testo deve MUOVERSI, non restare un fotogramma fisso. La variante static: richiederebbe un asset nell'APK e non e' piu' inclusa: la convenzione e' il suffisso _anim nel nome del drawable (vedi CatalogOrUrlImage.kt).",
+    "language": "en",
+    "genre": "FANTASY",
+    "toneHints": [
+        "calm"
+    ],
+    "disciplineChoices": [
+        {
+            "id": "WEAPONSKILL",
+            "name": "Weaponskill",
+            "description": "Mastery with a chosen weapon type, adding a bonus to Combat Skill when wielding it."
+        },
+        {
+            "id": "CAMOUFLAGE",
+            "name": "Camouflage",
+            "description": "The art of blending into terrain and shadow to move unseen."
+        },
+        {
+            "id": "HUNTING",
+            "name": "Hunting",
+            "description": "Skill at foraging and catching food in the wild, removing the need for meals."
+        },
+        {
+            "id": "SIXTH_SENSE",
+            "name": "Sixth Sense",
+            "description": "A heightened intuition that warns of danger and hidden threats."
+        },
+        {
+            "id": "TRACKING",
+            "name": "Tracking",
+            "description": "The ability to follow trails and read signs left by passage."
+        },
+        {
+            "id": "HEALING",
+            "name": "Healing",
+            "description": "The gift of mending wounds and restoring endurance without herbs."
+        },
+        {
+            "id": "MINDSHIELD",
+            "name": "Mindshield",
+            "description": "A mental ward against psychic intrusion and fear."
+        },
+        {
+            "id": "MINDBLAST",
+            "name": "Mindblast",
+            "description": "The power to strike an enemy's mind directly, aiding in combat."
+        },
+        {
+            "id": "ANIMAL_KINSHIP",
+            "name": "Animal Kinship",
+            "description": "An affinity with animals, calming beasts and reading their moods."
+        },
+        {
+            "id": "MIND_OVER_MATTER",
+            "name": "Mind Over Matter",
+            "description": "Telekinetic control, allowing objects to be moved by will alone."
+        }
+    ],
+    "scenes": [
+        {
+            "id": "1",
+            "sceneType": "START",
+            "genre": "FANTASY",
+            "toneHints": [
+                "calm"
+            ],
+            "backgroundImage": "static:loc_tavern",
+            "npcImage": "url:https://shoelace.style/assets/images/tie.webp",
+            "locationName": "Prova animazione",
+            "narrativeText": "The image below the text is an ANIMATED WebP loaded from the network. It must move. If it shows a single frame, the animated decoder is not working.",
+            "choices": [
+                {
+                    "id": "c1",
+                    "choiceText": "Fine della prova",
+                    "nextSceneId": "2",
+                    "minRoll": null,
+                    "maxRoll": null,
+                    "requiredItem": null,
+                    "requiredFlag": null
+                }
+            ],
+            "disciplineChoices": [],
+            "gameMechanics": []
+        },
+        {
+            "id": "2",
+            "sceneType": "ENDING",
+            "genre": "FANTASY",
+            "toneHints": [
+                "calm"
+            ],
+            "backgroundImage": "static:loc_market",
+            "locationName": "Fine",
+            "narrativeText": "Test finished.",
+            "choices": [],
+            "disciplineChoices": [],
+            "gameMechanics": [],
+            "outcome": "VICTORY"
+        }
+    ]
+}
