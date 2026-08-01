@@ -59,4 +59,11 @@ data class Scene(
     // lo stesso ID su più scene evita di duplicare inutilmente la stessa
     // risorsa in cache lato client. Validato da SfxValidator.
     val sfx: String? = null,
+    // Bonus/malus condizionali sul tiro della Tabella dei Numeri Casuali
+    // (01/08/2026): si sommano al tiro PRIMA di cercare quale intervallo
+    // minRoll/maxRoll lo copre. Vuota = comportamento di sempre, il tiro
+    // grezzo decide da solo — nessun libro esistente cambia. Vedi
+    // RollModifier.kt per il perché stiano sulla scena e non sulle
+    // scelte, e RollModifiers.kt (:core:engine) per la valutazione.
+    val rollModifiers: List<RollModifier> = emptyList(),
 )

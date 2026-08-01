@@ -92,7 +92,7 @@ fun riepilogoLibro(nomeFile: String, manifest: Manifest): String {
 // prima di ricompilare. Qui non c'è logcat: si stampa sulla console di
 // `:tool:run` e finisce nel titolo della finestra, così la versione si
 // legge a colpo d'occhio anche senza guardare l'output.
-const val EDITOR_BUILD_MARKER = "2026-08-01-02 Tabella dei Numeri Casuali: tutte le forme + esclusione dei tiri con bonus"
+const val EDITOR_BUILD_MARKER = "2026-08-01-03 ETL: estrae i rollModifiers dal testo dei libri"
 
 fun main() = application {
     println("EDITOR_BUILD_MARKER = $EDITOR_BUILD_MARKER")

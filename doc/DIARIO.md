@@ -4158,6 +4158,77 @@ soglia di ENDURANCE) — una feature di schema, non un fix di parsing.
 
 ---
 
+## `rollModifiers`: il tiro accetta bonus condizionali (01/08/2026)
+
+Chiuso il buco lasciato aperto poche ore prima: i tiri della Tabella
+dei Numeri Casuali **modificati da un bonus** restavano scelte manuali
+("fai il conto a mente e scegli"), unica cosa nel gioco che chiede al
+giocatore di calcolare. Michele: "e quello che pensavo, rollModifier va
+implementato". Pianificato con `EnterPlanMode` + `AskUserQuestion`
+(copertura e strategia ETL), poi implementato in un giro solo su tutti
+i moduli.
+
+**Dove sta il campo**: sulla **scena**, non sulle scelte — il tiro è uno
+solo, gli intervalli stanno sulle scelte, il modificatore no (la nota
+del mattino diceva "sulle scelte": i dati hanno detto il contrario).
+
+**`:core:data`** — nuovo `RollModifier.kt`: `amount` + `condition`
+opzionale (assente = si applica sempre, caso reale: "add 5 to it").
+`RollConditionType` chiuso a `DISCIPLINE`/`ITEM`/`FLAG`/`ENDURANCE`;
+`values` in OR fra loro ("either Mind Over Matter or Mindblast");
+per ENDURANCE si riusa `ComparisonOperator` di `GlobalRule.kt` invece
+di inventare un secondo dialetto. Nuovo `RollModifierValidator`
+(disciplina canonica, ENDURANCE con operator+threshold, values non
+vuota; avviso se la scena non ha scelte a tiro).
+
+**`:core:engine`** — nuovo `RollModifiers.totalFor/activeFor`, accanto
+a `ChoiceAvailability` perché sono regole. Riusa i test già in uso
+altrove: `kaiDisciplines.contains`, `Inventory.countOf`, la semantica
+di `requiredFlag` ("false" nega), `effectiveEndurance` (non
+`currentEndurance`: conta il valore vero, come
+`StatMechanics.checkStatAndJump`). **`ChoiceAvailability.forRoll` NON
+cambia firma**: è il chiamante a passarle il totale già modificato,
+così resta pura e i suoi test valgono invariati.
+
+**`:app`** — `AdventureState.rollModifier` + `resolveRolledChoice` che
+somma prima di risolvere; `lastChoiceRoll` resta il tiro GREZZO ("si
+serializzano i fatti, i bonus si calcolano"). `DiceZone` ora **spiega**
+il numero quando serve: `"Hai tirato: 5 +2 = 7"` — senza, il giocatore
+vedeva 5 e finiva nella scena del 7.
+
+**`:tool` (ETL)** — l'estrattore legge il testo INTERO della sezione
+prima del loop delle scelte (la frase del bonus precede gli
+intervalli, ma non si poteva dipendere dall'ordine). Conseguenza
+centrale: quando una scena ha un modificatore riconosciuto, la guardia
+`totaleModificatoRegex` non si applica più e gli intervalli espressi
+come totale ("if your total is 0–3", persino "7–11") **tornano
+convertibili** — è tutto il punto della feature.
+
+**Risultati sui 5 libri**: 52 modificatori estratti (DISCIPLINE 42,
+ENDURANCE 8, ITEM 1, incondizionato 1) e tiri automatici da **187 a
+266** (+79 scelte che prima erano manuali). Caso di riferimento
+verificato a mano — 02fotw scena 12: `+2 se SIXTH_SENSE`, scelte 0–3 /
+4–6 / 7–11, esattamente come nel libro.
+
+**Fuori copertura per decisione esplicita**: il **Rango Kai** (7 casi)
+— i titoli dei libri ("Guardian", "Savant", "Aspirant", "Warmarn") non
+esistono nel nostro `KaiRank`, che è dichiarato puramente cosmetico;
+dargli un effetto meccanico è una decisione a parte. Il convertitore
+le **segnala nel report** invece di indovinare, insieme a ogni altra
+condizione non riconosciuta. Due forme recuperate proprio leggendo quel
+report: `"Kai Disciplines of"` al plurale e `"ENDURANCE ... is above
+25"` (senza "than").
+
+Nuovi test: 13 su `RollModifiers`, 5 sul validatore, 3 sull'ETL — più
+tutta la suite esistente verde su tutti i moduli. Documentato in
+`doc/SCHEMA-JSON.md` §4.5.
+
+**Da verificare a mano su device (Michele)**: giocare 02fotw scena 12
+con e senza il Sesto Senso e controllare che il numero mostrato spieghi
+la somma e porti nella scena giusta.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

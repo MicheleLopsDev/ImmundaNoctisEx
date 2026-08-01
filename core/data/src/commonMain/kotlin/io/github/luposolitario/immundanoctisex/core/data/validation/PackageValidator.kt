@@ -15,6 +15,7 @@ object PackageValidator {
             GlobalRuleValidator.validate(manifest) +
             ImageReferenceValidator.validate(manifest) +
             CustomResourcesValidator.validate(manifest) +
-            SfxValidator.validate(manifest)
+            SfxValidator.validate(manifest) +
+            RollModifierValidator.validate(manifest)
     }
 }

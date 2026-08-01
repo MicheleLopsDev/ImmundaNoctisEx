@@ -100,4 +100,4 @@ class MainActivity : ComponentActivity() {
 // questa riga va toccata ad ogni modifica di codice, così Michele legge
 // "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
 // ricompilato l'ultima versione o una vecchia.
-private const val BUILD_MARKER = "2026-08-01-07 chore: libri di prova in content/test-books + task pushTestBooks"
+private const val BUILD_MARKER = "2026-08-01-08 feat: rollModifiers, il tiro della Tabella accetta bonus condizionali"

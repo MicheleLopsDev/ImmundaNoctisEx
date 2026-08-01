@@ -10,6 +10,9 @@ import io.github.luposolitario.immundanoctisex.core.data.model.GameMechanic
 import io.github.luposolitario.immundanoctisex.core.data.model.GlobalRule
 import io.github.luposolitario.immundanoctisex.core.data.model.GlobalRuleType
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
+import io.github.luposolitario.immundanoctisex.core.data.model.RollCondition
+import io.github.luposolitario.immundanoctisex.core.data.model.RollConditionType
+import io.github.luposolitario.immundanoctisex.core.data.model.RollModifier
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import kotlinx.serialization.json.JsonObject
@@ -290,5 +293,78 @@ class PackageValidatorTest {
         val result = PackageValidator.validate(manifest(listOf(start, finale)))
 
         assertTrue(result.warnings.none { it.contains("vicolo cieco") })
+    }
+
+    // --- Scene.rollModifiers (01/08/2026) ---
+    // Un modificatore scritto male verrebbe solo ignorato a runtime, e il
+    // giocatore finirebbe nella scena sbagliata senza accorgersene:
+    // meglio bloccare qui.
+
+    private fun scenaConTiro(modifiers: List<RollModifier>) = Scene(
+        id = "1",
+        sceneType = SceneType.START,
+        genre = "FANTASY",
+        narrativeText = "testo",
+        choices = listOf(Choice("c1", "0-9", nextSceneId = "1", minRoll = 0, maxRoll = 9)),
+        rollModifiers = modifiers,
+    )
+
+    @Test
+    fun unModificatoreConDisciplinaCanonicaEValido() {
+        val scena = scenaConTiro(
+            listOf(
+                RollModifier(2, RollCondition(RollConditionType.DISCIPLINE, values = listOf("SIXTH_SENSE"))),
+            ),
+        )
+
+        assertTrue(PackageValidator.validate(manifest(listOf(scena))).errors.isEmpty())
+    }
+
+    @Test
+    fun unModificatoreConDisciplinaInventataEBocciato() {
+        val scena = scenaConTiro(
+            listOf(
+                RollModifier(2, RollCondition(RollConditionType.DISCIPLINE, values = listOf("SHADOWSTEP"))),
+            ),
+        )
+
+        val result = PackageValidator.validate(manifest(listOf(scena)))
+
+        assertTrue(result.errors.any { it.contains("SHADOWSTEP") && it.contains("non canonica") })
+    }
+
+    @Test
+    fun unaCondizioneSuEnduranceSenzaSogliaEBocciata() {
+        val scena = scenaConTiro(listOf(RollModifier(-3, RollCondition(RollConditionType.ENDURANCE))))
+
+        val result = PackageValidator.validate(manifest(listOf(scena)))
+
+        assertTrue(result.errors.any { it.contains("ENDURANCE") && it.contains("threshold") })
+    }
+
+    @Test
+    fun unaCondizioneSenzaValoriEBocciata() {
+        val scena = scenaConTiro(listOf(RollModifier(2, RollCondition(RollConditionType.ITEM))))
+
+        val result = PackageValidator.validate(manifest(listOf(scena)))
+
+        assertTrue(result.errors.any { it.contains("ITEM") && it.contains("nessun valore") })
+    }
+
+    @Test
+    fun unModificatoreSuUnaScenaSenzaTiroDaSoloUnAvviso() {
+        // Non romperebbe nulla: semplicemente non verrebbe mai applicato.
+        val scena = Scene(
+            id = "1",
+            sceneType = SceneType.START,
+            genre = "FANTASY",
+            narrativeText = "testo",
+            rollModifiers = listOf(RollModifier(5)),
+        )
+
+        val result = PackageValidator.validate(manifest(listOf(scena)))
+
+        assertTrue(result.errors.isEmpty())
+        assertTrue(result.warnings.any { it.contains("rollModifiers") && it.contains("nessuna scelta") })
     }
 }

@@ -144,6 +144,7 @@ Campi comuni a ogni scena, indipendentemente dal tipo:
 | `gameMechanics` | array di `GameMechanic` | no | `[]` | Comandi eseguiti all'ingresso in scena, in ordine (vedi §8). |
 | `outcome` | enum o `null` | no | `null` | Solo per `sceneType: "ENDING"` — come finisce l'avventura (vedi §4.3). |
 | `sfx` | stringa o `null` | no | `null` | Effetto sonoro personalizzato che SOVRASCRIVE quello automatico ricavato dal nome dell'immagine `static:` (vedi §4.4). |
+| `rollModifiers` | array | no | `[]` | Bonus/malus condizionali sommati al tiro della Tabella dei Numeri Casuali prima di cercare l'intervallo (vedi §4.5). |
 
 ### 4.1 `sceneType`
 
@@ -272,7 +273,57 @@ forme già note** (§4.2), a scelta di chi scrive il libro:
 **Nota**: al momento della scrittura di questa sezione, il motore di
 gioco (`:app`) non sa ancora scaricare/mettere in cache un mp3 da
 `url:` a runtime (sa solo suonare file già dentro l'APK) — il supporto
-lato client è rimandato, vedi `doc/UPGRADE.md` §7.
+lato client è rimandato, vedi `doc/UPGRADE.md` §7. *(Aggiornamento
+31/07/2026: implementato — download+cache per gli `url:`, riprodotti
+con MediaPlayer perché possono essere tracce lunghe.)*
+
+### 4.5 `rollModifiers` (bonus condizionali sul tiro, 01/08/2026)
+
+I libri di Lupo Solitario modificano spesso il tiro prima di guardarlo:
+
+> *"Pick a number from the Random Number Table. **If you have the Kai
+> Discipline of Sixth Sense, you may add 2 to this number.** If your
+> total is 0–3, turn to 58; 4–6, turn to 167; 7–11, turn to 329."*
+
+`rollModifiers` sta sulla **scena** e non sulle scelte perché il tiro è
+uno solo: gli intervalli stanno sulle scelte, il modificatore no.
+La somma di tutti quelli applicabili si aggiunge al tiro grezzo prima
+di cercare l'intervallo (`RollModifiers` + `ChoiceAvailability.forRoll`,
+`:core:engine`), quindi gli intervalli possono legittimamente uscire
+da 0-9.
+
+```json
+"rollModifiers": [
+  { "amount": 2, "condition": { "type": "DISCIPLINE", "values": ["SIXTH_SENSE"] } },
+  { "amount": -3, "condition": { "type": "ENDURANCE", "operator": "<", "threshold": 10 } },
+  { "amount": 5 }
+]
+```
+
+| Campo | Tipo | Obbligatorio | Default | Note |
+|---|---|---|---|---|
+| `amount` | intero | sì | — | Quanto si somma al tiro; negativo per un malus (`deduct 3` → `-3`). |
+| `condition` | oggetto o `null` | no | `null` | Quando si applica. Assente = **sempre**. |
+| `condition.type` | stringa | sì | — | `DISCIPLINE`, `ITEM`, `FLAG`, `ENDURANCE`. |
+| `condition.values` | array di stringhe | per i primi tre | `[]` | In **OR** fra loro: ne basta uno. ID canonici di disciplina, nomi di oggetto o nomi di flag. |
+| `condition.operator` | stringa | solo `ENDURANCE` | `null` | `==`, `!=`, `>=`, `<=`, `>`, `<` — stesso vocabolario di `globalRules`. |
+| `condition.threshold` | intero | solo `ENDURANCE` | `null` | Valore di confronto; si usa la ENDURANCE **effettiva** (modificatori inclusi). |
+
+`FLAG` segue la stessa regola di `requiredFlag`: soddisfatto se il flag
+è posto a un valore diverso da `"false"`.
+
+**Fuori copertura per scelta**: le condizioni sul **Rango Kai** ("*if
+you have reached the Kai rank of Guardian or higher*", 7 casi nei 5
+libri convertiti). I titoli dei libri non corrispondono a `KaiRank`,
+che nel progetto è dichiarato puramente cosmetico: quelle scene restano
+scelte manuali finché non si decide di dare al rango un effetto
+meccanico. Il convertitore le **segnala nel report** invece di
+indovinare.
+
+**Validazione** (`RollModifierValidator`) — errori: disciplina non
+canonica, `ENDURANCE` senza `operator`/`threshold`, `values` vuota per
+gli altri tipi. Avviso: modificatori su una scena senza scelte a tiro
+(non verrebbero mai applicati).
 
 ---
 
@@ -285,7 +336,7 @@ lato client è rimandato, vedi `doc/UPGRADE.md` §7.
 | `id` | stringa | sì | — | ID univoco della scelta nella scena. |
 | `choiceText` | stringa | sì | — | Testo sorgente della scelta (tradotto/riscritto dal narratore come il resto della scena). |
 | `nextSceneId` | stringa | sì | — | ID della scena raggiunta scegliendo questa opzione. |
-| `minRoll` | intero o `null` | no | `null` | Se presente insieme a `maxRoll`: la scelta è visibile solo se l'ultimo tiro di dado rientra in questo intervallo. |
+| `minRoll` | intero o `null` | no | `null` | Se presente insieme a `maxRoll`: la scelta è visibile solo se l'ultimo tiro di dado rientra in questo intervallo. Il confronto è sul tiro **più i `rollModifiers` della scena**, quindi l'intervallo può uscire da 0-9 (es. `7`–`11`) quando la scena ne dichiara. |
 | `maxRoll` | intero o `null` | no | `null` | Vedi sopra. |
 | `requiredItem` | stringa o `null` | no | `null` | Nome di un oggetto che il giocatore deve possedere perché la scelta sia visibile. |
 | `requiredFlag` | stringa o `null` | no | `null` | Nome di un flag di sessione che deve essere impostato perché la scelta sia visibile. |

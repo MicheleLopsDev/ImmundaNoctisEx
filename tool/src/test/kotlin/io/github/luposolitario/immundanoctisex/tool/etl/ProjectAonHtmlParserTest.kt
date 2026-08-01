@@ -80,4 +80,34 @@ class ProjectAonHtmlParserTest {
         // modificatore, anche senza la parola "total" nella frase.
         assertNull(ProjectAonHtmlParser.rollRangeFor("If it is 7–11, turn to 329."))
     }
+
+    // --- Con Scene.rollModifiers (01/08/2026) ---
+    // Quando la scena dichiara un modificatore che il motore sa
+    // applicare, gli intervalli espressi come TOTALE diventano corretti
+    // da convertire: il confronto avverrà sul tiro già modificato.
+
+    @Test
+    fun conUnModificatoreIlTotaleDiventaUnTiroValido() {
+        assertEquals(
+            0 to 3,
+            ProjectAonHtmlParser.rollRangeFor("If your total score is now 0–3, turn to 58.", tiroModificato = true),
+        )
+    }
+
+    @Test
+    fun conUnModificatoreAncheUnIntervalloOltreIlNoveEValido() {
+        // "7–11" è raggiungibile solo col bonus: senza modificatore
+        // sarebbe un errore, con modificatore è il caso normale.
+        assertEquals(
+            7 to 11,
+            ProjectAonHtmlParser.rollRangeFor("If your total score is now 7–11, turn to 329.", tiroModificato = true),
+        )
+    }
+
+    @Test
+    fun senzaModificatoreIlTotaleRestaUnaSceltaManuale() {
+        // Stessa identica frase del test sopra: cambia solo il fatto che
+        // la scena non dichiari nessun modificatore.
+        assertNull(ProjectAonHtmlParser.rollRangeFor("If your total score is now 0–3, turn to 58."))
+    }
 }

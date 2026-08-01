@@ -54,6 +54,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 import io.github.luposolitario.immundanoctisex.util.resolved
+import kotlin.math.abs
 
 // La scena teatrale in forma minima (Fase 3, "prima funziona poi è
 // bello"): header con titolo e numero scena, testo ORIGINALE del
@@ -565,8 +566,20 @@ private fun DiceZone(state: AdventureState) {
                 Text("Tira il Dado del Destino")
             }
         } else {
+            // Col modificatore di scena (01/08/2026, Scene.rollModifiers)
+            // il numero che decide NON è quello uscito dal dado: va
+            // spiegato, altrimenti il giocatore vede "5" e finisce nella
+            // scena del 7 senza capire perché. Il motivo del bonus è già
+            // scritto nel testo della scena ("se hai il Sesto Senso…"),
+            // qui basta il conto.
+            val modificatore = state.rollModifier
             Text(
-                "Hai tirato: $roll",
+                if (modificatore == 0) {
+                    "Hai tirato: $roll"
+                } else {
+                    val segno = if (modificatore > 0) "+" else "−"
+                    "Hai tirato: $roll  $segno${abs(modificatore)} = ${roll + modificatore}"
+                },
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )

@@ -20,6 +20,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.model.Transition
 import io.github.luposolitario.immundanoctisex.core.data.session.SessionStore
 import io.github.luposolitario.immundanoctisex.core.engine.choice.ChoiceAvailability
+import io.github.luposolitario.immundanoctisex.core.engine.choice.RollModifiers
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
 import io.github.luposolitario.immundanoctisex.core.engine.combat.RoundResult
@@ -443,8 +444,17 @@ class AdventureState(
     val requiresRoll: Boolean
         get() = combatSession == null && ChoiceAvailability.rollChoices(currentScene).isNotEmpty()
 
+    // Il tiro GREZZO, sempre: è il fatto ("si serializzano i fatti, i
+    // bonus si calcolano"). Il bonus condizionale sta in rollModifier
+    // qui sotto e si somma solo al momento di risolvere.
     var lastChoiceRoll: Int? by mutableStateOf(null)
         private set
+
+    // Bonus/malus della scena applicabili a QUESTO personaggio adesso
+    // (01/08/2026, Scene.rollModifiers): "se hai la Disciplina del Sesto
+    // Senso aggiungi 2". Zero per ogni libro che non li dichiara.
+    val rollModifier: Int
+        get() = RollModifiers.totalFor(currentScene, gameState)
 
     fun rollForChoice() {
         if (!requiresRoll || lastChoiceRoll != null) return
@@ -452,11 +462,13 @@ class AdventureState(
     }
 
     // Risolve il tiro mostrato: la scelta il cui intervallo contiene il
-    // numero. Nessun intervallo coperto (pacchetto scritto male): il tiro
-    // si azzera e si riprova, il gioco non si blocca mai.
+    // numero, modificatori inclusi (col bonus il totale può uscire da
+    // 0-9, ed è normale: i libri hanno intervalli tipo "7–11" proprio
+    // per questo). Nessun intervallo coperto (pacchetto scritto male):
+    // il tiro si azzera e si riprova, il gioco non si blocca mai.
     fun resolveRolledChoice() {
         val roll = lastChoiceRoll ?: return
-        val choice = ChoiceAvailability.forRoll(currentScene, roll)
+        val choice = ChoiceAvailability.forRoll(currentScene, roll + rollModifier)
         lastChoiceRoll = null
         if (choice != null) takeChoice(choice)
     }

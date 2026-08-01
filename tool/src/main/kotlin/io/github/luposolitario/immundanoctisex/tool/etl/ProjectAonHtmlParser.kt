@@ -2,12 +2,16 @@ package io.github.luposolitario.immundanoctisex.tool.etl
 
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.Combat
+import io.github.luposolitario.immundanoctisex.core.data.model.ComparisonOperator
 import io.github.luposolitario.immundanoctisex.core.data.model.Discipline
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineDescriptor
 import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.GameMechanic
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
+import io.github.luposolitario.immundanoctisex.core.data.model.RollCondition
+import io.github.luposolitario.immundanoctisex.core.data.model.RollConditionType
+import io.github.luposolitario.immundanoctisex.core.data.model.RollModifier
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import kotlinx.serialization.json.buildJsonObject
@@ -126,7 +130,10 @@ object ProjectAonHtmlParser {
     // anche il resto della frase, es. "Healing on this man" invece di solo
     // "Healing" — controllare contro i nomi VERI invece di indovinare dove
     // finisce il nome è più robusto).
-    private val disciplineOfRegex = Regex("""(?:Kai )?Discipline of """, RegexOption.IGNORE_CASE)
+    // "Disciplines" al plurale esiste davvero ("the Kai Disciplines of
+    // either Hunting or Camouflage", 05sots scena 282): senza la `s?`
+    // quella scena finiva nel report dei casi non riconosciuti.
+    private val disciplineOfRegex = Regex("""(?:Kai )?Disciplines? of """, RegexOption.IGNORE_CASE)
     // "win"/"kill"/"defeat"/"slay": varianti reali trovate nel libro per lo
     // stesso concetto (vittoria in combattimento) — es. "If you win the
     // fight" ma anche "If you kill all three of them", "If you kill the
@@ -169,17 +176,39 @@ object ProjectAonHtmlParser {
     // Estratta per essere testabile senza dover passare da un intero file
     // XHTML (il parser vero lavora su Jsoup.parse(File), qui serve solo la
     // logica della regex).
-    internal fun rollRangeFor(text: String): Pair<Int, Int>? {
-        if (totaleModificatoRegex.containsMatchIn(text)) return null
-        val range = pickedRangeRegex.find(text) ?: return null
+    //
+    // `tiroModificato` (01/08/2026): la scena dichiara un
+    // Scene.rollModifiers che il motore sa applicare. In quel caso gli
+    // intervalli espressi come TOTALE ("if your total is 0–3", "if it is
+    // 7–11") diventano corretti da convertire, perché il confronto
+    // avverrà sul tiro già modificato — è esattamente il punto della
+    // feature. Senza modificatore restano scelte manuali, come prima.
+    internal fun rollRangeFor(text: String, tiroModificato: Boolean = false): Pair<Int, Int>? {
+        if (!tiroModificato && totaleModificatoRegex.containsMatchIn(text)) return null
+        val range = pickedRangeRegex.find(text) ?: totaleRangeRegex.takeIf { tiroModificato }?.find(text) ?: return null
         val min = range.groupValues[1].toIntOrNull() ?: return null
         val max = range.groupValues[2].toIntOrNull() ?: min
         // Il tiro grezzo della Tabella è 0-9: un intervallo che ne esce
-        // (es. "7–11") è per forza un totale già modificato da un bonus,
-        // anche quando la frase non usa la parola "total".
-        if (min > 9 || max > 9 || min > max) return null
+        // (es. "7–11") è per forza un totale già modificato da un bonus.
+        // Con un modificatore dichiarato è legittimo; senza, no.
+        if (!tiroModificato && (min > 9 || max > 9)) return null
+        if (min > max) return null
         return min to max
     }
+
+    // Un modificatore ha senso solo dove si tira: senza questa frase la
+    // scena parla d'altro (es. "add 2 to your COMBAT SKILL").
+    private val marcatoreTabellaRegex = Regex(
+        """random number table|pick a number""",
+        RegexOption.IGNORE_CASE,
+    )
+
+    // "If your total (score) is (now) 0–3" — riconosciuta SOLO quando la
+    // scena ha un modificatore estratto (vedi rollRangeFor).
+    private val totaleRangeRegex = Regex(
+        """\b(?:total|score)\b[^.]{0,20}?\bis\s+(?:now\s+)?(\d+)(?:\s*[-–—−]\s*(\d+))?\b""",
+        RegexOption.IGNORE_CASE,
+    )
     private val combatLineRegex = Regex("""^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(\d+)""", RegexOption.IGNORE_CASE)
     private val deductRegex = Regex("""Deduct (\d+) points? from your COMBAT SKILL""", RegexOption.IGNORE_CASE)
     private val exactSectHrefRegex = Regex("""^#sect(\d+)$""")
@@ -221,6 +250,18 @@ object ProjectAonHtmlParser {
         var choiceCounter = 0
 
         fun label() = "Scena ${raw.id}"
+
+        // I modificatori del tiro si estraggono PRIMA del loop, dal testo
+        // intero della sezione (01/08/2026): la frase che li dichiara
+        // ("...add 2 to this number") sta nella prosa, le scelte che ne
+        // dipendono arrivano dopo, e non si può dipendere dall'ordine in
+        // cui il loop le incontra. Sapere già qui se la scena ha un
+        // modificatore è anche ciò che permette a rollRangeFor di
+        // accettare gli intervalli espressi come TOTALE ("if your total
+        // is 0–3"), che senza modificatore sarebbero sbagliati.
+        val testoIntero = raw.elements.joinToString(" ") { it.text() }
+        val rollModifiers = estraiRollModifiers(testoIntero, notes, ::label)
+        val tiroModificato = rollModifiers.isNotEmpty()
 
         for (element in raw.elements) {
             if (element.tagName() == "div" && element.hasClass("illustration")) {
@@ -313,7 +354,7 @@ object ProjectAonHtmlParser {
 
                 else -> {
                     choiceCounter++
-                    val range = rollRangeFor(text)
+                    val range = rollRangeFor(text, tiroModificato)
                     if (range == null) {
                         choices += Choice(id = "choice_${raw.id}_$choiceCounter", choiceText = text, nextSceneId = linkedSceneId)
                     } else {
@@ -427,6 +468,7 @@ object ProjectAonHtmlParser {
             combat = combat,
             gameMechanics = gameMechanics,
             outcome = outcome,
+            rollModifiers = rollModifiers,
         )
         return listOf(mainScene) + extraScenes
     }
@@ -492,6 +534,104 @@ object ProjectAonHtmlParser {
     // (bug trovato il 29/07/2026 su 5 scene di 01fftd.htm). Restituisce PIÙ
     // di un nome per "Discipline of either X or Y" (libro 3: basta averne
     // una delle due) — quasi sempre una lista con un solo elemento.
+    // --- Modificatori del tiro (01/08/2026, Scene.rollModifiers) ---
+    // "Pick a number... If you have the Kai Discipline of Sixth Sense,
+    // you may add 2 to this number. If your total is 0–3, turn to 58."
+    // Forme raccolte dai 5 libri veri, 57 casi: Disciplina 37, ENDURANCE
+    // 10, Rango Kai 7 (FUORI copertura, vedi sotto), oggetto 1, flag 1,
+    // incondizionato 1.
+
+    // La frase che modifica: "add N to (this|the) number", "deduct N
+    // from...". Cattura anche la clausola condizionale che la precede.
+    private val modificatoreRegex = Regex(
+        """([^.]{0,170}?)\b(add|subtract|deduct)\s+(\d+)\s+(?:to|from)\s+(?:this|the|it|that)\b[^.]{0,70}""",
+        RegexOption.IGNORE_CASE,
+    )
+    // "is less than 10", "is greater than 20", ma anche "is above 25" /
+    // "is below 6" (senza "than"): forme tutte presenti nei libri.
+    private val enduranceCondRegex = Regex(
+        """endurance\b[^.]{0,40}?\bis\s+(less|fewer|below|greater|more|above)\s+(?:than\s+)?(\d+)""",
+        RegexOption.IGNORE_CASE,
+    )
+    private val rangoRegex = Regex("""\bkai rank\b|\brank of\b""", RegexOption.IGNORE_CASE)
+    private val possiedeRegex = Regex("""\bpossess\b|\bhave a\b|\bcarry\b""", RegexOption.IGNORE_CASE)
+
+    // Il testo qui è la sezione INTERA (vedi il chiamante): una scena può
+    // dichiarare più modificatori ("add 2 se hai X" + "deduct 1 se hai Y").
+    private fun estraiRollModifiers(
+        testoIntero: String,
+        notes: MutableList<String>,
+        label: () -> String,
+    ): List<RollModifier> {
+        if (!marcatoreTabellaRegex.containsMatchIn(testoIntero)) return emptyList()
+        val modificatori = mutableListOf<RollModifier>()
+
+        modificatoreRegex.findAll(testoIntero).forEach { match ->
+            val clausola = match.groupValues[1]
+            val verbo = match.groupValues[2].lowercase()
+            val quantita = match.groupValues[3].toIntOrNull() ?: return@forEach
+            val amount = if (verbo == "add") quantita else -quantita
+
+            // Il rango Kai è fuori copertura per decisione esplicita
+            // (i titoli dei libri — Guardian, Savant — non esistono nel
+            // nostro KaiRank, dichiarato cosmetico): si segnala e si
+            // lascia la scena a scelte manuali, non si indovina.
+            if (rangoRegex.containsMatchIn(clausola)) {
+                notes += "${label()}: modificatore del tiro legato al RANGO Kai, non supportato — " +
+                    "la scena resta a scelte manuali (\"${clausola.trim().take(90)}\")"
+                return@forEach
+            }
+
+            val condizione = when {
+                // Nessun "if" nella clausola: si applica sempre.
+                !clausola.contains("if", ignoreCase = true) -> null
+
+                disciplineOfRegex.containsMatchIn(clausola) -> {
+                    val ids = findDisciplineMentions(clausola)
+                    if (ids.isEmpty()) {
+                        notes += "${label()}: modificatore con disciplina non riconosciuta (\"${clausola.trim().take(90)}\")"
+                        return@forEach
+                    }
+                    RollCondition(RollConditionType.DISCIPLINE, values = ids)
+                }
+
+                enduranceCondRegex.containsMatchIn(clausola) -> {
+                    val m = enduranceCondRegex.find(clausola)!!
+                    val soglia = m.groupValues[2].toIntOrNull() ?: return@forEach
+                    val operatore = when (m.groupValues[1].lowercase()) {
+                        "less", "fewer", "below" -> ComparisonOperator.LT
+                        else -> ComparisonOperator.GT
+                    }
+                    RollCondition(RollConditionType.ENDURANCE, operator = operatore, threshold = soglia)
+                }
+
+                possiedeRegex.containsMatchIn(clausola) -> {
+                    val oggetti = oggettiCitati(clausola)
+                    if (oggetti.isEmpty()) {
+                        notes += "${label()}: modificatore legato a un oggetto non riconosciuto (\"${clausola.trim().take(90)}\")"
+                        return@forEach
+                    }
+                    RollCondition(RollConditionType.ITEM, values = oggetti)
+                }
+
+                else -> {
+                    notes += "${label()}: condizione del modificatore non riconosciuta, scena a scelte manuali " +
+                        "(\"${clausola.trim().take(90)}\")"
+                    return@forEach
+                }
+            }
+            modificatori += RollModifier(amount = amount, condition = condizione)
+        }
+        return modificatori
+    }
+
+    // "If you possess either a Pick or a Shovel": i nomi propri sono in
+    // maiuscolo nel testo dei libri, è l'unico appiglio affidabile.
+    private val nomeOggettoRegex = Regex("""\b(?:a|an|the)\s+([A-Z][a-zA-Z]+)""")
+
+    private fun oggettiCitati(clausola: String): List<String> =
+        nomeOggettoRegex.findAll(clausola).map { it.groupValues[1] }.distinct().toList()
+
     private fun findDisciplineMentions(text: String): List<String> {
         val match = disciplineOfRegex.find(text) ?: return emptyList()
         val remainder = text.substring(match.range.last + 1)
