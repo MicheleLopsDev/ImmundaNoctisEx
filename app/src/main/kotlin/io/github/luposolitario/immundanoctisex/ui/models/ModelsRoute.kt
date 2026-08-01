@@ -153,6 +153,7 @@ fun ModelsRoute(
                 topP = inferencePreferences.topP,
                 askImageInPrompt = inferencePreferences.askImageInPrompt,
                 translationMode = inferencePreferences.translationMode,
+                engineEnabled = inferencePreferences.engineEnabled,
             ),
         )
     }
@@ -187,6 +188,17 @@ fun ModelsRoute(
             }
         }
         downloadedIds = (catalogModels + customModels).filter { preferences.isDownloaded(it) }.map { it.id }.toSet()
+        // Scaricare un modello è un gesto esplicito di volerlo usare
+        // (01/08/2026, Michele: "se lo scarico prova ad attivarlo nella
+        // prossima sessione"): riaccende l'auto-load anche se il motore
+        // era stato spento a mano dall'interruttore. NON carica nulla
+        // adesso — "prossima sessione", cioè alla prossima apertura
+        // dell'app o entrando in avventura: un download appena finito non
+        // implica voler aspettare subito altri 15-20s di caricamento.
+        if (!inferencePreferences.engineEnabled) {
+            inferencePreferences.engineEnabled = true
+            advanced = advanced.copy(engineEnabled = true)
+        }
     }
 
     ModelsScreen(
@@ -223,6 +235,10 @@ fun ModelsRoute(
                 result.onSuccess {
                     selectedModelId = model.id
                     activeModelId = model.id
+                    // activateModel() riaccende sempre engineEnabled (un
+                    // tocco esplicito vince su uno spegnimento precedente):
+                    // lo stato locale della card segue la preferenza vera.
+                    advanced = advanced.copy(engineEnabled = true)
                 }.onFailure { error ->
                     activateError = error.message ?: "Attivazione non riuscita."
                 }
@@ -317,6 +333,25 @@ fun ModelsRoute(
             advanced = advanced.copy(translationMode = enabled)
             inferencePreferences.translationMode = enabled
         },
+        onEngineEnabledChange = { enabled ->
+            advanced = advanced.copy(engineEnabled = enabled)
+            if (enabled) {
+                // Riaccenderlo qui è solo la preferenza: il caricamento
+                // vero riparte da sé al prossimo ensureModelLoaded()
+                // (prossima apertura dell'app, o entrando in avventura),
+                // niente da fare subito — coerente con "prova ad
+                // attivarlo nella prossima sessione" (Michele).
+                inferencePreferences.engineEnabled = true
+            } else {
+                // Spegnerlo invece scarica il motore dalla memoria SUBITO
+                // (AppContainer.disableEngine), non aspetta la prossima
+                // apertura dell'app.
+                scope.launch {
+                    container.disableEngine()
+                    activeModelId = null
+                }
+            }
+        },
         onResetSettings = {
             inferencePreferences.resetToDefaults()
             advanced = AdvancedSettingsUi(
@@ -326,6 +361,7 @@ fun ModelsRoute(
                 topP = inferencePreferences.topP,
                 askImageInPrompt = inferencePreferences.askImageInPrompt,
                 translationMode = inferencePreferences.translationMode,
+                engineEnabled = inferencePreferences.engineEnabled,
             )
         },
         onClose = onClose,

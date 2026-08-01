@@ -114,6 +114,7 @@ fun ModelsScreen(
     onTopPCommit: () -> Unit,
     onAskImageInPromptChange: (Boolean) -> Unit,
     onTranslationModeChange: (Boolean) -> Unit,
+    onEngineEnabledChange: (Boolean) -> Unit,
     onResetSettings: () -> Unit,
     onClose: () -> Unit,
 ) {
@@ -239,6 +240,7 @@ fun ModelsScreen(
                 onTopPCommit = onTopPCommit,
                 onAskImageInPromptChange = onAskImageInPromptChange,
                 onTranslationModeChange = onTranslationModeChange,
+                onEngineEnabledChange = onEngineEnabledChange,
                 onReset = onResetSettings,
             )
 
@@ -560,6 +562,7 @@ private fun ModelsScreenPreview() {
             onTopPCommit = {},
             onAskImageInPromptChange = {},
             onTranslationModeChange = {},
+            onEngineEnabledChange = {},
             onResetSettings = {},
             onClose = {},
         )
@@ -617,6 +620,7 @@ private fun ModelsScreenSoloGemmaPreview() {
             onTopPCommit = {},
             onAskImageInPromptChange = {},
             onTranslationModeChange = {},
+            onEngineEnabledChange = {},
             onResetSettings = {},
             onClose = {},
         )

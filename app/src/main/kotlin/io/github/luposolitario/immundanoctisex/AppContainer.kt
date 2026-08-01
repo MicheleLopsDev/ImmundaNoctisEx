@@ -172,8 +172,15 @@ class AppContainer(context: Context) {
 
     // Carica il modello selezionato se è già sul telefono. Restituisce
     // false senza rumore se non c'è: il gioco parte comunque, col testo
-    // originale del pacchetto.
+    // originale del pacchetto. PRIMO controllo di tutti (01/08/2026,
+    // Michele: "dovresti darmi la possibilità di disattivare il
+    // modello"): se l'utente ha spento il motore a mano
+    // (inferencePreferences.engineEnabled), questa funzione non lo tocca
+    // MAI — né l'auto-load all'avvio né l'ingresso in avventura. Resta
+    // così finché non si preme di nuovo "Attiva" su una card
+    // (activateModel sotto la riaccende esplicitamente).
     suspend fun ensureModelLoaded(): Boolean {
+        if (!inferencePreferences.engineEnabled) return false
         val model = modelPreferences.selectedModel
         if (isModelReady(model)) return true
         if (!modelPreferences.isDownloaded(model)) return false
@@ -204,6 +211,11 @@ class AppContainer(context: Context) {
     // LiteRT-LM <-> GGUF), si scarica prima l'altro — un modello alla
     // volta, mai due processi nativi multi-GB insieme.
     suspend fun activateModel(model: DownloadableModel): Result<Unit> {
+        // Un tocco esplicito su "Attiva" vince sempre su un precedente
+        // spegnimento (01/08/2026): altrimenti si attiverebbe un modello
+        // che poi AdventureRoute si rifiuterebbe di usare, contraddicendo
+        // il tocco appena fatto.
+        inferencePreferences.engineEnabled = true
         if (isModelReady(model)) return Result.success(Unit)
         android.util.Log.i("AppContainer", "activateModel: ${model.id}, activeEngineType=$activeEngineType")
         isModelLoading = true
@@ -220,6 +232,19 @@ class AppContainer(context: Context) {
             }
         } finally {
             isModelLoading = false
+        }
+    }
+
+    // Spegnimento esplicito (01/08/2026, Michele: "dovresti darmi la
+    // possibilità di disattivare il modello"): scarica il motore dalla
+    // memoria SUBITO (non aspetta la prossima apertura dell'app) e imposta
+    // la preferenza — ensureModelLoaded() sopra la rispetta da qui in poi,
+    // resta spento finché non si preme di nuovo "Attiva".
+    suspend fun disableEngine() {
+        inferencePreferences.engineEnabled = false
+        loadMutex.withLock {
+            runCatching { inferenceEngine.unload() }
+            loadedModelId = null
         }
     }
 

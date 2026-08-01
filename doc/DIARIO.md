@@ -3910,6 +3910,52 @@ Compilazione verde.
 
 ---
 
+## Interruttore "Motore attivo" (01/08/2026)
+
+Rispiegando a Michele i tre casi previsti all'ingresso in avventura
+(pronto / in caricamento / spento-e-chiedo), lui individua subito il
+buco logico: **il terzo caso è irraggiungibile**. Con l'auto-load
+all'apertura dell'app aggiunto lo stesso giorno, appena c'è un modello
+scaricato il motore riparte da solo — quindi o è pronto (caso 1) o sta
+caricando (caso 2), mai "spento e libero". "Altrimenti dovresti darmi
+la possibilità di disattivare il modello, cosa che adesso non fa."
+
+Chiesto dove metterlo e con che persistenza (`AskUserQuestion`):
+**interruttore separato** (non un bottone sulla card del modello) e
+**persistente** (resta spento anche chiudendo l'app). Regole
+completate da Michele subito dopo: "se lo spengo manualmente lascialo
+spento, se lo scarico prova ad attivarlo nella prossima sessione".
+
+**`InferencePreferences.engineEnabled`** (default true, persistente) è
+la fonte di verità. `AppContainer.ensureModelLoaded()` la controlla
+come PRIMISSIMA cosa e non tocca il motore se è falsa — vale sia per
+l'auto-load all'avvio sia per l'ingresso in avventura. Nuovo
+`AppContainer.disableEngine()`: scarica il motore dalla memoria SUBITO
+(non aspetta la prossima apertura) e spegne la preferenza.
+
+Due gesti espliciti la riaccendono da soli, senza doverla toccare a
+mano: premere **"Attiva"** su una card (`activateModel()` la rimette a
+true in testa — altrimenti si attiverebbe un modello che poi
+l'avventura si rifiuterebbe di usare, contraddicendo il tocco appena
+fatto) e **completare un download** (`ModelsRoute`, blocco
+`DownloadUiState.Done` già esistente) — quest'ultimo però NON carica
+nulla lì per lì: riparte alla prossima apertura/ingresso in avventura,
+come chiesto ("nella prossima sessione"), perché un download appena
+finito non implica voler aspettare subito altri 15-20s.
+
+**UI**: nuovo switch "Motore attivo" in cima a `AdvancedSettingsCard`
+(Impostazioni avanzate, schermata Modelli LLM), sopra "Modalità
+Traduzione" — testo esplicito sul fatto che resta spento anche
+riaprendo l'app. Terzo `@Preview` per lo stato spento.
+
+Con questo il caso 3 del flusso d'ingresso in avventura diventa
+finalmente raggiungibile: motore spento a mano + modello scaricato =
+la scelta "Avvia il motore" / "Continua senza motore".
+
+Compilazione e suite `:app` verdi.
+
+---
+
 ### Dettaglio storico (fino al 21/07/2026)
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul

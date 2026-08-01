@@ -36,6 +36,7 @@ data class AdvancedSettingsUi(
     val topP: Float,
     val askImageInPrompt: Boolean,
     val translationMode: Boolean = false,
+    val engineEnabled: Boolean = true,
 )
 
 // "Impostazioni avanzate" ereditate da ModelActivity di v1, incluse le
@@ -54,6 +55,7 @@ fun AdvancedSettingsCard(
     onTopPCommit: () -> Unit,
     onAskImageInPromptChange: (Boolean) -> Unit,
     onTranslationModeChange: (Boolean) -> Unit,
+    onEngineEnabledChange: (Boolean) -> Unit,
     onReset: () -> Unit,
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
@@ -68,6 +70,32 @@ fun AdvancedSettingsCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+
+            // Interruttore generale del motore (01/08/2026, Michele:
+            // "dovresti darmi la possibilità di disattivare il modello") —
+            // in cima a tutta la card, governa anche l'avvio automatico
+            // all'apertura dell'app: spento, resta spento finché non lo
+            // riaccendi (anche chiudendo e riaprendo l'app), niente
+            // caricamenti automatici né richieste in avventura.
+            Spacer(Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    SettingLabel(
+                        title = "Motore attivo",
+                        explanation = "Spegnilo per giocare sempre col testo originale del libro, " +
+                            "senza traduzione né arricchimento. Resta spento anche chiudendo e " +
+                            "riaprendo l'app, finché non premi \"Attiva\" su un modello o riaccendi " +
+                            "qui.",
+                    )
+                }
+                Switch(checked = settings.engineEnabled, onCheckedChange = onEngineEnabledChange)
+            }
+
+            Spacer(Modifier.height(12.dp))
+            HorizontalDivider()
 
             // Modalità Traduzione (31/07/2026, Michele): in cima alla card,
             // così è chiaro che governa i controlli sotto — quando attiva
@@ -220,6 +248,7 @@ private fun AdvancedSettingsPreview() {
                 topP = InferenceConfig.DEFAULT_TOP_P,
                 askImageInPrompt = false,
                 translationMode = false,
+                engineEnabled = true,
             ),
             onMaxTokensChange = {},
             onTemperatureChange = {},
@@ -229,6 +258,7 @@ private fun AdvancedSettingsPreview() {
             onTopPCommit = {},
             onAskImageInPromptChange = {},
             onTranslationModeChange = {},
+            onEngineEnabledChange = {},
             onReset = {},
         )
     }
@@ -246,6 +276,7 @@ private fun AdvancedSettingsTranslationModePreview() {
                 topP = InferenceConfig.TRANSLATION_PRESET.topP,
                 askImageInPrompt = false,
                 translationMode = true,
+                engineEnabled = true,
             ),
             onMaxTokensChange = {},
             onTemperatureChange = {},
@@ -255,6 +286,35 @@ private fun AdvancedSettingsTranslationModePreview() {
             onTopPCommit = {},
             onAskImageInPromptChange = {},
             onTranslationModeChange = {},
+            onEngineEnabledChange = {},
+            onReset = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Impostazioni avanzate — motore spento (scuro)", heightDp = 800)
+@Composable
+private fun AdvancedSettingsEngineDisabledPreview() {
+    ImmundaNoctisTheme(darkTheme = true) {
+        AdvancedSettingsCard(
+            settings = AdvancedSettingsUi(
+                maxTokens = InferenceConfig.DEFAULT_MAX_TOKENS.toString(),
+                temperature = InferenceConfig.DEFAULT_TEMPERATURE,
+                topK = InferenceConfig.DEFAULT_TOP_K.toString(),
+                topP = InferenceConfig.DEFAULT_TOP_P,
+                askImageInPrompt = false,
+                translationMode = false,
+                engineEnabled = false,
+            ),
+            onMaxTokensChange = {},
+            onTemperatureChange = {},
+            onTemperatureCommit = {},
+            onTopKChange = {},
+            onTopPChange = {},
+            onTopPCommit = {},
+            onAskImageInPromptChange = {},
+            onTranslationModeChange = {},
+            onEngineEnabledChange = {},
             onReset = {},
         )
     }

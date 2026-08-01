@@ -47,6 +47,20 @@ class InferencePreferences(context: Context) {
         get() = prefs.getBoolean(KEY_TRANSLATION_MODE, false)
         set(value) = prefs.edit().putBoolean(KEY_TRANSLATION_MODE, value).apply()
 
+    // Interruttore esplicito (01/08/2026, Michele: "dovresti darmi la
+    // possibilità di disattivare il modello") — con l'auto-load
+    // all'apertura dell'app (AppNavigation.kt), il caso "motore spento,
+    // chiedo" era di fatto irraggiungibile: appena c'è un modello
+    // scaricato riparte da solo. Questa preferenza è la fonte di verità
+    // che AppContainer.ensureModelLoaded() controlla per PRIMA cosa: se
+    // falsa, non tocca il motore, né all'avvio né entrando in avventura.
+    // Persistente (resta spenta finché non la riaccendi tu, non solo per
+    // la sessione corrente) — attivare un modello a mano la rimette a
+    // true da sé (un gesto esplicito vince sempre sull'ultima preferenza).
+    var engineEnabled: Boolean
+        get() = prefs.getBoolean(KEY_ENGINE_ENABLED, true)
+        set(value) = prefs.edit().putBoolean(KEY_ENGINE_ENABLED, value).apply()
+
     // La fotografia da passare al motore al caricamento.
     fun toConfig(): InferenceConfig = if (translationMode) {
         InferenceConfig.TRANSLATION_PRESET
@@ -76,5 +90,6 @@ class InferencePreferences(context: Context) {
         private const val KEY_TOP_P = "top_p"
         private const val KEY_ASK_IMAGE = "ask_image_in_prompt"
         private const val KEY_TRANSLATION_MODE = "translation_mode"
+        private const val KEY_ENGINE_ENABLED = "engine_enabled"
     }
 }
