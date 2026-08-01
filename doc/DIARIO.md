@@ -4223,9 +4223,33 @@ Nuovi test: 13 su `RollModifiers`, 5 sul validatore, 3 sull'ETL — più
 tutta la suite esistente verde su tutti i moduli. Documentato in
 `doc/SCHEMA-JSON.md` §4.5.
 
-**Da verificare a mano su device (Michele)**: giocare 02fotw scena 12
-con e senza il Sesto Senso e controllare che il numero mostrato spieghi
-la somma e porti nella scena giusta.
+**VERIFICATO SU DEVICE (01/08/2026, stessa sera)**. Il primo giro non
+valeva — `BUILD_MARKER` diceva `-07`, la build precedente alla feature:
+il libro si caricava lo stesso (campo sconosciuto ignorato) ma nessun
+bonus veniva applicato, e la cosa sarebbe passata per un bug della
+feature. Il marcatore introdotto poche ore prima ha ripagato una
+seconda volta.
+
+Secondo giro con la build giusta, schermate alla mano:
+
+- **Bonus fisso**: `Hai tirato: 7 +5 = 12` — il numero viene spiegato,
+  che era l'unica verifica possibile per il caso incondizionato.
+- **Bonus condizionale**: `0 +2 = 2` e `8 +2 = 10` con il Sesto Senso
+  in scheda.
+- **La destinazione segue il TOTALE, non il dado**: col grezzo 8 la
+  scelta sarebbe stata "esito medio" (5–9); il totale 10 ha portato
+  all'"esito alto" (10–11), scena irraggiungibile senza bonus —
+  raggiunta 3 volte secondo il log. È la prova che il modificatore non
+  è solo mostrato ma decide davvero.
+
+Non verificati a mano, per motivi noti e accettati: la **controprova
+senza Sesto Senso** (coperta dal test automatico
+`laDisciplinaNonPosseduraNonDaNulla`) e il **malus da ENDURANCE**, che
+si attiva sotto 10 punti mentre il personaggio di prova era a 25/25.
+
+Il libro di prova (`content/test-books/test-rollmodifier.json`) resta
+in repo per le regressioni, insieme agli altri — indice commentato in
+`doc/LIBRI-DI-PROVA.md`.
 
 ---
 
