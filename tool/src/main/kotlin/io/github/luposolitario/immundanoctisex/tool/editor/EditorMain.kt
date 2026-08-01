@@ -86,7 +86,16 @@ fun riepilogoLibro(nomeFile: String, manifest: Manifest): String {
     return "$nomeFile - ${manifest.title} - ${manifest.genre} - ${manifest.language} - $descrizioneBreve"
 }
 
+// Marcatore di build dell'editor (01/08/2026, Michele: "aggiungi un
+// BUILD_MARKER anche per l'editor") — stessa convenzione del client
+// (MainActivity.kt): AGGIORNARE ad OGNI modifica di codice di `:tool`
+// prima di ricompilare. Qui non c'è logcat: si stampa sulla console di
+// `:tool:run` e finisce nel titolo della finestra, così la versione si
+// legge a colpo d'occhio anche senza guardare l'output.
+const val EDITOR_BUILD_MARKER = "2026-08-01-01 anteprima audio: il pulsante ora ferma la riproduzione"
+
 fun main() = application {
+    println("EDITOR_BUILD_MARKER = $EDITOR_BUILD_MARKER")
     var schermata by remember { mutableStateOf<Schermata>(Schermata.Avvio) }
     // Impostazioni (§16.1, Michele: "importi dal client le font
     // disponibili, il tema selezionato che deve essere persistente e
@@ -163,7 +172,7 @@ fun main() = application {
 
     Window(
         onCloseRequest = ::exitApplication,
-        title = "ImmundaNoctisEx — Editor",
+        title = "ImmundaNoctisEx — Editor [$EDITOR_BUILD_MARKER]",
         state = windowState,
         resizable = true,
     ) {

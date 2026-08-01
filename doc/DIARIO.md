@@ -4067,7 +4067,41 @@ Compilazione e test `:tool` verdi.
 
 ---
 
-### Dettaglio storico (fino al 21/07/2026)
+## Marcatore per l'editor e libri di prova sul telefono (01/08/2026)
+
+Sfx **confermati funzionanti su device** da Michele, insieme al fix
+dell'anteprima nell'editor. Tre richieste di sistemazione, tutte fatte:
+
+**1. `EDITOR_BUILD_MARKER`** (`EditorMain.kt`) — stessa convenzione del
+client, da aggiornare ad ogni modifica di `:tool`. L'editor non ha
+logcat: si stampa sulla console di `:tool:run` **e finisce nel titolo
+della finestra**, così la versione si legge senza guardare l'output.
+
+**2. Libri di prova tutti in `content/test-books/`** — la cartella
+esisteva già (versionata apposta, vedi `.gitignore`); ci è stato
+spostato anche `test-sfx.json`, creato poco prima nella radice.
+**Attenzione, non spostare `content/scenes.sample.json`**: è l'asset
+caricato di default dall'APK (`AssetPackageSource(context,
+"scenes.sample.json")` in `AppContainer.kt`), spostarlo cambierebbe il
+path dell'asset e romperebbe l'avvio. Ne esiste una copia dentro
+`test-books/` — duplicato segnalato a Michele, non toccato.
+
+**3. Nuovo task `./gradlew pushTestBooks`** (build radice) — copia
+tutti i libri di prova in `/sdcard/Download/ImmundaNoctisEx` sul
+telefono collegato, così il side-load li trova senza passaggi manuali.
+Due trappole incontrate e risolte:
+- *Configuration cache*: un `doLast` che legge variabili dichiarate a
+  livello di script fallisce ("cannot serialize Gradle script object
+  references"). Tutto risolto in fase di configurazione e catturato
+  come valori semplici dentro il blocco del task.
+- *Idempotenza*: `adb push <cartella> <dest>` copia il contenuto solo
+  se `<dest>` non esiste, altrimenti **annida** (`dest/test-books/…`) —
+  al secondo lancio i libri finivano in due posti. Il `/.` finale
+  (`<cartella>/.`) copia sempre e solo il contenuto. Verificato con due
+  lanci consecutivi: 15 file, nessun annidamento.
+
+Il task NON è agganciato a nessun altro: dipende da un device
+collegato, non deve far fallire una build normale.
 
 **Fase**: 4 (`inference`). Fase 3 chiusa: il libro gira per intero sul
 Razr senza IA (Home, creazione, scena, combat a due modalità, scheda,

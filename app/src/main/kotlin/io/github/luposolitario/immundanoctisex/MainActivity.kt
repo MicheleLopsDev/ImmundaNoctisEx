@@ -100,4 +100,4 @@ class MainActivity : ComponentActivity() {
 // questa riga va toccata ad ogni modifica di codice, così Michele legge
 // "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
 // ricompilato l'ultima versione o una vecchia.
-private const val BUILD_MARKER = "2026-08-01-06 feat: sfx url: su MediaPlayer (file lunghi) + tetto cache 25MB"
+private const val BUILD_MARKER = "2026-08-01-07 chore: libri di prova in content/test-books + task pushTestBooks"
