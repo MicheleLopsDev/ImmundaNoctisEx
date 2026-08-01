@@ -177,6 +177,8 @@
     <string name="item_helmet_desc">+2 Resistenza finché lo possiedi.</string>
     <string name="item_chainmail">Gilet di maglia di ferro</string>
     <string name="item_chainmail_desc">+4 Resistenza finché lo possiedi.</string>
+    <string name="item_shield">Scudo</string>
+    <string name="item_shield_desc">+2 Combattività finché lo possiedi.</string>
     <string name="creation_start">Inizia l\'Avventura</string>
 
     <!-- Comuni -->

@@ -18,7 +18,8 @@ fun effectiveCombatSkill(character: Character): Int {
         .filter { it.stat == StatType.COMBAT_SKILL }
         .sumOf { it.amount }
 
-    return character.baseCombatSkill + modifiersBonus + weaponskillBonus(character)
+    return character.baseCombatSkill + modifiersBonus +
+        weaponskillBonus(character) + itemsCombatSkillBonus(character)
 }
 
 // Bonus Resistenza degli oggetti POSSEDUTI (effetto dichiarativo
@@ -27,6 +28,21 @@ fun effectiveCombatSkill(character: Character): Int {
 fun itemEnduranceBonus(item: GameItem): Int =
     item.effect?.takeIf { it.startsWith("ENDURANCE:") }
         ?.substringAfter(":")?.toIntOrNull()?.times(item.quantity) ?: 0
+
+// Stessa idea per la Combattività (01/08/2026, Scudo +2 — canone Lupo
+// Solitario: lo Scudo aiuta a combattere, non ad assorbire danni, quindi
+// NON è un ENDURANCE:n come Elmo e Gilet). Il formato dell'effetto è
+// dichiarativo ed estensibile senza toccare lo schema, come previsto in
+// STATO.md §4.2.
+fun itemCombatSkillBonus(item: GameItem): Int =
+    item.effect?.takeIf { it.startsWith("COMBAT_SKILL:") }
+        ?.substringAfter(":")?.toIntOrNull()?.times(item.quantity) ?: 0
+
+// Somma sugli oggetti posseduti — pubblica perché la Scheda personaggio
+// deve poter SPIEGARE il numero scomponendolo (stessa ragione per cui
+// weaponskillBonus non è privata), invece di ricalcolarlo per conto suo.
+fun itemsCombatSkillBonus(character: Character): Int =
+    character.inventory.sumOf { itemCombatSkillBonus(it) }
 
 // Il massimo EFFETTIVO di Resistenza: base del personaggio + bonus degli
 // oggetti posseduti. È il tetto usato da cure, HEALING passiva e clamp.

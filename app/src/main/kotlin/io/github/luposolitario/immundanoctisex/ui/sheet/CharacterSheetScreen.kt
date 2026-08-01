@@ -41,6 +41,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.rank.KaiRank
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveEndurance
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
+import io.github.luposolitario.immundanoctisex.core.engine.stats.itemCombatSkillBonus
 import io.github.luposolitario.immundanoctisex.core.engine.stats.itemEnduranceBonus
 import io.github.luposolitario.immundanoctisex.core.engine.stats.weaponskillBonus
 import io.github.luposolitario.immundanoctisex.ui.adventure.modifierLabel
@@ -163,6 +164,16 @@ private fun CombatSkillBreakdown(hero: Character) {
         if (weaponBonus != 0) {
             Text(
                 "+$weaponBonus CS (specializzazione)",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.tertiary,
+            )
+        }
+        // Oggetti che aumentano la Combattività (01/08/2026, lo Scudo è
+        // il primo): stessa riga per riga di EnduranceBreakdown qui
+        // sotto — il giocatore deve poter risalire a ogni punto.
+        hero.inventory.filter { itemCombatSkillBonus(it) != 0 }.forEach { item ->
+            Text(
+                "${item.name} +${itemCombatSkillBonus(item)} CS",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.tertiary,
             )

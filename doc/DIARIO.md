@@ -4251,6 +4251,47 @@ Il libro di prova (`content/test-books/test-rollmodifier.json`) resta
 in repo per le regressioni, insieme agli altri — indice commentato in
 `doc/LIBRI-DI-PROVA.md`.
 
+## Lo Scudo: il primo oggetto che dà Combattività (01/08/2026)
+
+Punto 12 della lista di fine sessione, chiesto da Michele come
+*"oggetto da aggiungere +2 alla res? come per la corazza o l'elmo"* e
+poi corretto insieme: nel canone di Lupo Solitario lo **Scudo aiuta a
+combattere**, non ad assorbire danni — sta fra gli Oggetti Speciali con
+**+2 Combattività**, non fra i +Resistenza come Elmo (+2) e Gilet di
+maglia (+4). Michele ha scelto la versione canonica.
+
+Meccanicamente non serviva nulla di nuovo: gli oggetti hanno già un
+`effect` dichiarativo, e `ENDURANCE:n` mostrava la strada. Si è
+aggiunto il gemello **`COMBAT_SKILL:n`** in `EffectiveStats.kt`
+(`itemCombatSkillBonus` / `itemsCombatSkillBonus`, entrambe pubbliche
+per la stessa ragione di `weaponskillBonus`: la Scheda deve poter
+**spiegare** il numero, non ricalcolarlo) e la somma è entrata in
+`effectiveCombatSkill`. Nessun campo nuovo nello schema, nessun
+salvataggio rotto: è tutto dentro una stringa che c'era già.
+
+Ricadute, tutte piccole e tutte necessarie:
+
+- **Creazione**: lo Scudo entra in `INITIAL_SPECIAL_ITEMS`, quindi può
+  uscire fra gli oggetti iniziali estratti a caso.
+- **Scheda personaggio**: `CombatSkillBreakdown` elenca ora anche gli
+  oggetti, riga per riga, esattamente come `EnduranceBreakdown` faceva
+  già per l'Elmo. Il giocatore deve poter risalire a ogni singolo punto.
+- **`doc/SCHEMA-JSON.md` §9.3**: la sezione diceva ancora *"il motore
+  implementa solo il pattern HEAL:n"* — falso da giorni, `ENDURANCE:n`
+  girava già senza essere documentato. Ora è una tabella con tutti e
+  tre i pattern e la nota che i due passivi valgono per il **solo
+  possesso** e non vengono mai persistiti nelle stat.
+
+Quattro test nuovi in `EffectiveStatsTest` (bonus da solo, sommato alla
+specializzazione arma, oggetto senza effetto che non tocca nulla, bonus
+moltiplicato per la quantità posseduta). **274 test verdi** su tutti i
+moduli.
+
+> **Da procurare**: manca un'icona scudo vera fra i drawable. La card
+> di creazione usa `ic_armor` come **segnaposto**, marcato come tale nel
+> commento di `CreationCatalog.kt` — funziona ma è l'icona della
+> corazza.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

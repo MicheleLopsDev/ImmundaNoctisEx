@@ -578,9 +578,19 @@ QUARTERSTAFF, BROADSWORD, UNARMED
 ### 9.3 `effect`
 
 Stringa dichiarativa libera, pensata per estendersi senza cambiare lo
-schema. Oggi il motore implementa solo il pattern `"HEAL:n"` (cura n
-punti Resistenza quando l'oggetto viene consumato in combattimento, se
-`combatUsable: true`).
+schema. I pattern implementati dal motore:
+
+| Pattern | Effetto |
+|---|---|
+| `HEAL:n` | Cura n punti Resistenza quando l'oggetto viene **consumato** in combattimento (richiede `combatUsable: true`). |
+| `ENDURANCE:n` | +n al **massimo** di Resistenza finché l'oggetto è nell'inventario (Elmo `+2`, Gilet di maglia `+4` — canone libro 1). |
+| `COMBAT_SKILL:n` | +n alla Combattività finché l'oggetto è nell'inventario (Scudo `+2` — nel canone lo Scudo aiuta a **combattere**, non ad assorbire danni). |
+
+Gli ultimi due sono **passivi**: valgono per il solo possesso, si
+sommano sulla quantità posseduta e non vengono mai persistiti nelle
+stat del personaggio — l'engine li ricalcola a ogni lettura
+(`EffectiveStats.kt`). Perdere l'oggetto fa sparire il bonus da sé.
+Un `effect` non riconosciuto viene ignorato senza errori.
 
 ---
 

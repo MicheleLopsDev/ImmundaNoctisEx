@@ -80,6 +80,50 @@ class EffectiveStatsTest {
         assertEquals(15, effectiveCombatSkill(character))
     }
 
+    // Scudo (01/08/2026): +2 Combattività finché è nell'inventario, come
+    // l'Elmo fa con la Resistenza. Stesso formato dichiarativo, stat diversa.
+    @Test
+    fun scudoAggiungeIlSuoBonusAllaCombattivita() {
+        val character = hero().copy(
+            inventory = listOf(
+                GameItem(name = "Shield", type = ItemType.SPECIAL_ITEM, effect = "COMBAT_SKILL:2"),
+            ),
+        )
+
+        assertEquals(17, effectiveCombatSkill(character))
+    }
+
+    @Test
+    fun ilBonusDegliOggettiSiSommaAQuelloDellaSpecializzazione() {
+        val character = swordsman(WeaponType.SWORD, equipped = "Sword").let {
+            it.copy(
+                inventory = it.inventory +
+                    GameItem(name = "Shield", type = ItemType.SPECIAL_ITEM, effect = "COMBAT_SKILL:2"),
+            )
+        }
+
+        assertEquals(19, effectiveCombatSkill(character))
+    }
+
+    @Test
+    fun unOggettoSenzaEffettoNonCambiaLaCombattivita() {
+        val character = hero().copy(
+            inventory = listOf(
+                GameItem(name = "Rope", type = ItemType.SPECIAL_ITEM),
+                GameItem(name = "Helmet", type = ItemType.SPECIAL_ITEM, effect = "ENDURANCE:2"),
+            ),
+        )
+
+        assertEquals(15, effectiveCombatSkill(character))
+    }
+
+    @Test
+    fun ilBonusValeUnaVoltaPerCopiaPosseduta() {
+        val item = GameItem(name = "Shield", type = ItemType.SPECIAL_ITEM, effect = "COMBAT_SKILL:2", quantity = 2)
+
+        assertEquals(4, itemCombatSkillBonus(item))
+    }
+
     @Test
     fun enduranceSenzaModificatoriERisultatoCorrente() {
         assertEquals(20, effectiveEndurance(hero()))
