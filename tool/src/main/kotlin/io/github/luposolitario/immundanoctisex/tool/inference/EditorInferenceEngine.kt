@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.RandomAccessFile
+import java.nio.channels.FileChannel
+import java.nio.channels.FileLock
 
 // Lo stesso motore del client, sul PC (02/08/2026, Michele: "voglio
 // proprio avere una simulazione di quello che succede sul client").
@@ -44,6 +47,12 @@ class EditorInferenceEngine {
     // valori l'unico rimedio sarebbe chiudere l'editor.
     private var ultimoFile: File? = null
     private var ultimoSoloCpu: Boolean = false
+
+    // Tenuti aperti finché il modello è caricato: chiudere il canale
+    // rilascia il lock, e la cartella tornerebbe libera per un altro
+    // processo mentre la stiamo ancora usando.
+    private var lockCache: FileLock? = null
+    private var canaleLock: FileChannel? = null
 
     // Quale backend ha accettato il modello. Va mostrato in UI: una
     // generazione lenta su CPU e una veloce su GPU sono due prove
@@ -88,8 +97,14 @@ class EditorInferenceEngine {
             unloadInternal()
             motivoRipiegoCpu = null
 
-            val cache = File(System.getProperty("java.io.tmpdir"), "immundanoctisex-litertlm")
-                .apply { mkdirs() }
+            // Una cartella cache PER BACKEND, e riservata a un processo
+            // solo (02/08/2026). Prima era una sola per tutti: dentro
+            // finivano insieme la cache XNNPACK della CPU e quelle
+            // mldrift della GPU, e con due processi che caricavano lo
+            // stesso modello insieme la libreria nativa moriva di
+            // EXCEPTION_ACCESS_VIOLATION dentro nativeCreateEngine —
+            // un crash della JVM intera, non un'eccezione da catturare.
+            val cache = cartellaCache(if (soloCpu) "cpu" else "gpu")
 
             // Va fatto PRIMA di costruire l'Engine: dopo, Dawn ha già
             // tentato e fallito la sua LoadLibrary.
@@ -191,6 +206,37 @@ class EditorInferenceEngine {
             if (pulito.isNotEmpty()) emit(pulito)
         }
     }.flowOn(Dispatchers.IO)
+
+    // La cartella cache da usare per questo backend, tenendo fuori gli
+    // altri processi. Il lock è un file dentro la cartella: se un'altra
+    // istanza dell'editor la sta già usando non si aspetta e non si
+    // fallisce — si lavora su una cartella propria, che costa solo un
+    // caricamento più lento la prima volta. Meglio lento che corrotto.
+    private fun cartellaCache(backend: String): File {
+        val base = File(System.getProperty("java.io.tmpdir"), "immundanoctisex-litertlm")
+        val condivisa = File(base, backend).apply { mkdirs() }
+
+        rilasciaLockCache()
+        val esito = runCatching {
+            val canale = RandomAccessFile(File(condivisa, ".lock"), "rw").channel
+            val lock = canale.tryLock()
+            if (lock == null) canale.close()
+            lock?.also { canaleLock = canale; lockCache = it }
+        }.getOrNull()
+
+        if (esito != null) return condivisa
+
+        val privata = File(base, "$backend-pid${ProcessHandle.current().pid()}").apply { mkdirs() }
+        EditorLog.i(TAG, "Cache $backend già in uso da un altro processo: uso ${privata.name}")
+        return privata
+    }
+
+    private fun rilasciaLockCache() {
+        runCatching { lockCache?.release() }
+        runCatching { canaleLock?.close() }
+        lockCache = null
+        canaleLock = null
+    }
 
     // Ricarica il modello com'era: serve dopo che la GPU è stata persa,
     // quando l'Engine esiste ancora ma non risponde più.

@@ -23,6 +23,28 @@ class CaricamentoModelloRealeTest {
         ModelCatalog.GEMMA_4_E4B.fileName,
     )
 
+    // Il crash del 02/08/2026 (EXCEPTION_ACCESS_VIOLATION dentro
+    // nativeCreateEngine) è avvenuto qui, al CARICAMENTO su CPU, con la
+    // cache condivisa fra backend e due processi in ballo. Questo test
+    // non genera nulla — verifica solo che l'inizializzazione arrivi in
+    // fondo, che è la parte che moriva.
+    @Test
+    fun ilCaricamentoSuCpuNonFaCadereLaJvm() = runBlocking {
+        if (!modello.isFile) {
+            println("SALTATO: nessun modello in ${modello.absolutePath}")
+            return@runBlocking
+        }
+        val motore = EditorInferenceEngine()
+        val inizio = System.currentTimeMillis()
+        val esito = motore.load(modello, InferenceConfig.TRANSLATION_PRESET, soloCpu = true)
+        val secondi = (System.currentTimeMillis() - inizio) / 1000.0
+
+        println("--- caricamento CPU: ${"%.1f".format(secondi)} s — backend ${motore.activeBackend}")
+        assertTrue(esito.isSuccess, "Caricamento su CPU fallito: ${esito.exceptionOrNull()?.message}")
+        assertTrue(motore.isLoaded)
+        motore.unload()
+    }
+
     @Test
     fun ilModelloRealeSiCaricaEDiceSuQualeBackend() = runBlocking {
         if (!modello.isFile) {

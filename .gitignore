@@ -36,3 +36,8 @@ content/scenes.json
 # servono per fare i test... è utile fare il revert con git se si
 # rompono" — versionati anche loro, per lo stesso motivo per cui è
 # versionato content/test-books/.
+# Rapporti di crash della JVM (02/08/2026): li scrive la JVM stessa
+# nella cartella di lavoro quando muore in codice nativo. Utili da
+# leggere, mai da versionare.
+hs_err_pid*.log
+replay_pid*.log

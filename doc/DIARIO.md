@@ -4686,6 +4686,67 @@ scoprire aspettando.
 > GPU, ma è una modifica di sistema che richiede riavvio: la decisione
 > è tua, non la tocco io.
 
+## Solo CPU nell'editor, e un crash che mi sono causato da solo (02/08/2026)
+
+Michele, dopo il TDR: *"non possiamo usare cpu e più lento ma è stabile
+alla fine è un tool non il client"*. Giusto, e il default dell'editor si
+inverte rispetto al client: **solo CPU**, con l'interruttore che resta e
+dice cosa si guadagna e cosa si rischia da entrambe le parti. Il client
+resta su GPU — là gira su Adreno via OpenCL, dove il problema non c'è.
+
+### Poi la CPU è andata in crash, e la colpa era mia
+
+```
+EXCEPTION_ACCESS_VIOLATION (0xc0000005)
+C  [litertlm_jni.dll+0xf77a4]
+j  com.google.ai.edge.litertlm.Engine.initialize()
+```
+
+Non un'eccezione da catturare: la **JVM intera** che muore in codice
+nativo, dentro `Engine.initialize()`, cioè al caricamento del modello.
+
+La cartella cache spiegava tutto:
+
+```
+gemma-4-E4B-it.litertlm.xnnpack_cache_...          2,2 GB   ← CPU
+..._mldrift_program_cache.bin                       40 MB   ← GPU
+..._mldrift_weight_cache.bin                       2,2 GB   ← GPU, scritto alle 23:15
+```
+
+Una sola cartella per **tutti i backend**, e quel file GPU delle 23:15
+non l'aveva scritto Michele: era **un mio test lasciato girare in
+background sulla sua macchina** mentre lui provava l'editor. Due
+processi che caricano lo stesso modello sulla stessa cache, con formati
+di cache diversi che si sovrascrivono: la libreria nativa non ha
+retto. Il suo crash delle 23:29 è figlio del mio test — e per giunta
+quel test si è mangiato la sua GPU per un quarto d'ora, senza mai
+arrivare a darmi la misura per cui l'avevo lanciato.
+
+**Regola imparata**: i test che caricano il modello vero occupano la
+macchina per minuti. Non si lanciano in background mentre Michele sta
+lavorando, e se proprio servono va detto prima.
+
+### Il rimedio
+
+- **Cartella cache per backend**: `…/immundanoctisex-litertlm/cpu` e
+  `/gpu`. Non c'è ragione perché una cache XNNPACK e una mldrift
+  convivano nella stessa cartella.
+- **Un lock per processo**: un `.lock` dentro la cartella, preso con
+  `tryLock`. Se un'altra istanza la sta già usando non si aspetta e non
+  si fallisce — si lavora su una cartella propria (`cpu-pid1234`), al
+  costo di un caricamento più lento la prima volta. Meglio lento che
+  corrotto.
+- `hs_err_pid*.log` in `.gitignore`: i rapporti di crash della JVM
+  finiscono nella cartella di lavoro, si leggono e non si versionano.
+
+Verificato dopo il fix, con la cache ripulita: caricamento su CPU in
+**24,5 s**, nessun crash.
+
+> **Ancora da misurare**: quanto ci mette una scena INTERA su CPU. Il
+> test è stato interrotto proprio perché stava contendendo la macchina,
+> e i numeri raccolti mentre due processi si dividono la stessa GPU non
+> valgono niente. Restano validi quelli su GPU: 34-40 s per scena.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
