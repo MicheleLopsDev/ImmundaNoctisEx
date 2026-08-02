@@ -4809,6 +4809,71 @@ trovato subito un difetto vero — la cartella di destinazione non veniva
 creata, e un percorso digitato a mano avrebbe fatto fallire
 l'esportazione **dopo** minuti di lavoro del modello.
 
+## PROSSIMA COSA DA FARE — il personaggio che passa di libro in libro
+
+Deciso con Michele a fine sessione del 03/08/2026, **non ancora
+implementato**. Le decisioni sono chiuse: si parte da qui.
+
+L'idea: *"invece di iniziare con un nuovo pg importo il pg di un'altra
+avventura"* — come nella serie originale di Lupo Solitario.
+
+### Cosa rende la cosa semplice
+
+`Character` è **già autonomo**: contiene discipline, inventario, stat,
+icona, e non referenzia mai il libro — nessun id di scena, nessuna
+risorsa del pacchetto. Un Elmo preso nel libro 1 funziona identico nel
+libro 3 perché l'effetto è dichiarativo (`ENDURANCE:2`), non un
+riferimento a qualcosa che vive nel libro. I salvataggi sono già
+separati per libro (`SessionData.packageId`): si aggiunge accanto,
+senza toccare l'esistente.
+
+### Le decisioni prese
+
+- **Canone pieno.** Combattività e Resistenza base si tirano **una
+  volta sola per tutta la serie**: importando un personaggio la
+  creazione salta il tiro delle statistiche. Resistenza al massimo,
+  inventario che passa intero.
+- **Una Disciplina Kai nuova**, scelta **iniziando il libro
+  successivo** — non a fine del precedente: è il momento in cui il
+  canone la fa scegliere, ed è l'unico in cui si ha davanti l'elenco di
+  quelle che mancano.
+- **Salvataggio automatico** (idea di Michele, ed è quella che toglie
+  tutta l'interfaccia scomoda): il personaggio si salva **alla
+  creazione** e si aggiorna **a fine libro** vinto. Niente esporta,
+  niente scegli-dove, niente ritrova-il-file.
+- **Import solo su una partita nuova**, dall'elenco in creazione.
+- **Chi muore non aggiorna il proprio file**: il libro non è finito,
+  non si è guadagnato niente. Va detto in interfaccia, altrimenti
+  sembra un salvataggio rotto.
+- **Personaggi cancellabili** dall'elenco: creandone dieci per prova,
+  restano dieci file.
+
+### Cosa contiene il file del personaggio
+
+Nome, **data di creazione**, **libro d'origine (id E titolo)**, **libri
+completati in ordine**, più il `Character` intero.
+
+Il titolo del libro va salvato, non solo l'id: per scrivere "Flight
+from the Dark" nell'elenco non si deve dipendere da quel libro, che
+potrebbe non essere più sul telefono. Il personaggio deve raccontare la
+propria storia da solo.
+
+Il **rango Kai NON si salva**: è già derivato da
+`KaiRank.fromDisciplineCount()`. Salvarlo darebbe due fonti per lo
+stesso dato, e il giorno che una disciplina viene aggiunta senza
+aggiornare l'altra si vedrebbe un "Iniziato Kai" con sette discipline.
+Stesso principio dei bonus delle statistiche.
+
+Dalla lista dei libri completati viene gratis anche l'ultimo finito,
+che è ciò che serve per scegliere dove riprendere:
+
+```
+Ferro · Maestro Kai · creato il 03/08/2026
+Da "Flight from the Dark" · 2 libri completati, ultimo "Fire on the Water"
+```
+
+**Stima**: una sessione per tutto quanto sopra.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
