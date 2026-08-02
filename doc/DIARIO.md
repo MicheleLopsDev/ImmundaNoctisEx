@@ -4287,10 +4287,19 @@ specializzazione arma, oggetto senza effetto che non tocca nulla, bonus
 moltiplicato per la quantità posseduta). **274 test verdi** su tutti i
 moduli.
 
-> **Da procurare**: manca un'icona scudo vera fra i drawable. La card
-> di creazione usa `ic_armor` come **segnaposto**, marcato come tale nel
-> commento di `CreationCatalog.kt` — funziona ma è l'icona della
-> corazza.
+**Icona vera il giorno dopo (02/08/2026)**: Michele ha messo
+`origina_res/shield.jfif` (1024×1024, uno scudo con aquila a linee
+nere su fondo bianco) e il segnaposto `ic_armor` è sparito. La
+conversione ha richiesto un passaggio non ovvio: le icone del catalogo
+non sono line-art su trasparente ma **silhouette bianche piene con
+contorni neri** (verificato compositando `ic_armor` su un fondo rosso),
+così restano leggibili sia in tema chiaro sia in scuro. Un `lumakey`
+avrebbe bucato anche il bianco *dentro* lo scudo. Si è usato invece un
+riempimento a diffusione dai bordi (`PIL`, 20 righe nello scratchpad):
+diventa trasparente solo il bianco che comunica con l'esterno, i
+contorni neri fanno da argine. Ritaglio ai pixel opachi e scala a 210px
+di altezza — `ic_shield.png` esce 165×210, le stesse misure di
+`ic_helmet`.
 
 ---
 

@@ -171,13 +171,11 @@ val INITIAL_SPECIAL_ITEMS = listOf(
     // Resistenza — nel canone lo Scudo aiuta a combattere, non ad
     // assorbire colpi. È il primo oggetto a usare l'effetto
     // COMBAT_SKILL:n (vedi itemCombatSkillBonus in EffectiveStats.kt).
-    // ic_armor è un SEGNAPOSTO: manca un'icona scudo vera fra i
-    // drawable, da procurare.
     SpecialItemUi(
         item = GameItem(name = "Shield", type = ItemType.SPECIAL_ITEM, effect = "COMBAT_SKILL:2"),
         nameRes = R.string.item_shield,
         descriptionRes = R.string.item_shield_desc,
-        iconRes = R.drawable.ic_armor,
+        iconRes = R.drawable.ic_shield,
     ),
 )
 
