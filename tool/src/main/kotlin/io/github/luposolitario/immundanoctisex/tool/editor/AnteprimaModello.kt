@@ -84,7 +84,11 @@ fun BarraAnteprima(
             }
             Text(
                 "  ${anteprima.lingua.displayName} · " +
-                    if (anteprima.modalitaTraduzione) "solo traduzione" else "arricchimento",
+                    (if (anteprima.modalitaTraduzione) "solo traduzione" else "arricchimento") +
+                    // Il tempo va detto prima, non scoperto aspettando:
+                    // una scena intera sta sui 35 secondi (misurato il
+                    // 02/08/2026 su GPU integrata), non è un istante.
+                    " · circa mezzo minuto",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

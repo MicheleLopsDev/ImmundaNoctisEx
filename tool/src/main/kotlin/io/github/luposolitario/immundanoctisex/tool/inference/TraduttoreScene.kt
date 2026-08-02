@@ -43,13 +43,64 @@ class TraduttoreScene(private val motore: EditorInferenceEngine) {
         manifest: Manifest,
         lingua: LinguaOutput,
         modalitaTraduzione: Boolean,
+        // Le continuazioni pesano fra il 30% e il 40% del prompt, e su
+        // GPU integrata un prefill troppo lungo fa scattare il TDR di
+        // Windows (02/08/2026: DXGI_ERROR_DEVICE_HUNG). Ometterle
+        // allontana un po' l'anteprima dal prompt del gioco, ma è
+        // l'unica leva che abbiamo da questa parte — l'API di
+        // LiteRT-LM non espone il batch del prefill.
+        conContinuazioni: Boolean = true,
         onParziale: (String) -> Unit = {},
     ): Result<EnrichedScene> {
         if (!motore.isLoaded) {
             return Result.failure(IllegalStateException("Modello non caricato: aprilo dalla schermata Modello."))
         }
         return turno.withLock {
-            runCatching {
+            val primo = tentativo(scene, manifest, lingua, modalitaTraduzione, conContinuazioni, onParziale)
+            // Un solo ritentativo, e solo per la GPU persa: è un guasto
+            // intermittente (misurato il 02/08/2026 — la stessa scena
+            // fallita a 23 s è passata al giro dopo), quindi ritentare
+            // funziona davvero. Per ogni altro errore riprovare
+            // significherebbe solo far aspettare il doppio.
+            if (primo.isSuccess || !EditorInferenceEngine.eDispositivoPerso(primo.exceptionOrNull())) {
+                return@withLock primo
+            }
+            EditorLog.i(TAG, "Dispositivo grafico perso: ricarico il modello e riprovo una volta")
+            onParziale("")
+            val ricaricato = motore.ricarica()
+            if (ricaricato.isFailure) {
+                return@withLock Result.failure(
+                    IllegalStateException(
+                        "La scheda grafica si è bloccata e il modello non si è ricaricato. " +
+                            "Riapri la schermata Modello e premi «Carica modello».",
+                        ricaricato.exceptionOrNull(),
+                    ),
+                )
+            }
+            tentativo(scene, manifest, lingua, modalitaTraduzione, conContinuazioni, onParziale)
+                .recoverCatching { errore ->
+                    throw IllegalStateException(
+                        if (EditorInferenceEngine.eDispositivoPerso(errore)) {
+                            "La scheda grafica si è bloccata due volte di seguito su questa scena. " +
+                                "È un limite della GPU integrata sui testi lunghi, non un errore del libro."
+                        } else {
+                            errore.message ?: "traduzione non riuscita"
+                        },
+                        errore,
+                    )
+                }
+        }
+    }
+
+    private suspend fun tentativo(
+        scene: Scene,
+        manifest: Manifest,
+        lingua: LinguaOutput,
+        modalitaTraduzione: Boolean,
+        conContinuazioni: Boolean,
+        onParziale: (String) -> Unit,
+    ): Result<EnrichedScene> =
+        runCatching {
                 val prompt = PromptBuilder(
                     // L'editor non chiede mai a Gemma di scegliere lo
                     // sfondo: qui l'immagine la decide l'autore, ed è
@@ -64,7 +115,7 @@ class TraduttoreScene(private val motore: EditorInferenceEngine) {
                         // corso. È l'unica differenza dichiarata rispetto
                         // al prompt del gioco.
                         previousSceneText = null,
-                        continuations = continuazioniDi(scene, manifest),
+                        continuations = if (conContinuazioni) continuazioniDi(scene, manifest) else emptyList(),
                         choices = scene.choices,
                         disciplineChoices = scene.disciplineChoices,
                         sourceLanguage = manifest.language,
@@ -91,9 +142,7 @@ class TraduttoreScene(private val motore: EditorInferenceEngine) {
                 val testo = ripulisciTokenDiServizio(grezzo.toString())
                 if (testo.isBlank()) error("Il modello non ha prodotto testo.")
                 ResponseParser.parse(testo, scene)
-            }.onFailure { EditorLog.e(TAG, "Traduzione della scena ${scene.id} fallita: ${it.message}", it) }
-        }
-    }
+        }.onFailure { EditorLog.e(TAG, "Traduzione della scena ${scene.id} fallita: ${it.message}", it) }
 
     // Le stesse continuazioni che costruisce SceneNarrator nel client.
     private fun continuazioniDi(scene: Scene, manifest: Manifest): List<String> {

@@ -37,6 +37,13 @@ class EditorInferenceEngine {
     private var conversation: Conversation? = null
     private var config: InferenceConfig = InferenceConfig()
 
+    // Ricordati per poter RICARICARE dopo che la GPU è stata persa
+    // (02/08/2026): con un prefill lungo su GPU integrata Windows può
+    // far scattare il TDR e resettare il driver — l'Engine resta lì ma
+    // è morto, e ogni chiamata successiva fallisce. Senza questi due
+    // valori l'unico rimedio sarebbe chiudere l'editor.
+    private var ultimoFile: File? = null
+
     // Quale backend ha accettato il modello. Va mostrato in UI: una
     // generazione lenta su CPU e una veloce su GPU sono due prove
     // diverse, e senza saperlo si trarrebbero conclusioni sbagliate.
@@ -64,6 +71,7 @@ class EditorInferenceEngine {
                 )
             }
             this@EditorInferenceEngine.config = config
+            this@EditorInferenceEngine.ultimoFile = modelFile
             unloadInternal()
             motivoRipiegoCpu = null
 
@@ -163,6 +171,15 @@ class EditorInferenceEngine {
         }
     }.flowOn(Dispatchers.IO)
 
+    // Ricarica il modello com'era: serve dopo che la GPU è stata persa,
+    // quando l'Engine esiste ancora ma non risponde più.
+    suspend fun ricarica(): Result<Unit> {
+        val file = ultimoFile
+            ?: return Result.failure(IllegalStateException("Nessun modello da ricaricare."))
+        EditorLog.i(TAG, "Ricarico ${file.name} dopo la perdita del dispositivo")
+        return load(file, config)
+    }
+
     suspend fun unload() = withContext(Dispatchers.IO) { unloadInternal() }
 
     private fun unloadInternal() {
@@ -174,7 +191,31 @@ class EditorInferenceEngine {
         motivoRipiegoCpu = null
     }
 
-    private companion object {
-        const val TAG = "EditorInferenceEngine"
+    companion object {
+        private const val TAG = "EditorInferenceEngine"
+
+        // Riconosce il guasto in cui Windows resetta il driver grafico
+        // (TDR) perché un'operazione GPU ha impiegato troppo: il
+        // messaggio arriva dal codice nativo in inglese, e cambia forma
+        // a seconda di dove viene intercettato — device hung, device
+        // removed, o il timeout sul readback dei risultati.
+        //
+        // Non è un errore del libro né del prompt: capita con prefill
+        // lunghi su GPU integrata, in modo INTERMITTENTE (la stessa
+        // scena può passare al secondo tentativo). Per questo si
+        // riconosce: è l'unico caso in cui ritentare ha senso.
+        fun eDispositivoPerso(errore: Throwable?): Boolean {
+            val messaggio = generateSequence(errore) { it.cause }
+                .mapNotNull { it.message }
+                .joinToString(" ")
+                .lowercase()
+            return listOf(
+                "device_hung",
+                "device_removed",
+                "device removed",
+                "reading back data",
+                "0x887a",
+            ).any { it in messaggio }
+        }
     }
 }

@@ -4618,6 +4618,74 @@ li ha sparsi dentro il corpo delle funzioni. Ricostruiti separando
 package/import/codice e normalizzando a LF. Per le modifiche mirate
 conviene lo strumento di edit, non gli script.
 
+## La GPU che Windows resetta a metà traduzione (02/08/2026)
+
+Prima prova vera dell'anteprima su una scena di libro: **fallita**.
+
+```
+DXGI_ERROR_DEVICE_HUNG (0x887A0006)
+ABORTED: The timeout was reached while reading back data.
+```
+
+Non è un timeout qualunque: è il **TDR di Windows** (Timeout Detection
+and Recovery). Quando un'operazione sulla GPU dura più di un paio di
+secondi senza restituire il controllo, il sistema **resetta il driver
+grafico**. Da quel momento l'`Engine` esiste ancora ma è morto, e ogni
+chiamata successiva fallisce con `0x887a0005`.
+
+Perché adesso e non nella schermata Modello? Per la **lunghezza del
+prompt**. Misurata sui cinque libri Project Aon:
+
+| | prompt medio | massimo |
+|---|---|---|
+| prova della schermata Modello | ~300 caratteri | — |
+| scena vera, con continuazioni | **2500-3150** | 7618 |
+| scena vera, senza continuazioni | 1950-2100 | 4537 |
+
+Il prefill di ~800 token in un colpo solo su una Radeon integrata è
+abbastanza da far scattare il TDR.
+
+### Il guasto è INTERMITTENTE, e questo cambia la cura
+
+Riprodotto una volta (fallito a 23,7 s) e **non riprodotto al giro
+successivo**: la stessa scena, stesso prompt, è passata in 40,0 s con
+le continuazioni e 34,1 s senza. Dipende da quanto è occupata la GPU in
+quel momento, non dal contenuto.
+
+Se fosse stato deterministico la risposta sarebbe stata accorciare il
+prompt; essendo intermittente, la risposta giusta è **riprendersi**:
+
+- `EditorInferenceEngine.eDispositivoPerso()` riconosce il guasto dal
+  messaggio nativo (device hung, device removed, readback, `0x887a`),
+  **anche dentro le cause annidate** — dove spesso è l'unico posto in
+  cui compare.
+- `EditorInferenceEngine.ricarica()` rimette su il modello: l'`Engine`
+  perso non si recupera, va ricostruito, e senza ricordare file e
+  configurazione l'unico rimedio sarebbe chiudere l'editor.
+- `TraduttoreScene` ritenta **una volta sola, e solo per questo
+  errore**. Per ogni altro fallimento riprovare significherebbe far
+  aspettare il doppio per lo stesso esito.
+
+Se cade due volte di seguito, il messaggio lo dice chiaro: *"è un limite
+della GPU integrata sui testi lunghi, non un errore del libro"* —
+perché il primo sospetto di chi scrive, davanti a un errore, è sempre
+che il guasto sia nel proprio testo.
+
+`conContinuazioni` resta come parametro (togliendole il prompt cala del
+30-40%), ma **non è la cura**: è una leva da usare se il problema
+tornasse spesso. L'API di LiteRT-LM non espone il batch del prefill,
+quindi la lunghezza del prompt è l'unica manopola da questa parte.
+
+**Il tempo va detto prima**: una scena intera sta sui **35 secondi**, e
+ora l'interfaccia lo scrive accanto al pulsante invece di lasciarlo
+scoprire aspettando.
+
+> **Per Michele**: il TDR si può allungare da registro
+> (`HKLM\SYSTEM\CurrentControlSet\Control\GraphicsDrivers`, valore
+> `TdrDelay` in secondi). È la soluzione definitiva per il calcolo su
+> GPU, ma è una modifica di sistema che richiede riavvio: la decisione
+> è tua, non la tocco io.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
