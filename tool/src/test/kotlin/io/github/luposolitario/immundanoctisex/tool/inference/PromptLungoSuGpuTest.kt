@@ -50,18 +50,18 @@ class PromptLungoSuGpuTest {
         )
         esito.getOrNull()?.let { println("    testo: ${it.narrative.take(120)}…") }
 
-        // Giro 2: senza continuazioni (~40% di prompt in meno). Il
-        // modello va ricaricato: dopo un device hung l'Engine è morto.
+        // Giro 2: la stessa scena su CPU. Serve a sapere quanto costa la
+        // stabilità (02/08/2026, Michele: "è più lento ma è stabile,
+        // alla fine è un tool non il client") — un numero, non
+        // un'impressione.
         motore.unload()
-        motore.load(modello, InferenceConfig.TRANSLATION_PRESET).getOrThrow()
+        motore.load(modello, InferenceConfig.TRANSLATION_PRESET, soloCpu = true).getOrThrow()
+        println("--- backend: ${motore.activeBackend}")
         val inizio2 = System.currentTimeMillis()
-        val esito2 = traduttore.traduci(
-            scena, manifest, LinguaOutput.ITALIANO,
-            modalitaTraduzione = true, conContinuazioni = false,
-        )
+        val esito2 = traduttore.traduci(scena, manifest, LinguaOutput.ITALIANO, modalitaTraduzione = true)
         val secondi2 = (System.currentTimeMillis() - inizio2) / 1000.0
         println(
-            "--- SENZA continuazioni: ${if (esito2.isSuccess) "OK" else "FALLITO"} in ${"%.1f".format(secondi2)} s" +
+            "--- SU CPU: ${if (esito2.isSuccess) "OK" else "FALLITO"} in ${"%.1f".format(secondi2)} s" +
                 (esito2.exceptionOrNull()?.let { " — ${it.message}" } ?: ""),
         )
         esito2.getOrNull()?.let { println("    testo: ${it.narrative.take(120)}…") }

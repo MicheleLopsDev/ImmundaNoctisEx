@@ -43,6 +43,7 @@ class EditorInferenceEngine {
     // è morto, e ogni chiamata successiva fallisce. Senza questi due
     // valori l'unico rimedio sarebbe chiudere l'editor.
     private var ultimoFile: File? = null
+    private var ultimoSoloCpu: Boolean = false
 
     // Quale backend ha accettato il modello. Va mostrato in UI: una
     // generazione lenta su CPU e una veloce su GPU sono due prove
@@ -63,7 +64,18 @@ class EditorInferenceEngine {
     // CPU — non per prestazioni ma per fedeltà, perché sul telefono gira
     // su GPU e un'anteprima su CPU quando la GPU c'era sarebbe una prova
     // fatta in condizioni diverse da quelle vere.
-    suspend fun load(modelFile: File, config: InferenceConfig): Result<Unit> =
+    suspend fun load(
+        modelFile: File,
+        config: InferenceConfig,
+        // Solo CPU (02/08/2026, Michele: "non possiamo usare cpu, è più
+        // lento ma è stabile, alla fine è un tool non il client"). Sulla
+        // GPU integrata il TDR di Windows resetta il driver a metà di un
+        // prompt lungo, in modo intermittente: per un editor vale più la
+        // certezza di arrivare in fondo che il tempo risparmiato. Il
+        // client resta su GPU — là i prompt girano su Adreno via OpenCL,
+        // dove il problema non esiste.
+        soloCpu: Boolean = false,
+    ): Result<Unit> =
         withContext(Dispatchers.IO) {
             if (!modelFile.exists()) {
                 return@withContext Result.failure(
@@ -72,6 +84,7 @@ class EditorInferenceEngine {
             }
             this@EditorInferenceEngine.config = config
             this@EditorInferenceEngine.ultimoFile = modelFile
+            this@EditorInferenceEngine.ultimoSoloCpu = soloCpu
             unloadInternal()
             motivoRipiegoCpu = null
 
@@ -88,7 +101,12 @@ class EditorInferenceEngine {
             // ferma: si usano tutti i processori logici disponibili
             // (02/08/2026, misura: 1,6 token/s con 4 thread sul 4B).
             val threadCpu = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
-            for ((nome, backend) in listOf("GPU" to Backend.GPU(), "CPU" to Backend.CPU(threadCpu))) {
+            val tentativi = if (soloCpu) {
+                listOf("CPU" to Backend.CPU(threadCpu))
+            } else {
+                listOf("GPU" to Backend.GPU(), "CPU" to Backend.CPU(threadCpu))
+            }
+            for ((nome, backend) in tentativi) {
                 val esito = runCatching {
                     val creato = Engine(
                         EngineConfig(
@@ -104,7 +122,10 @@ class EditorInferenceEngine {
                 esito.onSuccess { creato ->
                     engine = creato
                     activeBackend = nome
-                    if (nome == "CPU") {
+                    // Solo quando la CPU è un RIPIEGO: se è stata scelta
+                    // apposta non c'è niente da spiegare, e chiamarla
+                    // ripiego suonerebbe come un guasto.
+                    if (nome == "CPU" && !soloCpu) {
                         // Il messaggio del tentativo GPU fallito è quasi
                         // sempre generico: l'esito del precaricamento
                         // dice di più, perché distingue "manca il
@@ -177,7 +198,7 @@ class EditorInferenceEngine {
         val file = ultimoFile
             ?: return Result.failure(IllegalStateException("Nessun modello da ricaricare."))
         EditorLog.i(TAG, "Ricarico ${file.name} dopo la perdita del dispositivo")
-        return load(file, config)
+        return load(file, config, ultimoSoloCpu)
     }
 
     suspend fun unload() = withContext(Dispatchers.IO) { unloadInternal() }

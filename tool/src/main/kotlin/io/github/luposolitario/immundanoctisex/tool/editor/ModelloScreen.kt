@@ -58,6 +58,7 @@ fun ModelloScreen(
     var modalitaTraduzione by remember { mutableStateOf(preferenze.modalitaTraduzione) }
 
     var lingua by remember { mutableStateOf(preferenze.linguaOutput) }
+    var soloCpu by remember { mutableStateOf(preferenze.soloCpu) }
     var caricamentoInCorso by remember { mutableStateOf(false) }
     var generazioneInCorso by remember { mutableStateOf(false) }
     var stato by remember { mutableStateOf(if (motore.isLoaded) "Modello caricato (${motore.activeBackend})" else "Modello non caricato") }
@@ -113,7 +114,7 @@ fun ModelloScreen(
                                 } else {
                                     InferenceConfig()
                                 }
-                                val esito = motore.load(File(percorso), config)
+                                val esito = motore.load(File(percorso), config, soloCpu = soloCpu)
                                 stato = esito.fold(
                                     onSuccess = { "✔ Caricato su ${motore.activeBackend}" },
                                     onFailure = { "✖ ${it.message}" },
@@ -175,6 +176,36 @@ fun ModelloScreen(
                         preferenze.linguaOutput = it
                     },
                 )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Switch(
+                        checked = soloCpu,
+                        enabled = !caricamentoInCorso && !generazioneInCorso,
+                        onCheckedChange = {
+                            soloCpu = it
+                            preferenze.soloCpu = it
+                            if (motore.isLoaded) {
+                                stato = "Backend cambiato: ricarica il modello per applicarlo"
+                            }
+                        },
+                    )
+                    Column(Modifier.padding(start = 12.dp)) {
+                        Text(
+                            if (soloCpu) "Solo CPU (stabile)" else "Prima la GPU (veloce)",
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            if (soloCpu) {
+                                "Più lenta, ma arriva sempre in fondo. Consigliata qui: è un editor, " +
+                                    "non il gioco."
+                            } else {
+                                "Circa tre volte più veloce, ma su GPU integrata Windows può resettare " +
+                                    "il driver a metà di un testo lungo. Si ritenta da sé una volta."
+                            },
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (caricamentoInCorso || generazioneInCorso) {
                         CircularProgressIndicator(Modifier.height(18.dp).padding(end = 10.dp))

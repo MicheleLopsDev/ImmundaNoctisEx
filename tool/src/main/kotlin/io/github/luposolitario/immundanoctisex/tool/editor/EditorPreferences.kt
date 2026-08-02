@@ -134,6 +134,16 @@ class EditorPreferences {
         get() = LinguaOutput.daNome(prefs.get(KEY_LINGUA_OUTPUT, null))
         set(value) = prefs.put(KEY_LINGUA_OUTPUT, value.name)
 
+    // Solo CPU (02/08/2026, Michele: "non possiamo usare cpu, è più
+    // lento ma è stabile, alla fine è un tool non il client").
+    // Predefinito ACCESO, al contrario del client: sulla GPU integrata
+    // Windows resetta il driver a metà di un prompt lungo, in modo
+    // intermittente, e un editor che ogni tanto perde mezzo minuto di
+    // lavoro è peggio di uno lento ma prevedibile.
+    var soloCpu: Boolean
+        get() = prefs.getBoolean(KEY_SOLO_CPU, true)
+        set(value) = prefs.putBoolean(KEY_SOLO_CPU, value)
+
     // Le stesse due modalità del client (InferencePreferences.
     // translationMode): traduzione fedele oppure arricchimento. Il preset
     // dei parametri lo sceglie InferenceConfig, non questa preferenza —
@@ -150,6 +160,7 @@ class EditorPreferences {
         const val KEY_LIBRI_RECENTI = "libri_recenti"
         const val KEY_PERCORSO_MODELLO = "percorso_modello"
         const val KEY_CARTELLA_MODELLI = "cartella_modelli"
+        const val KEY_SOLO_CPU = "solo_cpu"
         const val KEY_LINGUA_OUTPUT = "lingua_output"
         const val KEY_MODALITA_TRADUZIONE = "modalita_traduzione"
         const val MAX_LIBRI_RECENTI = 8
