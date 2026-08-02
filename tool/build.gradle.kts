@@ -131,8 +131,21 @@ if (packagingJdk != null) {
             "UnsupportedClassVersionError appena si apre la schermata Modello: la JVM " +
             "imbustata sarebbe una 17. Scarica un Temurin 21 con jpackage e aggiorna " +
             "packagingJdk in local.properties (ora: $packagingJdk)."
-        tasks.matching { it.name in setOf("createDistributable", "packageMsi", "packageExe", "packageDistributionForCurrentOS") }
-            .configureEach { doFirst { throw GradleException(messaggio) } }
+        // `checkRuntime` compreso, ed è il primo della catena: senza, il
+        // fallimento arriva da lì con un "jpackage.exe is missing" che
+        // punta alla JBR di Android Studio e non dice nulla di utile —
+        // il JDK indicato in local.properties viene ignorato apposta
+        // (vedi `packagingJdkUtilizzabile` sotto) proprio perché è
+        // troppo vecchio.
+        tasks.matching {
+            it.name in setOf(
+                "checkRuntime",
+                "createDistributable",
+                "packageMsi",
+                "packageExe",
+                "packageDistributionForCurrentOS",
+            )
+        }.configureEach { doFirst { throw GradleException(messaggio) } }
     }
 }
 

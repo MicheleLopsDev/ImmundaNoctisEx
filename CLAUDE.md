@@ -16,6 +16,12 @@ quando serve contesto sulle scelte architetturali o di design del progetto.
 Tutti i documenti di progetto vivono in `doc/`, ad eccezione di `README.md`
 (visione e design, resta in radice) e di questo stesso `CLAUDE.md`.
 
+Per orientarsi nel codice ci sono due mappe, scritte per chi arriva da
+fuori: `doc/CLASSI-CLIENT.md` (gioco: `:core:data`, `:core:engine`,
+`:app`) e `doc/CLASSI-EDITOR.md` (editor e CLI: `:tool`). Dicono cosa
+fa ogni classe importante e perché è fatta così; le decisioni di design
+restano in `doc/ARCHITETTURA.md`.
+
 `content/test-books/` contiene i libri di gioco versionati: uno per
 feature da verificare, più `scenes.sample.json` (il libro incluso
 nell'APK e caricato di default — `AppContainer` lo apre come asset
