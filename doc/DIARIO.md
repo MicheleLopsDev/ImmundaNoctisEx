@@ -4809,6 +4809,19 @@ trovato subito un difetto vero — la cartella di destinazione non veniva
 creata, e un percorso digitato a mano avrebbe fatto fallire
 l'esportazione **dopo** minuti di lavoro del modello.
 
+## Verificato su PC da Michele (03/08/2026)
+
+**Riassunto del percorso** e **anteprima del modello nelle schede**
+provati e funzionanti, grafica nuova compresa (riquadri e testo in
+`bodyMedium`).
+
+Resta fuori solo la **release dell'editor**: `packageMsi` richiede un
+JDK 21 **con jpackage**, e sul PC l'unico Java 21 è la JBR di Android
+Studio, che non lo include. Il `packagingJdk` in `local.properties`
+punta ancora al Temurin 17. Si installa con
+`winget install EclipseAdoptium.Temurin.21.JDK`; poi basta aggiornare
+`packagingJdk` e i pacchetti si generano.
+
 ## PROSSIMA COSA DA FARE — il personaggio che passa di libro in libro
 
 Deciso con Michele a fine sessione del 03/08/2026, **non ancora
