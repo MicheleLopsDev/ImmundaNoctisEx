@@ -3,6 +3,8 @@ package io.github.luposolitario.immundanoctisex.inference
 import android.util.Log
 import com.llamatik.library.platform.GenStream
 import com.llamatik.library.platform.LlamaBridge
+import io.github.luposolitario.immundanoctisex.core.engine.inference.InferenceConfig
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -12,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
-import java.io.File
 
 // Implementazione di InferenceEngine su Llamatik (GGUF via llama.cpp,
 // 27/07/2026, Michele: "introdurrei la possibilità di caricare i gguf" —

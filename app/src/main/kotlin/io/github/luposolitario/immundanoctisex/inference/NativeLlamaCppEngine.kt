@@ -3,6 +3,8 @@ package io.github.luposolitario.immundanoctisex.inference
 import android.llama.cpp.LLamaAndroid
 import android.llama.cpp.LLamaAndroid.Companion.State
 import android.util.Log
+import io.github.luposolitario.immundanoctisex.core.engine.inference.InferenceConfig
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
-import java.io.File
 
 // Terzo InferenceEngine, sperimentale (branch feature/llama-cpp-adreno,
 // 27/07/2026, Michele: "usiamo gemma 3-12b" per il primo test reale col

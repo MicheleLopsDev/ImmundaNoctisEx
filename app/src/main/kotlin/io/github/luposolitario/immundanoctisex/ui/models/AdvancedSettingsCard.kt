@@ -2,12 +2,12 @@ package io.github.luposolitario.immundanoctisex.ui.models
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -24,7 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.luposolitario.immundanoctisex.inference.InferenceConfig
+import io.github.luposolitario.immundanoctisex.core.engine.inference.InferenceConfig
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
 // I valori mostrati e modificati dalla card (stato sollevato: la card

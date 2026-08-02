@@ -27,6 +27,18 @@ fun scegliPercorsoSalvataggio(nomeSuggerito: String): File? {
     return File(directory, fileName)
 }
 
+// Il file del modello (02/08/2026): lo stesso `.litertlm` che il client
+// scarica da HuggingFace, ma preso dal disco — 3,7 GB per il 4B, non è
+// roba che l'editor possa portarsi dentro.
+fun scegliFileModello(): File? {
+    val dialog = FileDialog(null as Frame?, "Scegli il modello (.litertlm)", FileDialog.LOAD)
+    dialog.file = "*.litertlm"
+    dialog.isVisible = true
+    val directory = dialog.directory ?: return null
+    val fileName = dialog.file ?: return null
+    return File(directory, fileName)
+}
+
 // §19.8 (Michele: "esportare la mappa come immagine"): stesso dialogo
 // nativo di salvataggio, titolo diverso — l'estensione .png viene
 // garantita a valle (vedi MapExport.kt), non qui.

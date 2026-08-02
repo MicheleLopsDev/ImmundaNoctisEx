@@ -107,12 +107,30 @@ class EditorPreferences {
         libriRecenti = (listOf(percorso) + libriRecenti.filterNot { it == percorso }).take(MAX_LIBRI_RECENTI)
     }
 
+    // Percorso del file .litertlm scelto dall'autore (02/08/2026): il
+    // modello NON viaggia con l'editor (3,7 GB per il 4B), si punta a
+    // quello già sul disco. Vuoto finché non se ne sceglie uno: le
+    // funzioni che dipendono dal modello restano semplicemente spente.
+    var percorsoModello: String
+        get() = prefs.get(KEY_PERCORSO_MODELLO, "")
+        set(value) = prefs.put(KEY_PERCORSO_MODELLO, value)
+
+    // Le stesse due modalità del client (InferencePreferences.
+    // translationMode): traduzione fedele oppure arricchimento. Il preset
+    // dei parametri lo sceglie InferenceConfig, non questa preferenza —
+    // qui si registra solo COSA si vuole vedere.
+    var modalitaTraduzione: Boolean
+        get() = prefs.getBoolean(KEY_MODALITA_TRADUZIONE, true)
+        set(value) = prefs.putBoolean(KEY_MODALITA_TRADUZIONE, value)
+
     private companion object {
         const val KEY_TEMA_SCURO = "tema_scuro"
         const val KEY_FONT = "font"
         const val KEY_SCALA_TESTO = "scala_testo"
         const val KEY_LIVELLI_BACKUP = "livelli_backup"
         const val KEY_LIBRI_RECENTI = "libri_recenti"
+        const val KEY_PERCORSO_MODELLO = "percorso_modello"
+        const val KEY_MODALITA_TRADUZIONE = "modalita_traduzione"
         const val MAX_LIBRI_RECENTI = 8
     }
 }

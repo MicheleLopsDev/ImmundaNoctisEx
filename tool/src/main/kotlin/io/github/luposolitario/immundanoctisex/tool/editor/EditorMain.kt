@@ -44,6 +44,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.tool.FilePackageSource
+import io.github.luposolitario.immundanoctisex.tool.inference.EditorInferenceEngine
 import kotlinx.serialization.json.Json
 import java.io.File
 
@@ -74,6 +75,11 @@ private sealed class Schermata {
     // §16.1 (Michele: "un menu per le impostazioni... mostrare come
     // pulsante nella prima maschera"): raggiungibile solo dall'Avvio.
     data object Impostazioni : Schermata()
+
+    // Il modello locale (02/08/2026): scelta del file .litertlm, carico
+    // e prova. Come Impostazioni, si raggiunge solo dall'Avvio — è una
+    // configurazione della macchina, non del libro aperto.
+    data object Modello : Schermata()
 }
 
 // Riassunto di un libro (§17.4, "Libri recenti") — riusata anche
@@ -92,7 +98,7 @@ fun riepilogoLibro(nomeFile: String, manifest: Manifest): String {
 // prima di ricompilare. Qui non c'è logcat: si stampa sulla console di
 // `:tool:run` e finisce nel titolo della finestra, così la versione si
 // legge a colpo d'occhio anche senza guardare l'output.
-const val EDITOR_BUILD_MARKER = "2026-08-01-04 release v1.2.0"
+const val EDITOR_BUILD_MARKER = "2026-08-02-01 il motore del client gira nell'editor"
 
 fun main() = application {
     println("EDITOR_BUILD_MARKER = $EDITOR_BUILD_MARKER")
@@ -104,6 +110,10 @@ fun main() = application {
     // sopravvive alla chiusura dell'editor, a differenza del semplice
     // `remember` di prima che perdeva il tema scelto a ogni riavvio).
     val preferenze = remember { EditorPreferences() }
+    // Uno solo per tutta la sessione dell'editor: il modello resta
+    // caricato passando da una schermata all'altra (3,7 GB non si
+    // ricaricano a ogni navigazione).
+    val motoreModello = remember { EditorInferenceEngine() }
     var temaScuro by remember { mutableStateOf(preferenze.temaScuro) }
     var fontScelto by remember { mutableStateOf(preferenze.font) }
     var scalaTesto by remember { mutableStateOf(preferenze.scalaTesto) }
@@ -218,6 +228,7 @@ fun main() = application {
                             onCaricaLibro = ::apriLibro,
                             onCreaNuovo = { schermata = Schermata.CreaNuovo },
                             onImpostazioni = { schermata = Schermata.Impostazioni },
+                            onModello = { schermata = Schermata.Modello },
                             libriRecenti = libriRecenti,
                             onApriRecente = { percorso -> apriLibro(File(percorso)) },
                         )
@@ -394,6 +405,11 @@ fun main() = application {
                             },
                             onTornaAvvio = { schermata = Schermata.Avvio },
                         )
+                        is Schermata.Modello -> ModelloScreen(
+                            preferenze = preferenze,
+                            motore = motoreModello,
+                            onTornaAvvio = { schermata = Schermata.Avvio },
+                        )
                         is Schermata.Impostazioni -> ImpostazioniScreen(
                             temaScuro = temaScuro,
                             onTemaScuroCambiato = ::impostaTemaScuro,
@@ -427,6 +443,7 @@ private fun AvvioScreen(
     onCaricaLibro: (File) -> Unit,
     onCreaNuovo: () -> Unit,
     onImpostazioni: () -> Unit,
+    onModello: () -> Unit,
     libriRecenti: List<String>,
     onApriRecente: (String) -> Unit,
 ) {
@@ -448,8 +465,15 @@ private fun AvvioScreen(
         Spacer(Modifier.height(16.dp))
         // §16.1 (Michele: "un menu per le impostazioni... mostrare come
         // pulsante nella prima maschera").
-        Button(onClick = onImpostazioni) {
-            Text("⚙ Impostazioni")
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            Button(onClick = onImpostazioni) {
+                Text("⚙ Impostazioni")
+            }
+            // 02/08/2026: da qui si sceglie e si prova il modello locale,
+            // quello che poi traduce le scene e ne riassume i gruppi.
+            Button(onClick = onModello) {
+                Text("🧠 Modello")
+            }
         }
         // §17.4 (Michele: "caricare i libri recenti è una ottima idea"):
         // un percorso che non esiste più (file spostato/cancellato) sparisce

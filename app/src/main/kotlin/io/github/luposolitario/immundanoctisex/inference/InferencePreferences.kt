@@ -2,6 +2,7 @@ package io.github.luposolitario.immundanoctisex.inference
 
 import android.content.Context
 import android.content.SharedPreferences
+import io.github.luposolitario.immundanoctisex.core.engine.inference.InferenceConfig
 
 // I parametri di generazione modificabili dall'utente (sezione
 // "Impostazioni avanzate" della schermata Modelli, ereditata da v1).

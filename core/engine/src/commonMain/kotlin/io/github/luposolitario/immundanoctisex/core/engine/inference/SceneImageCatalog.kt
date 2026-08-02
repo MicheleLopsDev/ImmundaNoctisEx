@@ -1,4 +1,4 @@
-package io.github.luposolitario.immundanoctisex.inference
+package io.github.luposolitario.immundanoctisex.core.engine.inference
 
 // Vocabolario CHIUSO delle immagini di sfondo disponibili (richiesta
 // Michele 20/07/2026, esperimento — vedi DIARIO.md): stessa disciplina

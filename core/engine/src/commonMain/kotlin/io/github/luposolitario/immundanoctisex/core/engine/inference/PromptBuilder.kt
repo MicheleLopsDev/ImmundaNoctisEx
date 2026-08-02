@@ -1,4 +1,4 @@
-package io.github.luposolitario.immundanoctisex.inference
+package io.github.luposolitario.immundanoctisex.core.engine.inference
 
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice

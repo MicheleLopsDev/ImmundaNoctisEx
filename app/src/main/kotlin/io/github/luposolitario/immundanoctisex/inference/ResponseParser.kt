@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.inference
 import io.github.luposolitario.immundanoctisex.core.data.model.Choice
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
+import io.github.luposolitario.immundanoctisex.core.engine.inference.SceneImageCatalog
 
 // Ciò che la UI mostra dopo l'inferenza: prosa arricchita + testi delle
 // scelte tradotti + nome del nemico tradotto. Ogni campo ha SEMPRE un

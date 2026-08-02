@@ -4319,6 +4319,75 @@ toccando ovunque, come una foto aperta in galleria.
 Quando le immagini saranno più d'una non cambia nulla qui: legge già
 `hero.icon`.
 
+## Il motore del client gira nell'editor (02/08/2026)
+
+Michele vuole due funzioni nuove nell'editor — la traduzione mostrata
+sotto ogni testo mentre si scrive, e il riassunto di un gruppo di scene
+— e sulla domanda "quale modello sul PC" ha risposto senza esitare:
+*"possiamo usare quello che usiamo per il client e lo includiamo perché
+voglio proprio avere una simulazione di quello che succede sul client"*.
+
+La verifica ha dato ragione all'idea più di quanto sperassi:
+**`com.google.ai.edge.litertlm:litertlm-jvm`** esiste **alla stessa
+versione 0.14.0** dell'AAR Android, sullo stesso repository Google già
+configurato. Aperto il jar: dentro c'è
+`jni/windows-x86_64/litertlm_jni.dll` (45 MB) e le stesse classi
+—`Engine`, `Conversation`, `SamplerConfig`, `Backend`— che importa
+`LiteRtLmEngine.kt`. Non un motore simile: lo stesso.
+
+**`PromptBuilder` spostato in `:core:engine`** (con
+`SceneImageCatalog` e `InferenceConfig`, che gli servono). Non aveva un
+solo import Android: stava in `:app` per abitudine, non per necessità.
+Ora client ed editor costruiscono il prompt con lo stesso codice — senza
+questo passaggio si sarebbe simulato il motore giusto con un prompt
+diverso, che è il modo più subdolo di sbagliare. I 22 test di
+`PromptBuilderTest` sono passati di modulo senza una modifica.
+
+`EditorInferenceEngine` (`:tool`) ricalca `LiteRtLmEngine` riga per
+riga, meno ciò che è Android e sul PC non esiste: Context, cacheDir di
+sistema, logcat, batteria e heap nativo. Stesso ordine di tentativi sui
+backend (GPU, poi CPU) — non per prestazioni ma per fedeltà: sul
+telefono gira su GPU.
+
+Nuova schermata **Modello** (dall'Avvio, come Impostazioni): scegli il
+`.litertlm`, caricalo, manda un prompt, guarda la risposta. Esiste per
+una ragione precisa e limitata — vedere Gemma rispondere davvero dentro
+l'editor prima di costruirci sopra due funzioni, così un guasto viene
+fuori dove c'è un solo pulsante da guardare.
+
+### Java 21, scoperto nel modo giusto
+
+`litertlm-jvm` è compilata per **Java 21** (class file major 65) e su
+una JVM 17 non si carica nemmeno: `UnsupportedClassVersionError` appena
+si tocca `Engine`. L'ha trovato un test scritto apposta —
+`laLibreriaNativaSiCaricaEIlBackendRispondeAnchePerUnModelloFinto`,
+che carica un file `.litertlm` vuoto e pretende di ricevere indietro
+"nessun backend disponibile", cioè la prova di aver attraversato tutto
+lo strato nativo. Con un modello vero da 3,7 GB assente dal repository,
+è la verifica più forte possibile senza scaricarlo.
+
+`:tool` sale quindi a `jvmToolchain(21)`, da solo: dipende da
+`:core:data`/`:core:engine` (Java 17) e non viceversa, e un modulo 21
+legge senza problemi classi 17.
+
+Due conseguenze sul packaging, entrambe intercettate prima di
+combinare danni:
+
+1. **`packagingJdk` a 17 produce un pacchetto rotto.** Si costruisce,
+   si installa, si avvia — e muore alla prima generazione, perché la JVM
+   imbustata da jlink sarebbe una 17 accanto a un jar che ne pretende 21.
+   Ora una guardia in `tool/build.gradle.kts` blocca **solo** i task di
+   packaging con un messaggio che dice cosa scaricare; compilare,
+   testare e `:tool:run` restano liberi.
+2. **`javaHome` valeva anche per `:tool:run`**, quindi l'editor non
+   partiva più. Il JDK di packaging ora si usa solo se è davvero una 21:
+   altrimenti Gradle ricade sulla toolchain (la JBR di Android Studio è
+   una 21.0.10 e basta per lavorare).
+
+Serve a Michele, per usare le funzioni nuove: il file del modello
+(3,7 GB il 4B, 2,6 GB il 2B, stessi link HuggingFace del telefono) e —
+solo per generare `.msi`/`.exe` — un **Temurin 21** con jpackage.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

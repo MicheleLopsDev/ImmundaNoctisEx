@@ -7,6 +7,8 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
+import io.github.luposolitario.immundanoctisex.core.engine.inference.PromptBuilder
+import io.github.luposolitario.immundanoctisex.core.engine.inference.PromptContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
