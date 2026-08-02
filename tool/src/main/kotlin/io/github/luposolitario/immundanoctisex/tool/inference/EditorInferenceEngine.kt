@@ -8,6 +8,7 @@ import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
 import com.google.ai.edge.litertlm.SamplerConfig
 import io.github.luposolitario.immundanoctisex.core.engine.inference.InferenceConfig
+import io.github.luposolitario.immundanoctisex.tool.editor.EditorLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -41,6 +42,13 @@ class EditorInferenceEngine {
     var activeBackend: String = "—"
         private set
 
+    // Perché si è finiti su CPU invece che su GPU (02/08/2026). Prima il
+    // ripiego era muto: l'interfaccia diceva "Caricato su CPU" e il
+    // motivo restava nell'output nativo, dove nessuno lo cercava. Lo
+    // stesso difetto che aveva reso illeggibile il download fermo al 19%.
+    var motivoRipiegoCpu: String? = null
+        private set
+
     val isLoaded: Boolean get() = engine?.isInitialized() == true
 
     // Carica il modello. Stesso ordine del client: prima la GPU, poi la
@@ -56,12 +64,22 @@ class EditorInferenceEngine {
             }
             this@EditorInferenceEngine.config = config
             unloadInternal()
+            motivoRipiegoCpu = null
 
             val cache = File(System.getProperty("java.io.tmpdir"), "immundanoctisex-litertlm")
                 .apply { mkdirs() }
 
+            // Va fatto PRIMA di costruire l'Engine: dopo, Dawn ha già
+            // tentato e fallito la sua LoadLibrary.
+            val esitoGpu = SupportoGpuWindows.preparaShaderCompiler()
+
             var ultimoErrore: Throwable? = null
-            for ((nome, backend) in listOf("GPU" to Backend.GPU(), "CPU" to Backend.CPU())) {
+            // Su CPU il default della libreria è 4 thread — pensato per
+            // un telefono. Su un PC desktop è metà della macchina lasciata
+            // ferma: si usano tutti i processori logici disponibili
+            // (02/08/2026, misura: 1,6 token/s con 4 thread sul 4B).
+            val threadCpu = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(4)
+            for ((nome, backend) in listOf("GPU" to Backend.GPU(), "CPU" to Backend.CPU(threadCpu))) {
                 val esito = runCatching {
                     val creato = Engine(
                         EngineConfig(
@@ -77,9 +95,19 @@ class EditorInferenceEngine {
                 esito.onSuccess { creato ->
                     engine = creato
                     activeBackend = nome
+                    if (nome == "CPU") {
+                        // Il messaggio del tentativo GPU fallito è quasi
+                        // sempre generico: l'esito del precaricamento
+                        // dice di più, perché distingue "manca il
+                        // compilatore shader" da "la GPU c'è ma rifiuta".
+                        motivoRipiegoCpu = esitoGpu
+                        EditorLog.i(TAG, "Ripiego su CPU. $esitoGpu")
+                    }
+                    EditorLog.i(TAG, "Modello caricato su $nome: ${modelFile.name}")
                     return@withContext Result.success(Unit)
                 }.onFailure { errore ->
                     ultimoErrore = errore
+                    EditorLog.i(TAG, "Backend $nome non utilizzabile: ${errore.message ?: errore::class.simpleName}")
                 }
             }
             // Il messaggio dell'ultimo tentativo arriva fino alla UI: un
@@ -138,5 +166,10 @@ class EditorInferenceEngine {
         conversation = null
         engine = null
         activeBackend = "—"
+        motivoRipiegoCpu = null
+    }
+
+    private companion object {
+        const val TAG = "EditorInferenceEngine"
     }
 }

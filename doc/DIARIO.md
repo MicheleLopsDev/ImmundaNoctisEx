@@ -4468,6 +4468,64 @@ Dettaglio minore ma fastidioso, corretto: `ConnectException` ha
 eccezioni di rete senza messaggio ne hanno uno dicibile a voce
 ("impossibile connettersi al server", "indirizzo non risolto").
 
+### Gemma traduce nell'editor, e la GPU si è fatta desiderare (02/08/2026)
+
+Modello scaricato (con la ripresa: il download era caduto al 19%),
+caricato, e **la prima traduzione vera è uscita giusta**:
+
+> *"Ti trovi al bordo della Foresta di Fryelund. Il sentiero davanti è
+> stretto e incolto, e la luce sta svanendo rapidamente. Da qualche
+> parte dietro di te, un ramo si spezza."*
+
+Fedele all'originale, nessun arricchimento: il preset di traduzione
+condiviso col client fa quello che promette anche sul PC.
+
+**Ma girava su CPU**, e i log lo spiegavano: su Windows il backend GPU
+di LiteRT-LM non è OpenCL come sul Razr, è **WebGPU (Dawn) su Direct3D
+12**, e Dawn pretende `dxil.dll` e `dxcompiler.dll` del DirectX Shader
+Compiler, che non fanno parte di Windows. L'errore
+(`DynamicLib.Open: dxil.dll Windows Error: 87`) viveva solo nell'output
+nativo: l'interfaccia diceva "Caricato su CPU" e taceva il perché —
+lo stesso difetto del download muto, due volte nello stesso giorno.
+
+Ora `SupportoGpuWindows` **precarica le due librerie per percorso
+assoluto** prima di costruire l'Engine: quando poi Dawn chiama
+`LoadLibrary("dxil.dll")` senza percorso, Windows gli restituisce il
+modulo già in memoria. La strada ovvia — copiare le DLL nella cartella
+di lavoro — è stata provata e **non basta**.
+
+**La versione del DXC conta, ed è costata due giri.** Con la release
+più recente (`v1.9.2607`, luglio 2026) la `dxcompiler.dll` non si
+carica affatto: `System.load` fallisce con *"routine di
+inizializzazione della DLL non riuscita"* e Dawn dà `Windows Error 87`
+anche trovandola. Con **`v1.9.2602.24`** (asset `dxc_2026_05_27.zip`)
+funziona tutto al primo colpo. Escluse prima le spiegazioni facili: VC++
+runtime presente e aggiornato, DLL non bloccata da Windows,
+architettura x64 corretta.
+
+Misure sullo stesso PC (Ryzen 7 7730U + Radeon integrata, Gemma 4 E4B,
+stesso prompt di 171 caratteri di risposta):
+
+| | CPU (8 thread) | GPU |
+|---|---|---|
+| primo token | 14,4 s | **3,7 s** |
+| generazione completa | 29,0 s | **9,0 s** |
+
+Circa **tre volte più veloce**, ed è la differenza fra una funzione
+usabile mentre si scrive e una da abbandonare: su CPU una scena vera
+(dieci volte più lunga della prova) avrebbe richiesto minuti.
+
+Nota sui thread: il default della libreria è **4**, tarato su un
+telefono. Su questo PC 8 (i core fisici) danno il primo token più
+rapido; **16 — tutti i logici — peggiorano nettamente** (24 s di primo
+token), classica contesa di memoria con l'hyperthreading. Vale come
+ripiego: quando la GPU parte, la CPU non si usa.
+
+Il tutto è verificabile senza fidarsi: `CaricamentoModelloRealeTest`
+carica il modello VERO, misura e stampa la risposta — e **si salta da
+solo** quando il file non c'è, così resta in repository senza pesare
+sulla build di chi non l'ha scaricato.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

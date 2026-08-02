@@ -166,6 +166,17 @@ fun ModelloScreen(
                     }
                     Text(stato, style = MaterialTheme.typography.bodyMedium)
                 }
+                // Perché si è finiti su CPU (02/08/2026): sul telefono il
+                // modello gira su GPU, quindi un'anteprima su CPU è una
+                // prova fatta in condizioni diverse. Va detto, non lasciato
+                // nel log nativo.
+                motore.motivoRipiegoCpu?.let { motivo ->
+                    Text(
+                        motivo,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                    )
+                }
             }
         }
 
