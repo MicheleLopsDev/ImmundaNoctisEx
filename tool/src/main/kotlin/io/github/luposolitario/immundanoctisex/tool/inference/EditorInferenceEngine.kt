@@ -8,6 +8,7 @@ import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
 import com.google.ai.edge.litertlm.SamplerConfig
 import io.github.luposolitario.immundanoctisex.core.engine.inference.InferenceConfig
+import io.github.luposolitario.immundanoctisex.core.engine.inference.ripulisciTokenDiServizio
 import io.github.luposolitario.immundanoctisex.tool.editor.EditorLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -154,7 +155,11 @@ class EditorInferenceEngine {
             val pezzo = messaggio.contents.contents
                 .filterIsInstance<Content.Text>()
                 .joinToString("") { it.text }
-            if (pezzo.isNotEmpty()) emit(pezzo)
+            // I token di servizio (<pad> in testa alla risposta, visto
+            // alla prima traduzione vera) non devono arrivare a chi
+            // legge: stessa pulizia del client, funzione condivisa.
+            val pulito = ripulisciTokenDiServizio(pezzo)
+            if (pulito.isNotEmpty()) emit(pulito)
         }
     }.flowOn(Dispatchers.IO)
 

@@ -4526,6 +4526,36 @@ carica il modello VERO, misura e stampa la risposta — e **si salta da
 solo** quando il file non c'è, così resta in repository senza pesare
 sulla build di chi non l'ha scaricato.
 
+**Confermato da Michele dall'interfaccia**: caricamento su GPU (32 s, di
+cui 25 per trasferire i pesi — succede una volta per sessione) e
+traduzione in **6,8 s**. Nel log, due avvisi che sembrano guasti e non
+lo sono: `Failed to create OpenCL context` (prova la strada del
+telefono, non la trova, usa WebGPU) e la NPU non registrata, che su una
+Radeon integrata non c'è.
+
+### Il `<pad>` che sul telefono non si era mai visto (02/08/2026)
+
+La prima traduzione dall'interfaccia è uscita così:
+
+> `<pad>Stai in piedi sul bordo della Foresta di Fryelund…`
+
+Un token di servizio del modello finito dentro il testo. Sul telefono
+non era mai successo, e il log spiega perché: sul PC il campionamento
+ripiega su un sampler diverso (*"WebGPU sampler not available, falling
+back to statically linked C API"* — manca
+`libLiteRtTopKWebGpuSampler.dll`, degrado benigno che funziona lo
+stesso).
+
+La correzione sta in **`:core:engine`**, non nell'editor:
+`ripulisciTokenDiServizio` è usata da entrambi. Se stesse solo di qua,
+la stessa risposta si vedrebbe diversa nei due posti — esattamente ciò
+che la simulazione esiste per evitare. Nel client si applica anche allo
+**streaming**, non solo al testo finale: altrimenti il token resterebbe
+a schermo per tutta la generazione per poi sparire alla fine.
+
+Cinque test in `:core:engine`, compreso il caso vero preso da questa
+risposta e la garanzia che punteggiatura e apostrofi restino intatti.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

@@ -9,6 +9,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.Scene
 import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
 import io.github.luposolitario.immundanoctisex.core.engine.inference.PromptBuilder
 import io.github.luposolitario.immundanoctisex.core.engine.inference.PromptContext
+import io.github.luposolitario.immundanoctisex.core.engine.inference.ripulisciTokenDiServizio
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -96,7 +97,7 @@ class SceneNarrator(
                 raw.append(chunk)
                 // Si mostra solo ciò che precede il separatore: le righe
                 // dei tag non devono mai comparire a schermo.
-                val visible = ResponseParser.narrativeOf(raw.toString())
+                val visible = ResponseParser.narrativeOf(ripulisciTokenDiServizio(raw.toString()))
                 if (visible != lastEmitted) {
                     lastEmitted = visible
                     emit(NarrationEvent.Streaming(visible))
@@ -107,7 +108,12 @@ class SceneNarrator(
             return@flow
         }
 
-        val rawText = raw.toString()
+        // Stessa pulizia dell'editor (02/08/2026, funzione condivisa in
+        // :core:engine): qui non si era mai visto un token di servizio
+        // nel testo, ma è emerso sul PC — dove il campionamento ripiega
+        // su un sampler diverso — e non c'è motivo perché le due
+        // piattaforme trattino la stessa risposta in modo diverso.
+        val rawText = ripulisciTokenDiServizio(raw.toString())
         val parsed = ResponseParser.parse(rawText, scene)
         // Diagnostica per l'esperimento IMAGE (21/07/2026): senza questo
         // log non c'è modo di distinguere "Gemma non ha scritto la riga"
