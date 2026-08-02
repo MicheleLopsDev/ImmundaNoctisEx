@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.tool.editor
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.platform.Font
+import java.io.File
 import java.util.prefs.Preferences
 
 // Font importati dal client (30/07/2026, Michele: "voglio che importi
@@ -115,6 +116,14 @@ class EditorPreferences {
         get() = prefs.get(KEY_PERCORSO_MODELLO, "")
         set(value) = prefs.put(KEY_PERCORSO_MODELLO, value)
 
+    // Dove finiscono i modelli scaricati dall'editor (02/08/2026). Di
+    // default una cartella sotto la home dell'utente: file da GB non si
+    // mettono accanto ai libri né dentro la cartella del programma.
+    var cartellaModelli: String
+        get() = prefs.get(KEY_CARTELLA_MODELLI, "")
+            .ifBlank { File(System.getProperty("user.home"), "ImmundaNoctisEx/modelli").absolutePath }
+        set(value) = prefs.put(KEY_CARTELLA_MODELLI, value)
+
     // Le stesse due modalità del client (InferencePreferences.
     // translationMode): traduzione fedele oppure arricchimento. Il preset
     // dei parametri lo sceglie InferenceConfig, non questa preferenza —
@@ -130,6 +139,7 @@ class EditorPreferences {
         const val KEY_LIVELLI_BACKUP = "livelli_backup"
         const val KEY_LIBRI_RECENTI = "libri_recenti"
         const val KEY_PERCORSO_MODELLO = "percorso_modello"
+        const val KEY_CARTELLA_MODELLI = "cartella_modelli"
         const val KEY_MODALITA_TRADUZIONE = "modalita_traduzione"
         const val MAX_LIBRI_RECENTI = 8
     }

@@ -2,6 +2,8 @@ package io.github.luposolitario.immundanoctisex.model
 
 import android.content.Context
 import android.content.SharedPreferences
+import io.github.luposolitario.immundanoctisex.core.engine.inference.DownloadableModel
+import io.github.luposolitario.immundanoctisex.core.engine.inference.ModelCatalog
 import java.io.File
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

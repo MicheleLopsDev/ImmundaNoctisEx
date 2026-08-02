@@ -4388,6 +4388,42 @@ Serve a Michele, per usare le funzioni nuove: il file del modello
 (3,7 GB il 4B, 2,6 GB il 2B, stessi link HuggingFace del telefono) e —
 solo per generare `.msi`/`.exe` — un **Temurin 21** con jpackage.
 
+### Il download dentro l'editor (02/08/2026, stesso giorno)
+
+Michele, subito dopo: *"aggiungi le stesse impostazioni che permettono
+di scaricare anche 2b e che puoi mettere l'url o il default di link da
+huggingface"* — giusto, mandare l'autore sul browser a cercare 3,7 GB
+era un passaggio a mano dentro un flusso che per il resto non ne chiede.
+
+**`ModelCatalog` spostato in `:core:engine`** accanto a `PromptBuilder`,
+per la stessa ragione e con lo stesso esito: non aveva import Android.
+La schermata offre `ModelCatalog.protected`, cioè esattamente i due
+LiteRT-LM che il client considera di base — non una lista parallela da
+tenere allineata a mano.
+
+`ModelDownloader` (`:tool`) usa `java.net.http`, nella JDK: nessuna
+dipendenza nuova. Tre attenzioni pagate in anticipo:
+
+- **Redirect seguiti**: gli URL `resolve/main/…` di HuggingFace
+  rimandano sempre alla CDN. Senza `followRedirects` si scaricherebbe
+  una paginetta HTML di un chilobyte scambiandola per un modello.
+- **Scrittura atomica**: si scarica su `.parziale` e si rinomina solo
+  alla fine. Un download interrotto non deve lasciare un `.litertlm`
+  monco che sembra buono e fallisce misteriosamente al caricamento —
+  stessa disciplina dei salvataggi nel client.
+- **Meno di 1 MB = non è un modello**: un errore travestito da file
+  viene rifiutato subito, non tre giorni dopo.
+
+Link verificati a mano con richieste HEAD, non dati per buoni: entrambi
+rispondono 200 e il `content-length` finale coincide **al byte** con i
+`sizeBytes` del catalogo (3.659.530.240 e 2.588.147.712), nessun token
+richiesto. Sotto ai due modelli c'è un campo URL libero, per i link che
+il catalogo non ha.
+
+Sei test nuovi in `:tool` (fallimenti puliti senza residui, coerenza del
+catalogo offerto). Nessuno scarica davvero gigabyte: usano la porta 1,
+che non ascolta mai.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

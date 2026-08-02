@@ -169,6 +169,19 @@ fun ModelloScreen(
             }
         }
 
+        // Scaricamento dal catalogo condiviso col client, o da un link
+        // proprio. Spento mentre il motore lavora: 3,7 GB in arrivo e
+        // una generazione in corso si contenderebbero disco e memoria.
+        ScaricaModelloCard(
+            preferenze = preferenze,
+            abilitato = !caricamentoInCorso && !generazioneInCorso,
+            onModelloPronto = { file ->
+                percorso = file.absolutePath
+                preferenze.percorsoModello = percorso
+                stato = "Modello pronto, non ancora caricato: premi «Carica modello»"
+            },
+        )
+
         Card(modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text("Prova", fontWeight = FontWeight.Bold)

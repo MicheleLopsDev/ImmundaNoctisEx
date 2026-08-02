@@ -39,6 +39,22 @@ fun scegliFileModello(): File? {
     return File(directory, fileName)
 }
 
+// Dove mettere i modelli scaricati (02/08/2026). java.awt.FileDialog non
+// sa selezionare cartelle su Windows: si usa JFileChooser (anch'esso
+// nella JDK) in modalità sole-directory, l'unico caso in cui l'editor
+// si scosta dai dialoghi nativi.
+fun scegliCartellaModelli(): File? {
+    val chooser = javax.swing.JFileChooser().apply {
+        dialogTitle = "Cartella dove scaricare i modelli"
+        fileSelectionMode = javax.swing.JFileChooser.DIRECTORIES_ONLY
+    }
+    return if (chooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) {
+        chooser.selectedFile
+    } else {
+        null
+    }
+}
+
 // §19.8 (Michele: "esportare la mappa come immagine"): stesso dialogo
 // nativo di salvataggio, titolo diverso — l'estensione .png viene
 // garantita a valle (vedi MapExport.kt), non qui.

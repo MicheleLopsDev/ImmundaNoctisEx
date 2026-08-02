@@ -1,4 +1,4 @@
-package io.github.luposolitario.immundanoctisex.model
+package io.github.luposolitario.immundanoctisex.core.engine.inference
 
 import kotlinx.serialization.Serializable
 

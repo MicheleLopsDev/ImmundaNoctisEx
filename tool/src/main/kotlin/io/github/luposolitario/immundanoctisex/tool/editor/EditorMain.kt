@@ -98,7 +98,7 @@ fun riepilogoLibro(nomeFile: String, manifest: Manifest): String {
 // prima di ricompilare. Qui non c'è logcat: si stampa sulla console di
 // `:tool:run` e finisce nel titolo della finestra, così la versione si
 // legge a colpo d'occhio anche senza guardare l'output.
-const val EDITOR_BUILD_MARKER = "2026-08-02-01 il motore del client gira nell'editor"
+const val EDITOR_BUILD_MARKER = "2026-08-02-02 download dei modelli 4B/2B dalla schermata Modello"
 
 fun main() = application {
     println("EDITOR_BUILD_MARKER = $EDITOR_BUILD_MARKER")

@@ -24,9 +24,9 @@ import androidx.work.WorkManager
 import androidx.work.workDataOf
 import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
-import io.github.luposolitario.immundanoctisex.model.DownloadableModel
-import io.github.luposolitario.immundanoctisex.model.EngineType
-import io.github.luposolitario.immundanoctisex.model.ModelCatalog
+import io.github.luposolitario.immundanoctisex.core.engine.inference.DownloadableModel
+import io.github.luposolitario.immundanoctisex.core.engine.inference.EngineType
+import io.github.luposolitario.immundanoctisex.core.engine.inference.ModelCatalog
 import io.github.luposolitario.immundanoctisex.model.ModelDownloadWorker
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import kotlinx.coroutines.Dispatchers

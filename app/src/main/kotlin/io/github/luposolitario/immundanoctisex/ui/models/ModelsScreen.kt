@@ -34,9 +34,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.luposolitario.immundanoctisex.model.DownloadableModel
-import io.github.luposolitario.immundanoctisex.model.EngineType
-import io.github.luposolitario.immundanoctisex.model.ModelCatalog
+import io.github.luposolitario.immundanoctisex.core.engine.inference.DownloadableModel
+import io.github.luposolitario.immundanoctisex.core.engine.inference.EngineType
+import io.github.luposolitario.immundanoctisex.core.engine.inference.ModelCatalog
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
 

@@ -17,8 +17,8 @@ import io.github.luposolitario.immundanoctisex.inference.InferencePreferences
 import io.github.luposolitario.immundanoctisex.inference.LiteRtLmEngine
 import io.github.luposolitario.immundanoctisex.inference.LlamaCppEngine
 import io.github.luposolitario.immundanoctisex.inference.NativeLlamaCppEngine
-import io.github.luposolitario.immundanoctisex.model.DownloadableModel
-import io.github.luposolitario.immundanoctisex.model.EngineType
+import io.github.luposolitario.immundanoctisex.core.engine.inference.DownloadableModel
+import io.github.luposolitario.immundanoctisex.core.engine.inference.EngineType
 import io.github.luposolitario.immundanoctisex.model.ModelPreferences
 import io.github.luposolitario.immundanoctisex.music.MusicPlayer
 import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
