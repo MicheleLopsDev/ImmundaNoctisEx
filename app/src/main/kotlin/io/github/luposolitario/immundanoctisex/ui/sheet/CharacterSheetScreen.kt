@@ -1,6 +1,11 @@
 package io.github.luposolitario.immundanoctisex.ui.sheet
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -22,14 +28,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.CharacterRole
@@ -48,6 +61,7 @@ import io.github.luposolitario.immundanoctisex.ui.adventure.modifierLabel
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineDescription
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineIcon
 import io.github.luposolitario.immundanoctisex.ui.creation.disciplineName
+import io.github.luposolitario.immundanoctisex.ui.creation.heroIconRes
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
 // Scheda personaggio (UI.md §schermata 5), due tab. Stateless: eroe in
@@ -88,8 +102,28 @@ fun CharacterSheetScreen(
 
 @Composable
 private fun StatsTab(hero: Character) {
+    // L'immagine scelta in creazione non compariva qui, solo nella
+    // StatusCard dell'avventura a 44dp (02/08/2026, Michele): nella
+    // Scheda è il ritratto del personaggio, e si apre a schermo intero
+    // al tocco per guardarla davvero.
+    var ritrattoAperto by remember { mutableStateOf(false) }
+    if (ritrattoAperto) {
+        HeroPortraitDialog(hero) { ritrattoAperto = false }
+    }
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Image(
+                painter = painterResource(id = heroIconRes(hero.icon)),
+                contentDescription = hero.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .border(3.dp, KAI_GOLD, CircleShape)
+                    .clickable { ritrattoAperto = true },
+            )
+            Spacer(Modifier.height(10.dp))
             Text(hero.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Text(
                 stringResource(kaiRankName(KaiRank.fromDisciplineCount(hero.kaiDisciplines.size))),
@@ -139,6 +173,49 @@ private fun StatsTab(hero: Character) {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+private val KAI_GOLD = Color(0xFFFFD700)
+
+// Ritratto a schermo intero (02/08/2026): finestra senza la larghezza
+// di default della piattaforma, così l'immagine occupa davvero tutto lo
+// schermo. Si chiude toccando ovunque — niente pulsante da centrare,
+// il gesto è quello che ci si aspetta da una foto aperta.
+//
+// Quando l'eroe potrà scegliere fra più immagini (prossimo passo
+// previsto da Michele), qui non cambia nulla: legge già hero.icon.
+@Composable
+private fun HeroPortraitDialog(hero: Character, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.92f))
+                .clickable(onClick = onDismiss),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Image(
+                    painter = painterResource(id = heroIconRes(hero.icon)),
+                    contentDescription = hero.name,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    hero.name,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = KAI_GOLD,
+                )
+                Text(
+                    "Tocca per chiudere",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.White.copy(alpha = 0.7f),
+                )
             }
         }
     }

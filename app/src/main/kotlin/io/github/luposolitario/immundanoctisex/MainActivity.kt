@@ -100,4 +100,4 @@ class MainActivity : ComponentActivity() {
 // questa riga va toccata ad ogni modifica di codice, così Michele legge
 // "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
 // ricompilato l'ultima versione o una vecchia.
-private const val BUILD_MARKER = "2026-08-02-01 feat: icona vera dello Scudo (non più il segnaposto corazza)"
+private const val BUILD_MARKER = "2026-08-02-02 feat: ritratto dell'eroe nella Scheda, a schermo intero al tocco"

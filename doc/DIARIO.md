@@ -4301,6 +4301,24 @@ contorni neri fanno da argine. Ritaglio ai pixel opachi e scala a 210px
 di altezza — `ic_shield.png` esce 165×210, le stesse misure di
 `ic_helmet`.
 
+## Ritratto dell'eroe nella Scheda (02/08/2026)
+
+L'immagine scelta in creazione compariva solo nella `StatusCard`
+dell'avventura, a 44dp dentro una riga: di fatto non la si vedeva mai.
+Michele l'ha chiesta nella Scheda personaggio, **a schermo intero al
+tocco** — e ha detto perché: *"più in là metteremo la selezione
+dell'immagine dell'eroe fra più disponibili"*. È il primo pezzo di
+quella funzione, non un abbellimento a sé.
+
+In `StatsTab` il ritratto sta ora in cima alla card, 120dp, cerchiato
+d'oro come nella StatusCard. Il tocco apre un `Dialog` con
+`usePlatformDefaultWidth = false` (senza quel flag la finestra resta
+larga quanto un dialogo di sistema, non quanto lo schermo) e si chiude
+toccando ovunque, come una foto aperta in galleria.
+
+Quando le immagini saranno più d'una non cambia nulla qui: legge già
+`hero.icon`.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
