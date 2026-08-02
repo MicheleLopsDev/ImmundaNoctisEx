@@ -1,6 +1,7 @@
 package io.github.luposolitario.immundanoctisex.tool.editor
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,11 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -29,9 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.core.engine.inference.InferenceConfig
+import io.github.luposolitario.immundanoctisex.core.engine.inference.LinguaOutput
 import io.github.luposolitario.immundanoctisex.tool.inference.EditorInferenceEngine
-import kotlinx.coroutines.launch
 import java.io.File
+import kotlinx.coroutines.launch
 
 // Schermata del modello (02/08/2026): scegli il .litertlm, caricalo,
 // mandagli un prompt, guarda cosa risponde.
@@ -51,10 +56,12 @@ fun ModelloScreen(
     val scope = rememberCoroutineScope()
     var percorso by remember { mutableStateOf(preferenze.percorsoModello) }
     var modalitaTraduzione by remember { mutableStateOf(preferenze.modalitaTraduzione) }
+
+    var lingua by remember { mutableStateOf(preferenze.linguaOutput) }
     var caricamentoInCorso by remember { mutableStateOf(false) }
     var generazioneInCorso by remember { mutableStateOf(false) }
     var stato by remember { mutableStateOf(if (motore.isLoaded) "Modello caricato (${motore.activeBackend})" else "Modello non caricato") }
-    var prompt by remember { mutableStateOf(PROMPT_DI_PROVA) }
+    var prompt by remember { mutableStateOf(promptDiProva(preferenze.linguaOutput)) }
     var risposta by remember { mutableStateOf("") }
 
     val fileModello = percorso.takeIf { it.isNotBlank() }?.let(::File)
@@ -160,6 +167,14 @@ fun ModelloScreen(
                         )
                     }
                 }
+                SelettoreLingua(
+                    selezionata = lingua,
+                    abilitato = !caricamentoInCorso && !generazioneInCorso,
+                    onSelezionata = {
+                        lingua = it
+                        preferenze.linguaOutput = it
+                    },
+                )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     if (caricamentoInCorso || generazioneInCorso) {
                         CircularProgressIndicator(Modifier.height(18.dp).padding(end = 10.dp))
@@ -237,9 +252,60 @@ fun ModelloScreen(
 }
 
 // Una scena vera in inglese, non un "ciao come stai": il punto è vedere
-// come se la cava col lavoro che dovrà fare davvero.
-private const val PROMPT_DI_PROVA =
-    "Translate the following gamebook scene into Italian, staying as close as possible " +
-        "to the original wording. Answer with the translation only.\n\n" +
+// come se la cava col lavoro che dovrà fare davvero. La lingua di
+// destinazione è quella scelta, così il selettore si prova subito.
+private fun promptDiProva(lingua: LinguaOutput) =
+    "Translate the following gamebook scene into ${lingua.promptValue}, staying as close " +
+        "as possible to the original wording. Answer with the translation only.\n\n" +
         "You are standing at the edge of the Fryelund Forest. The trail ahead is narrow " +
         "and overgrown, and the light is failing fast."
+
+// Menu a tendina delle lingue (02/08/2026): elenco e ordine vengono da
+// LinguaOutput.perMenu in :core:engine — prima le 24 ufficiali UE, poi
+// le altre europee, ciascun gruppo in ordine alfabetico. È la stessa
+// lista che il giocatore trova nel client: se divergessero, l'autore
+// potrebbe rifinire una lingua che sul telefono non si può scegliere.
+@Composable
+private fun SelettoreLingua(
+    selezionata: LinguaOutput,
+    abilitato: Boolean,
+    onSelezionata: (LinguaOutput) -> Unit,
+) {
+    var aperto by remember { mutableStateOf(false) }
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Lingua di destinazione", fontWeight = FontWeight.Bold)
+            Spacer(Modifier.width(12.dp))
+            Box {
+                OutlinedButton(enabled = abilitato, onClick = { aperto = true }) {
+                    Text("${selezionata.displayName}  ▾")
+                }
+                DropdownMenu(expanded = aperto, onDismissRequest = { aperto = false }) {
+                    LinguaOutput.perMenu.forEach { voce ->
+                        DropdownMenuItem(
+                            text = {
+                                // Il nome è nella lingua stessa; per le
+                                // non-UE si affianca quello inglese, che
+                                // è poi il valore che finisce nel prompt.
+                                Text(
+                                    if (voce.ufficialeUe) voce.displayName
+                                    else "${voce.displayName}  (${voce.promptValue})",
+                                )
+                            },
+                            onClick = {
+                                aperto = false
+                                onSelezionata(voce)
+                            },
+                        )
+                    }
+                }
+            }
+        }
+        Text(
+            "Le 24 lingue ufficiali dell'Unione Europea più le altre europee. Sulle lingue " +
+                "meno diffuse la resa di Gemma cala parecchio: è un limite del modello, non un guasto.",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}

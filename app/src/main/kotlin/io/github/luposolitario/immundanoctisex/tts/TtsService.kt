@@ -9,6 +9,7 @@ import android.util.Log
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
 import io.github.luposolitario.immundanoctisex.util.TtsPreferences
+import io.github.luposolitario.immundanoctisex.util.locale
 import java.util.Locale
 
 // TTS di sistema (riuso quasi invariato di TtsService v1,

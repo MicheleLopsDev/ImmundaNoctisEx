@@ -13,7 +13,8 @@ import io.github.luposolitario.immundanoctisex.tts.TtsService
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.BundledMusicCatalog
 import io.github.luposolitario.immundanoctisex.util.DiceColor
-import io.github.luposolitario.immundanoctisex.util.OutputLanguage
+import io.github.luposolitario.immundanoctisex.core.engine.inference.LinguaOutput
+import io.github.luposolitario.immundanoctisex.util.locale
 import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
 import java.util.Locale
@@ -234,8 +235,8 @@ fun OptionsRoute(
 // una sola frase di prova, non tradotta lingua per lingua. La locale
 // segue il TESTO che verra letto, non la lingua di output configurata:
 // leggere una frase inglese con voce/locale tedesca suonerebbe male.
-private fun ttsTestPhrase(language: OutputLanguage): Pair<String, Locale> =
-    if (language == OutputLanguage.ITALIAN) {
+private fun ttsTestPhrase(language: LinguaOutput): Pair<String, Locale> =
+    if (language == LinguaOutput.ITALIANO) {
         "Ciao, sono il TTS di Android." to Locale.ITALIAN
     } else {
         "Hello, I am Android TTS." to Locale.ENGLISH

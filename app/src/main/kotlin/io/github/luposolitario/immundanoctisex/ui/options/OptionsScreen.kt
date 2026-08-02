@@ -34,7 +34,8 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ThemedBackground
 import io.github.luposolitario.immundanoctisex.util.AccentColor
 import io.github.luposolitario.immundanoctisex.util.DiceColor
 import io.github.luposolitario.immundanoctisex.util.NarrativeTone
-import io.github.luposolitario.immundanoctisex.util.OutputLanguage
+import io.github.luposolitario.immundanoctisex.core.engine.inference.LinguaOutput
+import io.github.luposolitario.immundanoctisex.util.locale
 import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 import io.github.luposolitario.immundanoctisex.util.ReadingFont
 import io.github.luposolitario.immundanoctisex.util.StatusCardColor
@@ -59,8 +60,8 @@ fun OptionsScreen(
     onFontSelect: (ReadingFont) -> Unit,
     boldText: Boolean,
     onBoldTextChange: (Boolean) -> Unit,
-    outputLanguage: OutputLanguage,
-    onLanguageSelect: (OutputLanguage) -> Unit,
+    outputLanguage: LinguaOutput,
+    onLanguageSelect: (LinguaOutput) -> Unit,
     narrativeTone: NarrativeTone,
     onToneSelect: (NarrativeTone) -> Unit,
     ttsUi: TtsUi,
@@ -183,11 +184,11 @@ private fun ThemeOption(label: String, selected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun LanguageSection(selected: OutputLanguage, onSelect: (OutputLanguage) -> Unit) {
+private fun LanguageSection(selected: LinguaOutput, onSelect: (LinguaOutput) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text("Lingua della narrazione", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            OutputLanguage.entries.forEach { language ->
+            LinguaOutput.perMenu.forEach { language ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -223,7 +224,7 @@ private fun OptionsScreenPreview() {
             onFontSelect = {},
             boldText = false,
             onBoldTextChange = {},
-            outputLanguage = OutputLanguage.ITALIAN,
+            outputLanguage = LinguaOutput.ITALIANO,
             onLanguageSelect = {},
             narrativeTone = NarrativeTone.AUTHOR,
             onToneSelect = {},

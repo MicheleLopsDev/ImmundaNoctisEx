@@ -21,6 +21,7 @@ import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEndin
 import io.github.luposolitario.immundanoctisex.core.engine.inference.PromptBuilder
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
 import io.github.luposolitario.immundanoctisex.tts.TtsService
+import io.github.luposolitario.immundanoctisex.util.locale
 import kotlinx.coroutines.launch
 
 // Raccordo dell'Avventura: carica il pacchetto, costruisce lo stato di

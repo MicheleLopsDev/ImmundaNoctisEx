@@ -2,31 +2,21 @@ package io.github.luposolitario.immundanoctisex.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import io.github.luposolitario.immundanoctisex.core.engine.inference.LinguaOutput
 import java.util.Locale
 
-// Lingua in cui Gemma riscrive la scena (UI.md schermata 7). Il valore
-// è il testo libero che finisce nel prompt inglese ("Rewrite... in
-// {user_language}"): l'inglese è la lingua del NOME, non una traduzione
-// da fare — Gemma segue meglio istruzioni in inglese anche per output
-// italiano (PromptBuilder.kt). `locale` serve al TTS (Tappa 2): la
-// voce deve parlare la stessa lingua del testo, non sempre italiano.
-enum class OutputLanguage(val displayName: String, val promptValue: String, val locale: Locale) {
-    ITALIAN("Italiano", "Italian", Locale.ITALIAN),
-    ENGLISH("English", "English", Locale.ENGLISH),
-    SPANISH("Español", "Spanish", Locale("es")),
-    FRENCH("Français", "French", Locale.FRENCH),
-    GERMAN("Deutsch", "German", Locale.GERMAN),
-}
-
+// La lingua in cui Gemma riscrive la scena (UI.md schermata 7).
+// L'elenco vive in :core:engine (LinguaOutput, 02/08/2026): le lingue
+// selezionabili devono essere le STESSE nel client e nell'editor,
+// altrimenti l'anteprima dell'autore mostrerebbe una lingua che il
+// giocatore non può scegliere. Qui resta solo la persistenza.
 class LanguagePreferences(context: Context) {
 
     private val prefs: SharedPreferences =
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
-    var outputLanguage: OutputLanguage
-        get() = prefs.getString(KEY_LANGUAGE, null)
-            ?.let { name -> runCatching { OutputLanguage.valueOf(name) }.getOrNull() }
-            ?: OutputLanguage.ITALIAN
+    var outputLanguage: LinguaOutput
+        get() = LinguaOutput.daNome(prefs.getString(KEY_LANGUAGE, null))
         set(value) = prefs.edit().putString(KEY_LANGUAGE, value.name).apply()
 
     private companion object {
@@ -34,3 +24,8 @@ class LanguagePreferences(context: Context) {
         const val KEY_LANGUAGE = "output_language"
     }
 }
+
+// Il TTS deve parlare la lingua del testo, non sempre italiano: il tag
+// BCP-47 di LinguaOutput diventa qui un Locale vero (in :core:engine
+// non può esserci, java.util.Locale non esiste nel codice comune).
+val LinguaOutput.locale: Locale get() = Locale.forLanguageTag(tag)

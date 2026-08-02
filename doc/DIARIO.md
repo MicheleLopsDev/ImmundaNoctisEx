@@ -4556,6 +4556,68 @@ a schermo per tutta la generazione per poi sparire alla fine.
 Cinque test in `:core:engine`, compreso il caso vero preso da questa
 risposta e la garanzia che punteggiatura e apostrofi restino intatti.
 
+## Anteprima del modello sotto ogni stringa, e le lingue europee (02/08/2026)
+
+Michele: *"dobbiamo aggiungere le versioni modificate dai modelli se
+questi sono attivi per tutte le stringhe che traduciamo"* e *"il
+selettore delle lingue come una proprietà degli llm, usa le lingue
+presenti in europa"*.
+
+### La decisione che conta: non si traduce stringa per stringa
+
+La lettura ingenua sarebbe stata mandare al modello un campo alla volta.
+Sbagliata: nel gioco il modello riceve la **scena intera** — testo,
+scelte, scelte-disciplina, nome del nemico — e rende le scelte sapendo
+che cosa racconta il testo sopra. Tradurle separatamente avrebbe
+prodotto un risultato che il giocatore non vedrà mai, cioè il contrario
+di un'anteprima.
+
+`TraduttoreScene` usa quindi lo **stesso `PromptBuilder`** del client e
+scompone la risposta con lo **stesso `ResponseParser`**, che per questo
+è passato in `:core:engine` insieme a `EnrichedScene` (era in `:app`,
+senza un solo import Android — come già `PromptBuilder`). Un `Mutex`
+serializza le richieste: il motore è uno solo e non è rientrante, due
+traduzioni insieme si mangerebbero la sessione a vicenda.
+
+L'unica differenza dichiarata rispetto al prompt del gioco è
+`previousSceneText = null`: nell'editor si guarda una scena per conto
+suo, non una partita in corso.
+
+Sotto ogni campo compare la riga con la resa del modello, in corsivo
+attenuato, più un avviso esplicito: **l'anteprima non entra nel libro**,
+il JSON conserva sempre l'originale. Senza modello caricato non compare
+nulla — nessun pulsante che non fa niente.
+
+### Le lingue
+
+`OutputLanguage` (5 lingue, in `:app`) diventa **`LinguaOutput` in
+`:core:engine`** con le **24 ufficiali dell'Unione Europea più 7 altre
+europee** (albanese, bosniaco, islandese, macedone, norvegese, serbo,
+ucraino). Condivisa apposta: se le liste divergessero, l'autore
+potrebbe rifinire una lingua che sul telefono non si può nemmeno
+scegliere.
+
+Tre campi per tre usi: `displayName` è il nome **nella lingua stessa**
+(un elenco di lingue tradotto in italiano è inutile a chi cerca la
+propria), `promptValue` è in inglese perché finisce nel prompt inglese,
+`tag` è il BCP-47 che serve al TTS del client — tenuto come stringa
+perché `java.util.Locale` non esiste nel codice comune, e riconvertito
+in `Locale` da un'estensione in `:app`.
+
+L'avvertenza sta scritta anche in interfaccia: l'elenco dice cosa si può
+**chiedere**, non cosa Gemma sa fare bene. Sulle lingue meno diffuse
+(maltese, irlandese, estone) la resa cala parecchio, ed è un limite del
+modello, non un guasto da segnalare.
+
+### Una lezione operativa
+
+Tre file sono stati rotti da script Python su sorgenti con terminatori
+di riga **misti** CRLF/LF (l'ultimo commit ne aveva convertiti alcuni):
+i confronti multi-riga fallivano in silenzio e un riordino degli import
+li ha sparsi dentro il corpo delle funzioni. Ricostruiti separando
+package/import/codice e normalizzando a LF. Per le modifiche mirate
+conviene lo strumento di edit, non gli script.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)

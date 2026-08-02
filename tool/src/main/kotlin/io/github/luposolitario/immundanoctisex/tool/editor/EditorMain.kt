@@ -45,6 +45,7 @@ import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.tool.FilePackageSource
 import io.github.luposolitario.immundanoctisex.tool.inference.EditorInferenceEngine
+import io.github.luposolitario.immundanoctisex.tool.inference.TraduttoreScene
 import kotlinx.serialization.json.Json
 import java.io.File
 
@@ -98,7 +99,7 @@ fun riepilogoLibro(nomeFile: String, manifest: Manifest): String {
 // prima di ricompilare. Qui non c'è logcat: si stampa sulla console di
 // `:tool:run` e finisce nel titolo della finestra, così la versione si
 // legge a colpo d'occhio anche senza guardare l'output.
-const val EDITOR_BUILD_MARKER = "2026-08-02-06 niente token <pad> nel testo generato"
+const val EDITOR_BUILD_MARKER = "2026-08-02-07 anteprima del modello sotto ogni stringa + lingue europee"
 
 fun main() = application {
     println("EDITOR_BUILD_MARKER = $EDITOR_BUILD_MARKER")
@@ -114,6 +115,9 @@ fun main() = application {
     // caricato passando da una schermata all'altra (3,7 GB non si
     // ricaricano a ogni navigazione).
     val motoreModello = remember { EditorInferenceEngine() }
+    // Uno per sessione, come il motore: contiene il turno che impedisce
+    // a due traduzioni di accavallarsi sullo stesso Engine.
+    val traduttoreScene = remember { TraduttoreScene(motoreModello) }
     var temaScuro by remember { mutableStateOf(preferenze.temaScuro) }
     var fontScelto by remember { mutableStateOf(preferenze.font) }
     var scalaTesto by remember { mutableStateOf(preferenze.scalaTesto) }
@@ -356,6 +360,18 @@ fun main() = application {
                             SceneEditorScreen(
                                 scene = scena,
                                 tutteLeScene = s.manifest.scenes,
+                                // Presente solo col modello caricato: senza,
+                                // l'editor di scena resta identico a prima.
+                                anteprimaModello = if (motoreModello.isLoaded) {
+                                    AnteprimaModello(
+                                        traduttore = traduttoreScene,
+                                        manifest = s.manifest,
+                                        lingua = preferenze.linguaOutput,
+                                        modalitaTraduzione = preferenze.modalitaTraduzione,
+                                    )
+                                } else {
+                                    null
+                                },
                                 onSalva = { sceneAggiornata ->
                                     val nuoveScene = s.manifest.scenes.map {
                                         if (it.id == sceneAggiornata.id) sceneAggiornata else it

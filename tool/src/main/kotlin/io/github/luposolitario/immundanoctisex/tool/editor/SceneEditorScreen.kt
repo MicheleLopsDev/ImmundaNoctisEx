@@ -75,7 +75,34 @@ fun SceneEditorScreen(
     deathSceneId: String? = null,
     eNuova: Boolean = false,
     customResources: CustomResources = CustomResources(),
+    // Null quando il modello non è caricato: in quel caso qui non cambia
+    // niente rispetto a prima — nessun pulsante, nessuna riga in più.
+    anteprimaModello: AnteprimaModello? = null,
 ) {
+    // L'anteprima si azzera cambiando scena (`remember(scene.id)`): la
+    // resa di una scena non deve restare appiccicata sotto i campi di
+    // un'altra.
+    val ambitoAnteprima = rememberCoroutineScope()
+    var statoAnteprima by remember(scene.id) { mutableStateOf(StatoAnteprima()) }
+    fun traduciScena() {
+        val configurazione = anteprimaModello ?: return
+        statoAnteprima = StatoAnteprima(inCorso = true)
+        ambitoAnteprima.launch {
+            val esito = configurazione.traduttore.traduci(
+                scene = scene,
+                manifest = configurazione.manifest,
+                lingua = configurazione.lingua,
+                modalitaTraduzione = configurazione.modalitaTraduzione,
+                onParziale = { parziale ->
+                    statoAnteprima = statoAnteprima.copy(parziale = parziale)
+                },
+            )
+            statoAnteprima = esito.fold(
+                onSuccess = { StatoAnteprima(risultato = it) },
+                onFailure = { StatoAnteprima(errore = it.message ?: "traduzione non riuscita") },
+            )
+        }
+    }
     var vistaJson by remember(scene.id) { mutableStateOf(false) }
     // Esito del salvataggio a colori (§15.8, Michele: "se validata
     // correttamente si colora... verde... se ci sono warning... giallo...
@@ -216,12 +243,18 @@ fun SceneEditorScreen(
                     label = { Text("Scena (JSON completo)") },
                 )
             } else {
+                // La barra sta sopra il testo narrato, che è la stringa
+                // principale: da lì si lancia la resa di TUTTA la scena.
+                anteprimaModello?.let { configurazione ->
+                    BarraAnteprima(configurazione, statoAnteprima, ::traduciScena)
+                }
                 OutlinedTextField(
                     value = narrativeText,
                     onValueChange = { narrativeText = it },
                     modifier = Modifier.fillMaxWidth().height(120.dp),
                     label = { Text("Testo narrato") },
                 )
+                RigaTradotta(statoAnteprima.risultato?.narrative)
                 Spacer(Modifier.height(16.dp))
 
                 Text("Immagini", style = MaterialTheme.typography.titleMedium)
@@ -354,6 +387,9 @@ fun SceneEditorScreen(
                             risorsePersonalizzate = customResources.images,
                         )
                     }
+                    // Anche il nome del nemico viene tradotto nel gioco
+                    // (REGOLE.md §1.5): va mostrato come le altre stringhe.
+                    RigaTradotta(statoAnteprima.risultato?.enemyName)
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedTextField(
                             value = combatSkill,
@@ -442,6 +478,9 @@ fun SceneEditorScreen(
                             Text("✕")
                         }
                     }
+                    // Sotto la riga, non dentro: la Row è a colonne con
+                    // pesi, e infilarci l'anteprima la schiaccerebbe.
+                    RigaTradotta(statoAnteprima.risultato?.choiceTexts?.get(choice.id))
                 }
                 Button(onClick = {
                     choices = choices + Choice(id = "c${choices.size}", choiceText = "", nextSceneId = "")
@@ -483,6 +522,7 @@ fun SceneEditorScreen(
                             Text("✕")
                         }
                     }
+                    RigaTradotta(statoAnteprima.risultato?.disciplineChoiceTexts?.get(scelta.id))
                 }
                 Button(onClick = {
                     disciplineChoices = disciplineChoices + DisciplineChoice(

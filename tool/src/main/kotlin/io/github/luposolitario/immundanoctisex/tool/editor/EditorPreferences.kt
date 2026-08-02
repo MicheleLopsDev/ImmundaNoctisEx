@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.tool.editor
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.platform.Font
+import io.github.luposolitario.immundanoctisex.core.engine.inference.LinguaOutput
 import java.io.File
 import java.util.prefs.Preferences
 
@@ -124,6 +125,15 @@ class EditorPreferences {
             .ifBlank { File(System.getProperty("user.home"), "ImmundaNoctisEx/modelli").absolutePath }
         set(value) = prefs.put(KEY_CARTELLA_MODELLI, value)
 
+    // Lingua in cui il modello traduce o riscrive (02/08/2026, Michele:
+    // "il selettore delle lingue come una proprietà degli llm"): sta
+    // accanto alle altre impostazioni del modello, non fra quelle
+    // dell'editor, perché descrive COME genera — non come si presenta
+    // il programma.
+    var linguaOutput: LinguaOutput
+        get() = LinguaOutput.daNome(prefs.get(KEY_LINGUA_OUTPUT, null))
+        set(value) = prefs.put(KEY_LINGUA_OUTPUT, value.name)
+
     // Le stesse due modalità del client (InferencePreferences.
     // translationMode): traduzione fedele oppure arricchimento. Il preset
     // dei parametri lo sceglie InferenceConfig, non questa preferenza —
@@ -140,6 +150,7 @@ class EditorPreferences {
         const val KEY_LIBRI_RECENTI = "libri_recenti"
         const val KEY_PERCORSO_MODELLO = "percorso_modello"
         const val KEY_CARTELLA_MODELLI = "cartella_modelli"
+        const val KEY_LINGUA_OUTPUT = "lingua_output"
         const val KEY_MODALITA_TRADUZIONE = "modalita_traduzione"
         const val MAX_LIBRI_RECENTI = 8
     }
