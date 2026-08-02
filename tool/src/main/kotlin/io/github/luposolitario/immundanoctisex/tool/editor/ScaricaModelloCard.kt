@@ -77,7 +77,7 @@ fun ScaricaModelloCard(
                     onModelloPronto(it)
                     "✔ $etichetta pronto in ${it.absolutePath}"
                 },
-                onFailure = { "✖ ${it.message ?: "download interrotto"}" },
+                onFailure = { "✖ ${ModelDownloader.descriviErrore(it)}  —  dettagli nel log" },
             )
             inCorso = null
         }
@@ -173,7 +173,7 @@ fun ScaricaModelloCard(
                     OutlinedButton(onClick = {
                         lavoro?.cancel()
                         inCorso = null
-                        messaggio = "Download annullato: il file parziale è stato rimosso."
+                        messaggio = "Download annullato. Quello che è già stato scaricato resta: «Riprendi» riparte da lì."
                     }) {
                         Text("Annulla")
                     }
@@ -182,6 +182,24 @@ fun ScaricaModelloCard(
 
             if (messaggio.isNotBlank()) {
                 Text(messaggio, style = MaterialTheme.typography.bodySmall)
+            }
+
+            HorizontalDivider()
+
+            // 02/08/2026, Michele: "come si vede il log su windows?" —
+            // qui non c'è logcat, e lanciando l'.exe col doppio click non
+            // c'è nemmeno una console. Il percorso va detto in chiaro
+            // nella schermata dove serve.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("Registro dell'editor", style = MaterialTheme.typography.labelMedium)
+                    Text(EditorLog.file.absolutePath, style = MaterialTheme.typography.labelSmall)
+                }
+                OutlinedButton(onClick = {
+                    runCatching { java.awt.Desktop.getDesktop().open(EditorLog.file) }
+                }) {
+                    Text("Apri log")
+                }
             }
         }
     }
@@ -199,6 +217,10 @@ private fun RigaModello(
     // "Già scaricato" solo se il file c'è ED è grande all'incirca quanto
     // deve essere: un residuo troncato non deve passare per completo.
     val giaScaricato = file.exists() && file.length() > modello.sizeBytes / 2
+    // Un troncone da un tentativo caduto: il download non ricomincia da
+    // capo, riparte da qui (vedi ModelDownloader, richiesta Range).
+    val parziale = File(cartella, modello.fileName + ".parziale")
+    val giaPresenti = if (!giaScaricato && parziale.exists()) parziale.length() else 0L
 
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
@@ -208,11 +230,18 @@ private fun RigaModello(
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (giaPresenti > 0) {
+                Text(
+                    "Interrotto a ${gigabyte(giaPresenti)} GB: riprende da lì.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.tertiary,
+                )
+            }
         }
-        if (giaScaricato) {
-            OutlinedButton(enabled = abilitato, onClick = { onUsa(file) }) { Text("Usa") }
-        } else {
-            OutlinedButton(enabled = abilitato, onClick = onScarica) { Text("Scarica") }
+        when {
+            giaScaricato -> OutlinedButton(enabled = abilitato, onClick = { onUsa(file) }) { Text("Usa") }
+            giaPresenti > 0 -> OutlinedButton(enabled = abilitato, onClick = onScarica) { Text("Riprendi") }
+            else -> OutlinedButton(enabled = abilitato, onClick = onScarica) { Text("Scarica") }
         }
     }
 }

@@ -4424,6 +4424,50 @@ Sei test nuovi in `:tool` (fallimenti puliti senza residui, coerenza del
 catalogo offerto). Nessuno scarica davvero gigabyte: usano la porta 1,
 che non ascolta mai.
 
+### «Si blocca al 19%» — e non c'era modo di saperlo (02/08/2026)
+
+Primo download vero di Michele: fermo al 19% di 3,7 GB, cioè intorno ai
+700 MB, **senza messaggio d'errore**. E la domanda giusta subito dopo:
+*"come si vede il log su windows?"*. Non si vedeva: `println` finisce
+sulla console di `:tool:run`, che non esiste quando l'editor parte
+dall'`.exe` col doppio click — cioè proprio quando serve.
+
+Tre cose, in ordine di importanza.
+
+**1. Il log c'è (`EditorLog`).** Sempre su console E sempre su file, in
+`%LOCALAPPDATA%\ImmundaNoctisEx\editor.log`, con rotazione a 5 MB. Il
+percorso è scritto in chiaro nella schermata Modello, con un pulsante
+*Apri log* accanto. Il downloader ci scrive una riga ogni 100 MB, più
+codice HTTP, host di destinazione ed esito.
+
+**2. Lo stallo ora è un errore, non un'attesa infinita.** La causa
+tecnica del blocco muto: `read()` su uno stream bloccante **non torna
+mai 0**, resta appesa. Se la CDN smette di mandare byte senza chiudere
+la connessione, il programma aspetta per sempre e la barra resta al 19%
+— nessuna eccezione, niente da mostrare. L'unico modo di sbloccarla
+dall'esterno è chiudere lo stream sotto di lei: ora un sorvegliante
+controlla ogni 15 secondi e, dopo 90 secondi senza un byte, chiude e
+fa fallire con un messaggio che dice cosa fare.
+
+**3. Il download riprende.** Il `.parziale` non si butta più quando
+l'interruzione non è volontaria: al tentativo dopo parte una richiesta
+`Range: bytes=N-` e si continua da lì invece di ributtare via 700 MB.
+Il pulsante diventa *Riprendi* e la riga dice a quanto era arrivato. Su
+file da gigabyte una connessione che cade a metà è la norma, non
+l'eccezione — trattarla come un errore da ricominciare da capo era la
+scelta sbagliata di partenza.
+
+La ripresa è verificata **davvero**, non a parole: un server HTTP
+in-process (`com.sun.net.httpserver`, nella JDK, nessuna dipendenza
+nuova) tronca la prima risposta a 1 MB su 1,5 e onora il `Range` sulla
+seconda. Il test confronta i byte del file ricucito da due connessioni
+diverse con l'originale: identici, senza buchi né doppioni.
+
+Dettaglio minore ma fastidioso, corretto: `ConnectException` ha
+`message` nullo, e il log diceva *"non riuscito: null"*. Ora le
+eccezioni di rete senza messaggio ne hanno uno dicibile a voce
+("impossibile connettersi al server", "indirizzo non risolto").
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
