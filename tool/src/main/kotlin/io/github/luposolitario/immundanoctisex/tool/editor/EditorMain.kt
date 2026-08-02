@@ -45,6 +45,7 @@ import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.tool.FilePackageSource
 import io.github.luposolitario.immundanoctisex.tool.inference.EditorInferenceEngine
+import io.github.luposolitario.immundanoctisex.tool.inference.RiassuntorePercorso
 import io.github.luposolitario.immundanoctisex.tool.inference.TraduttoreScene
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -99,7 +100,7 @@ fun riepilogoLibro(nomeFile: String, manifest: Manifest): String {
 // prima di ricompilare. Qui non c'è logcat: si stampa sulla console di
 // `:tool:run` e finisce nel titolo della finestra, così la versione si
 // legge a colpo d'occhio anche senza guardare l'output.
-const val EDITOR_BUILD_MARKER = "2026-08-02-11 schede a riquadri e anteprima leggibile"
+const val EDITOR_BUILD_MARKER = "2026-08-03-01 riassunto del percorso da START, con export MD"
 
 fun main() = application {
     println("EDITOR_BUILD_MARKER = $EDITOR_BUILD_MARKER")
@@ -118,6 +119,9 @@ fun main() = application {
     // Uno per sessione, come il motore: contiene il turno che impedisce
     // a due traduzioni di accavallarsi sullo stesso Engine.
     val traduttoreScene = remember { TraduttoreScene(motoreModello) }
+    // Stesso motore, altro compito: riassumere il cammino da START a
+    // una scena (03/08/2026). Ha un turno suo, ma il motore resta uno.
+    val riassuntorePercorso = remember { RiassuntorePercorso(motoreModello) }
     var temaScuro by remember { mutableStateOf(preferenze.temaScuro) }
     var fontScelto by remember { mutableStateOf(preferenze.font) }
     var scalaTesto by remember { mutableStateOf(preferenze.scalaTesto) }
@@ -354,6 +358,10 @@ fun main() = application {
                             temaScuro = temaScuro,
                             fontScelto = fontScelto,
                             scalaTesto = scalaTesto,
+                            // Presente solo col modello caricato: senza,
+                            // la voce nel menu non compare affatto.
+                            riassuntore = if (motoreModello.isLoaded) riassuntorePercorso else null,
+                            linguaRiassunto = preferenze.linguaOutput,
                         )
                         is Schermata.EditorScena -> {
                             val scena = s.manifest.scenes.first { it.id == s.sceneId }

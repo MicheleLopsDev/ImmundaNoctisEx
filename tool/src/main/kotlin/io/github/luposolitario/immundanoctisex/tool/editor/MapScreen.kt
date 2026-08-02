@@ -42,6 +42,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.launch
+import io.github.luposolitario.immundanoctisex.tool.inference.RiassuntorePercorso
+import io.github.luposolitario.immundanoctisex.core.engine.inference.LinguaOutput
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -187,9 +191,55 @@ fun MapScreen(
     temaScuro: Boolean,
     fontScelto: FontEditor,
     scalaTesto: ScalaTesto,
+    // Null col modello non caricato: la voce "Riassumi il percorso" non
+    // compare affatto, invece di comparire e non funzionare.
+    riassuntore: RiassuntorePercorso? = null,
+    linguaRiassunto: LinguaOutput = LinguaOutput.DEFAULT,
 ) {
     val graph = remember(manifest) { buildSceneGraph(manifest) }
     val scenesById = remember(manifest) { manifest.scenes.associateBy { it.id } }
+
+    // Riassunto del cammino da START alla scena scelta (03/08/2026).
+    // Lo stato vive qui perché la finestra deve restare aperta mentre si
+    // naviga la mappa sotto, e il lavoro dura minuti.
+    var riassuntoAperto by remember { mutableStateOf<StatoRiassunto?>(null) }
+    val ambitoRiassunto = rememberCoroutineScope()
+    fun avviaRiassunto(sceneId: String) {
+        val motore = riassuntore ?: return
+        val percorsoIds = percorsoDaStart(graph, sceneId)
+        if (percorsoIds.isEmpty()) {
+            riassuntoAperto = StatoRiassunto(
+                sceneId = sceneId,
+                errore = "La scena $sceneId non è raggiungibile dalla START: non esiste un percorso da riassumere.",
+            )
+            return
+        }
+        val scenePercorso = percorsoIds.mapNotNull { scenesById[it] }
+        riassuntoAperto = StatoRiassunto(sceneId = sceneId, percorso = scenePercorso, inCorso = true)
+        ambitoRiassunto.launch {
+            val esito = motore.riassumi(
+                scene = scenePercorso,
+                titoloLibro = manifest.title,
+                lingua = linguaRiassunto,
+                onAvanzamento = { avanzamento ->
+                    riassuntoAperto = riassuntoAperto?.copy(avanzamento = avanzamento)
+                },
+            )
+            riassuntoAperto = riassuntoAperto?.copy(
+                inCorso = false,
+                testo = esito.getOrNull(),
+                errore = esito.exceptionOrNull()?.message,
+            )
+        }
+    }
+
+    riassuntoAperto?.let { stato ->
+        FinestraRiassunto(
+            stato = stato,
+            manifest = manifest,
+            onChiudi = { riassuntoAperto = null },
+        )
+    }
     // Messaggio di conferma dopo "Salva libro" (30/07/2026, §10): niente
     // sparizione automatica col tempo, resta finché non tocchi altro —
     // niente coroutine/timer per un dettaglio così piccolo.
@@ -1735,6 +1785,20 @@ fun MapScreen(
                                     onClick = {
                                         menuContestualePer = null
                                         onDuplicaScena(nodo.sceneId)
+                                    },
+                                )
+                            }
+                            // Riassunto del cammino (03/08/2026, Michele:
+                            // "selezionando una scena lui fa il riassunto
+                            // di tutte le scene partendo da start a quella
+                            // selezionata"). Su UNA scena: è il percorso
+                            // fino a lei, non un gruppo.
+                            if (riassuntore != null && sceneSelezionate.size <= 1) {
+                                DropdownMenuItem(
+                                    text = { Text("📖 Riassumi il percorso fino a qui") },
+                                    onClick = {
+                                        menuContestualePer = null
+                                        avviaRiassunto(nodo.sceneId)
                                     },
                                 )
                             }

@@ -4747,6 +4747,68 @@ Verificato dopo il fix, con la cache ripulita: caricamento su CPU in
 > e i numeri raccolti mentre due processi si dividono la stessa GPU non
 > valgono niente. Restano validi quelli su GPU: 34-40 s per scena.
 
+## Riassunto del percorso da START a una scena (03/08/2026)
+
+Michele: *"selezionando una scena lui fa il riassunto di tutte le scene
+partendo da start a quella selezionata, quando è pronta apre una popup…
+e genera il riassunto come ci eravamo detti"*. Cambia il criterio
+rispetto a quanto detto prima (un gruppo di scene selezionate a mano):
+ora è il **cammino** che porta a una scena, e la cosa ha più senso —
+è la storia che il giocatore ha davvero vissuto per arrivare lì.
+
+Il calcolo del percorso **esisteva già**: `percorsoDaStart()` in
+`SceneGraph.kt`, quello che la mappa usa per l'evidenziazione viola.
+
+### Perché a blocchi
+
+Misurati i cinque libri Project Aon prima di scrivere il codice:
+
+| | percorso medio | il peggiore |
+|---|---|---|
+| 01fftd | 15 scene / 4.968 car | 34 scene |
+| 02fotw | 32 scene / 20.273 car | 73 scene / **52.973 car** |
+| 03tcok | 21 scene / 17.731 car | 40 scene |
+| 04tcod | 22 scene / 14.618 car | 57 scene |
+| 05sots | 26 scene / 19.751 car | 57 scene |
+
+Il contesto del modello è 10240 token, all'incirca 40.000 caratteri
+prompt e risposta compresi: il caso medio ci sta comodo, **il peggiore
+no**. Un colpo solo avrebbe funzionato quasi sempre e sarebbe fallito
+proprio sui percorsi lunghi, cioè quelli per cui un riassunto serve di
+più.
+
+`RiassuntorePercorso` raggruppa quindi le scene finché stanno in un
+blocco da 10.000 caratteri, ne riassume uno per volta e — se i blocchi
+sono più d'uno — ricuce i parziali in un riassunto solo. È l'idea che
+Michele aveva già anticipato parlando del riassunto: *"come se fossero
+dei piccoli riassunti"*.
+
+### La finestra
+
+Si apre subito, non a lavoro finito: ogni blocco è una generazione a sé
+e su un percorso lungo ci vogliono minuti. Mostra a che passo è
+(`Passo 2 di 4 — Scene 85-141`) con una barra, perché un'attesa muta di
+minuti è indistinguibile da un programma piantato. Il pulsante di
+chiusura resta disabilitato finché il modello lavora.
+
+### L'esportazione
+
+`riassunto_scene_1-141.md`, titolo `# Riassunto di <libro> — Da scena 1
+a 141`, il testo, le immagini e infine **il percorso in chiaro**
+(`1 → 85 → 141`), che serve a rifare la stessa strada nel libro.
+
+Sulle immagini vale quanto già deciso: gli `static:` non hanno un
+percorso su disco da linkare — vivono dentro l'`.exe` — quindi si
+**copiano in una cartella accanto al documento** e si linkano in
+relativo; gli `url:` restano URL. Un id statico che non esiste non fa
+fallire l'esportazione: finisce in una nota in fondo.
+
+Cinque test, che coprono tutto tranne la generazione (il riassunto è
+solo una stringa in ingresso: il resto è composizione di testo). Uno ha
+trovato subito un difetto vero — la cartella di destinazione non veniva
+creata, e un percorso digitato a mano avrebbe fatto fallire
+l'esportazione **dopo** minuti di lavoro del modello.
+
 ---
 
 ### Dettaglio storico (fino al 21/07/2026)
