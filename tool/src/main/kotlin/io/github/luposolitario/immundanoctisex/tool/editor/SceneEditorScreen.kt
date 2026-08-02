@@ -248,14 +248,16 @@ fun SceneEditorScreen(
                 anteprimaModello?.let { configurazione ->
                     BarraAnteprima(configurazione, statoAnteprima, ::traduciScena)
                 }
-                OutlinedTextField(
-                    value = narrativeText,
-                    onValueChange = { narrativeText = it },
-                    modifier = Modifier.fillMaxWidth().height(120.dp),
-                    label = { Text("Testo narrato") },
-                )
-                RigaTradotta(statoAnteprima.risultato?.narrative)
-                Spacer(Modifier.height(16.dp))
+                SezioneScheda("Testo narrato") {
+                    OutlinedTextField(
+                        value = narrativeText,
+                        onValueChange = { narrativeText = it },
+                        modifier = Modifier.fillMaxWidth().height(140.dp),
+                        label = { Text("Testo narrato") },
+                        textStyle = MaterialTheme.typography.bodyLarge,
+                    )
+                    RigaTradotta(statoAnteprima.risultato?.narrative)
+                }
 
                 Text("Immagini", style = MaterialTheme.typography.titleMedium)
                 // Un'anteprima per ciascuna, ognuna nel proprio posto
@@ -455,84 +457,86 @@ fun SceneEditorScreen(
                 }
                 Spacer(Modifier.height(16.dp))
 
-                Text("Scelte", style = MaterialTheme.typography.titleMedium)
-                choices.forEachIndexed { index, choice ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        OutlinedTextField(
-                            value = choice.choiceText,
-                            onValueChange = { nuovo -> choices = choices.toMutableList().also { it[index] = choice.copy(choiceText = nuovo) } },
-                            modifier = Modifier.weight(2f),
-                            label = { Text("Testo scelta") },
-                        )
-                        DestinazioneField(
-                            valore = choice.nextSceneId,
-                            tutteLeScene = tutteLeScene,
-                            onValueChange = { nuovo -> choices = choices.toMutableList().also { it[index] = choice.copy(nextSceneId = nuovo) } },
-                            modifier = Modifier.weight(1f),
-                        )
-                        Button(onClick = { choices = choices.filterIndexed { i, _ -> i != index } }) {
-                            Text("✕")
+                SezioneScheda("Scelte") {
+                    choices.forEachIndexed { index, choice ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            OutlinedTextField(
+                                value = choice.choiceText,
+                                onValueChange = { nuovo -> choices = choices.toMutableList().also { it[index] = choice.copy(choiceText = nuovo) } },
+                                modifier = Modifier.weight(2f),
+                                label = { Text("Testo scelta") },
+                                textStyle = MaterialTheme.typography.bodyLarge,
+                            )
+                            DestinazioneField(
+                                valore = choice.nextSceneId,
+                                tutteLeScene = tutteLeScene,
+                                onValueChange = { nuovo -> choices = choices.toMutableList().also { it[index] = choice.copy(nextSceneId = nuovo) } },
+                                modifier = Modifier.weight(1f),
+                            )
+                            Button(onClick = { choices = choices.filterIndexed { i, _ -> i != index } }) {
+                                Text("✕")
+                            }
                         }
+                        // Sotto la riga, non dentro: la Row è a colonne con
+                        // pesi, e infilarci l'anteprima la schiaccerebbe.
+                        RigaTradotta(statoAnteprima.risultato?.choiceTexts?.get(choice.id))
                     }
-                    // Sotto la riga, non dentro: la Row è a colonne con
-                    // pesi, e infilarci l'anteprima la schiaccerebbe.
-                    RigaTradotta(statoAnteprima.risultato?.choiceTexts?.get(choice.id))
+                    Button(onClick = {
+                        choices = choices + Choice(id = "c${choices.size}", choiceText = "", nextSceneId = "")
+                    }) {
+                        Text("+ Aggiungi scelta")
+                    }
                 }
-                Button(onClick = {
-                    choices = choices + Choice(id = "c${choices.size}", choiceText = "", nextSceneId = "")
-                }) {
-                    Text("+ Aggiungi scelta")
-                }
-                Spacer(Modifier.height(16.dp))
 
-                Text("Scelte legate a una disciplina", style = MaterialTheme.typography.titleMedium)
-                disciplineChoices.forEachIndexed { index, scelta ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        DisciplinaDropdown(
-                            valore = scelta.disciplineId,
-                            onValueChange = { nuovo ->
-                                disciplineChoices = disciplineChoices.toMutableList().also { it[index] = scelta.copy(disciplineId = nuovo) }
-                            },
-                        )
-                        OutlinedTextField(
-                            value = scelta.choiceText,
-                            onValueChange = { nuovo ->
-                                disciplineChoices = disciplineChoices.toMutableList().also { it[index] = scelta.copy(choiceText = nuovo) }
-                            },
-                            modifier = Modifier.weight(2f),
-                            label = { Text("Testo scelta") },
-                        )
-                        DestinazioneField(
-                            valore = scelta.nextSceneId,
-                            tutteLeScene = tutteLeScene,
-                            onValueChange = { nuovo ->
-                                disciplineChoices = disciplineChoices.toMutableList().also { it[index] = scelta.copy(nextSceneId = nuovo) }
-                            },
-                            modifier = Modifier.weight(1f),
-                        )
-                        Button(onClick = { disciplineChoices = disciplineChoices.filterIndexed { i, _ -> i != index } }) {
-                            Text("✕")
+                SezioneScheda("Scelte legate a una disciplina") {
+                    disciplineChoices.forEachIndexed { index, scelta ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            DisciplinaDropdown(
+                                valore = scelta.disciplineId,
+                                onValueChange = { nuovo ->
+                                    disciplineChoices = disciplineChoices.toMutableList().also { it[index] = scelta.copy(disciplineId = nuovo) }
+                                },
+                            )
+                            OutlinedTextField(
+                                value = scelta.choiceText,
+                                onValueChange = { nuovo ->
+                                    disciplineChoices = disciplineChoices.toMutableList().also { it[index] = scelta.copy(choiceText = nuovo) }
+                                },
+                                modifier = Modifier.weight(2f),
+                                label = { Text("Testo scelta") },
+                            )
+                            DestinazioneField(
+                                valore = scelta.nextSceneId,
+                                tutteLeScene = tutteLeScene,
+                                onValueChange = { nuovo ->
+                                    disciplineChoices = disciplineChoices.toMutableList().also { it[index] = scelta.copy(nextSceneId = nuovo) }
+                                },
+                                modifier = Modifier.weight(1f),
+                            )
+                            Button(onClick = { disciplineChoices = disciplineChoices.filterIndexed { i, _ -> i != index } }) {
+                                Text("✕")
+                            }
                         }
+                        RigaTradotta(statoAnteprima.risultato?.disciplineChoiceTexts?.get(scelta.id))
                     }
-                    RigaTradotta(statoAnteprima.risultato?.disciplineChoiceTexts?.get(scelta.id))
-                }
-                Button(onClick = {
-                    disciplineChoices = disciplineChoices + DisciplineChoice(
-                        id = "d${disciplineChoices.size}",
-                        disciplineId = Discipline.entries.first().name,
-                        choiceText = "",
-                        nextSceneId = "",
-                    )
-                }) {
-                    Text("+ Aggiungi scelta per disciplina")
+                    Button(onClick = {
+                        disciplineChoices = disciplineChoices + DisciplineChoice(
+                            id = "d${disciplineChoices.size}",
+                            disciplineId = Discipline.entries.first().name,
+                            choiceText = "",
+                            nextSceneId = "",
+                        )
+                    }) {
+                        Text("+ Aggiungi scelta per disciplina")
+                    }
                 }
             }
         }
