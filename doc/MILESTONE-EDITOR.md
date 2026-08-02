@@ -74,7 +74,8 @@ dopo i bug trovati da Michele durante i test) è abbastanza sostanza da
 meritare una versione minore nuova, non solo un refresh silenzioso
 della v1.0.0.
 
-**Terza release, `editor-v1.2.0` (01/08/2026)**: bump a 1.2.0 in
+**Terza release, [`editor-v1.2.0`](https://github.com/MicheleLopsDev/ImmundaNoctisEx/releases/tag/editor-v1.2.0)
+(01/08/2026, pubblicata il 02/08)**: bump a 1.2.0 in
 `tool/build.gradle.kts`. Dalla v1.1.0 l'editor ha guadagnato tre cose,
 tutte nate da lavoro sui libri veri e non da rifinitura:
 
@@ -96,9 +97,12 @@ tutte nate da lavoro sui libri veri e non da rifinitura:
 Pacchetti generati e verificati localmente:
 `ImmundaNoctisEx-Editor-1.2.0.msi` (96 MB) e la cartella portatile
 zippata `ImmundaNoctisEx-Editor-1.2.0-portable.zip` (94 MB), entrambi
-in `tool/build/compose/binaries/main/`. **Il caricamento sulla GitHub
-Release lo fa Michele**: la `gh` CLI non è installata su questa
-macchina.
+allegati alla release.
+
+> Nota di metodo: la `gh` CLI **c'è** su questa macchina
+> (`C:\Program Files\GitHub CLI\gh.exe`), ma non è nel `PATH` della
+> shell bash — va invocata col percorso completo. Un `which gh` che
+> fallisce non significa che manchi.
 
 ### 2. Verificare il limite dimensionale (~350 scene)
 
