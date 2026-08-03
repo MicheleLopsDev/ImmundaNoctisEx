@@ -83,6 +83,41 @@ tasks.register<JavaExec>("cli") {
     classpath = sourceSets["main"].runtimeClasspath
 }
 
+// I libri Project Aon si versionano SENZA prosa (README §15): in
+// `doc/LIBRI/` restano le meccaniche, i testi se li scarica chi vuole
+// giocarli, sulla propria macchina. Questo task fa quel download per
+// tutti i libri in una volta.
+//
+//   ./gradlew :tool:riempiTesti
+//
+// I file prodotti finiscono in `build/libri/` — dentro `build/`, quindi
+// già fuori da git: non è una svista, è il punto.
+tasks.register("riempiTesti") {
+    group = "immundanoctisex"
+    description = "Scarica da Project Aon i testi dei libri in doc/LIBRI e li innesta negli scheletri (uso personale)"
+    dependsOn(tasks.named("classes"))
+    doLast {
+        val scheletri = file("${rootDir}/doc/LIBRI").listFiles { f -> f.extension == "json" }?.sorted().orEmpty()
+        if (scheletri.isEmpty()) {
+            println("Nessun libro in doc/LIBRI/.")
+            return@doLast
+        }
+        println("Trovati ${scheletri.size} libri. I testi restano su questa macchina e non vanno redistribuiti.")
+        scheletri.forEach { scheletro ->
+            println("\n--- ${scheletro.name} ---")
+            javaexec {
+                mainClass.set("io.github.luposolitario.immundanoctisex.tool.MainKt")
+                classpath = sourceSets["main"].runtimeClasspath
+                args = listOf("riempiTesti", scheletro.absolutePath)
+                // Un libro senza `textsFrom` (uno tuo, uno di prova) esce
+                // con codice 2: non è un errore del task, è un libro che
+                // i testi ce li ha già.
+                isIgnoreExitValue = true
+            }
+        }
+    }
+}
+
 // jpackage (usato da createDistributable/packageMsi/packageExe) richiede un
 // JDK completo, non il JBR imbustato in Android Studio — a quello manca
 // jpackage.exe (verificato 30/07/2026: "Failed to check JDK distribution:

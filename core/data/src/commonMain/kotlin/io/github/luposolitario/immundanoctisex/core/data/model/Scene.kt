@@ -39,6 +39,17 @@ data class Scene(
     // decidere — vedi DIARIO.md.
     val npcImage: String? = null,
     val locationName: String? = null,
+    // Da dove viene il testo di QUESTA scena, quando non è scritto qui
+    // (03/08/2026, richiesta di Michele). Link alla pagina originale, es.
+    // "https://www.projectaon.org/en/xhtml/lw/01fftd/sect1.htm".
+    //
+    // Nei libri Project Aon versionati come scheletro (`narrativeText`
+    // vuoto, vedi Manifest.textsFrom) dice a chi guarda il file da dove
+    // arriva quel paragrafo, e permette all'editor di aprire l'originale
+    // per confronto. Il motore di gioco non lo legge mai: se il testo
+    // manca, manca — non va a prenderselo da Internet durante una
+    // partita.
+    val source: String? = null,
     val narrativeText: String,
     val choices: List<Choice> = emptyList(),
     val disciplineChoices: List<DisciplineChoice> = emptyList(),

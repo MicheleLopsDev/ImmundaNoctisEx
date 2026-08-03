@@ -8,7 +8,7 @@ import kotlin.system.exitProcess
 // toccare application{} in build.gradle.kts ogni volta.
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
-        println("Uso: <validate|convert|illustrazioni|bonifica> ...")
+        println("Uso: <validate|convert|illustrazioni|bonifica|svuotaTesti|riempiTesti> ...")
         exitProcess(2)
     }
     val rest = args.drop(1).toTypedArray()
@@ -17,8 +17,15 @@ fun main(args: Array<String>) {
         "convert" -> runConvert(rest)
         "illustrazioni" -> runIllustrazioni(rest)
         "bonifica" -> runBonifica(rest)
+        // Separazione meccaniche/testi per i libri Project Aon
+        // (03/08/2026, README §15).
+        "svuotaTesti" -> runSvuotaTesti(rest)
+        "riempiTesti" -> runRiempiTesti(rest)
         else -> {
-            println("Comando sconosciuto: '${args[0]}' (usa 'validate', 'convert', 'illustrazioni' o 'bonifica')")
+            println(
+                "Comando sconosciuto: '${args[0]}' " +
+                    "(usa 'validate', 'convert', 'illustrazioni', 'bonifica', 'svuotaTesti' o 'riempiTesti')",
+            )
             exitProcess(2)
         }
     }

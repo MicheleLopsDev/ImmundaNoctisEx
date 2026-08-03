@@ -36,4 +36,18 @@ data class Manifest(
     // l'editor, il motore non le legge mai: le scene salvano sempre il
     // link risolto direttamente in backgroundImage/npcImage/enemyImage.
     val customResources: CustomResources = CustomResources(),
+    // Da dove vengono i TESTI, quando non sono in questo file
+    // (03/08/2026). I libri Project Aon si versionano SENZA prosa: qui
+    // restano le meccaniche — id, salti, intervalli di tiro, valori di
+    // combattimento, modificatori — e i campi testuali sono vuoti.
+    //
+    // Formato: "projectaon:<idLibro>", es. "projectaon:01fftd". Chi vuole
+    // giocarli scarica i testi da sé con `:tool:riempiTesti`, sulla
+    // propria macchina: la licenza Project Aon consente il download per
+    // uso personale ma vieta la redistribuzione (vedi README §15).
+    //
+    // null = il libro ha i suoi testi dentro, come qualunque libro
+    // originale dell'autore o di prova. Il motore lo legge solo per
+    // spiegare al giocatore perché un libro è muto, mai per altro.
+    val textsFrom: String? = null,
 )
