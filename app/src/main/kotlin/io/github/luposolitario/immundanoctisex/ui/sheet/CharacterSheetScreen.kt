@@ -200,22 +200,27 @@ private fun HeroPortraitDialog(hero: Character, onDismiss: () -> Unit) {
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
-                    // Il RITRATTO dell'eroe, non l'icona animale
-                    // (03/08/2026, richiesta Michele): a schermo intero
-                    // si vuole vedere il personaggio, uomo o donna — lo
-                    // stesso busto scelto in creazione. L'animale resta
-                    // il segno distintivo piccolo, nella card e in cima
-                    // alla Scheda.
+                    // L'eroe A FIGURA INTERA (03/08/2026, richiesta
+                    // Michele), non l'icona animale né il busto della
+                    // creazione: `hero_full_*` sono le due figure
+                    // ritagliate dall'originale `origina_res/hero.png`,
+                    // dove c'erano già per intero — il guerriero e
+                    // l'arciera. Fondo trasparente, così stanno bene sia
+                    // sul nero del ritratto a schermo intero sia ovunque
+                    // servissero in futuro.
                     painter = painterResource(
                         id = if (hero.gender == Gender.FEMALE) {
-                            R.drawable.hero_portrait_female
+                            R.drawable.hero_full_female
                         } else {
-                            R.drawable.hero_portrait_male
+                            R.drawable.hero_full_male
                         },
                     ),
                     contentDescription = hero.name,
                     contentScale = ContentScale.Fit,
-                    modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
+                    // `weight(1f)` senza `fill = false`: prende tutta
+                    // l'altezza che resta invece di fermarsi alla
+                    // dimensione naturale dell'immagine.
+                    modifier = Modifier.fillMaxWidth().weight(1f),
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
