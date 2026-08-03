@@ -156,6 +156,51 @@ class PromptBuilderTest {
         assertContains(prompt, "--- TAGS ---")
     }
 
+    // --- Prompt di traduzione più corto (03/08/2026) ---
+
+    // Le continuazioni servono al narratore per non contraddire il
+    // seguito MENTRE INVENTA: traducendo non si inventa nulla.
+    @Test
+    fun inTraduzioneLeContinuazioniNonEntranoNelPrompt() {
+        val prompt = PromptBuilder(translationMode = true).build(context())
+
+        assertFalse(prompt.contains("POSSIBLE CONTINUATIONS"))
+        assertFalse(prompt.contains("The warehouse door stands ajar."))
+    }
+
+    // La scena precedente invece RESTA anche in traduzione: è testo già
+    // tradotto, e mostra al modello come ha reso prima i nomi propri.
+    @Test
+    fun inTraduzioneLaScenaPrecedenteResta() {
+        val prompt = PromptBuilder(translationMode = true).build(context())
+
+        assertContains(prompt, "THE STORY SO FAR")
+    }
+
+    @Test
+    fun inArricchimentoLeContinuazioniCiSonoAncora() {
+        val prompt = PromptBuilder(translationMode = false).build(context())
+
+        assertContains(prompt, "POSSIBLE CONTINUATIONS")
+    }
+
+    // Il conto che conta: il prompt di traduzione è più corto di quello
+    // che sarebbe stato con le continuazioni dentro. Non si confronta
+    // con l'arricchimento — il vincolo di traduzione è più verboso per
+    // forza (deve dire "fedele ma non parola per parola", che in
+    // arricchimento non serve), e pretendere che sia il più corto dei
+    // due sarebbe un obiettivo inventato invece che utile.
+    @Test
+    fun leContinuazioniPesavanoSulPromptDiTraduzione() {
+        val conContinuazioni = PromptBuilder(translationMode = true)
+            .build(context(continuations = List(3) { "Testo della scena raggiungibile numero $it." }))
+        val senza = PromptBuilder(translationMode = true).build(context(continuations = emptyList()))
+
+        // Stesso prompt: le continuazioni non entrano più, quindi
+        // dichiararne tre o nessuna non cambia una virgola.
+        assertEquals(senza, conContinuazioni)
+    }
+
     @Test
     fun laRigaEnemySiChiedeSoloSeCeUnNemico() {
         val senzaCombat = PromptBuilder().build(context())

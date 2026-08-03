@@ -4821,6 +4821,42 @@ usciti al primo colpo. MSI e portatile **222 MB** (erano 96): dentro
 c'è il motore di inferenza. Verificato che la JVM imbustata sia la
 21.0.12 e che l'`.exe` si avvii davvero prima di pubblicare.
 
+## Il prompt di traduzione non porta più le continuazioni (03/08/2026)
+
+Osservazione di Michele: *"si potrebbe anche ridurre il prompt quando fa
+solo traduzione visto che immagino non gli interessino i contesti
+precedenti e quelli successivi"*. Giusta, ma i due contesti **non sono
+equivalenti**, e la differenza decide cosa si può togliere:
+
+- **Le continuazioni** sono il testo **sorgente, non tradotto**, delle
+  scene raggiungibili. Servono al narratore per non contraddire il
+  seguito *mentre inventa*. Traducendo non si inventa nulla: **peso
+  morto**, e non poco — il 16% del prompt su una scena vera.
+- **La scena precedente** è invece testo **già tradotto**, quello che il
+  giocatore ha appena letto. Mostra al modello come ha reso prima i nomi
+  propri e i termini ricorrenti: toglierla rischierebbe "Foresta di
+  Fryelund" in una scena e "Bosco di Fryelund" in quella dopo. **Resta.**
+
+### Il vincolo NON si tocca, e la ragione l'ha data un test
+
+Avevo proposto di accorciare anche `CONSTRAINT_TEXT_TRANSLATION`, più
+verboso del suo omologo, e avevo scritto un test che pretendeva un
+prompt di traduzione più corto di quello di arricchimento. **È fallito:
+1680 caratteri contro 1499**, anche senza continuazioni.
+
+Guardando i numeri veri si vede perché, e che l'obiettivo era sbagliato:
+tradurre ha bisogno di **più** parole per essere spiegato ("fedele ma
+non parola per parola, senza arricchire e senza omettere") di quante ne
+serva per dire "riscrivi arricchendo". Pretendere che il prompt più
+corto sia quello della traduzione era un traguardo **inventato**, non
+utile — e per raggiungerlo avrei dovuto intaccare una taratura costata
+prove sul campo, per guadagnare un 5%.
+
+Il test è stato riscritto su ciò che conta davvero: dichiarare tre
+continuazioni o nessuna deve produrre **lo stesso identico prompt**.
+
+Quattro test nuovi in `PromptBuilderTest` (26 in totale).
+
 ## Verifica dei libri riconvertiti, e la forma che sfuggiva (03/08/2026)
 
 Michele aveva messo la verifica dei `rollModifiers` "da fare al più

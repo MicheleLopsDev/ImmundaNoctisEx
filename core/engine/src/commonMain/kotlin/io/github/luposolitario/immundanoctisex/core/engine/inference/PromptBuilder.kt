@@ -77,7 +77,20 @@ class PromptBuilder(
             } else {
                 add(SCENE_TEXT)
             }
-            if (context.continuations.isNotEmpty()) add(CONTINUATIONS_TEXT)
+            // Le continuazioni sono il testo SORGENTE, non tradotto, delle
+            // scene raggiungibili: servono al narratore per non
+            // contraddire il seguito MENTRE INVENTA. Traducendo non si
+            // inventa nulla, quindi sono peso morto — e non poco: sono
+            // il 16% del prompt (misurato il 03/08/2026 su una scena
+            // vera, 2527 caratteri contro 2136).
+            //
+            // La scena PRECEDENTE invece resta anche in traduzione, ed è
+            // una differenza voluta: quello è testo GIÀ TRADOTTO, che il
+            // giocatore ha appena letto. Mostra al modello come ha reso
+            // prima i nomi propri e i termini ricorrenti — toglierla
+            // rischierebbe "Foresta di Fryelund" in una scena e "Bosco
+            // di Fryelund" in quella dopo.
+            if (context.continuations.isNotEmpty() && !translationMode) add(CONTINUATIONS_TEXT)
             if (context.choices.isNotEmpty() || context.disciplineChoices.isNotEmpty()) {
                 add(CHOICES_TEXT)
             }
