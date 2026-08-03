@@ -1,8 +1,11 @@
 package io.github.luposolitario.immundanoctisex.tool.etl
 
+import io.github.luposolitario.immundanoctisex.core.data.model.ComparisonOperator
+import io.github.luposolitario.immundanoctisex.core.data.model.RollConditionType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 // BUG (31/07/2026, Michele: la scena della Tabella dei Numeri Casuali di
 // "Flight from the Dark" appariva come 2 scelte manuali invece del tiro del
@@ -109,5 +112,55 @@ class ProjectAonHtmlParserTest {
         // Stessa identica frase del test sopra: cambia solo il fatto che
         // la scena non dichiari nessun modificatore.
         assertNull(ProjectAonHtmlParser.rollRangeFor("If your total score is now 0–3, turn to 58."))
+    }
+
+    // --- Condizione su ENDURANCE, le due forme (03/08/2026) ---
+    // Trovate confrontando, su tutti i libri, le scene che PARLANO di un
+    // modificatore con quelle che ne hanno davvero uno convertito.
+
+    @Test
+    fun riconosceLaFormaConIlComparatorePrima() {
+        val testo = "Pick a number from the Random Number Table. If your current ENDURANCE " +
+            "point total is less than 12, deduct 2 from the number you have picked."
+
+        val modificatori = ProjectAonHtmlParser.estraiRollModifiers(testo)
+
+        assertEquals(1, modificatori.size)
+        assertEquals(-2, modificatori.first().amount)
+        assertEquals(RollConditionType.ENDURANCE, modificatori.first().condition?.type)
+        assertEquals(ComparisonOperator.LT, modificatori.first().condition?.operator)
+        assertEquals(12, modificatori.first().condition?.threshold)
+    }
+
+    // La forma che sfuggiva del tutto: numero PRIMA, comparatore dopo.
+    // In `04tcod` scena 343 costava entrambi i modificatori della scena.
+    @Test
+    fun riconosceLaFormaConIlNumeroPrima() {
+        val testo = "Pick a number from the Random Number Table. If your current ENDURANCE " +
+            "point total is 20 or more, add 3 to the number that you have picked. If your " +
+            "current ENDURANCE point total is 12 or less, deduct 2 from the number you have picked."
+
+        val modificatori = ProjectAonHtmlParser.estraiRollModifiers(testo)
+
+        assertEquals(2, modificatori.size, "La scena ne dichiara due, uno per soglia")
+        val bonus = modificatori.first { it.amount > 0 }
+        assertEquals(3, bonus.amount)
+        assertEquals(ComparisonOperator.GT, bonus.condition?.operator)
+        assertEquals(20, bonus.condition?.threshold)
+        val malus = modificatori.first { it.amount < 0 }
+        assertEquals(-2, malus.amount)
+        assertEquals(ComparisonOperator.LT, malus.condition?.operator)
+        assertEquals(12, malus.condition?.threshold)
+    }
+
+    // Il Rango Kai resta fuori copertura per decisione presa (i libri
+    // usano titoli che il nostro KaiRank non ha): non si indovina, si
+    // lascia la scena alle scelte manuali.
+    @Test
+    fun ilRangoKaiNonVieneConvertito() {
+        val testo = "Pick a number from the Random Number Table. If you have reached the Kai " +
+            "rank of Guardian or higher, add 3 to the number you have picked."
+
+        assertTrue(ProjectAonHtmlParser.estraiRollModifiers(testo).isEmpty())
     }
 }

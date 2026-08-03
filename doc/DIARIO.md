@@ -4821,6 +4821,54 @@ usciti al primo colpo. MSI e portatile **222 MB** (erano 96): dentro
 c'è il motore di inferenza. Verificato che la JVM imbustata sia la
 21.0.12 e che l'`.exe` si avvii davvero prima di pubblicare.
 
+## Verifica dei libri riconvertiti, e la forma che sfuggiva (03/08/2026)
+
+Michele aveva messo la verifica dei `rollModifiers` "da fare al più
+presto", e restava aperto un dato sospetto: `01fftd` con **zero**
+modificatori mentre gli altri ne avevano 2-18.
+
+**Lo zero è legittimo.** Nel testo del libro 1 non c'è una sola frase
+che parli di un bonus al tiro: è il primo della serie, non usa quel
+meccanismo. Nessun buco del convertitore.
+
+### Il controllo vero
+
+Non "quanti ne ha estratti", ma: **quali scene PARLANO di un
+modificatore nel testo e non ce l'hanno nel JSON**. Sette in tutto:
+
+| | esito |
+|---|---|
+| 4 scene (`05sots` 15, 48, 224, 372) | **Rango Kai** — fuori copertura per decisione presa il 01/08, i libri usano titoli che il nostro `KaiRank` non ha |
+| 1 scena (`04tcod` 35) | disciplina **oppure** rango: il rango la esclude |
+| 1 scena (`03tcok` 96) | flag di storia ("if at any time you have smeared Baknar oil") |
+| 1 scena (`04tcod` 343) | **difetto vero**, vedi sotto |
+
+Cinque su sette sono decisioni prese, non difetti.
+
+### "is 20 or more" — la forma invertita
+
+La regex della condizione su ENDURANCE si aspettava il **comparatore
+prima e il numero dopo** (`is less than 12`). I libri però scrivono
+anche `is 20 or more`: **numero prima, comparatore dopo**. Inglese
+comunissimo, e sfuggiva del tutto.
+
+In `04tcod` scena 343 costava **entrambi** i modificatori della stessa
+scena: *"se ENDURANCE è 20 o più, +3; se è 12 o meno, −2"*.
+
+Corretta con due alternative e **gruppi nominati** — con l'ordine che
+cambia fra le due forme, leggerli per posizione sarebbe stato un invito
+a sbagliare. Tre test nuovi, compreso quello che verifica che il Rango
+Kai continui a NON essere convertito.
+
+Riconversione verificata prima di applicarla, su un file temporaneo:
+**cambia una sola scena su 364**, esattamente quella attesa, e i due
+modificatori compaiono. La modifica è stata poi applicata in modo
+chirurgico al solo blocco della scena 343 — la riconversione completa
+avrebbe sovrascritto titolo e descrizione (il titolo vero è *The Chasm
+of Doom*, e passando l'argomento dalla riga di comando si sarebbe perso).
+
+Libro rivalidato: 364 scene, valido.
+
 ## Il suono del finale che non finiva mai (03/08/2026)
 
 Michele, dopo il primo test del trasporto personaggio riuscito: *"ho

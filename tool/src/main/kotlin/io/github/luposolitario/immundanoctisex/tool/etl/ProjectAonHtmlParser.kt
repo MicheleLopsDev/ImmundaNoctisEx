@@ -549,8 +549,20 @@ object ProjectAonHtmlParser {
     )
     // "is less than 10", "is greater than 20", ma anche "is above 25" /
     // "is below 6" (senza "than"): forme tutte presenti nei libri.
+    // Due forme, ed è la seconda ad averci sorpreso (03/08/2026, dal
+    // controllo di TUTTE le scene con un modificatore nel testo):
+    //  - "is less than 20"  → comparatore prima, numero dopo;
+    //  - "is 20 or more"    → **numero prima**, comparatore dopo.
+    // La seconda è inglese comunissimo e sfuggiva del tutto: in
+    // `04tcod` scena 343 costava i DUE modificatori della stessa scena
+    // ("se ENDURANCE è 20 o più, +3; se è 12 o meno, −2").
+    // Gruppi nominati apposta: con l'ordine che cambia fra le due forme,
+    // leggerli per posizione sarebbe un invito a sbagliare.
     private val enduranceCondRegex = Regex(
-        """endurance\b[^.]{0,40}?\bis\s+(less|fewer|below|greater|more|above)\s+(?:than\s+)?(\d+)""",
+        """endurance\b[^.]{0,40}?\bis\s+(?:""" +
+            """(?<op>less|fewer|below|greater|more|above)\s+(?:than\s+)?(?<num>\d+)""" +
+            """|(?<num2>\d+)\s+or\s+(?<op2>less|fewer|lower|more|greater|higher)""" +
+            """)""",
         RegexOption.IGNORE_CASE,
     )
     private val rangoRegex = Regex("""\bkai rank\b|\brank of\b""", RegexOption.IGNORE_CASE)
@@ -558,10 +570,13 @@ object ProjectAonHtmlParser {
 
     // Il testo qui è la sezione INTERA (vedi il chiamante): una scena può
     // dichiarare più modificatori ("add 2 se hai X" + "deduct 1 se hai Y").
-    private fun estraiRollModifiers(
+    // `internal` per lo stesso motivo di `rollRangeFor` sopra: è una
+    // regola di lettura del testo inglese, e va verificata sulle frasi
+    // vere dei libri senza dover costruire un HTML intero attorno.
+    internal fun estraiRollModifiers(
         testoIntero: String,
-        notes: MutableList<String>,
-        label: () -> String,
+        notes: MutableList<String> = mutableListOf(),
+        label: () -> String = { "prova" },
     ): List<RollModifier> {
         if (!marcatoreTabellaRegex.containsMatchIn(testoIntero)) return emptyList()
         val modificatori = mutableListOf<RollModifier>()
@@ -597,9 +612,14 @@ object ProjectAonHtmlParser {
 
                 enduranceCondRegex.containsMatchIn(clausola) -> {
                     val m = enduranceCondRegex.find(clausola)!!
-                    val soglia = m.groupValues[2].toIntOrNull() ?: return@forEach
-                    val operatore = when (m.groupValues[1].lowercase()) {
-                        "less", "fewer", "below" -> ComparisonOperator.LT
+                    // Una sola delle due forme aggancia: si prende quella
+                    // che ha prodotto i gruppi.
+                    val soglia = (m.groups["num"] ?: m.groups["num2"])?.value?.toIntOrNull()
+                        ?: return@forEach
+                    val comparatore = (m.groups["op"] ?: m.groups["op2"])?.value?.lowercase()
+                        ?: return@forEach
+                    val operatore = when (comparatore) {
+                        "less", "fewer", "below", "lower" -> ComparisonOperator.LT
                         else -> ComparisonOperator.GT
                     }
                     RollCondition(RollConditionType.ENDURANCE, operator = operatore, threshold = soglia)
