@@ -1,17 +1,33 @@
 package io.github.luposolitario.immundanoctisex.ui.journal
 
+import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Casino
+import androidx.compose.material.icons.filled.HeartBroken
+import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Tab
@@ -22,8 +38,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -31,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import android.content.Context
 import io.github.luposolitario.immundanoctisex.R
+import io.github.luposolitario.immundanoctisex.core.data.model.AutoJumpReason
 import io.github.luposolitario.immundanoctisex.core.data.model.CombatOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.JourneyEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Transition
@@ -100,25 +122,140 @@ private fun StoryView(journey: List<JourneyEntry>, modifier: Modifier) {
     }
 }
 
-// Mappa logica v0.1: le voci raggruppate per luogo consecutivo, in ordine
-// di viaggio (derivata dal diario-grafo, mai salvata).
-@Composable
-private fun MapView(journey: List<JourneyEntry>, modifier: Modifier) {
-    val stops = buildList {
-        journey.forEach { entry ->
-            val location = entry.locationName ?: return@forEach
-            if (lastOrNull() != location) add(location)
+// Una tappa del viaggio: un luogo, quante scene ci si è passate e da
+// quale porta se ne è usciti. `uscita` è null solo per l'ultima tappa —
+// da lì non si è ancora usciti, si è lì adesso.
+// internal, non private: il raggruppamento è la sola logica vera di
+// questa schermata ed è coperto da JournalMapTest.
+internal data class Tappa(
+    val luogo: String?,
+    val scene: Int,
+    val uscita: Transition?,
+)
+
+// Le voci raggruppate per luogo CONSECUTIVO. Una voce senza
+// `locationName` non viene scartata (com'era prima): eredita il luogo
+// della tappa in corso, altrimenti il conto delle scene direbbe il
+// falso. Derivata dal diario-grafo a ogni apertura, mai salvata.
+internal fun tappeDi(journey: List<JourneyEntry>): List<Tappa> {
+    val tappe = mutableListOf<Tappa>()
+    journey.forEachIndexed { index, entry ->
+        val ultima = index == journey.lastIndex
+        val uscita = if (ultima) null else entry.transition
+        val precedente = tappe.lastOrNull()
+        // Cambio tappa solo su un luogo NUOVO e dichiarato: senza nome
+        // si resta dove si era.
+        val cambiaLuogo = entry.locationName != null && entry.locationName != precedente?.luogo
+        if (precedente == null || cambiaLuogo) {
+            tappe += Tappa(entry.locationName ?: precedente?.luogo, scene = 1, uscita = uscita)
+        } else {
+            tappe[tappe.lastIndex] = precedente.copy(scene = precedente.scene + 1, uscita = uscita)
         }
     }
-    LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        items(stops.withIndex().toList()) { (index, location) ->
-            Row {
-                Text("${index + 1}.", fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(0.dp))
-                Text("  $location")
+    return tappe
+}
+
+@Composable
+private fun MapView(journey: List<JourneyEntry>, modifier: Modifier) {
+    val tappe = remember(journey) { tappeDi(journey) }
+    LazyColumn(modifier = modifier) {
+        items(tappe.withIndex().toList()) { (index, tappa) ->
+            RigaTappa(
+                tappa = tappa,
+                primaTappa = index == 0,
+                ultimaTappa = index == tappe.lastIndex,
+            )
+        }
+    }
+}
+
+// Il filo verticale che tiene insieme le tappe: due segmenti (sopra e
+// sotto il pallino) disegnati a parte, così la prima tappa non ha filo
+// sopra e l'ultima non ce l'ha sotto — il viaggio ha un inizio e una
+// fine visibili, non una linea che esce dallo schermo.
+@Composable
+private fun RigaTappa(tappa: Tappa, primaTappa: Boolean, ultimaTappa: Boolean) {
+    val coloreFilo = MaterialTheme.colorScheme.outlineVariant
+    Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.width(28.dp).fillMaxHeight(),
+        ) {
+            Box(
+                Modifier.width(2.dp).height(10.dp)
+                    .background(if (primaTappa) Color.Transparent else coloreFilo),
+            )
+            Box(
+                Modifier.size(12.dp).clip(CircleShape).background(
+                    if (ultimaTappa) MaterialTheme.colorScheme.primary else coloreFilo,
+                ),
+            )
+            Box(
+                Modifier.width(2.dp).weight(1f)
+                    .background(if (ultimaTappa) Color.Transparent else coloreFilo),
+            )
+        }
+        Column(modifier = Modifier.weight(1f).padding(start = 4.dp, bottom = 12.dp)) {
+            Text(
+                tappa.luogo ?: stringResource(R.string.journal_no_location),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    pluralStringResource(R.plurals.journal_stop_scenes, tappa.scene, tappa.scene),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                val uscita = tappa.uscita
+                if (uscita != null) {
+                    Spacer(Modifier.width(8.dp))
+                    Icon(
+                        imageVector = iconaUscita(uscita),
+                        contentDescription = stringResource(descrizioneUscita(uscita)),
+                        tint = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.size(16.dp),
+                    )
+                } else {
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        stringResource(R.string.journal_here_now),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
             }
         }
     }
+}
+
+// Come si è usciti da una tappa, a colpo d'occhio. Le stesse quattro
+// porte di `Transition`: scelta, disciplina, combattimento (con l'esito),
+// destino.
+private fun iconaUscita(transition: Transition): ImageVector = when (transition) {
+    is Transition.ChoiceTaken -> Icons.AutoMirrored.Filled.ArrowForward
+    is Transition.DisciplineUsed -> Icons.Default.AutoAwesome
+    is Transition.CombatResolved -> when (transition.outcome) {
+        CombatOutcome.WIN -> Icons.Default.MilitaryTech
+        CombatOutcome.LOSE -> Icons.Default.HeartBroken
+        // AutoMirrored: in una lingua che si legge da destra a sinistra
+        // deve correre nell'altro verso.
+        CombatOutcome.EVADE -> Icons.AutoMirrored.Filled.DirectionsRun
+    }
+    is Transition.AutoJump -> Icons.Default.Casino
+}
+
+@StringRes
+private fun descrizioneUscita(transition: Transition): Int = when (transition) {
+    is Transition.ChoiceTaken -> R.string.journal_exit_choice
+    is Transition.DisciplineUsed -> R.string.journal_exit_discipline
+    is Transition.CombatResolved -> when (transition.outcome) {
+        CombatOutcome.WIN -> R.string.journal_exit_win
+        CombatOutcome.LOSE -> R.string.journal_exit_lose
+        CombatOutcome.EVADE -> R.string.journal_exit_evade
+    }
+    is Transition.AutoJump -> R.string.journal_exit_fate
 }
 
 // Prende il Context invece di essere @Composable perché serve anche
@@ -154,6 +291,28 @@ fun journeyToMarkdown(context: Context, bookTitle: String, journey: List<Journey
         appendLine()
         appendLine("*${transitionText(context, entry.transition)}*")
         appendLine()
+    }
+}
+
+// Un viaggio con tutte e quattro le porte d'uscita e una tappa di più
+// scene (le due voci senza `locationName` restano nel Vecchio Quartiere,
+// non spariscono): serve a vedere la mappa nel caso peggiore, non in
+// quello facile.
+@Preview(showBackground = true, name = "Diario — mappa del viaggio", heightDp = 700)
+@Composable
+private fun MapViewPreview() {
+    ImmundaNoctisTheme(darkTheme = true) {
+        MapView(
+            journey = listOf(
+                JourneyEntry("1", "", Transition.ChoiceTaken("c1"), "Riverside Inn"),
+                JourneyEntry("2", "", Transition.CombatResolved(CombatOutcome.WIN), "Harbour Town"),
+                JourneyEntry("3", "", Transition.DisciplineUsed("SIXTH_SENSE", "d1"), "Old Quarter"),
+                JourneyEntry("4", "", Transition.CombatResolved(CombatOutcome.EVADE), null),
+                JourneyEntry("5", "", Transition.AutoJump(AutoJumpReason.RANDOM_CHOICE), null),
+                JourneyEntry("6", "", Transition.ChoiceTaken("c9"), "Ruanon"),
+            ),
+            modifier = Modifier.padding(12.dp),
+        )
     }
 }
 

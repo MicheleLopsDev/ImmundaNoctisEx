@@ -7,6 +7,38 @@
 
 ---
 
+## 03/08/2026 — la mappa del viaggio nel diario
+
+La scheda "Mappa logica" del diario mostrava un elenco numerato di
+luoghi, niente di più. Ora è la mappa che Michele aveva approvato: un
+**filo verticale** con un pallino per tappa, **quante scene** si sono
+passate in ogni luogo e **da quale porta** se ne è usciti (freccia =
+scelta, stella = disciplina, medaglia/cuore spezzato/corsa =
+combattimento vinto/perso/evaso, dado = destino). L'ultima tappa non ha
+icona di uscita: ci si è dentro adesso, e dice "Sei qui".
+
+**Un difetto vero trovato riscrivendola**: la vecchia versione
+scartava del tutto le voci senza `locationName`
+(`?: return@forEach`). Con la mappa nuova, che conta le scene per
+tappa, quel salto avrebbe fatto dire il falso al conteggio. Ora una
+voce senza luogo eredita la tappa in corso. È il caso del test
+`una scena senza luogo resta nella tappa in corso`.
+
+`tappeDi` è `internal` invece di `private` proprio per questo: il
+raggruppamento è la sola logica vera della schermata, e ha **8 test**
+(`JournalMapTest`) — luoghi diversi, scene consecutive nello stesso
+luogo, ritorno in un luogo già visitato, viaggio che parte senza luogo,
+uscita di tappa, ultima tappa. Suite a **236 test verdi**.
+
+**Non fatte le miniature** della proposta originale: `JourneyEntry` ha
+`sceneId`, `enrichedText`, `transition` e `locationName` — nessuna
+immagine. Per averle servirebbe un campo nuovo nel diario, che è
+serializzato nel salvataggio: si può aggiungere in coda con un default
+(i salvataggi vecchi reggono), ma è una modifica al formato dei dati,
+non un ritocco di UI. Da decidere a parte.
+
+---
+
 ## 03/08/2026 — la UI parla due lingue
 
 Fatto in giornata, su scelta di Michele ("per adesso implementiamo eng

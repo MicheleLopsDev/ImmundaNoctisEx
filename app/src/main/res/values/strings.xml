@@ -384,6 +384,20 @@
     <string name="journal_transition_combat_evade">→ you evaded the combat</string>
     <string name="journal_transition_autojump">→ fate decided (%1$s)</string>
     <string name="journal_export_title">%1$s — Diary of the journey</string>
+    <!-- Mappa del viaggio: una tappa per luogo, con quante scene ci hai
+         passato e da quale porta sei uscito. -->
+    <string name="journal_no_location">Unnamed place</string>
+    <plurals name="journal_stop_scenes">
+        <item quantity="one">%1$d scene</item>
+        <item quantity="other">%1$d scenes</item>
+    </plurals>
+    <string name="journal_exit_choice">You left by choosing</string>
+    <string name="journal_exit_discipline">You left using a Kai Discipline</string>
+    <string name="journal_exit_win">You left after winning a fight</string>
+    <string name="journal_exit_lose">You left after losing a fight</string>
+    <string name="journal_exit_evade">You left fleeing a fight</string>
+    <string name="journal_exit_fate">Fate took you away</string>
+    <string name="journal_here_now">You are here</string>
 
     <!-- Setup dell'avventura -->
     <string name="setup_delete_title">Delete the save?</string>

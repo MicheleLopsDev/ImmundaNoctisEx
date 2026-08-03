@@ -334,6 +334,20 @@
     <string name="journal_transition_combat_evade">→ sei fuggito dal combattimento</string>
     <string name="journal_transition_autojump">→ il destino ha deciso (%1$s)</string>
     <string name="journal_export_title">%1$s — Diario del viaggio</string>
+    <!-- Mappa del viaggio: una tappa per luogo, con quante scene ci hai
+         passato e da quale porta sei uscito. -->
+    <string name="journal_no_location">Luogo senza nome</string>
+    <plurals name="journal_stop_scenes">
+        <item quantity="one">%1$d scena</item>
+        <item quantity="other">%1$d scene</item>
+    </plurals>
+    <string name="journal_exit_choice">Sei uscito scegliendo</string>
+    <string name="journal_exit_discipline">Sei uscito usando una Disciplina Kai</string>
+    <string name="journal_exit_win">Sei uscito dopo aver vinto uno scontro</string>
+    <string name="journal_exit_lose">Sei uscito dopo aver perso uno scontro</string>
+    <string name="journal_exit_evade">Sei uscito fuggendo da uno scontro</string>
+    <string name="journal_exit_fate">Il destino ti ha portato via</string>
+    <string name="journal_here_now">Sei qui</string>
 
     <!-- Setup dell'avventura -->
     <string name="setup_delete_title">Eliminare il salvataggio?</string>
