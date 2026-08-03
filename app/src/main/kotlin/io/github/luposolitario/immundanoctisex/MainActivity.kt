@@ -100,4 +100,4 @@ class MainActivity : ComponentActivity() {
 // questa riga va toccata ad ogni modifica di codice, così Michele legge
 // "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
 // ricompilato l'ultima versione o una vecchia.
-private const val BUILD_MARKER = "2026-08-03-04 prompt di traduzione senza le continuazioni (-16%)"
+private const val BUILD_MARKER = "2026-08-03-05 UI tutta su strings.xml, inglese di ripiego + values-it"

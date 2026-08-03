@@ -7,6 +7,66 @@
 
 ---
 
+## 03/08/2026 — la UI parla due lingue
+
+Fatto in giornata, su scelta di Michele ("per adesso implementiamo eng
+e poi italiano per default"): **tutta la UI dell'app è passata a
+`strings.xml`**. Prima solo 9 file su 79 usavano `stringResource` e
+c'erano ~114 stringhe scritte a mano; ora sono **355 chiavi in inglese
+e 354 in italiano** (l'unica differenza è `app_name`, identico nelle
+due lingue).
+
+**Il punto meno ovvio, ed è quello che rendeva la cosa urgente**:
+`values/strings.xml` conteneva l'ITALIANO. Su Android quella cartella
+è il ripiego per qualunque lingua senza una `values-xx` dedicata:
+chiunque non avesse il telefono in italiano si ritrovava comunque
+l'italiano. Ora `values/` è inglese e l'italiano sta in `values-it/`.
+In `values-it/` stanno SOLO le voci che differiscono davvero: quello
+che è uguale (`app_name`, i due array dei nomi propri) vive solo nel
+file di ripiego e Android lo eredita da lì — una voce sola da tenere
+allineata invece di due.
+
+**I termini di gioco inglesi non sono tradotti a mano**: COMBAT SKILL,
+ENDURANCE, Gold Crowns, Chainmail Waistcoat, Potion of Laumspur e le
+nove armi sono quelli CANONICI dei libri, verificati con un grep sui
+testi Project Aon in `doc/LIBRI/` prima di scriverli. Su
+un'ambientazione con un canone preciso era il rischio più concreto.
+
+Due cambi strutturali, non solo sostituzioni:
+- **Sei enum di preferenze** (`NarrativeTone`, `AccentColor`,
+  `DiceColor`, `StatusCardColor`, `ParchmentStyle`, `ReadingFont`) da
+  `displayName: String` a `@StringRes labelRes: Int`: erano l'unico
+  posto dove un testo mostrato viveva fuori da `strings.xml`.
+  `LinguaOutput` NO: sta in `:core:engine` (senza Android) e i nomi
+  delle lingue sono endonimi, non si traducono.
+- **`journeyToMarkdown`/`transitionText`** (diario) e
+  **`validateModelFile`/`buildCustomModel`** (modelli) prendono ora il
+  `Context`: servono anche fuori dalla composizione.
+
+Restano di proposito nel codice, perché non sono testo da leggere: gli
+ID canonici dei dati (`WEAPONSKILL`, `MINDBLAST`, `"Gold Crowns"`), i
+path SVG, le etichette delle animazioni Compose, i percorsi degli
+asset, i tag di log, i titoli dei brani e i nomi dei font. Anche le
+stringhe dentro le `@Preview` restano letterali: sono dati di prova.
+
+**220 test verdi**, nessuna regressione. Spagnolo, francese e tedesco
+NON sono stati fatti: struttura pronta, ma senza utenti veri è lavoro
+speculativo (stesso argomento già usato da Michele per l'accessibilità)
+— aggiungere una `values-es/` ora è mezza giornata quando servirà.
+
+Nella stessa giornata, prima di questo: verificata sul device la
+riduzione del prompt in traduzione (commit `f0628fb`). I 15 prompt del
+log lo confermano — 10 di traduzione, **nessuno** con le continuazioni;
+5 di arricchimento, con. Sulle scene appaiabili: **515 token contro
+582, il 13% in meno**. Nota utile per il futuro: nello stesso log il
+decode cala del 35% in 15 generazioni (18,7 → 12,2 token/s) mentre il
+primo token resta stabile e le conversazioni si chiudono tutte
+(`vive=1`, `chiusureFallite=0`) — è lo stesso accumulo dentro la
+libreria già annotato il 20/07, non un nostro difetto, e questo log è
+il miglior punto di partenza se un giorno lo si affronta.
+
+---
+
 ## STATO CORRENTE — aggiornato 27/07/2026, con nota 30/07/2026 su Fase 6
 
 **Il client è sostanzialmente completo.** Fase 3 (il libro gira sul
