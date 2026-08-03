@@ -142,6 +142,7 @@ fun AdventureScreen(
     }
     if (showJournal) {
         val context = androidx.compose.ui.platform.LocalContext.current
+        val titoloCondivisione = stringResource(R.string.adventure_export_diary)
         io.github.luposolitario.immundanoctisex.ui.journal.JournalScreen(
             journey = state.gameState.session.journey,
             onExport = {
@@ -153,7 +154,7 @@ fun AdventureScreen(
                     type = "text/plain"
                     putExtra(android.content.Intent.EXTRA_TEXT, markdown)
                 }
-                context.startActivity(android.content.Intent.createChooser(intent, "Esporta diario"))
+                context.startActivity(android.content.Intent.createChooser(intent, titoloCondivisione))
             },
             onClose = { showJournal = false },
         )
@@ -163,13 +164,17 @@ fun AdventureScreen(
     if (showExitConfirm) {
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { showExitConfirm = false },
-            title = { Text("Tornare al menu?") },
-            text = { Text("La partita è già salvata: puoi riprenderla da dove l'hai lasciata.") },
+            title = { Text(stringResource(R.string.adventure_exit_title)) },
+            text = { Text(stringResource(R.string.adventure_exit_text)) },
             confirmButton = {
-                androidx.compose.material3.TextButton(onClick = onExitToHome) { Text("Torna al menu") }
+                androidx.compose.material3.TextButton(onClick = onExitToHome) {
+                    Text(stringResource(R.string.adventure_exit_confirm))
+                }
             },
             dismissButton = {
-                androidx.compose.material3.TextButton(onClick = { showExitConfirm = false }) { Text("Annulla") }
+                androidx.compose.material3.TextButton(onClick = { showExitConfirm = false }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
             },
         )
     }
@@ -243,7 +248,7 @@ fun AdventureScreen(
                         IconButton(onClick = onReadAloud, enabled = !autoReadEnabled) {
                             Icon(
                                 imageVector = Icons.Default.VolumeUp,
-                                contentDescription = "Leggi ad alta voce",
+                                contentDescription = stringResource(R.string.adventure_read_aloud),
                             )
                         }
                     }
@@ -324,7 +329,12 @@ fun AdventureScreen(
                         androidx.compose.material3.TextButton(
                             onClick = { if (state.placeCheckpoint()) checkpointsSaved++ },
                         ) {
-                            Text("Piazza checkpoint (rimasti: ${state.checkpointsRemaining})")
+                            Text(
+                                stringResource(
+                                    R.string.adventure_place_checkpoint,
+                                    state.checkpointsRemaining,
+                                ),
+                            )
                         }
                     }
                 }
@@ -350,7 +360,10 @@ private fun SaveConfirmedRow(onExpired: () -> Unit) {
             modifier = Modifier.size(18.dp),
         )
         Spacer(Modifier.width(6.dp))
-        Text("Checkpoint salvato", color = androidx.compose.ui.graphics.Color(0xFF4CAF50))
+        Text(
+            stringResource(R.string.adventure_checkpoint_saved),
+            color = androidx.compose.ui.graphics.Color(0xFF4CAF50),
+        )
     }
 }
 
@@ -384,7 +397,7 @@ private fun Header(
             }
             Icon(
                 imageVector = Icons.Default.Circle,
-                contentDescription = "Stato del narratore",
+                contentDescription = stringResource(R.string.adventure_narrator_status),
                 tint = color,
                 modifier = Modifier.size(12.dp),
             )
@@ -400,10 +413,10 @@ private fun Header(
         }
         Row(verticalAlignment = Alignment.CenterVertically) {
             androidx.compose.material3.TextButton(onClick = onJournalClick) {
-                Text("Diario")
+                Text(stringResource(R.string.adventure_journal))
             }
             Text(
-                "Scena ${state.currentScene.id}",
+                stringResource(R.string.adventure_scene, state.currentScene.id),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -415,7 +428,7 @@ private fun Header(
             androidx.compose.material3.IconButton(onClick = onTextScaleCycle) {
                 Icon(
                     imageVector = Icons.Default.ZoomIn,
-                    contentDescription = "Cambia grandezza testo (${textScale.icon})",
+                    contentDescription = stringResource(R.string.adventure_text_size, textScale.icon),
                 )
             }
             // Tasto rapido musica (24/07/2026, richiesta Michele: "un
@@ -425,7 +438,9 @@ private fun Header(
             androidx.compose.material3.IconButton(onClick = onMusicToggle) {
                 Icon(
                     imageVector = if (musicEnabled) Icons.Default.MusicNote else Icons.Default.MusicOff,
-                    contentDescription = if (musicEnabled) "Spegni la musica" else "Attiva la musica",
+                    contentDescription = stringResource(
+                        if (musicEnabled) R.string.adventure_music_off else R.string.adventure_music_on,
+                    ),
                 )
             }
             // Uscita al menu (Michele 20/07/2026: mancava del tutto). Con
@@ -434,7 +449,7 @@ private fun Header(
             androidx.compose.material3.IconButton(onClick = onExitClick) {
                 Icon(
                     imageVector = Icons.Default.Home,
-                    contentDescription = "Torna al menu",
+                    contentDescription = stringResource(R.string.adventure_exit_confirm),
                 )
             }
         }
@@ -524,7 +539,7 @@ private fun ChoicesZone(state: AdventureState) {
             confirmButton = {},
             dismissButton = {
                 androidx.compose.material3.TextButton(onClick = { showMenu = false }) {
-                    Text("Annulla")
+                    Text(stringResource(R.string.common_cancel))
                 }
             },
         )
@@ -538,17 +553,16 @@ private fun ChoicesZone(state: AdventureState) {
 @Composable
 private fun EngineOfflinePrompt(onStartNow: () -> Unit, onSkip: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Il motore non è ancora attivo.", fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.adventure_engine_idle), fontWeight = FontWeight.Bold)
         Text(
-            "Puoi avviarlo ora (può richiedere una ventina di secondi) oppure continuare " +
-                "a leggere il testo originale del libro.",
+            stringResource(R.string.adventure_engine_idle_text),
             style = MaterialTheme.typography.bodyMedium,
         )
         Button(onClick = onStartNow, modifier = Modifier.fillMaxWidth()) {
-            Text("Avvia il motore")
+            Text(stringResource(R.string.adventure_engine_start))
         }
         OutlinedButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
-            Text("Continua senza motore")
+            Text(stringResource(R.string.adventure_engine_skip))
         }
     }
 }
@@ -561,9 +575,9 @@ private fun DiceZone(state: AdventureState) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         val roll = state.lastChoiceRoll
         if (roll == null) {
-            Text("Il destino decide: tira il Dado.", fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.dice_prompt), fontWeight = FontWeight.Bold)
             Button(onClick = { state.rollForChoice() }, modifier = Modifier.fillMaxWidth()) {
-                Text("Tira il Dado del Destino")
+                Text(stringResource(R.string.dice_roll))
             }
         } else {
             // Col modificatore di scena (01/08/2026, Scene.rollModifiers)
@@ -575,16 +589,22 @@ private fun DiceZone(state: AdventureState) {
             val modificatore = state.rollModifier
             Text(
                 if (modificatore == 0) {
-                    "Hai tirato: $roll"
+                    stringResource(R.string.dice_result, roll)
                 } else {
                     val segno = if (modificatore > 0) "+" else "−"
-                    "Hai tirato: $roll  $segno${abs(modificatore)} = ${roll + modificatore}"
+                    stringResource(
+                        R.string.dice_result_modified,
+                        roll,
+                        segno,
+                        abs(modificatore),
+                        roll + modificatore,
+                    )
                 },
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
             Button(onClick = { state.resolveRolledChoice() }, modifier = Modifier.fillMaxWidth()) {
-                Text("Continua")
+                Text(stringResource(R.string.adventure_continue))
             }
         }
     }
@@ -609,7 +629,7 @@ private fun EndingZone(
         )
         if (state.adventureDeleted) {
             Text(
-                "Morte in IRON: la sessione è stata cancellata.",
+                stringResource(R.string.adventure_iron_death),
                 color = MaterialTheme.colorScheme.error,
                 fontWeight = FontWeight.Bold,
             )
@@ -619,12 +639,12 @@ private fun EndingZone(
         if (state.isDeathEnding && !state.adventureDeleted) {
             state.placedCheckpoints().forEach { slot ->
                 Button(onClick = { onReloadCheckpoint(slot) }, modifier = Modifier.fillMaxWidth()) {
-                    Text("Ricarica il checkpoint $slot")
+                    Text(stringResource(R.string.adventure_reload_checkpoint, slot))
                 }
             }
         }
         Button(onClick = onExitToHome, modifier = Modifier.fillMaxWidth()) {
-            Text("Torna alla Home")
+            Text(stringResource(R.string.adventure_back_home))
         }
     }
 }

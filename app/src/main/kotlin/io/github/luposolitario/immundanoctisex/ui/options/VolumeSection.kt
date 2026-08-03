@@ -10,9 +10,11 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
 // Quel che serve alla card per disegnarsi (stato sollevato, come TtsUi/
@@ -45,11 +47,25 @@ fun VolumeSection(
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Volumi", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-            VolumeSlider("Voce (TTS)", ui.ttsVolume, onTtsVolumeChange, onTtsVolumeCommit)
-            VolumeSlider("Musica", ui.musicVolume, onMusicVolumeChange, onMusicVolumeCommit)
-            VolumeSlider("Effetti sonori", ui.effectsVolume, onEffectsVolumeChange, onEffectsVolumeCommit)
-            VolumeSlider("Generale", ui.generalVolume, onGeneralVolumeChange, onGeneralVolumeCommit)
+            Text(
+                stringResource(R.string.volume_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            VolumeSlider(stringResource(R.string.volume_tts), ui.ttsVolume, onTtsVolumeChange, onTtsVolumeCommit)
+            VolumeSlider(stringResource(R.string.volume_music), ui.musicVolume, onMusicVolumeChange, onMusicVolumeCommit)
+            VolumeSlider(
+                stringResource(R.string.volume_effects),
+                ui.effectsVolume,
+                onEffectsVolumeChange,
+                onEffectsVolumeCommit,
+            )
+            VolumeSlider(
+                stringResource(R.string.volume_general),
+                ui.generalVolume,
+                onGeneralVolumeChange,
+                onGeneralVolumeCommit,
+            )
         }
     }
 }
@@ -57,7 +73,10 @@ fun VolumeSection(
 @Composable
 private fun VolumeSlider(label: String, value: Float, onChange: (Float) -> Unit, onCommit: () -> Unit) {
     Column {
-        Text("$label — ${(value * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            stringResource(R.string.volume_slider_label, label, (value * 100).toInt()),
+            style = MaterialTheme.typography.bodyMedium,
+        )
         Slider(value = value, onValueChange = onChange, onValueChangeFinished = onCommit, valueRange = 0f..1f)
     }
 }

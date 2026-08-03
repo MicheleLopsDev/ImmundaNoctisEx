@@ -2,7 +2,9 @@ package io.github.luposolitario.immundanoctisex.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
+import io.github.luposolitario.immundanoctisex.R
 
 // Colore del dado a 10 facce (24/07/2026, richiesta Michele: "fai che
 // nelle preferenze si può scegliere il colore del dado" — dopo aver
@@ -12,12 +14,12 @@ import androidx.compose.ui.graphics.Color
 // per opzione — le 5 sfumature delle facce si derivano da questo unico
 // colore base (vedi TenSidedDie.kt). GRAY è il default: un dado neutro,
 // non legato al tema/accento scelto altrove.
-enum class DiceColor(val displayName: String, val base: Color) {
-    GRAY("Grigio (default)", Color(0xFF9E9E9E)),
-    RED("Rosso", Color(0xFFE53935)),
-    GOLD("Oro", Color(0xFFFFC107)),
-    BLUE("Blu", Color(0xFF2196F3)),
-    GREEN("Verde", Color(0xFF4CAF50)),
+enum class DiceColor(@StringRes val labelRes: Int, val base: Color) {
+    GRAY(R.string.dice_gray, Color(0xFF9E9E9E)),
+    RED(R.string.dice_red, Color(0xFFE53935)),
+    GOLD(R.string.dice_gold, Color(0xFFFFC107)),
+    BLUE(R.string.dice_blue, Color(0xFF2196F3)),
+    GREEN(R.string.dice_green, Color(0xFF4CAF50)),
 }
 
 class DiceColorPreferences(context: Context) {

@@ -15,9 +15,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.ReadingFont
 
@@ -36,7 +38,11 @@ fun FontSection(
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Font di lettura", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.font_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
             ReadingFont.entries.forEach { font ->
                 Row(
                     modifier = Modifier
@@ -48,12 +54,12 @@ fun FontSection(
                     RadioButton(selected = font == selected, onClick = { onSelect(font) })
                     Column(modifier = Modifier.padding(start = 4.dp)) {
                         Text(
-                            font.displayName,
+                            stringResource(font.labelRes),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            "Il narratore racconta la storia",
+                            stringResource(R.string.font_sample),
                             fontFamily = font.family,
                             fontWeight = if (bold) FontWeight.Bold else FontWeight.Normal,
                             style = MaterialTheme.typography.bodyLarge,
@@ -68,7 +74,7 @@ fun FontSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text("Grassetto")
+                Text(stringResource(R.string.font_bold))
                 Switch(checked = bold, onCheckedChange = onBoldChange)
             }
         }

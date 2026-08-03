@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -64,7 +65,7 @@ fun HomeScreen(
             containerColor = Color.Transparent,
             topBar = {
                 TopAppBar(
-                    title = { Text("Immunda Noctis Ex", fontWeight = FontWeight.Bold) },
+                    title = { Text(stringResource(R.string.app_name), fontWeight = FontWeight.Bold) },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                     actions = {
                         IconButton(onClick = onLoadBookClick) {
@@ -75,13 +76,13 @@ fun HomeScreen(
                                 // quasi tutto contorno, poco visibile sugli
                                 // sfondi illustrati.
                                 imageVector = Icons.Default.Folder,
-                                contentDescription = "Carica libro",
+                                contentDescription = stringResource(R.string.home_load_book),
                             )
                         }
                         IconButton(onClick = onThemeToggle) {
                             Icon(
                                 imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                                contentDescription = "Cambia tema",
+                                contentDescription = stringResource(R.string.home_toggle_theme),
                             )
                         }
                     },
@@ -111,7 +112,7 @@ fun HomeScreen(
                 // richiesta Michele): più leggibili sopra lo sfondo
                 // illustrato, non più su un semplice colore piatto.
                 Text(
-                    "Libro: $currentBookTitle",
+                    stringResource(R.string.home_current_book, currentBookTitle),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -133,15 +134,27 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround,
                 ) {
-                    MenuTile(iconRes = R.drawable.ic_menu_adventure, label = "Avventura", onClick = onAdventureClick)
-                    MenuTile(iconRes = R.drawable.ic_menu_models, label = "Modelli LLM", onClick = onModelsClick)
+                    MenuTile(
+                        iconRes = R.drawable.ic_menu_adventure,
+                        label = stringResource(R.string.home_tile_adventure),
+                        onClick = onAdventureClick,
+                    )
+                    MenuTile(
+                        iconRes = R.drawable.ic_menu_models,
+                        label = stringResource(R.string.models_title),
+                        onClick = onModelsClick,
+                    )
                 }
                 Spacer(modifier = Modifier.height(32.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center,
                 ) {
-                    MenuTile(iconRes = R.drawable.ic_menu_settings, label = "Impostazioni", onClick = onSettingsClick)
+                    MenuTile(
+                        iconRes = R.drawable.ic_menu_settings,
+                        label = stringResource(R.string.home_tile_settings),
+                        onClick = onSettingsClick,
+                    )
                 }
             }
         }

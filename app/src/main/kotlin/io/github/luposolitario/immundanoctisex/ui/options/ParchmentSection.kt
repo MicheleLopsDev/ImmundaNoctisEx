@@ -13,9 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 
@@ -26,7 +28,11 @@ import io.github.luposolitario.immundanoctisex.util.ParchmentStyle
 fun ParchmentSection(selected: ParchmentStyle, onSelect: (ParchmentStyle) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Stile del Diario di Combattimento", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.parchment_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
             ParchmentStyle.entries.forEach { style ->
                 Row(
                     modifier = Modifier
@@ -36,7 +42,7 @@ fun ParchmentSection(selected: ParchmentStyle, onSelect: (ParchmentStyle) -> Uni
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButton(selected = style == selected, onClick = { onSelect(style) })
-                    Text(style.displayName, modifier = Modifier.padding(start = 4.dp))
+                    Text(stringResource(style.labelRes), modifier = Modifier.padding(start = 4.dp))
                 }
             }
         }

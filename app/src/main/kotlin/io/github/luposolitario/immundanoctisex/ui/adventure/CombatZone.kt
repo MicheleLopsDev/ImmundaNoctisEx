@@ -14,9 +14,11 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.ImageReference
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
@@ -34,7 +36,12 @@ fun CombatEntryZone(state: AdventureState) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         EnemyPortrait(combat.enemyImage)
         Text(
-            "${state.enemyName ?: combat.enemyName} — CS ${combat.enemyCombatSkill}, RES ${combat.enemyEndurance}",
+            stringResource(
+                R.string.combat_enemy_line,
+                state.enemyName ?: combat.enemyName,
+                combat.enemyCombatSkill,
+                combat.enemyEndurance,
+            ),
             fontWeight = FontWeight.Bold,
         )
         state.availableDisciplineChoices.forEach { choice ->
@@ -44,10 +51,10 @@ fun CombatEntryZone(state: AdventureState) {
         }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(onClick = { state.startQuickCombat() }, modifier = Modifier.weight(1f)) {
-                Text("Rapido")
+                Text(stringResource(R.string.combat_quick))
             }
             Button(onClick = { state.startCompleteCombat() }, modifier = Modifier.weight(1f)) {
-                Text("Completo")
+                Text(stringResource(R.string.combat_full))
             }
         }
     }
@@ -123,18 +130,20 @@ private fun TacticalMenu(state: AdventureState, session: CombatSession) {
             enabled = !combat.immuneToMindblast && !session.mindblastActive,
         ) {
             Text(
-                when {
-                    combat.immuneToMindblast -> "MINDBLAST — il nemico è immune"
-                    session.mindblastActive -> "MINDBLAST attivo (+2 CS)"
-                    else -> "Usa MINDBLAST (+2 CS)"
-                },
+                stringResource(
+                    when {
+                        combat.immuneToMindblast -> R.string.combat_mindblast_immune
+                        session.mindblastActive -> R.string.combat_mindblast_active
+                        else -> R.string.combat_mindblast_use
+                    },
+                ),
             )
         }
     }
 
     session.player.inventory.filter { it.combatUsable && it.quantity > 0 }.forEach { item ->
         OutlinedButton(onClick = { state.combatUseItem(item.name) }, modifier = Modifier.fillMaxWidth()) {
-            Text("Usa ${item.name} (${item.effect ?: ""})")
+            Text(stringResource(R.string.combat_use_item, item.name, item.effect ?: ""))
         }
     }
 
@@ -145,8 +154,11 @@ private fun TacticalMenu(state: AdventureState, session: CombatSession) {
             enabled = session.canEvade,
         ) {
             Text(
-                if (session.canEvade) "Fuggi (subisci un ultimo round di danni)"
-                else "Fuga disponibile dopo il round ${combat.evadeAfterRound}",
+                if (session.canEvade) {
+                    stringResource(R.string.combat_evade)
+                } else {
+                    stringResource(R.string.combat_evade_later, combat.evadeAfterRound)
+                },
             )
         }
     }

@@ -2,6 +2,7 @@ package io.github.luposolitario.immundanoctisex.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.StringRes
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import io.github.luposolitario.immundanoctisex.R
@@ -28,11 +29,11 @@ import io.github.luposolitario.immundanoctisex.R
 // variante Display) come default: Michele stesso ha notato che la
 // Display "non è l'ideale per testi lunghi" mentre la normale lo è —
 // qui il font copre il testo di lettura vero, non solo i titoli.
-enum class ReadingFont(val displayName: String, val family: FontFamily) {
-    ALMENDRA("Calligrafico (default) — Almendra", FontFamily(Font(R.font.almendra))),
-    CINZEL("Imperiale — Cinzel Decorative", FontFamily(Font(R.font.cinzel_decorative))),
-    MEDIEVAL_SHARP("Gotico — MedievalSharp", FontFamily(Font(R.font.medieval_sharp))),
-    UNCIAL("Onciale — Uncial Antiqua", FontFamily(Font(R.font.uncial_antiqua))),
+enum class ReadingFont(@StringRes val labelRes: Int, val family: FontFamily) {
+    ALMENDRA(R.string.font_almendra, FontFamily(Font(R.font.almendra))),
+    CINZEL(R.string.font_cinzel, FontFamily(Font(R.font.cinzel_decorative))),
+    MEDIEVAL_SHARP(R.string.font_medieval_sharp, FontFamily(Font(R.font.medieval_sharp))),
+    UNCIAL(R.string.font_uncial, FontFamily(Font(R.font.uncial_antiqua))),
 }
 
 // Grandezza del testo di lettura (richiesta Michele 21/07/2026: un

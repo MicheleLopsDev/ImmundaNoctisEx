@@ -1,100 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- IMPALCATURA del task [MICHELE] (PIANO-SVILUPPO Fase 3): testi italiani
-     di base perché l'app funzioni; la rifinitura dei testi è di Michele.
-     Regola: ID canonici nei dati, QUI i nomi mostrati. -->
+<!-- LINGUA DI RIPIEGO (inglese): Android usa questo file per qualunque
+     lingua senza una cartella values-xx dedicata. L'italiano sta in
+     values-it/strings.xml.
+     Regola: ID canonici nei dati, QUI i nomi mostrati.
+     I termini di gioco (COMBAT SKILL, ENDURANCE, Gold Crowns, Meals,
+     Kai Discipline, i nomi delle armi e degli oggetti) sono quelli
+     CANONICI dei libri Lupo Solitario, verificati sui testi Project Aon
+     in doc/LIBRI/: non vanno "migliorati" traducendoli di nuovo. -->
 <resources>
     <string name="app_name">Immunda Noctis Ex</string>
 
     <!-- Discipline Kai (ID canonici UPPER_SNAKE -> nome + descrizione) -->
-    <string name="discipline_weaponskill">Scherma</string>
-    <string name="discipline_weaponskill_desc">Maestria con un tipo d\'arma: +2 Combattività quando la impugni.</string>
-    <string name="discipline_camouflage">Mimetismo</string>
-    <string name="discipline_camouflage_desc">L\'arte di confonderti con l\'ambiente e sparire alla vista.</string>
-    <string name="discipline_hunting">Caccia</string>
-    <string name="discipline_hunting_desc">Procurarti cibo nelle terre selvagge: non consumi mai Pasti.</string>
-    <string name="discipline_sixth_sense">Sesto Senso</string>
-    <string name="discipline_sixth_sense_desc">Un istinto che ti avverte del pericolo imminente.</string>
-    <string name="discipline_tracking">Orientamento</string>
-    <string name="discipline_tracking_desc">Seguire tracce e scegliere la strada giusta.</string>
-    <string name="discipline_healing">Guarigione</string>
-    <string name="discipline_healing_desc">Recuperi 1 punto Resistenza per ogni scena senza combattimento.</string>
-    <string name="discipline_mindshield">Schermo Psichico</string>
-    <string name="discipline_mindshield_desc">Protegge la tua mente dagli attacchi psichici.</string>
-    <string name="discipline_mindblast">Attacco Psichico</string>
-    <string name="discipline_mindblast_desc">+2 Combattività in combattimento contro nemici non immuni.</string>
-    <string name="discipline_animal_kinship">Affinità Animale</string>
-    <string name="discipline_animal_kinship_desc">Comunicare con gli animali e ottenerne l\'aiuto.</string>
-    <string name="discipline_mind_over_matter">Telecinesi</string>
-    <string name="discipline_mind_over_matter_desc">Spostare piccoli oggetti con la forza della mente.</string>
+    <string name="discipline_weaponskill">Weaponskill</string>
+    <string name="discipline_weaponskill_desc">Mastery of one weapon type: +2 COMBAT SKILL while you wield it.</string>
+    <string name="discipline_camouflage">Camouflage</string>
+    <string name="discipline_camouflage_desc">The art of blending into your surroundings and vanishing from sight.</string>
+    <string name="discipline_hunting">Hunting</string>
+    <string name="discipline_hunting_desc">Finding food in the wild: you never need to consume Meals.</string>
+    <string name="discipline_sixth_sense">Sixth Sense</string>
+    <string name="discipline_sixth_sense_desc">An instinct that warns you of imminent danger.</string>
+    <string name="discipline_tracking">Tracking</string>
+    <string name="discipline_tracking_desc">Following trails and choosing the right path.</string>
+    <string name="discipline_healing">Healing</string>
+    <string name="discipline_healing_desc">You recover 1 ENDURANCE point for every scene without combat.</string>
+    <string name="discipline_mindshield">Mindshield</string>
+    <string name="discipline_mindshield_desc">Protects your mind from psychic attacks.</string>
+    <string name="discipline_mindblast">Mindblast</string>
+    <string name="discipline_mindblast_desc">+2 COMBAT SKILL in combat against enemies that are not immune.</string>
+    <string name="discipline_animal_kinship">Animal Kinship</string>
+    <string name="discipline_animal_kinship_desc">Speaking with animals and winning their help.</string>
+    <string name="discipline_mind_over_matter">Mind Over Matter</string>
+    <string name="discipline_mind_over_matter_desc">Moving small objects with the power of your mind.</string>
 
-    <!-- Gradi Kai (enum KaiRank) -->
-    <string name="kai_rank_novice">Novizio Kai</string>
-    <string name="kai_rank_initiate">Iniziato Kai</string>
-    <string name="kai_rank_disciple">Discepolo Kai</string>
-    <string name="kai_rank_wayfarer">Viandante Kai</string>
-    <string name="kai_rank_warrior">Guerriero Kai</string>
-    <string name="kai_rank_master">Maestro Kai</string>
-    <string name="kai_rank_grand_master">Gran Maestro Kai</string>
-    <string name="kai_rank_supreme_grand_master">Gran Maestro Kai Supremo</string>
+    <!-- Gradi Kai (enum KaiRank). NON sono i ranghi canonici dei libri
+         (Intuite, Doan, Acolyte...): l'enum è nostro, questi sono i suoi
+         nomi mostrati. -->
+    <string name="kai_rank_novice">Kai Novice</string>
+    <string name="kai_rank_initiate">Kai Initiate</string>
+    <string name="kai_rank_disciple">Kai Disciple</string>
+    <string name="kai_rank_wayfarer">Kai Wayfarer</string>
+    <string name="kai_rank_warrior">Kai Warrior</string>
+    <string name="kai_rank_master">Kai Master</string>
+    <string name="kai_rank_grand_master">Kai Grand Master</string>
+    <string name="kai_rank_supreme_grand_master">Supreme Kai Grand Master</string>
 
     <!-- Esito dell'avventura: un finale dichiara SEMPRE com'è andata
-         (richiesta Michele 20/07/2026). Testi impalcati da Claude, la
-         rifinitura è di Michele. -->
-    <string name="ending_victory_title">Vittoria</string>
-    <string name="ending_defeat_title">Il viaggio finisce qui</string>
-    <string name="ending_neutral_title">Avventura conclusa</string>
+         (richiesta Michele 20/07/2026). -->
+    <string name="ending_victory_title">Victory</string>
+    <string name="ending_defeat_title">The journey ends here</string>
+    <string name="ending_neutral_title">Adventure over</string>
     <!-- Testo di riserva per il finale FABBRICATO quando il pacchetto non
          ne ha uno e il narratore non è riuscito a scriverlo. -->
-    <string name="ending_synthetic_fallback">Qui la tua storia si interrompe. Il libro non racconta cosa accadde dopo.</string>
+    <string name="ending_synthetic_fallback">Here your story breaks off. The book does not tell what happened next.</string>
 
     <!-- Zona scelte (24/07/2026, richiesta Michele: menu a comparsa +
          conferma al posto dei bottoni impilati, per non schiacciare il
          testo della scena con tante opzioni). -->
-    <string name="adventure_choose_action">Scegli cosa fare</string>
-    <string name="adventure_continue">Continua</string>
+    <string name="adventure_choose_action">Choose what to do</string>
+    <string name="adventure_continue">Continue</string>
 
-    <!-- Tipi d'arma (enum WeaponType) -->
-    <string name="weapon_dagger">Pugnale</string>
-    <string name="weapon_spear">Lancia</string>
-    <string name="weapon_mace">Mazza</string>
-    <string name="weapon_short_sword">Spada Corta</string>
-    <string name="weapon_warhammer">Martello da Guerra</string>
-    <string name="weapon_sword">Spada</string>
-    <string name="weapon_axe">Ascia</string>
-    <string name="weapon_quarterstaff">Bastone</string>
-    <string name="weapon_broadsword">Spadone</string>
-    <string name="weapon_unarmed">Arti marziali</string>
+    <!-- Tipi d'arma (enum WeaponType): le nove armi canoniche. -->
+    <string name="weapon_dagger">Dagger</string>
+    <string name="weapon_spear">Spear</string>
+    <string name="weapon_mace">Mace</string>
+    <string name="weapon_short_sword">Short Sword</string>
+    <string name="weapon_warhammer">Warhammer</string>
+    <string name="weapon_sword">Sword</string>
+    <string name="weapon_axe">Axe</string>
+    <string name="weapon_quarterstaff">Quarterstaff</string>
+    <string name="weapon_broadsword">Broadsword</string>
+    <string name="weapon_unarmed">Unarmed</string>
 
     <!-- Difficoltà (STATO.md Blocco 2: spiegazione onesta) -->
-    <string name="difficulty_normal">Normale</string>
-    <string name="difficulty_normal_desc">2 checkpoint. Alla morte puoi ricaricare un checkpoint.</string>
-    <string name="difficulty_hard">Difficile</string>
-    <string name="difficulty_hard_desc">1 solo checkpoint. Alla morte puoi ricaricare quel checkpoint.</string>
+    <string name="difficulty_normal">Normal</string>
+    <string name="difficulty_normal_desc">2 checkpoints. On death you can reload a checkpoint.</string>
+    <string name="difficulty_hard">Hard</string>
+    <string name="difficulty_hard_desc">1 checkpoint only. On death you can reload that checkpoint.</string>
     <string name="difficulty_iron">Iron</string>
-    <string name="difficulty_iron_desc">Nessun checkpoint. Se muori la sessione viene CANCELLATA: il libro riparte da capo. Nessuna seconda possibilità.</string>
+    <string name="difficulty_iron_desc">No checkpoints. If you die the session is DELETED: the book starts over. No second chance.</string>
 
     <!-- Setup avventura / Home Avventura -->
-    <string name="setup_title">Nuova avventura</string>
-    <string name="setup_choose_difficulty">Scegli la difficoltà</string>
-    <string name="setup_continue_title">Bentornato!</string>
-    <string name="setup_continue_session">Continua questa avventura</string>
-    <string name="setup_new_adventure">Nuova avventura</string>
-    <string name="setup_last_save">Ultimo salvataggio: %1$s</string>
+    <string name="setup_title">New adventure</string>
+    <string name="setup_choose_difficulty">Choose the difficulty</string>
+    <string name="setup_continue_title">Welcome back!</string>
+    <string name="setup_continue_session">Continue this adventure</string>
+    <string name="setup_new_adventure">New adventure</string>
+    <string name="setup_last_save">Last save: %1$s</string>
 
     <!-- Creazione personaggio -->
-    <string name="creation_title">Crea il tuo Eroe</string>
-    <string name="creation_scroll_to_bottom">Vai in fondo alla pagina</string>
-    <string name="creation_gender">Chi sei?</string>
-    <string name="creation_gender_male">Lupo</string>
-    <string name="creation_gender_female">Lupa</string>
-    <string name="creation_name">Nome (opzionale)</string>
-    <string name="creation_name_default_male">Eroe Solitario</string>
-    <string name="creation_name_default_female">Eroina Solitaria</string>
-    <string name="creation_name_random">Nome a caso</string>
+    <string name="creation_title">Create your Hero</string>
+    <string name="creation_scroll_to_bottom">Go to the bottom of the page</string>
+    <string name="creation_gender">Who are you?</string>
+    <string name="creation_gender_male">Wolf</string>
+    <string name="creation_gender_female">She-Wolf</string>
+    <string name="creation_name">Name (optional)</string>
+    <string name="creation_name_default_male">Lone Hero</string>
+    <string name="creation_name_default_female">Lone Heroine</string>
+    <string name="creation_name_random">Random name</string>
     <!-- Nomi casuali in stile Sommerlund/guerriero Kai (24/07/2026,
          richiesta Michele: "nomi casuali che rispettano il canone") —
          inventati nello stile dei libri, non nomi di personaggi
-         specifici. Usati dal dado accanto al campo Nome. -->
+         specifici. Usati dal dado accanto al campo Nome.
+         Sono nomi propri: NON si traducono, quindi stanno solo qui e
+         values-it li eredita da questo file. -->
     <string-array name="creation_random_names_male">
         <item>Darian</item>
         <item>Kelvar</item>
@@ -139,49 +147,205 @@
         <item>Sela</item>
         <item>Talia</item>
     </string-array>
-    <string name="creation_icon">Icona</string>
-    <string name="hero_icon_wolf">Lupo</string>
-    <string name="hero_icon_falcon">Falco</string>
-    <string name="hero_icon_eagle">Aquila</string>
-    <string name="hero_icon_bear">Orso</string>
-    <string name="hero_icon_fox">Volpe</string>
-    <string name="hero_icon_raven">Corvo</string>
-    <string name="hero_icon_owl">Gufo</string>
-    <string name="hero_icon_lion">Leone</string>
-    <string name="hero_icon_tiger">Tigre</string>
-    <string name="hero_icon_panther">Pantera</string>
-    <string name="hero_icon_lynx">Lince</string>
-    <string name="hero_icon_boar">Cinghiale</string>
-    <string name="hero_icon_stag">Cervo</string>
-    <string name="hero_icon_snake">Serpente</string>
-    <string name="hero_icon_dragon">Drago</string>
-    <string name="creation_stats_title">Statistiche di Combattimento</string>
-    <string name="creation_combat_skill">Combattività: %1$d</string>
-    <string name="creation_endurance">Resistenza: %1$d</string>
-    <string name="creation_gold">Corone d\'oro: %1$d</string>
-    <string name="creation_roll_stats">Tira le Statistiche</string>
-    <string name="creation_reroll_stats">Ritira le Statistiche</string>
-    <string name="creation_disciplines_title">Scegli 5 Discipline Kai (%1$d/5)</string>
-    <string name="creation_weaponskill_title">Specializzazione Scherma</string>
-    <string name="creation_weaponskill_pick">Scegli il tipo d\'arma della tua Scherma:</string>
-    <string name="creation_weaponskill_locked">Disponibile solo se scegli la disciplina Scherma qui sopra.</string>
-    <string name="creation_weaponskill_random">Scegli a caso</string>
-    <string name="creation_equipment_title">Equipaggiamento iniziale</string>
-    <string name="creation_pick_weapon">Scegli un\'arma (o combatti a mani nude):</string>
-    <string name="creation_unarmed">Arti marziali — nessuna arma</string>
-    <string name="creation_pick_special">Scegli UN oggetto speciale:</string>
-    <string name="creation_common_items">In più ricevi: una Pozione Curativa (+4 RES) e due Pasti.</string>
-    <string name="item_map">Mappa</string>
-    <string name="item_map_desc">Rivela la tua posizione nel mondo di gioco.</string>
-    <string name="item_helmet">Elmo</string>
-    <string name="item_helmet_desc">+2 Resistenza finché lo possiedi.</string>
-    <string name="item_chainmail">Gilet di maglia di ferro</string>
-    <string name="item_chainmail_desc">+4 Resistenza finché lo possiedi.</string>
-    <string name="item_shield">Scudo</string>
-    <string name="item_shield_desc">+2 Combattività finché lo possiedi.</string>
-    <string name="creation_start">Inizia l\'Avventura</string>
+    <string name="creation_icon">Icon</string>
+    <string name="hero_icon_wolf">Wolf</string>
+    <string name="hero_icon_falcon">Falcon</string>
+    <string name="hero_icon_eagle">Eagle</string>
+    <string name="hero_icon_bear">Bear</string>
+    <string name="hero_icon_fox">Fox</string>
+    <string name="hero_icon_raven">Raven</string>
+    <string name="hero_icon_owl">Owl</string>
+    <string name="hero_icon_lion">Lion</string>
+    <string name="hero_icon_tiger">Tiger</string>
+    <string name="hero_icon_panther">Panther</string>
+    <string name="hero_icon_lynx">Lynx</string>
+    <string name="hero_icon_boar">Boar</string>
+    <string name="hero_icon_stag">Stag</string>
+    <string name="hero_icon_snake">Snake</string>
+    <string name="hero_icon_dragon">Dragon</string>
+    <string name="creation_stats_title">Combat Statistics</string>
+    <string name="creation_combat_skill">COMBAT SKILL: %1$d</string>
+    <string name="creation_endurance">ENDURANCE: %1$d</string>
+    <string name="creation_gold">Gold Crowns: %1$d</string>
+    <string name="creation_roll_stats">Roll your Statistics</string>
+    <string name="creation_reroll_stats">Roll again</string>
+    <string name="creation_disciplines_title">Choose 5 Kai Disciplines (%1$d/5)</string>
+    <string name="creation_weaponskill_title">Weaponskill specialisation</string>
+    <string name="creation_weaponskill_pick">Choose the weapon type of your Weaponskill:</string>
+    <string name="creation_weaponskill_locked">Available only if you choose the Weaponskill discipline above.</string>
+    <string name="creation_weaponskill_random">Choose at random</string>
+    <string name="creation_equipment_title">Starting equipment</string>
+    <string name="creation_pick_weapon">Choose a weapon (or fight unarmed):</string>
+    <string name="creation_unarmed">Unarmed — no weapon</string>
+    <string name="creation_pick_special">Choose ONE special item:</string>
+    <string name="creation_common_items">You also receive: a Potion of Laumspur (+4 ENDURANCE) and two Meals.</string>
+    <string name="item_map">Map</string>
+    <string name="item_map_desc">Reveals where you are in the world of the game.</string>
+    <string name="item_helmet">Helmet</string>
+    <string name="item_helmet_desc">+2 ENDURANCE while you carry it.</string>
+    <string name="item_chainmail">Chainmail Waistcoat</string>
+    <string name="item_chainmail_desc">+4 ENDURANCE while you carry it.</string>
+    <string name="item_shield">Shield</string>
+    <string name="item_shield_desc">+2 COMBAT SKILL while you carry it.</string>
+    <string name="creation_start">Begin the Adventure</string>
+
+    <!-- Home a riquadri -->
+    <string name="home_load_book">Load book</string>
+    <string name="home_toggle_theme">Switch theme</string>
+    <string name="home_current_book">Book: %1$s</string>
+    <string name="home_tile_adventure">Adventure</string>
+    <string name="home_tile_settings">Settings</string>
+    <!-- Usata sia dalla tile della Home sia dalla card in Opzioni. -->
+    <string name="models_title">LLM models</string>
+
+    <!-- Opzioni -->
+    <string name="options_title">Options</string>
+    <string name="options_manage_models">Manage downloaded models</string>
+    <string name="options_theme_title">Theme</string>
+    <string name="options_theme_system">Follow the system</string>
+    <string name="options_theme_light">Light</string>
+    <string name="options_theme_dark">Dark</string>
+    <string name="options_language_title">Language of the narration</string>
+
+    <!-- Lettura ad alta voce -->
+    <string name="tts_title">Read aloud (TTS)</string>
+    <string name="tts_auto_on">Auto-read on</string>
+    <string name="tts_auto_off">Auto-read off</string>
+    <string name="tts_speed">Speed</string>
+    <string name="tts_pitch">Pitch</string>
+    <string name="tts_voice_male">Male voice</string>
+    <string name="tts_voice_female">Female voice</string>
+    <string name="tts_voice_none">No voice available</string>
+    <string name="tts_voice_auto">Automatic</string>
+    <string name="tts_test_voice">Test the voice</string>
+
+    <!-- Schermata di gioco -->
+    <string name="adventure_export_diary">Export the diary</string>
+    <string name="adventure_exit_title">Back to the menu?</string>
+    <string name="adventure_exit_text">The game is already saved: you can pick it up where you left it.</string>
+    <string name="adventure_exit_confirm">Back to the menu</string>
+    <string name="adventure_read_aloud">Read aloud</string>
+    <string name="adventure_place_checkpoint">Place a checkpoint (%1$d left)</string>
+    <string name="adventure_checkpoint_saved">Checkpoint saved</string>
+    <string name="adventure_narrator_status">State of the narrator</string>
+    <string name="adventure_journal">Diary</string>
+    <string name="adventure_scene">Scene %1$s</string>
+    <string name="adventure_text_size">Change the size of the text (%1$s)</string>
+    <string name="adventure_music_off">Turn the music off</string>
+    <string name="adventure_music_on">Turn the music on</string>
+    <string name="adventure_engine_idle">The engine is not running yet.</string>
+    <string name="adventure_engine_idle_text">You can start it now (it may take some twenty seconds) or carry on reading the original text of the book.</string>
+    <string name="adventure_engine_start">Start the engine</string>
+    <string name="adventure_engine_skip">Carry on without the engine</string>
+    <string name="adventure_iron_death">Death in IRON: the session has been deleted.</string>
+    <string name="adventure_reload_checkpoint">Reload checkpoint %1$d</string>
+    <string name="adventure_back_home">Back to the Home</string>
+
+    <!-- Dado del Destino. Quando un rollModifier è attivo il numero va
+         SPIEGATO, non mostrato e basta. -->
+    <string name="dice_prompt">Fate decides: roll the Die.</string>
+    <string name="dice_roll">Roll the Die of Fate</string>
+    <string name="dice_result">You rolled: %1$d</string>
+    <string name="dice_result_modified">You rolled: %1$d  %2$s%3$d = %4$d</string>
+
+    <!-- Card di stato: i tre valori sempre a schermo. -->
+    <string name="stat_combat_skill">COMBAT SKILL</string>
+    <string name="stat_endurance">ENDURANCE</string>
+    <string name="stat_gold">Gold Crowns</string>
+
+    <!-- Combattimento -->
+    <string name="combat_quick">Quick</string>
+    <string name="combat_full">Full</string>
+    <string name="combat_enemy_line">%1$s — CS %2$d, END %3$d</string>
+    <string name="combat_mindblast_immune">MINDBLAST — the enemy is immune</string>
+    <string name="combat_mindblast_active">MINDBLAST active (+2 CS)</string>
+    <string name="combat_mindblast_use">Use MINDBLAST (+2 CS)</string>
+    <string name="combat_use_item">Use %1$s (%2$s)</string>
+    <string name="combat_evade">Evade (you take one last round of damage)</string>
+    <string name="combat_evade_later">Evasion available after round %1$d</string>
+
+    <!-- Oggetti da raccogliere -->
+    <string name="pickup_title">You can take</string>
+    <string name="pickup_take">Take</string>
+    <string name="pickup_full_weapons">You already carry 2 weapons</string>
+    <string name="pickup_full_backpack">Backpack full</string>
+    <string name="pickup_full_gold">Pouch full</string>
+
+    <!-- Narratore -->
+    <string name="banner_narrator">Narrator</string>
+    <string name="narrator_opening">The narrator opens the book…</string>
+    <string name="narrator_writing">The narrator is writing…</string>
+
+    <!-- Tono della narrazione (enum NarrativeTone) -->
+    <string name="tone_title">Tone of the narration</string>
+    <string name="tone_author">As the author wrote it (default)</string>
+    <string name="tone_dark">Grim</string>
+    <string name="tone_adventurous">Adventurous</string>
+    <string name="tone_mysterious">Mysterious</string>
+    <string name="tone_heroic">Heroic</string>
+    <string name="tone_light">Light</string>
+    <string name="tone_gritty">Harsh and raw</string>
+    <string name="tone_erotic">Erotic</string>
+    <string name="tone_brutal">Brutal</string>
+
+    <!-- Colore d'accento (enum AccentColor) -->
+    <string name="accent_title">Accent colour</string>
+    <string name="accent_blue">Blue (default)</string>
+    <string name="accent_gold">Gold</string>
+    <string name="accent_green">Green</string>
+    <string name="accent_coral">Coral</string>
+    <string name="accent_teal">Teal</string>
+
+    <!-- Colore del dado (enum DiceColor) -->
+    <string name="dice_title">Colour of the die</string>
+    <string name="dice_gray">Grey (default)</string>
+    <string name="dice_red">Red</string>
+    <string name="dice_gold">Gold</string>
+    <string name="dice_blue">Blue</string>
+    <string name="dice_green">Green</string>
+
+    <!-- Sfondo della card di stato (enum StatusCardColor) -->
+    <string name="status_card_title">Background of the status card</string>
+    <string name="status_card_default">As the theme (default)</string>
+    <string name="status_card_lavender">Lavender</string>
+    <string name="status_card_sky">Sky</string>
+    <string name="status_card_mint">Mint</string>
+    <string name="status_card_amber">Amber</string>
+    <string name="status_card_rose">Rose</string>
+
+    <!-- Stile pergamena (enum ParchmentStyle) -->
+    <string name="parchment_title">Style of the Combat Diary</string>
+    <string name="parchment_off">Off (default)</string>
+    <string name="parchment_auto">Automatic (follows the theme)</string>
+    <string name="parchment_light">Light parchment</string>
+    <string name="parchment_dark">Dark parchment</string>
+
+    <!-- Font di lettura (enum ReadingFont). Il nome del font dopo il
+         trattino è un nome proprio e resta uguale in ogni lingua. -->
+    <string name="font_title">Reading font</string>
+    <string name="font_bold">Bold</string>
+    <string name="font_sample">The narrator tells the story</string>
+    <string name="font_almendra">Calligraphic (default) — Almendra</string>
+    <string name="font_cinzel">Imperial — Cinzel Decorative</string>
+    <string name="font_medieval_sharp">Gothic — MedievalSharp</string>
+    <string name="font_uncial">Uncial — Uncial Antiqua</string>
+
+    <!-- Musica di sottofondo. I nomi dei brani (BundledMusicCatalog) sono
+         titoli: restano nel codice e non si traducono. -->
+    <string name="music_title">Background music</string>
+    <string name="music_on">Music on</string>
+    <string name="music_off">Music off</string>
+
+    <!-- Volumi -->
+    <string name="volume_title">Volumes</string>
+    <string name="volume_tts">Voice (TTS)</string>
+    <string name="volume_music">Music</string>
+    <string name="volume_effects">Sound effects</string>
+    <string name="volume_general">Overall</string>
+    <string name="volume_slider_label">%1$s — %2$d%%</string>
 
     <!-- Comuni -->
-    <string name="common_back">Indietro</string>
-    <string name="common_confirm">Conferma</string>
+    <string name="common_back">Back</string>
+    <string name="common_confirm">Confirm</string>
+    <string name="common_cancel">Cancel</string>
 </resources>

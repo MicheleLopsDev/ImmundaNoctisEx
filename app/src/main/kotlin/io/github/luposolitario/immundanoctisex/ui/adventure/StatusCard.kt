@@ -128,14 +128,14 @@ private fun VitalsRow(hero: Character) {
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_sword),
-            contentDescription = "Combattività",
+            contentDescription = stringResource(R.string.stat_combat_skill),
             modifier = Modifier.size(16.dp),
         )
         Text("${effectiveCombatSkill(hero)}", style = MaterialTheme.typography.bodyMedium)
 
         Icon(
             imageVector = Icons.Default.Favorite,
-            contentDescription = "Resistenza",
+            contentDescription = stringResource(R.string.stat_endurance),
             tint = MaterialTheme.colorScheme.error,
             modifier = Modifier.size(16.dp),
         )
@@ -146,7 +146,7 @@ private fun VitalsRow(hero: Character) {
 
         Image(
             painter = painterResource(id = R.drawable.ic_gold),
-            contentDescription = "Corone",
+            contentDescription = stringResource(R.string.stat_gold),
             modifier = Modifier.size(16.dp),
         )
         Text(

@@ -24,9 +24,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
 // L'attesa RACCONTATA al posto della scritta ferma (UI.md §Flusso
@@ -44,11 +46,9 @@ import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 fun NarratorThinking(loadingModel: Boolean, modifier: Modifier = Modifier) {
     Column(modifier = modifier.padding(16.dp)) {
         Text(
-            text = if (loadingModel) {
-                "Il narratore apre il libro…"
-            } else {
-                "Il narratore scrive…"
-            },
+            text = stringResource(
+                if (loadingModel) R.string.narrator_opening else R.string.narrator_writing,
+            ),
             style = MaterialTheme.typography.bodyLarge,
             fontStyle = FontStyle.Italic,
             color = MaterialTheme.colorScheme.onSurfaceVariant,

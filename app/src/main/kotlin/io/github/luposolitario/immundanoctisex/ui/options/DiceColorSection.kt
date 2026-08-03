@@ -10,9 +10,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.DiceColor
 
@@ -24,12 +26,16 @@ import io.github.luposolitario.immundanoctisex.util.DiceColor
 fun DiceColorSection(selected: DiceColor, onSelect: (DiceColor) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Colore del dado", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.dice_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 DiceColor.entries.forEach { dice ->
                     ColorSwatch(
                         color = dice.base,
-                        name = dice.displayName,
+                        name = stringResource(dice.labelRes),
                         isSelected = dice == selected,
                         onClick = { onSelect(dice) },
                     )

@@ -12,9 +12,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 import io.github.luposolitario.immundanoctisex.util.NarrativeTone
 
@@ -26,7 +28,11 @@ import io.github.luposolitario.immundanoctisex.util.NarrativeTone
 fun ToneSection(selected: NarrativeTone, onSelect: (NarrativeTone) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Text("Tono della narrazione", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.tone_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
             NarrativeTone.entries.forEach { tone ->
                 Row(
                     modifier = Modifier
@@ -36,7 +42,7 @@ fun ToneSection(selected: NarrativeTone, onSelect: (NarrativeTone) -> Unit) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     RadioButton(selected = tone == selected, onClick = { onSelect(tone) })
-                    Text(tone.displayName, modifier = Modifier.padding(start = 4.dp))
+                    Text(stringResource(tone.labelRes), modifier = Modifier.padding(start = 4.dp))
                 }
             }
         }

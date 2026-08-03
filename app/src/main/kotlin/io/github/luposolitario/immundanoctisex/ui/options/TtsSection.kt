@@ -28,9 +28,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.ui.theme.ImmundaNoctisTheme
 
 // Quel che serve alla card per disegnarsi (stato sollevato, come
@@ -69,19 +71,23 @@ fun TtsSection(
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Lettura ad alta voce (TTS)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.tts_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(if (ui.autoReadEnabled) "Auto-lettura attiva" else "Auto-lettura spenta")
+                Text(stringResource(if (ui.autoReadEnabled) R.string.tts_auto_on else R.string.tts_auto_off))
                 Switch(checked = ui.autoReadEnabled, onCheckedChange = onAutoReadChange)
             }
 
             Column {
-                Text("Velocità", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.tts_speed), style = MaterialTheme.typography.bodyMedium)
                 Slider(
                     value = ui.speechRate,
                     onValueChange = onSpeechRateChange,
@@ -91,7 +97,7 @@ fun TtsSection(
             }
 
             Column {
-                Text("Tono (pitch)", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.tts_pitch), style = MaterialTheme.typography.bodyMedium)
                 Slider(
                     value = ui.pitch,
                     onValueChange = onPitchChange,
@@ -101,9 +107,21 @@ fun TtsSection(
             }
 
             HorizontalDivider()
-            VoicePicker("Voce maschile", ui.maleVoices, ui.selectedMaleVoice, onMaleVoiceSelect, onTestMaleVoice)
+            VoicePicker(
+                stringResource(R.string.tts_voice_male),
+                ui.maleVoices,
+                ui.selectedMaleVoice,
+                onMaleVoiceSelect,
+                onTestMaleVoice,
+            )
             Spacer(Modifier.height(4.dp))
-            VoicePicker("Voce femminile", ui.femaleVoices, ui.selectedFemaleVoice, onFemaleVoiceSelect, onTestFemaleVoice)
+            VoicePicker(
+                stringResource(R.string.tts_voice_female),
+                ui.femaleVoices,
+                ui.selectedFemaleVoice,
+                onFemaleVoiceSelect,
+                onTestFemaleVoice,
+            )
         }
     }
 }
@@ -125,17 +143,27 @@ private fun VoicePicker(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box {
                 TextButton(onClick = { expanded = voices.isNotEmpty() }) {
-                    Text(selected ?: if (voices.isEmpty()) "Nessuna voce disponibile" else "Automatica")
+                    Text(
+                        selected ?: stringResource(
+                            if (voices.isEmpty()) R.string.tts_voice_none else R.string.tts_voice_auto,
+                        ),
+                    )
                 }
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    DropdownMenuItem(text = { Text("Automatica") }, onClick = { onSelect(null); expanded = false })
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.tts_voice_auto)) },
+                        onClick = { onSelect(null); expanded = false },
+                    )
                     voices.forEach { voice ->
                         DropdownMenuItem(text = { Text(voice) }, onClick = { onSelect(voice); expanded = false })
                     }
                 }
             }
             IconButton(onClick = onTest) {
-                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = "Prova voce")
+                Icon(
+                    imageVector = Icons.Default.PlayArrow,
+                    contentDescription = stringResource(R.string.tts_test_voice),
+                )
             }
         }
     }

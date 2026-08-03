@@ -2,6 +2,7 @@ package io.github.luposolitario.immundanoctisex.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
 import io.github.luposolitario.immundanoctisex.R
 
@@ -26,7 +27,7 @@ import io.github.luposolitario.immundanoctisex.R
 // del tutto lo sfondo dal Diario di Combattimento ("nessuna pergamena e
 // basta").
 enum class ParchmentStyle(
-    val displayName: String,
+    @StringRes val labelRes: Int,
     // Immagine intera (bordo strappato + scudi): usata come cornice
     // decorativa GRANDE, non allineata pixel-per-pixel al testo (24/07,
     // schizzo di Michele dopo aver bocciato la pila a tre fasce — vedi
@@ -34,10 +35,10 @@ enum class ParchmentStyle(
     val fullRes: Int?,
     val middleRes: Int?,
 ) {
-    OFF("Disattivata (default)", null, null),
-    AUTO("Automatica (segue il tema)", null, null),
-    LIGHT("Pergamena chiara", R.drawable.parchment_panel, R.drawable.parchment_panel_middle),
-    DARK("Pergamena scura", R.drawable.parchment_panel_dark, R.drawable.parchment_panel_dark_middle),
+    OFF(R.string.parchment_off, null, null),
+    AUTO(R.string.parchment_auto, null, null),
+    LIGHT(R.string.parchment_light, R.drawable.parchment_panel, R.drawable.parchment_panel_middle),
+    DARK(R.string.parchment_dark, R.drawable.parchment_panel_dark, R.drawable.parchment_panel_dark_middle),
     ;
 
     companion object {

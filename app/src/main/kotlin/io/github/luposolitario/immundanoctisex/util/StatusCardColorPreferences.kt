@@ -2,7 +2,9 @@ package io.github.luposolitario.immundanoctisex.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.annotation.StringRes
 import androidx.compose.ui.graphics.Color
+import io.github.luposolitario.immundanoctisex.R
 
 // Sfondo della card di stato (UI.md §Card di stato — richiesta Michele
 // 21/07/2026, dopo il colore d'accento: "un altro picker per la barra
@@ -14,13 +16,13 @@ import androidx.compose.ui.graphics.Color
 // scuro, quindi il testo/le icone che ereditano il colore di contenuto
 // devono restare leggibili a prescindere dal tema attivo, non solo
 // "quello che viene" da Material.
-enum class StatusCardColor(val displayName: String, val background: Color?, val content: Color?) {
-    DEFAULT("Come il tema (default)", null, null),
-    LAVENDER("Lavanda", Color(0xFFE8DEF8), Color(0xFF1D192B)),
-    SKY("Azzurro", Color(0xFFD8E4F5), Color(0xFF16223A)),
-    MINT("Menta", Color(0xFFD9F2E3), Color(0xFF0F3324)),
-    AMBER("Ambra", Color(0xFFFCE8C7), Color(0xFF3E2E00)),
-    ROSE("Rosa", Color(0xFFF9DDE3), Color(0xFF3E1622)),
+enum class StatusCardColor(@StringRes val labelRes: Int, val background: Color?, val content: Color?) {
+    DEFAULT(R.string.status_card_default, null, null),
+    LAVENDER(R.string.status_card_lavender, Color(0xFFE8DEF8), Color(0xFF1D192B)),
+    SKY(R.string.status_card_sky, Color(0xFFD8E4F5), Color(0xFF16223A)),
+    MINT(R.string.status_card_mint, Color(0xFFD9F2E3), Color(0xFF0F3324)),
+    AMBER(R.string.status_card_amber, Color(0xFFFCE8C7), Color(0xFF3E2E00)),
+    ROSE(R.string.status_card_rose, Color(0xFFF9DDE3), Color(0xFF3E1622)),
 }
 
 // Default non più "come il tema" alla lettera (24/07/2026, richiesta
