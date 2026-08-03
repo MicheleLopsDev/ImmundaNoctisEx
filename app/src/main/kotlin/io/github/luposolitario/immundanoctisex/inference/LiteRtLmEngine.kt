@@ -50,6 +50,17 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
     private var chiusureFallite = 0
     private var generazioni = 0
 
+    // Contatori dei CICLI DI MOTORE (03/08/2026). Il log del 03/08
+    // mostrava la memoria nativa ferma per cinque generazioni e poi su di
+    // ~80 MB di colpo, due volte: un salto così non somiglia a un
+    // accumulo per generazione, somiglia a un caricamento. Ma quel log
+    // era filtrato su due soli tag e non conteneva `AppContainer`, quindi
+    // non poteva né confermarlo né smentirlo. Ora il motore conta da sé
+    // quante volte è stato creato e chiuso, e la riga MISURA lo dice.
+    private var motoriCreati = 0
+    private var motoriChiusi = 0
+    private var chiusureMotoreFallite = 0
+
     private val _tokenInfo = MutableStateFlow(TokenInfo())
     override val tokenInfo: StateFlow<TokenInfo> = _tokenInfo.asStateFlow()
 
@@ -90,8 +101,13 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                 outcome.onSuccess { created ->
                     engine = created
                     activeBackend = name
+                    motoriCreati++
                     _tokenInfo.value = TokenInfo(used = 0, maxTokens = config.maxTokens)
-                    Log.i(TAG, "Modello caricato su $name")
+                    Log.i(
+                        TAG,
+                        "Modello caricato su $name (motore #$motoriCreati) " +
+                            "nativa=${nativeHeapMb()}MB pss=${pssTotaleMb()}MB",
+                    )
                     return@withContext Result.success(Unit)
                 }.onFailure { error ->
                     Log.w(TAG, "Backend $name non disponibile: ${error.message}")
@@ -197,7 +213,11 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                 "velocita~${"%.1f".format(tokensPerSecond)} token/s (stima) " +
                 "conversazioni: create=$conversazioniCreate chiuse=$conversazioniChiuse " +
                 "vive=$vive chiusureFallite=$chiusureFallite " +
-                "heap=${usedHeapMb()}MB nativa=${nativeHeapMb()}MB " +
+                // Se la memoria sale di scatto e `motori` sale con lei, il
+                // colpevole è il ciclo di caricamento, non le generazioni.
+                "motori: creati=$motoriCreati chiusi=$motoriChiusi " +
+                "vivi=${motoriCreati - motoriChiusi} falliti=$chiusureMotoreFallite " +
+                "heap=${usedHeapMb()}MB nativa=${nativeHeapMb()}MB pss=${pssTotaleMb()}MB " +
                 "batteria=${batteryPercent()}% temp=${"%.1f".format(batteryTempCelsius())}°C",
         )
     }
@@ -231,9 +251,35 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
         _tokenInfo.value = TokenInfo(used = 0, maxTokens = config.maxTokens)
     }
 
+    // Stesso trattamento dato a `newSession()` il 20/07/2026, che qui non
+    // era mai arrivato: l'esito di close() veniva SCARTATO. Se la
+    // chiusura del motore falliva — ed è il motore, non una conversazione:
+    // sono i megabyte del modello — non lo sapeva nessuno, e il posto in
+    // cui il leak si vedrebbe è esattamente questo.
     private fun unloadInternal() {
-        runCatching { conversation?.close() }
-        runCatching { engine?.close() }
+        conversation?.let { vecchia ->
+            runCatching { vecchia.close() }
+                .onSuccess { conversazioniChiuse++ }
+                .onFailure { errore ->
+                    chiusureFallite++
+                    Log.e(TAG, "CHIUSURA CONVERSAZIONE FALLITA (#$chiusureFallite): ${errore.message}", errore)
+                }
+        }
+        engine?.let { vecchio ->
+            val primaMb = nativeHeapMb()
+            runCatching { vecchio.close() }
+                .onSuccess {
+                    motoriChiusi++
+                    // Il prima/dopo attorno alla close: se il motore si
+                    // chiude "bene" ma la nativa non scende, il leak è
+                    // dentro la libreria e si vede qui in una riga sola.
+                    Log.i(TAG, "Motore chiuso (#$motoriChiusi): nativa ${primaMb}MB -> ${nativeHeapMb()}MB")
+                }
+                .onFailure { errore ->
+                    chiusureMotoreFallite++
+                    Log.e(TAG, "CHIUSURA MOTORE FALLITA (#$chiusureMotoreFallite): ${errore.message}", errore)
+                }
+        }
         conversation = null
         engine = null
         activeBackend = "—"
@@ -253,6 +299,15 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
 
     private fun nativeHeapMb(): Long =
         android.os.Debug.getNativeHeapAllocatedSize() / (1024 * 1024)
+
+    // Il PSS accanto alla nativa (03/08/2026). `getNativeHeapAllocatedSize`
+    // conta SOLO l'heap nativo preso con malloc: quello che il driver
+    // grafico mappa per la GPU — e il modello gira su GPU — può non
+    // comparirci affatto. Se per settimane si è guardato quel numero, si
+    // è potuta guardare la metà sbagliata del problema. Il PSS totale
+    // comprende tutto quello che il processo occupa davvero.
+    private fun pssTotaleMb(): Long =
+        android.os.Debug.MemoryInfo().also { android.os.Debug.getMemoryInfo(it) }.totalPss / 1024L
 
     // STIMA, non conteggio: la libreria non espone un tokenizer pubblico.
     // Serve solo al semaforo (verde/giallo/rosso), che è un'indicazione

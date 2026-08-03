@@ -7,6 +7,55 @@
 
 ---
 
+## 03/08/2026 — il leak: prima gli strumenti, poi la caccia
+
+Michele riapre la issue #2 (leak di memoria nativa, ~140 MB/partita).
+**Non risolto in questa sessione**: quello che è stato fatto è togliere
+tre punti ciechi, perché con gli strumenti di oggi il leak non era
+individuabile — e uno dei tre potrebbe averlo nascosto per settimane.
+
+**1. `close()` del MOTORE era silenzioso.** Il 20/07 era stato corretto
+`newSession()`, che scartava l'esito di `conversation.close()`: da
+allora conta e scrive in log se una chiusura fallisce. La stessa
+correzione non era mai arrivata a `unloadInternal()`, dove si chiude
+**il motore** — cioè i megabyte del modello, non quelli di una
+conversazione. Se `engine.close()` falliva, non lo sapeva nessuno. Ora
+conta, scrive, e stampa la memoria **prima e dopo** la close: se il
+motore si chiude "con successo" ma la nativa non scende, il leak è
+dentro la libreria e si legge in una riga.
+
+**2. Si stava forse guardando il numero sbagliato.**
+`Debug.getNativeHeapAllocatedSize()`, l'unico numero riportato finora,
+conta **solo l'heap nativo preso con malloc**. Il modello gira su
+**GPU**: quello che il driver grafico mappa può non comparire lì
+affatto. Aggiunto il **PSS totale** accanto alla nativa — comprende
+tutto ciò che il processo occupa davvero. Se i due numeri divergono, la
+misura su cui si ragionava da luglio era parziale.
+
+**3. Nessuno contava i caricamenti del motore.** Il log del 03/08
+mostrava la memoria nativa ferma per cinque generazioni e poi su di
+~80 MB di colpo, due volte (1011 → 1089 → 1168 MB). Un salto così non
+somiglia a un accumulo per generazione: somiglia a un **caricamento**.
+Ma quel log era filtrato su due soli tag (`SceneNarrator` e
+`LiteRtLmEngine`), non conteneva `AppContainer`, e quindi non poteva né
+confermarlo né smentirlo. Ora la riga MISURA porta
+`motori: creati=… chiusi=… vivi=… falliti=…`: se la memoria sale di
+scatto e `motori` sale con lei, il colpevole è il ciclo di
+caricamento, non le generazioni.
+
+**Quello che il log del 03/08 esclude già** (dati veri, non ipotesi):
+le conversazioni NON sono il colpevole — `vive=1` per tutte e 15 le
+generazioni, `chiusureFallite=0`. E il calo di velocità (18,7 → 12,2
+token/s) avviene a **prompt identico**, con la temperatura salita di
+soli 2 °C: non è il prompt e non basta il termico.
+
+**Prossimo passo, tocca a Michele**: una prova col log preso su
+**tutti** i tag (o almeno aggiungendo `AppContainer`), possibilmente
+entrando e uscendo dall'avventura un paio di volte. Con la riga nuova
+il log dirà da sé quale delle due strade è quella giusta.
+
+---
+
 ## 03/08/2026 — i modificatori al tiro si correggono da una maschera
 
 Quando la feature `rollModifier` è nata (01/08) la maschera nell'editor
