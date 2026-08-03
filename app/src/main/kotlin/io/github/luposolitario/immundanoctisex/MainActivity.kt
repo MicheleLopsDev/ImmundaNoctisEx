@@ -100,4 +100,4 @@ class MainActivity : ComponentActivity() {
 // questa riga va toccata ad ogni modifica di codice, così Michele legge
 // "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
 // ricompilato l'ultima versione o una vecchia.
-private const val BUILD_MARKER = "2026-08-03-07 diagnostica del leak: cicli motore, PSS, close() non piu' silenzioso"
+private const val BUILD_MARKER = "2026-08-03-08 tampone al leak: il motore si ricarica dopo 300MB accumulati"

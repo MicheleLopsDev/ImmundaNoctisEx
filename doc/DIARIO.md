@@ -7,6 +7,77 @@
 
 ---
 
+## 03/08/2026 — il leak, misurato davvero e tamponato
+
+Con gli strumenti nuovi (voce sotto) Michele fa tre partite complete:
+**19 generazioni consecutive**, una sola esecuzione dell'app. Il log
+adesso risponde.
+
+**Cosa NON è** (escluso dai dati, non per ipotesi):
+- **Non sono le conversazioni**: `vive=1` e zero chiusure fallite per
+  tutte e 19.
+- **Non sono le ricariche del motore**: `motori: creati=1 chiusi=0` per
+  tutte e 19, tre partite comprese — cambiare partita non ricarica il
+  modello. L'ipotesi degli "scatti da caricamento" nata dal log del
+  mattino è **smentita**.
+- **Non è il termico da solo**: la velocità crolla da 19,7 a ~12 già
+  alla terza generazione, a 32 °C, e poi resta lì mentre la temperatura
+  arriva appena a 35.
+
+**Il PSS oscilla, non cresce**: 1565 → 1632 → 1533 → 1588 su 19 punti,
+una banda di ~100 MB senza deriva; alla generazione 19 è più basso che
+alla 5. La lettura fatta poche ore prima sui primi **cinque** punti
+("il PSS cresce di ~20 MB a generazione") era prematura, ed è stata
+corretta appena arrivati i dati lunghi. Il PSS resta comunque utile:
+**esclude** che a crescere sia la memoria mappata dal driver grafico.
+
+**Il leak è nella memoria NATIVA, dove lo si cercava a luglio**:
+999 → 1003 → 1020 → 1037 → 1069 → 1075 → 1134 → 1122 MB, cioè
+**+123 MB in 17 generazioni, ~7 MB a scena**, a gradini che non tornano
+mai indietro. Con una ventina di scene per partita fa esattamente i
+~140 MB/partita annotati a luglio: **quella misura era giusta**.
+
+Resta una sola spiegazione compatibile con tutto: quello che
+`createConversation` alloca, `Conversation.close()` di
+**`litertlm 0.14.0`** non lo libera del tutto. È dentro la libreria.
+
+### Il tampone (richiesto da Michele)
+
+> "il libro gioca parecchie scene e a meno di non usare trucchi come
+> dividere le partite in capitoli dobbiamo mettere un tampone,
+> altrimenti su le macchine con meno memoria potrebbe fare crash"
+
+`LiteRtLmEngine` ora si ricarica da sé quando ha accumulato più di
+**300 MB** oltre il livello dell'ultimo caricamento: col leak misurato
+fa **una ricarica ogni ~40 scene**, costa il tempo di un caricamento
+(~15-20 s) e riporta la memoria al punto di partenza. Il recupero
+avviene dentro `newSession()`, cioè **fra una scena e l'altra**, mai
+durante una generazione.
+
+Due scelte volute:
+- **La soglia è sul consumo accumulato, non su un numero di scene**: se
+  una versione futura della libreria smette di perdere memoria, il
+  tampone non scatta più da solo — non serve ricordarsi di toglierlo.
+- **Se la ricarica fallisce non si tocca il motore che c'era**: meglio
+  un'app che consuma troppo di un'app senza narratore (il gioco non si
+  blocca mai). Si riprova alla scena dopo.
+
+La riga MISURA porta ora `recuperi=` e `accumulati=`: se `accumulati`
+resta vicino a zero, il leak è sparito e il tampone è inutile.
+
+**Limite noto, non risolto**: durante la ricarica il giocatore aspetta
+~20 s vedendo "Il narratore scrive…" invece di "Il narratore apre il
+libro…". Per distinguerli servirebbe esporre lo stato dal motore, cioè
+allargare l'interfaccia `InferenceEngine` per tutti i motori — contro
+il vincolo delle quattro interfacce motivate. Rifinitura a parte, se
+darà fastidio all'uso.
+
+**Cura vera, da provare**: esiste **`litertlm 0.15.0`** (Google Maven,
+pubblicata il 01/08/2026). Non aggiornata in questa sessione: cambia il
+motore su cui gira tutto e va provata sul device, non a scatola chiusa.
+
+---
+
 ## 03/08/2026 — il leak: prima gli strumenti, poi la caccia
 
 Michele riapre la issue #2 (leak di memoria nativa, ~140 MB/partita).

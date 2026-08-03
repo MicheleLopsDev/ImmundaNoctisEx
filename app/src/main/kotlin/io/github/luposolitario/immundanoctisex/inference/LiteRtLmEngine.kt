@@ -61,6 +61,30 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
     private var motoriChiusi = 0
     private var chiusureMotoreFallite = 0
 
+    // TAMPONE al leak della libreria (03/08/2026). Misurato su 19 scene
+    // consecutive con `litertlm 0.14.0`: la memoria nativa sale di ~7 MB
+    // per scena e non torna mai giù, mentre le conversazioni si chiudono
+    // tutte (`vive=1`, zero fallimenti) e il motore non viene mai
+    // ricaricato. Quello che `createConversation` alloca, `close()` non
+    // lo libera del tutto: è dentro la libreria, non nel nostro codice.
+    //
+    // Un libro ha molte più di 19 scene (Michele: "a meno di dividere le
+    // partite in capitoli"), e su un telefono con meno RAM del Razr
+    // l'accumulo arriverebbe a far chiudere l'app dal sistema. Finché la
+    // libreria non lo corregge, il motore si ricarica da sé quando ha
+    // accumulato troppo: costa il tempo di un caricamento (~15-20 s) una
+    // volta ogni ~40 scene, e riporta la memoria al punto di partenza.
+    //
+    // La soglia è sul CONSUMO ACCUMULATO, non su un numero di scene: se
+    // una versione futura della libreria smette di perdere memoria,
+    // questo tampone non scatta più da solo, senza doverlo togliere.
+    private var nativaDopoCaricamentoMb = 0L
+    private var ricaricheDiRecupero = 0
+
+    // Il file del modello in uso, per poterlo ricaricare senza chiedere
+    // niente a chi ci sta sopra.
+    private var modelFileCorrente: File? = null
+
     private val _tokenInfo = MutableStateFlow(TokenInfo())
     override val tokenInfo: StateFlow<TokenInfo> = _tokenInfo.asStateFlow()
 
@@ -74,6 +98,7 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                 )
             }
             this@LiteRtLmEngine.config = config
+            modelFileCorrente = modelFile
             unloadInternal()
 
             // Prima la GPU, poi la CPU: se il device non ha OpenCL
@@ -102,6 +127,8 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                     engine = created
                     activeBackend = name
                     motoriCreati++
+                    // Il punto di partenza da cui si misura l'accumulo.
+                    nativaDopoCaricamentoMb = nativeHeapMb()
                     _tokenInfo.value = TokenInfo(used = 0, maxTokens = config.maxTokens)
                     Log.i(
                         TAG,
@@ -126,6 +153,9 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
     // chiusura falliva, le conversazioni (e la loro KV cache sulla GPU) si
     // sarebbero sommate in silenzio. Ora si conta e si dice.
     override suspend fun newSession() = withContext(Dispatchers.IO) {
+        // Il recupero va fatto QUI, fra una scena e l'altra: mai durante
+        // una generazione, che si troverebbe il motore chiuso sotto.
+        ricaricaSeHaAccumulatoTroppo()
         val active = engine ?: return@withContext
         conversation?.let { vecchia ->
             runCatching { vecchia.close() }
@@ -149,6 +179,34 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
             .onFailure { Log.e(TAG, "Creazione conversazione fallita: ${it.message}") }
             .getOrNull()
         _tokenInfo.value = TokenInfo(used = 0, maxTokens = config.maxTokens)
+    }
+
+    // Ricarica il motore quando la memoria accumulata dall'ultimo
+    // caricamento supera la soglia. Se qualcosa va storto NON si tocca il
+    // motore che c'è: meglio un'app che consuma troppo di un'app che
+    // resta senza narratore (il gioco non si blocca mai, vincolo di
+    // PIANO-SVILUPPO).
+    private suspend fun ricaricaSeHaAccumulatoTroppo() {
+        val file = modelFileCorrente ?: return
+        if (engine == null) return
+        val accumulato = nativeHeapMb() - nativaDopoCaricamentoMb
+        if (accumulato < SOGLIA_RECUPERO_MB) return
+
+        val primaMb = nativeHeapMb()
+        Log.i(TAG, "RECUPERO MEMORIA: accumulati ${accumulato}MB dall'ultimo caricamento, ricarico il motore")
+        val esito = load(file, config)
+        if (esito.isSuccess) {
+            ricaricheDiRecupero++
+            Log.i(
+                TAG,
+                "RECUPERO MEMORIA riuscito (#$ricaricheDiRecupero): nativa ${primaMb}MB -> ${nativeHeapMb()}MB",
+            )
+        } else {
+            // load() ha già fatto unloadInternal(): senza motore il
+            // narratore tace e il gioco degrada sul testo originale,
+            // invece di crollare. Si riproverà alla scena dopo.
+            Log.e(TAG, "RECUPERO MEMORIA fallito: ${esito.exceptionOrNull()?.message}")
+        }
     }
 
     override fun generate(prompt: String): Flow<String> = flow {
@@ -217,6 +275,10 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
                 // colpevole è il ciclo di caricamento, non le generazioni.
                 "motori: creati=$motoriCreati chiusi=$motoriChiusi " +
                 "vivi=${motoriCreati - motoriChiusi} falliti=$chiusureMotoreFallite " +
+                // `accumulati` è quanto è cresciuta la nativa dall'ultimo
+                // caricamento: se resta vicina a zero il leak è sparito e
+                // il tampone non serve più.
+                "recuperi=$ricaricheDiRecupero accumulati=${nativeHeapMb() - nativaDopoCaricamentoMb}MB " +
                 "heap=${usedHeapMb()}MB nativa=${nativeHeapMb()}MB pss=${pssTotaleMb()}MB " +
                 "batteria=${batteryPercent()}% temp=${"%.1f".format(batteryTempCelsius())}°C",
         )
@@ -316,5 +378,13 @@ class LiteRtLmEngine(private val context: Context) : InferenceEngine {
 
     private companion object {
         const val TAG = "LiteRtLmEngine"
+
+        // 300 MB sopra il livello del caricamento: col leak misurato
+        // (~7 MB a scena) fa una ricarica ogni ~40 scene. Scelto come
+        // compromesso fra il costo dell'attesa (~15-20 s) e il tetto di
+        // memoria: più basso interrompe troppo spesso la lettura, più
+        // alto avvicina il limite dei telefoni con poca RAM, che è il
+        // motivo per cui questo tampone esiste.
+        const val SOGLIA_RECUPERO_MB = 300L
     }
 }
