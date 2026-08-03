@@ -17,6 +17,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import io.github.luposolitario.immundanoctisex.R
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -61,12 +63,12 @@ fun AdvancedSettingsCard(
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
-                "Impostazioni avanzate",
+                stringResource(R.string.advanced_title),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                "Cambiano il comportamento del modello. Hanno effetto dalla prossima scena.",
+                stringResource(R.string.advanced_subtitle),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -84,11 +86,8 @@ fun AdvancedSettingsCard(
             ) {
                 Column(Modifier.weight(1f)) {
                     SettingLabel(
-                        title = "Motore attivo",
-                        explanation = "Spegnilo per giocare sempre col testo originale del libro, " +
-                            "senza traduzione né arricchimento. Resta spento anche chiudendo e " +
-                            "riaprendo l'app, finché non premi \"Attiva\" su un modello o riaccendi " +
-                            "qui.",
+                        title = stringResource(R.string.advanced_engine_on),
+                        explanation = stringResource(R.string.advanced_engine_on_text),
                     )
                 }
                 Switch(checked = settings.engineEnabled, onCheckedChange = onEngineEnabledChange)
@@ -108,12 +107,8 @@ fun AdvancedSettingsCard(
             ) {
                 Column(Modifier.weight(1f)) {
                     SettingLabel(
-                        title = "Modalità Traduzione",
-                        explanation = "Gemma si limita a tradurre il testo del libro con le minime " +
-                            "modifiche possibili, senza arricchirlo. Più leggero da generare. " +
-                            "Disattiva i controlli sotto (usa un preset fisso al loro posto): il " +
-                            "testo cambia dalla prossima scena, i parametri dal prossimo " +
-                            "caricamento del modello.",
+                        title = stringResource(R.string.advanced_translation_mode),
+                        explanation = stringResource(R.string.advanced_translation_mode_text),
                     )
                 }
                 Switch(checked = settings.translationMode, onCheckedChange = onTranslationModeChange)
@@ -124,16 +119,14 @@ fun AdvancedSettingsCard(
 
             Spacer(Modifier.height(12.dp))
             SettingLabel(
-                title = "Token massimi",
-                explanation = "Quanto può essere lungo il contesto di una scena. Valori alti " +
-                    "permettono testi più lunghi ma consumano più memoria e tempo. " +
-                    "Impatto su CPU/memoria: medio.",
+                title = stringResource(R.string.advanced_max_tokens),
+                explanation = stringResource(R.string.advanced_max_tokens_text),
             )
             OutlinedTextField(
                 value = settings.maxTokens,
                 onValueChange = onMaxTokensChange,
                 enabled = !settings.translationMode,
-                label = { Text("Token massimi") },
+                label = { Text(stringResource(R.string.advanced_max_tokens)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
@@ -144,9 +137,8 @@ fun AdvancedSettingsCard(
             Spacer(Modifier.height(12.dp))
 
             SettingLabel(
-                title = "Temperatura (creatività)",
-                explanation = "Valori alti (0.9) rendono la prosa più creativa, valori bassi (0.2) " +
-                    "più fedele e prevedibile. Impatto su CPU/memoria: nullo.",
+                title = stringResource(R.string.advanced_temperature),
+                explanation = stringResource(R.string.advanced_temperature_text),
             )
             Slider(
                 value = settings.temperature,
@@ -159,9 +151,8 @@ fun AdvancedSettingsCard(
 
             Spacer(Modifier.height(12.dp))
             SettingLabel(
-                title = "Top-P (campionamento nucleo)",
-                explanation = "Un valore alto (0.95) considera più parole, uno basso è più " +
-                    "restrittivo. Impatto su CPU/memoria: basso.",
+                title = stringResource(R.string.advanced_top_p),
+                explanation = stringResource(R.string.advanced_top_p_text),
             )
             Slider(
                 value = settings.topP,
@@ -174,15 +165,14 @@ fun AdvancedSettingsCard(
 
             Spacer(Modifier.height(12.dp))
             SettingLabel(
-                title = "Top-K (campionamento vocabolario)",
-                explanation = "Considera solo le K parole più probabili. Alto (50) dà più varietà, " +
-                    "basso (10) è più prudente. Impatto su CPU/memoria: basso.",
+                title = stringResource(R.string.advanced_top_k),
+                explanation = stringResource(R.string.advanced_top_k_text),
             )
             OutlinedTextField(
                 value = settings.topK,
                 onValueChange = onTopKChange,
                 enabled = !settings.translationMode,
-                label = { Text("Top-K") },
+                label = { Text(stringResource(R.string.advanced_top_k)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
@@ -198,11 +188,8 @@ fun AdvancedSettingsCard(
             ) {
                 Column(Modifier.weight(1f)) {
                     SettingLabel(
-                        title = "Il modello sceglie lo sfondo",
-                        explanation = "Quando una scena non ha uno sfondo dichiarato dal libro, " +
-                            "chiedi al modello di suggerirne uno da un elenco chiuso — allunga " +
-                            "il prompt. Spento di default: si usa solo quanto dichiarato dal " +
-                            "libro. Utile per confrontare modelli diversi.",
+                        title = stringResource(R.string.advanced_model_picks_background),
+                        explanation = stringResource(R.string.advanced_model_picks_background_text),
                     )
                 }
                 Switch(checked = settings.askImageInPrompt, onCheckedChange = onAskImageInPromptChange)
@@ -210,7 +197,7 @@ fun AdvancedSettingsCard(
 
             Spacer(Modifier.height(8.dp))
             TextButton(onClick = onReset) {
-                Text("Ripristina i valori consigliati")
+                Text(stringResource(R.string.advanced_reset))
             }
         }
     }

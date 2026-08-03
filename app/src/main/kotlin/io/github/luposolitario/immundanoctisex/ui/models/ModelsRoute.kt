@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import io.github.luposolitario.immundanoctisex.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -106,7 +107,7 @@ fun ModelsRoute(
                 preferences.selectedModelId = model.id
                 downloadedIds = downloadedIds + model.id
             }.onFailure { error ->
-                addModelError = error.message ?: "Importazione non riuscita."
+                addModelError = error.message ?: context.getString(R.string.models_import_failed)
             }
         }
     }
@@ -129,7 +130,7 @@ fun ModelsRoute(
                 downloadedIds = (catalogModels + customModels).filter { preferences.isDownloaded(it) }
                     .map { it.id }.toSet()
             }.onFailure { error ->
-                catalogError = error.message ?: "Importazione del catalogo non riuscita."
+                catalogError = error.message ?: context.getString(R.string.models_catalog_import_failed)
             }
         }
     }
@@ -143,7 +144,7 @@ fun ModelsRoute(
         catalogError = null
         scope.launch {
             exportCatalogToUri(context, uri, preferences.candidateModels).onFailure { error ->
-                catalogError = error.message ?: "Esportazione non riuscita."
+                catalogError = error.message ?: context.getString(R.string.models_export_failed)
             }
         }
     }
@@ -242,7 +243,7 @@ fun ModelsRoute(
                     // engineEnabled: lo stato della card segue la preferenza.
                     advanced = advanced.copy(engineEnabled = true)
                 }.onFailure { error ->
-                    activateError = error.message ?: "Attivazione non riuscita."
+                    activateError = error.message ?: context.getString(R.string.models_activation_failed)
                 }
             }
         },
@@ -280,12 +281,12 @@ fun ModelsRoute(
         onAddCustomModel = { url, name, requiresToken ->
             if (url.isNotBlank()) {
                 val fileName = url.substringBefore('?').substringAfterLast('/').ifBlank { "modello_custom" }
-                val error = validateModelFile(fileName)
+                val error = validateModelFile(context, fileName)
                 if (error != null) {
                     addModelError = error
                 } else {
                     addModelError = null
-                    val model = buildCustomModel(url, fileName, name, requiresToken)
+                    val model = buildCustomModel(context, url, fileName, name, requiresToken)
                     preferences.addCustomModel(model)
                     customModels = preferences.customModels
                     selectedModelId = model.id
@@ -389,12 +390,17 @@ private fun occupiedBytes(container: AppContainer, allModels: List<DownloadableM
         .filter { it.exists() }
         .sumOf { it.length() }
 
-private fun validateModelFile(fileName: String): String? =
+// Prende il Context: il messaggio che produce finisce a schermo.
+private fun validateModelFile(context: Context, fileName: String): String? =
     if (!fileName.endsWith(LITERTLM_EXTENSION, ignoreCase = true) &&
         !fileName.endsWith(GGUF_EXTENSION, ignoreCase = true)
     ) {
-        "\"$fileName\" non è un formato riconosciuto: serve un file " +
-            "$LITERTLM_EXTENSION (LiteRT-LM) o $GGUF_EXTENSION (GGUF)."
+        context.getString(
+            R.string.models_unknown_format,
+            fileName,
+            LITERTLM_EXTENSION,
+            GGUF_EXTENSION,
+        )
     } else {
         null
     }
@@ -419,7 +425,13 @@ private fun slugFor(fileName: String): String =
 // è l'ultimo pezzo del percorso (come fa Hugging Face per il download
 // diretto), la dimensione resta ignota finché il download non la scopre
 // da sé (stesso trattamento già in uso per i repo riservati del catalogo).
-private fun buildCustomModel(url: String, fileName: String, name: String, requiresToken: Boolean): DownloadableModel =
+private fun buildCustomModel(
+    context: Context,
+    url: String,
+    fileName: String,
+    name: String,
+    requiresToken: Boolean,
+): DownloadableModel =
     DownloadableModel(
         id = "custom-${slugFor(fileName)}",
         displayName = name.ifBlank { fileName },
@@ -427,7 +439,7 @@ private fun buildCustomModel(url: String, fileName: String, name: String, requir
         fileName = fileName,
         sizeBytes = 0L,
         requiresToken = requiresToken,
-        note = "Modello personalizzato, aggiunto da un link Hugging Face.",
+        note = context.getString(R.string.models_custom_note),
         custom = true,
         engineType = engineTypeFor(fileName),
     )
@@ -449,7 +461,7 @@ private suspend fun importModelFromUri(
 ): Result<DownloadableModel> = withContext(Dispatchers.IO) {
     runCatching {
         val originalName = queryDisplayName(context, uri) ?: uri.lastPathSegment ?: "modello_custom.litertlm"
-        validateModelFile(originalName)?.let { throw IllegalArgumentException(it) }
+        validateModelFile(context, originalName)?.let { throw IllegalArgumentException(it) }
 
         val model = DownloadableModel(
             id = "custom-${slugFor(originalName)}",

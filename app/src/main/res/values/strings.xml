@@ -428,6 +428,67 @@
     <string name="book_load_failed">The book cannot be loaded (invalid package).</string>
     <string name="screen_under_construction">Screen %1$s — under construction (Phase 3)</string>
 
+    <!-- Schermata dei modelli LLM -->
+    <string name="models_privacy">The model runs on the phone: no text leaves it. A connection is needed only to download it.</string>
+    <string name="models_litertlm_only">This build includes only Gemma 4 (LiteRT-LM): support for custom GGUF models is switched off.</string>
+    <string name="models_recommended">Recommended</string>
+    <string name="models_yours">Your models</string>
+    <string name="models_size_unknown">size unknown</string>
+    <string name="models_needs_token"> — needs a token</string>
+    <string name="models_already_downloaded"> — already downloaded</string>
+    <string name="models_in_use">In use now</string>
+    <string name="models_downloading">Downloading… %1$d%%</string>
+    <string name="models_cancel_download">Cancel (it will resume from here)</string>
+    <string name="models_download">Download</string>
+    <string name="models_activating">Activating…</string>
+    <string name="models_deactivate">Deactivate</string>
+    <string name="models_activate">Activate</string>
+    <string name="models_delete">Delete</string>
+    <string name="models_remove_from_list">Remove from the list</string>
+    <string name="models_catalog_title">Model catalogue</string>
+    <string name="models_catalog_text">The "Recommended" ones above (except Gemma 4 E4B/E2B) can be exported to a file, or replaced by importing one — handy for building different sets of models to try without touching the app.</string>
+    <string name="models_export">Export</string>
+    <string name="models_import">Import</string>
+    <string name="models_importing">Importing…</string>
+    <string name="models_reset_defaults">Restore the defaults</string>
+    <string name="models_add_title">Add a model</string>
+    <string name="models_add_text">LiteRT-LM format (.litertlm extension) or GGUF (.gguf extension, llama.cpp engine) — recognised on its own from the extension. Other formats (e.g. MediaPipe .task) are refused.</string>
+    <string name="models_name_optional">Name (optional)</string>
+    <string name="models_from_hugging_face">From a Hugging Face link</string>
+    <string name="models_direct_link">Direct link (…resolve/main/…)</string>
+    <string name="models_private_repo">Private repository (needs a token)</string>
+    <string name="models_add_and_download">Add and download</string>
+    <string name="models_from_file">From a file already on the phone</string>
+    <string name="models_pick_file">Choose a .litertlm or .gguf file</string>
+    <string name="models_token_title">Hugging Face token</string>
+    <string name="models_token_text">Needed only for models on private repositories. It stays on this phone and is never shown in the logs.</string>
+    <string name="models_token_hint">hf_…</string>
+    <string name="models_import_failed">Import failed.</string>
+    <string name="models_catalog_import_failed">Import of the catalogue failed.</string>
+    <string name="models_export_failed">Export failed.</string>
+    <string name="models_activation_failed">Activation failed.</string>
+    <string name="models_unknown_format">"%1$s" is not a recognised format: it takes a %2$s (LiteRT-LM) or %3$s (GGUF) file.</string>
+    <string name="models_custom_note">Custom model, added from a Hugging Face link.</string>
+
+    <!-- Impostazioni avanzate del modello -->
+    <string name="advanced_title">Advanced settings</string>
+    <string name="advanced_subtitle">They change how the model behaves. They take effect from the next scene.</string>
+    <string name="advanced_engine_on">Engine on</string>
+    <string name="advanced_engine_on_text">Switch it off to always play with the original text of the book, with no translation and no enrichment. It stays off even if you close and reopen the app, until you press "Activate" on a model or turn it back on here.</string>
+    <string name="advanced_translation_mode">Translation mode</string>
+    <string name="advanced_translation_mode_text">Gemma only translates the text of the book with the smallest possible changes, without enriching it. Lighter to generate. It switches off the controls below (a fixed preset takes their place): the text changes from the next scene, the parameters from the next load of the model.</string>
+    <string name="advanced_max_tokens">Maximum tokens</string>
+    <string name="advanced_max_tokens_text">How long the context of a scene may be. High values allow longer texts but eat more memory and time. Impact on CPU/memory: medium.</string>
+    <string name="advanced_temperature">Temperature (creativity)</string>
+    <string name="advanced_temperature_text">High values (0.9) make the prose more creative, low values (0.2) more faithful and predictable. Impact on CPU/memory: none.</string>
+    <string name="advanced_top_p">Top-P (nucleus sampling)</string>
+    <string name="advanced_top_p_text">A high value (0.95) considers more words, a low one is more restrictive. Impact on CPU/memory: low.</string>
+    <string name="advanced_top_k">Top-K (vocabulary sampling)</string>
+    <string name="advanced_top_k_text">Considers only the K most likely words. High (50) gives more variety, low (10) is more cautious. Impact on CPU/memory: low.</string>
+    <string name="advanced_model_picks_background">The model picks the background</string>
+    <string name="advanced_model_picks_background_text">When a scene has no background declared by the book, ask the model to suggest one from a closed list — it makes the prompt longer. Off by default: only what the book declares is used. Handy for comparing different models.</string>
+    <string name="advanced_reset">Restore the recommended values</string>
+
     <!-- Comuni -->
     <string name="common_close">Close</string>
     <string name="common_back">Back</string>

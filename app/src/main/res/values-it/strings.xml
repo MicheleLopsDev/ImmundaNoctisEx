@@ -378,6 +378,67 @@
     <string name="book_load_failed">Impossibile caricare il libro (pacchetto non valido).</string>
     <string name="screen_under_construction">Schermata %1$s — in costruzione (Fase 3)</string>
 
+    <!-- Schermata dei modelli LLM -->
+    <string name="models_privacy">Il modello gira sul telefono: nessun testo esce da qui. Serve una connessione solo per scaricarlo.</string>
+    <string name="models_litertlm_only">Questa build include solo Gemma 4 (LiteRT-LM): il supporto per modelli GGUF personalizzati è disattivato.</string>
+    <string name="models_recommended">Consigliati</string>
+    <string name="models_yours">I tuoi modelli</string>
+    <string name="models_size_unknown">dimensione ignota</string>
+    <string name="models_needs_token"> — richiede token</string>
+    <string name="models_already_downloaded"> — già scaricato</string>
+    <string name="models_in_use">In uso ora</string>
+    <string name="models_downloading">Scaricamento… %1$d%%</string>
+    <string name="models_cancel_download">Annulla (riprenderà da qui)</string>
+    <string name="models_download">Scarica</string>
+    <string name="models_activating">Attivazione…</string>
+    <string name="models_deactivate">Disattiva</string>
+    <string name="models_activate">Attiva</string>
+    <string name="models_delete">Elimina</string>
+    <string name="models_remove_from_list">Rimuovi dalla lista</string>
+    <string name="models_catalog_title">Catalogo modelli</string>
+    <string name="models_catalog_text">I "Consigliati" sopra (esclusi Gemma 4 E4B/E2B) si possono esportare in un file, o sostituire importandone uno — comodo per creare set diversi di modelli da provare senza modificare l\'app.</string>
+    <string name="models_export">Esporta</string>
+    <string name="models_import">Importa</string>
+    <string name="models_importing">Importazione…</string>
+    <string name="models_reset_defaults">Ripristina predefiniti</string>
+    <string name="models_add_title">Aggiungi un modello</string>
+    <string name="models_add_text">Formato LiteRT-LM (estensione .litertlm) o GGUF (estensione .gguf, motore llama.cpp) — riconosciuto da solo dall\'estensione. Altri formati (es. .task di MediaPipe) vengono rifiutati.</string>
+    <string name="models_name_optional">Nome (opzionale)</string>
+    <string name="models_from_hugging_face">Da un link Hugging Face</string>
+    <string name="models_direct_link">Link diretto (…resolve/main/…)</string>
+    <string name="models_private_repo">Repository riservato (richiede token)</string>
+    <string name="models_add_and_download">Aggiungi e scarica</string>
+    <string name="models_from_file">Da un file già sul telefono</string>
+    <string name="models_pick_file">Scegli file .litertlm o .gguf</string>
+    <string name="models_token_title">Token Hugging Face</string>
+    <string name="models_token_text">Serve solo per i modelli su repository riservati. Resta su questo telefono e non viene mai mostrato nei log.</string>
+    <string name="models_token_hint">hf_…</string>
+    <string name="models_import_failed">Importazione non riuscita.</string>
+    <string name="models_catalog_import_failed">Importazione del catalogo non riuscita.</string>
+    <string name="models_export_failed">Esportazione non riuscita.</string>
+    <string name="models_activation_failed">Attivazione non riuscita.</string>
+    <string name="models_unknown_format">"%1$s" non è un formato riconosciuto: serve un file %2$s (LiteRT-LM) o %3$s (GGUF).</string>
+    <string name="models_custom_note">Modello personalizzato, aggiunto da un link Hugging Face.</string>
+
+    <!-- Impostazioni avanzate del modello -->
+    <string name="advanced_title">Impostazioni avanzate</string>
+    <string name="advanced_subtitle">Cambiano il comportamento del modello. Hanno effetto dalla prossima scena.</string>
+    <string name="advanced_engine_on">Motore attivo</string>
+    <string name="advanced_engine_on_text">Spegnilo per giocare sempre col testo originale del libro, senza traduzione né arricchimento. Resta spento anche chiudendo e riaprendo l\'app, finché non premi "Attiva" su un modello o riaccendi qui.</string>
+    <string name="advanced_translation_mode">Modalità Traduzione</string>
+    <string name="advanced_translation_mode_text">Gemma si limita a tradurre il testo del libro con le minime modifiche possibili, senza arricchirlo. Più leggero da generare. Disattiva i controlli sotto (usa un preset fisso al loro posto): il testo cambia dalla prossima scena, i parametri dal prossimo caricamento del modello.</string>
+    <string name="advanced_max_tokens">Token massimi</string>
+    <string name="advanced_max_tokens_text">Quanto può essere lungo il contesto di una scena. Valori alti permettono testi più lunghi ma consumano più memoria e tempo. Impatto su CPU/memoria: medio.</string>
+    <string name="advanced_temperature">Temperatura (creatività)</string>
+    <string name="advanced_temperature_text">Valori alti (0.9) rendono la prosa più creativa, valori bassi (0.2) più fedele e prevedibile. Impatto su CPU/memoria: nullo.</string>
+    <string name="advanced_top_p">Top-P (campionamento nucleo)</string>
+    <string name="advanced_top_p_text">Un valore alto (0.95) considera più parole, uno basso è più restrittivo. Impatto su CPU/memoria: basso.</string>
+    <string name="advanced_top_k">Top-K (campionamento vocabolario)</string>
+    <string name="advanced_top_k_text">Considera solo le K parole più probabili. Alto (50) dà più varietà, basso (10) è più prudente. Impatto su CPU/memoria: basso.</string>
+    <string name="advanced_model_picks_background">Il modello sceglie lo sfondo</string>
+    <string name="advanced_model_picks_background_text">Quando una scena non ha uno sfondo dichiarato dal libro, chiedi al modello di suggerirne uno da un elenco chiuso — allunga il prompt. Spento di default: si usa solo quanto dichiarato dal libro. Utile per confrontare modelli diversi.</string>
+    <string name="advanced_reset">Ripristina i valori consigliati</string>
+
     <!-- Comuni -->
     <string name="common_close">Chiudi</string>
     <string name="common_back">Indietro</string>

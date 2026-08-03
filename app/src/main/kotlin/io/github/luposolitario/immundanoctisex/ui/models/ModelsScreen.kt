@@ -23,6 +23,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import io.github.luposolitario.immundanoctisex.R
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -124,17 +126,15 @@ fun ModelsScreen(
             modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Modelli LLM", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.models_title), style = MaterialTheme.typography.headlineMedium)
             Text(
-                "Il modello gira sul telefono: nessun testo esce da qui. " +
-                    "Serve una connessione solo per scaricarlo.",
+                stringResource(R.string.models_privacy),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             if (!ggufAvailable) {
                 Text(
-                    "Questa build include solo Gemma 4 (LiteRT-LM): il supporto per modelli " +
-                        "GGUF personalizzati è disattivato.",
+                    stringResource(R.string.models_litertlm_only),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -160,7 +160,11 @@ fun ModelsScreen(
             // (WorkManager REPLACE) invece di essere semplicemente ignorato.
             val anyDownloadRunning = downloadState is DownloadUiState.Running
 
-            Text("Consigliati", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.models_recommended),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+            )
             visibleModels.forEach { model ->
                 ModelCard(
                     model = model,
@@ -191,7 +195,11 @@ fun ModelsScreen(
             }
 
             if (visibleCustomModels.isNotEmpty()) {
-                Text("I tuoi modelli", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.models_yours),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                )
                 visibleCustomModels.forEach { model ->
                     ModelCard(
                         model = model,
@@ -247,7 +255,9 @@ fun ModelsScreen(
                 onReset = onResetSettings,
             )
 
-            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) { Text("Chiudi") }
+            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.common_close))
+            }
         }
     }
 }
@@ -286,18 +296,21 @@ private fun ModelCard(
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(model.displayName, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             Text(model.note, style = MaterialTheme.typography.bodySmall)
+            val dimensioneIgnota = stringResource(R.string.models_size_unknown)
+            val richiedeToken = stringResource(R.string.models_needs_token)
+            val giaScaricato = stringResource(R.string.models_already_downloaded)
             Text(
                 buildString {
-                    if (model.sizeBytes > 0) append("%.2f GB".format(model.sizeGigabytes)) else append("dimensione ignota")
-                    if (model.requiresToken) append(" — richiede token")
-                    if (downloaded) append(" — già scaricato")
+                    if (model.sizeBytes > 0) append("%.2f GB".format(model.sizeGigabytes)) else append(dimensioneIgnota)
+                    if (model.requiresToken) append(richiedeToken)
+                    if (downloaded) append(giaScaricato)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             if (active) {
                 Text(
-                    "In uso ora",
+                    stringResource(R.string.models_in_use),
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -311,12 +324,12 @@ private fun ModelCard(
                     } else {
                         0
                     }
-                    Text("Scaricamento… $percent%")
+                    Text(stringResource(R.string.models_downloading, percent))
                     LinearProgressIndicator(
                         progress = { percent / 100f },
                         modifier = Modifier.fillMaxWidth(),
                     )
-                    TextButton(onClick = onCancel) { Text("Annulla (riprenderà da qui)") }
+                    TextButton(onClick = onCancel) { Text(stringResource(R.string.models_cancel_download)) }
                 }
 
                 is DownloadUiState.Failed -> Text(
@@ -335,7 +348,9 @@ private fun ModelCard(
                         // scaricando (24/07/2026): prima restava sempre
                         // attivo, e un tocco qui cancellava il download in
                         // corso invece di limitarsi a essere ignorato.
-                        Button(onClick = onDownload, enabled = !downloadBlockedByOther) { Text("Scarica") }
+                        Button(onClick = onDownload, enabled = !downloadBlockedByOther) {
+                            Text(stringResource(R.string.models_download))
+                        }
                     } else {
                         // Cambia il motore a caldo (Michele 22/07/2026):
                         // scaricati più modelli, si passa dall'uno
@@ -376,18 +391,22 @@ private fun ModelCard(
                         ) {
                             Text(
                                 when {
-                                    isActivating -> "Attivazione…"
-                                    active -> "Disattiva"
-                                    else -> "Attiva"
+                                    isActivating -> stringResource(R.string.models_activating)
+                                    active -> stringResource(R.string.models_deactivate)
+                                    else -> stringResource(R.string.models_activate)
                                 },
                             )
                         }
-                        OutlinedButton(onClick = onDelete, enabled = !isActivating) { Text("Elimina") }
+                        OutlinedButton(onClick = onDelete, enabled = !isActivating) {
+                            Text(stringResource(R.string.models_delete))
+                        }
                     }
                     // Solo i modelli aggiunti da un link: i "Consigliati"
                     // restano sempre nella lista.
                     if (onRemove != null) {
-                        TextButton(onClick = onRemove, enabled = !isActivating) { Text("Rimuovi dalla lista") }
+                        TextButton(onClick = onRemove, enabled = !isActivating) {
+                            Text(stringResource(R.string.models_remove_from_list))
+                        }
                     }
                 }
             }
@@ -410,21 +429,27 @@ private fun CatalogManagementCard(
 ) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Catalogo modelli", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(
-                "I \"Consigliati\" sopra (esclusi Gemma 4 E4B/E2B) si possono esportare in un " +
-                    "file, o sostituire importandone uno — comodo per creare set diversi di " +
-                    "modelli da provare senza modificare l'app.",
+                stringResource(R.string.models_catalog_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                stringResource(R.string.models_catalog_text),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onExport, enabled = !isImporting) { Text("Esporta") }
+                OutlinedButton(onClick = onExport, enabled = !isImporting) {
+                    Text(stringResource(R.string.models_export))
+                }
                 OutlinedButton(onClick = onImport, enabled = !isImporting) {
-                    Text(if (isImporting) "Importazione…" else "Importa")
+                    Text(stringResource(if (isImporting) R.string.models_importing else R.string.models_import))
                 }
             }
-            TextButton(onClick = onReset, enabled = !isImporting) { Text("Ripristina predefiniti") }
+            TextButton(onClick = onReset, enabled = !isImporting) {
+                Text(stringResource(R.string.models_reset_defaults))
+            }
             error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
@@ -445,27 +470,33 @@ private fun AddCustomModelCard(
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Aggiungi un modello", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(
-                "Formato LiteRT-LM (estensione .litertlm) o GGUF (estensione .gguf, motore " +
-                    "llama.cpp) — riconosciuto da solo dall'estensione. Altri formati " +
-                    "(es. .task di MediaPipe) vengono rifiutati.",
+                stringResource(R.string.models_add_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                stringResource(R.string.models_add_text),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Nome (opzionale)") },
+                label = { Text(stringResource(R.string.models_name_optional)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Text("Da un link Hugging Face", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.models_from_hugging_face),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
             OutlinedTextField(
                 value = url,
                 onValueChange = { url = it },
-                label = { Text("Link diretto (…resolve/main/…)") },
+                label = { Text(stringResource(R.string.models_direct_link)) },
                 singleLine = true,
                 enabled = !isImporting,
                 modifier = Modifier.fillMaxWidth(),
@@ -475,7 +506,7 @@ private fun AddCustomModelCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Switch(checked = requiresToken, onCheckedChange = { requiresToken = it }, enabled = !isImporting)
-                Text("Repository riservato (richiede token)", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.models_private_repo), style = MaterialTheme.typography.bodySmall)
             }
             Button(
                 onClick = {
@@ -485,14 +516,18 @@ private fun AddCustomModelCard(
                 },
                 enabled = url.isNotBlank() && !isImporting,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Aggiungi e scarica") }
+            ) { Text(stringResource(R.string.models_add_and_download)) }
 
-            Text("Da un file già sul telefono", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+            Text(
+                stringResource(R.string.models_from_file),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+            )
             OutlinedButton(
                 onClick = { onPickFromStorage(name.trim()) },
                 enabled = !isImporting,
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text(if (isImporting) "Importazione…" else "Scegli file .litertlm o .gguf") }
+            ) { Text(stringResource(if (isImporting) R.string.models_importing else R.string.models_pick_file)) }
 
             error?.let {
                 Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
@@ -505,10 +540,13 @@ private fun AddCustomModelCard(
 private fun TokenCard(token: String, onTokenChange: (String) -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Text("Token Hugging Face", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(
-                "Serve solo per i modelli su repository riservati. " +
-                    "Resta su questo telefono e non viene mai mostrato nei log.",
+                stringResource(R.string.models_token_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                stringResource(R.string.models_token_text),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -516,7 +554,7 @@ private fun TokenCard(token: String, onTokenChange: (String) -> Unit) {
             OutlinedTextField(
                 value = token,
                 onValueChange = onTokenChange,
-                label = { Text("hf_…") },
+                label = { Text(stringResource(R.string.models_token_hint)) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
