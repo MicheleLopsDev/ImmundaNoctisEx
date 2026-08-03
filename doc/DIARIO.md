@@ -7,6 +7,53 @@
 
 ---
 
+## 03/08/2026 — i modificatori al tiro si correggono da una maschera
+
+Quando la feature `rollModifier` è nata (01/08) la maschera nell'editor
+era stata **rimandata di proposito**: «si correggono dall'editor JSON
+grezzo, che esiste già. Se dopo il primo uso reale risultasse scomodo,
+una maschera è un lavoro a parte». I 5 libri convertiti ne portano ora
+**48 veri** da rileggere: il primo uso reale è arrivato, e la maschera
+con lui.
+
+Nuovo file `tool/.../editor/RollModifiersCard.kt`, **non** dentro
+`SceneEditorScreen.kt`: quello è già a 864 righe, molto oltre la soglia
+d'allarme di ~200 del progetto. Lì restano solo lo stato
+(`var rollModifiers`), una riga in `sceneDallaMaschera()` e la chiamata
+alla sezione.
+
+Come si presenta: una riga per modificatore con la somma (segno
+compreso: `-3` si scrive com'è scritto nel libro, "deduct 3") e un menu
+per il tipo di condizione — **Sempre** (che esiste davvero: "Pick a
+number… and add 5 to it"), disciplina, oggetto, flag, Resistenza. Sotto,
+solo i campi che quel tipo usa: i valori in OR per i primi tre
+("either Mind Over Matter or Mindblast" sono due voci), operatore e
+soglia per la Resistenza. Cambiando tipo la condizione riparte vuota:
+una soglia rimasta appesa a una condizione DISCIPLINE sarebbe un dato
+morto nel JSON.
+
+Due scelte piccole ma volute:
+- Il campo della somma è **testo, non numero**: mentre si digita, `-`
+  da solo non è un intero, e un campo che rifiuta il segno meno
+  renderebbe impossibile scrivere un malus.
+- I simboli degli operatori nel menu (`<`, `>=`) sono quelli con cui
+  l'operatore è **serializzato nel JSON**: chi guarda la maschera vede
+  la stessa cosa che troverebbe nel file, non una traduzione a parte da
+  tenere allineata.
+
+**Avviso, non blocco**: se la scena ha modificatori ma nessuna scelta
+con un intervallo di tiro, la sezione lo dice in rosso — il
+modificatore non entrerebbe mai in gioco — ma lascia salvare. È normale
+scrivere in avanti, stesso principio già usato per le destinazioni non
+ancora esistenti (§7.3).
+
+`erroreNeiModificatori` è `internal` e ha **10 test**
+(`RollModifiersCardTest`); il controllo pieno (ID di disciplina
+esistente, ecc.) resta al `RollModifierValidator` di `:core:data`, che
+vale per qualunque libro comunque prodotto. Suite a **246 test verdi**.
+
+---
+
 ## 03/08/2026 — la mappa del viaggio nel diario
 
 La scheda "Mappa logica" del diario mostrava un elenco numerato di

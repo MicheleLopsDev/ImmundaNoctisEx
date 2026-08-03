@@ -132,6 +132,9 @@ fun SceneEditorScreen(
     // selezione da `customResources.sounds` già registrati, mai un url:
     // scritto a mano qui (a differenza di backgroundImage/npcImage).
     var sfx by remember(scene.id) { mutableStateOf(scene.sfx) }
+    // Modificatori al tiro della Tabella (§RollModifiersCard): la
+    // maschera vive in un file suo, qui resta solo lo stato.
+    var rollModifiers by remember(scene.id) { mutableStateOf(scene.rollModifiers) }
 
     var haCombattimento by remember(scene.id) { mutableStateOf(scene.combat != null) }
     var combatEnemyName by remember(scene.id) { mutableStateOf(scene.combat?.enemyName ?: "") }
@@ -176,6 +179,7 @@ fun SceneEditorScreen(
         narrativeText = narrativeText,
         choices = choices,
         disciplineChoices = disciplineChoices,
+        rollModifiers = rollModifiers,
         backgroundImage = backgroundImage.ifBlank { null },
         npcImage = npcImage.ifBlank { null },
         combat = if (haCombattimento) {
@@ -538,6 +542,15 @@ fun SceneEditorScreen(
                         Text("+ Aggiungi scelta per disciplina")
                     }
                 }
+
+                RollModifiersSection(
+                    modificatori = rollModifiers,
+                    // Il modificatore si applica al tiro della Tabella: se
+                    // nessuna scelta ha un intervallo, non entra mai in
+                    // gioco e la sezione lo dice.
+                    scenaHaScelteATiro = choices.any { it.minRoll != null || it.maxRoll != null },
+                    onChange = { rollModifiers = it },
+                )
             }
         }
 
@@ -825,6 +838,10 @@ private fun salvaDaMaschera(
     val disciplinaVuota = scenaAggiornata.disciplineChoices.firstOrNull { it.choiceText.isBlank() || it.nextSceneId.isBlank() }
     if (disciplinaVuota != null) {
         onErrore("ogni scelta per disciplina deve avere un testo e una scena di destinazione")
+        return
+    }
+    erroreNeiModificatori(scenaAggiornata.rollModifiers)?.let {
+        onErrore(it)
         return
     }
     if (haCombattimento) {
