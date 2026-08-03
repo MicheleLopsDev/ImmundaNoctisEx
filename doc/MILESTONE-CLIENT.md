@@ -13,7 +13,9 @@ con un'issue per voce:
 [#2 leak di memoria](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/2),
 [#3 migrazione strings.xml](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/3),
 [#4 motore GGUF alternativo](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/4),
-[#5 firma di release](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/5) (chiusa, fatta).
+[#5 firma di release](https://github.com/MicheleLopsDev/ImmundaNoctisEx/issues/5).
+Al 03/08/2026 resta aperta **solo la #2** (leak di memoria): #3 chiusa
+quel giorno, #4 e #5 già chiuse il 30/07.
 Questo file resta la versione leggibile/discorsiva con tutto il
 perché — le issue rimandano qui per il dettaglio, non lo duplicano.
 
@@ -42,15 +44,35 @@ non un rumore di misura — da individuare (probabile sospetto: sessione
 Gemma per scena, `doc/PIANO-SVILUPPO.md` — "inferenza senza memoria")
 e chiudere prima di considerare il client stabile.
 
-### 2. Migrazione delle stringhe UI hard-coded a `strings.xml`
+### 2. Migrazione delle stringhe UI hard-coded a `strings.xml` — FATTO (03/08/2026)
 
-Solo 3 file su tutta la UI usano `stringResource`, contro 107 voci già
-pronte in `strings.xml` — il resto (~100 stringhe) è ancora scritto a
-mano nel codice Kotlin. `strings.xml` è impalcato da Claude; la
-rifinitura dei testi resta di Michele (già dichiarato in
-`doc/DIARIO.md`). Prerequisito per qualunque localizzazione futura e
-per coerenza interna (oggi le stesse parole potrebbero comparire
-scritte in due punti diversi senza essere la stessa stringa).
+Prima: 9 file su 79 usavano `stringResource`, contro 109 voci già
+pronte in `strings.xml`; il resto (~114 stringhe) era scritto a mano
+nel codice Kotlin.
+
+Ora tutta la UI ci passa: **355 chiavi in inglese, 354 in italiano**
+(l'unica differenza è `app_name`, identico nelle due lingue e tenuto
+solo nel file di ripiego).
+
+**Il problema più grosso non era il conteggio**: `values/strings.xml`
+conteneva l'ITALIANO, e su Android quella cartella è il ripiego per
+qualunque lingua senza una `values-xx` dedicata — chi non aveva il
+telefono in italiano si ritrovava comunque l'italiano. Ora `values/` è
+inglese e l'italiano sta in `values-it/`.
+
+I termini di gioco (COMBAT SKILL, ENDURANCE, Gold Crowns, Chainmail
+Waistcoat, Potion of Laumspur, le nove armi) sono quelli CANONICI dei
+libri, verificati sui testi Project Aon in `doc/LIBRI/` prima di
+scriverli. Sei enum di preferenze passano da `displayName: String` a
+`@StringRes labelRes: Int`; `LinguaOutput` no, sta in `:core:engine`
+senza Android e i nomi delle lingue sono endonimi. 220 test verdi.
+
+`strings.xml` resta impalcato da Claude: la rifinitura dei testi è di
+Michele (già dichiarato in `doc/DIARIO.md`).
+
+**Fuori di proposito**: spagnolo, francese e tedesco. La struttura è
+pronta, ma senza utenti veri è lavoro speculativo — stesso argomento
+già usato da Michele per l'accessibilità.
 
 ### 3. Valutazione del motore GGUF alternativo a LiteRT-LM
 

@@ -146,6 +146,13 @@ prompt. È il pezzo più grande e meno definito di questa milestone:
 **serve prima una specifica dedicata** (come già deciso), non si parte
 dal codice — piano ancora da ricevere da Michele.
 
+> **Issue #8 riaperta il 03/08/2026.** Era chiusa come "completed", ma
+> un controllo nel codice ha mostrato che in `:tool` non esiste nessuna
+> schermata dei prompt e nessun file tocca `config.json` o i
+> `PromptFragment`. Chiusa era stata soltanto la pulizia preliminare
+> qui sotto: il terreno preparato, non la schermata. Le due fonti
+> (GitHub e questo documento) ora tornano a dire la stessa cosa.
+
 **Pulizia preliminare fatta il 31/07/2026** (Michele: "per prima cosa
 credo vada ripulito, c'è tutta una parte xml che non serve"): prima
 di pensare alla schermata, tolte dal file 15 entry `gameMechanic` con
