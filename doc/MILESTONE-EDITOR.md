@@ -104,6 +104,28 @@ allegati alla release.
 > shell bash — va invocata col percorso completo. Un `which gh` che
 > fallisce non significa che manchi.
 
+**Quarta release, [`editor-v1.3.0`](https://github.com/MicheleLopsDev/ImmundaNoctisEx/releases/tag/editor-v1.3.0)
+(03/08/2026)**: il tema è uno solo — **il modello del gioco gira dentro
+l'editor**. Dalla v1.2.0: schermata Modello con scaricamento e prova,
+anteprima della traduzione sotto ogni stringa delle scene, lingue
+europee, riassunto del percorso da START con export Markdown, schede a
+riquadri.
+
+I pacchetti passano da 96 MB a **222 MB**: dentro c'è il motore di
+inferenza vero (`litertlm-jvm`, con le native di tutte le piattaforme).
+Il modello no — quello si scarica dall'editor.
+
+Sbloccata da **Temurin 21 con jpackage** (`packagingJdk` in
+`local.properties`): la JBR di Android Studio è una 21 ma non porta
+jpackage, e col Temurin 17 il pacchetto si sarebbe costruito per poi
+morire alla prima generazione. Verificato dopo la costruzione: la JVM
+imbustata è la 21.0.12 e l'`.exe` della cartella portatile si avvia.
+
+> Riduzione possibile e non fatta: il jar del motore porta anche le
+> native di Linux e macOS, un centinaio di MB che su Windows non
+> servono. Escluderle richiede di riscrivere il jar in fase di
+> packaging — lavoro a parte, non un parametro.
+
 ### 2. Verificare il limite dimensionale (~350 scene)
 
 `doc/EDITOR.md` §11 fissa un tetto auto-imposto di ~350 scene per

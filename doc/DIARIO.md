@@ -4815,12 +4815,11 @@ l'esportazione **dopo** minuti di lavoro del modello.
 provati e funzionanti, grafica nuova compresa (riquadri e testo in
 `bodyMedium`).
 
-Resta fuori solo la **release dell'editor**: `packageMsi` richiede un
-JDK 21 **con jpackage**, e sul PC l'unico Java 21 è la JBR di Android
-Studio, che non lo include. Il `packagingJdk` in `local.properties`
-punta ancora al Temurin 17. Si installa con
-`winget install EclipseAdoptium.Temurin.21.JDK`; poi basta aggiornare
-`packagingJdk` e i pacchetti si generano.
+**Release editor v1.3.0 pubblicata** (03/08/2026): Michele ha
+installato il Temurin 21, `packagingJdk` aggiornato e i pacchetti sono
+usciti al primo colpo. MSI e portatile **222 MB** (erano 96): dentro
+c'è il motore di inferenza. Verificato che la JVM imbustata sia la
+21.0.12 e che l'`.exe` si avvii davvero prima di pubblicare.
 
 ## PROSSIMA COSA DA FARE — il personaggio che passa di libro in libro
 
