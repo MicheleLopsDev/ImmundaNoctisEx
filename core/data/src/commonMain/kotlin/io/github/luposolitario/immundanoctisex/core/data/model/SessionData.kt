@@ -20,4 +20,10 @@ data class SessionData(
     val variables: Map<String, Int> = emptyMap(),
     val checkpointsUsed: Int = 0,
     val lastUpdate: Long,
+    // Quale personaggio trasportabile sta giocando questa partita
+    // (03/08/2026): serve a fine libro per sapere QUALE file aggiornare
+    // con i libri completati. In coda e con default, così i salvataggi
+    // già su disco continuano a caricarsi — restano semplicemente senza
+    // personaggio associato, e a fine libro non aggiornano nulla.
+    val personaggioId: String? = null,
 )

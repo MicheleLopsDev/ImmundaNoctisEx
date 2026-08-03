@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageSource
+import io.github.luposolitario.immundanoctisex.core.data.session.FilePersonaggiStore
 import io.github.luposolitario.immundanoctisex.core.data.session.FileSessionStore
 import io.github.luposolitario.immundanoctisex.core.data.session.SessionStore
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
@@ -290,6 +291,12 @@ class AppContainer(context: Context) {
 
     val sessionStore: SessionStore =
         FileSessionStore(File(context.filesDir, "saves"))
+
+    // I personaggi che passano da un libro all'altro (03/08/2026):
+    // cartella separata dai salvataggi, perché una partita è legata a un
+    // libro mentre un personaggio sopravvive a tutti.
+    val personaggiStore: FilePersonaggiStore =
+        FilePersonaggiStore(File(context.filesDir, "personaggi"))
 
     val diceRoller: DiceRoller = RandomDiceRoller()
 

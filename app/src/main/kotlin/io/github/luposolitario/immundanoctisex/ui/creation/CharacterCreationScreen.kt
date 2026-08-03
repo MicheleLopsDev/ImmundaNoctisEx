@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
@@ -49,8 +49,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.R
+import io.github.luposolitario.immundanoctisex.core.data.model.Discipline
 import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.core.data.model.HeroIcon
+import io.github.luposolitario.immundanoctisex.core.data.model.PersonaggioSalvato
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import io.github.luposolitario.immundanoctisex.core.engine.dice.DiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.dice.RandomDiceRoller
@@ -67,6 +69,11 @@ fun CharacterCreationScreen(
     isDarkTheme: Boolean,
     state: CreationState,
     onCreate: () -> Unit,
+    // Personaggi già esistenti da cui ricominciare (03/08/2026). Vuoto
+    // alla prima partita: la schermata resta identica a com'era.
+    personaggiDisponibili: List<PersonaggioSalvato> = emptyList(),
+    onImporta: (PersonaggioSalvato, List<Discipline>) -> Unit = { _, _ -> },
+    onEliminaPersonaggio: (PersonaggioSalvato) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -81,6 +88,14 @@ fun CharacterCreationScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(stringResource(R.string.creation_title), style = MaterialTheme.typography.headlineLarge)
+
+            // In cima a tutto: se c'è un eroe da riprendere, la scelta
+            // viene prima di ricominciare da capo.
+            PersonaggiSalvatiCard(
+                personaggi = personaggiDisponibili,
+                onImporta = onImporta,
+                onElimina = onEliminaPersonaggio,
+            )
 
             GenderCard(state)
             HeroIconCard(state)

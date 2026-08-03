@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import io.github.luposolitario.immundanoctisex.AppContainer
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
+import io.github.luposolitario.immundanoctisex.core.engine.character.TrasportoPersonaggio
 import io.github.luposolitario.immundanoctisex.core.engine.ending.AdventureEnding
 import io.github.luposolitario.immundanoctisex.core.engine.inference.PromptBuilder
 import io.github.luposolitario.immundanoctisex.inference.SceneNarrator
@@ -117,6 +118,26 @@ fun AdventureRoute(
                     // in corso — vedi il commento su AdventureState per
                     // il dettaglio.
                     ensureEngineLoaded = { container.ensureModelLoaded() },
+                    // Libro vinto: il personaggio trasportabile registra
+                    // il libro completato e si porta dietro com'è
+                    // arrivato alla fine (03/08/2026). Se la partita non
+                    // ha un personaggio associato — i salvataggi nati
+                    // prima di questa funzione — non succede nulla.
+                    onLibroVinto = { eroe ->
+                        currentSession.personaggioId
+                            ?.let { container.personaggiStore.carica(it) }
+                            ?.let { salvato ->
+                                container.personaggiStore.salva(
+                                    TrasportoPersonaggio.conLibroCompletato(
+                                        salvato = salvato,
+                                        eroeAllaFine = eroe,
+                                        packageId = manifest.id,
+                                        titolo = manifest.title,
+                                        quando = System.currentTimeMillis(),
+                                    ),
+                                )
+                            }
+                    },
                 )
             }
 

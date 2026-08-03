@@ -4821,7 +4821,7 @@ usciti al primo colpo. MSI e portatile **222 MB** (erano 96): dentro
 c'è il motore di inferenza. Verificato che la JVM imbustata sia la
 21.0.12 e che l'`.exe` si avvii davvero prima di pubblicare.
 
-## PROSSIMA COSA DA FARE — il personaggio che passa di libro in libro
+## Il personaggio passa di libro in libro — FATTO (03/08/2026)
 
 Deciso con Michele a fine sessione del 03/08/2026, **non ancora
 implementato**. Le decisioni sono chiuse: si parte da qui.
@@ -4884,7 +4884,41 @@ Ferro · Maestro Kai · creato il 03/08/2026
 Da "Flight from the Dark" · 2 libri completati, ultimo "Fire on the Water"
 ```
 
-**Stima**: una sessione per tutto quanto sopra.
+**Stima**: una sessione per tutto quanto sopra. — *rispettata: fatto
+nella mattina del 03/08.*
+
+### Come è venuto
+
+`:core:data` porta `PersonaggioSalvato` (nome, data, libro d'origine con
+id **e** titolo, libri completati, più il `Character`) e
+`FilePersonaggiStore`, sullo stampo di `FileSessionStore`: scrittura
+atomica e lettura che degrada. Nessuna quinta interfaccia — il progetto
+ne dichiara quattro e qui non c'è una seconda implementazione da
+servire.
+
+`:core:engine` porta `TrasportoPersonaggio` col canone in tre funzioni:
+`preparaPerNuovoLibro` (Resistenza al massimo, via i modificatori della
+partita finita, statistiche base intatte), `conDisciplineNuove` (rifiuta
+doppioni e chi ne chiede più di quante ne spettano) e
+`conLibroCompletato`. **12 test**, fra cui i due casi che sarebbe stato
+facile sbagliare: rigiocare lo stesso libro non conta due volte, e oltre
+le dieci discipline non si va.
+
+`SessionData` guadagna `personaggioId` in coda con default: serve a
+sapere a fine libro **quale** file aggiornare, e i salvataggi già su
+disco continuano a caricarsi — restano semplicemente senza personaggio
+associato.
+
+Lato app: il salvataggio è automatico alla creazione, la card *"Riprendi
+un personaggio"* compare in cima alla creazione **solo se c'è qualcuno
+da riprendere**, e la vittoria registra il libro una volta sola
+(`vittoriaGiaRegistrata`, non a ogni ricomposizione). Importando, la
+creazione salta il tiro delle statistiche: nel canone si tirano una
+volta per tutta la serie.
+
+Da provare sul device: creare un eroe, vincere un libro, e vederlo
+comparire nell'elenco alla partita successiva con "1 libro completato" e
+il diritto a una nuova disciplina.
 
 ---
 

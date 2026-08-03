@@ -88,6 +88,12 @@ class AdventureState(
     // subito. Default no-op (true) per i test/@Preview che non
     // costruiscono un AppContainer vero.
     private val ensureEngineLoaded: suspend () -> Boolean = { true },
+    // Chiamata quando il libro si chiude con la VITTORIA (03/08/2026):
+    // il personaggio trasportabile registra il libro completato e si
+    // porta dietro com'è arrivato alla fine. Chi muore non la vede
+    // passare — il libro non l'ha finito, non ha guadagnato nulla.
+    // Default no-op per i test e le @Preview.
+    private val onLibroVinto: (Character) -> Unit = {},
 ) {
     val gameState = GameState(session)
 
@@ -692,6 +698,7 @@ class AdventureState(
         syncImageSounds()
         playEndingSoundIfNew()
         autoSave()
+        registraVittoriaSePresente()
         handleIronDeath()
         // La scena nuova si racconta da sé; il contesto è la CODA della
         // precedente (mai il diario: inferenza senza memoria).
@@ -770,6 +777,22 @@ class AdventureState(
     private fun autoSave() {
         store.saveSession(gameState.snapshot().copy(lastUpdate = System.currentTimeMillis()))
         rinfresca()
+    }
+
+    // Il libro finito con la vittoria aggiorna il personaggio
+    // trasportabile (03/08/2026). Una volta sola per partita: entrando
+    // nella scena finale, non a ogni ricomposizione.
+    //
+    // Solo VICTORY: un finale neutro o una morte non danno nulla, e il
+    // canone assegna la Disciplina Kai a chi il libro l'ha portato a
+    // termine.
+    private var vittoriaGiaRegistrata = false
+
+    private fun registraVittoriaSePresente() {
+        if (vittoriaGiaRegistrata) return
+        if (!isEnding || endingOutcome != EndingOutcome.VICTORY) return
+        vittoriaGiaRegistrata = true
+        onLibroVinto(gameState.hero)
     }
 
     // MORTE DEFINITIVA (STATO.md Blocco 2, rivisto 20/07/2026): la

@@ -183,7 +183,23 @@ class CreationState(private val dice: DiceRoller) {
     // scena = start del libro. Gli oggetti entrano tramite l'engine
     // (Inventory.addItem): l'Elmo/Gilet applica il suo bonus Resistenza
     // esattamente come lo farà ogni addItem futuro del libro.
-    fun buildSession(manifest: Manifest, difficulty: Difficulty, startSceneId: String): SessionData {
+    // `eroeImportato` non null = si sta riprendendo un personaggio da
+    // un'altra avventura (03/08/2026): arriva già completo di
+    // statistiche, discipline e inventario, e va usato **così com'è**.
+    // Nel canone le statistiche base si tirano una volta sola per tutta
+    // la serie e l'equipaggiamento si porta dietro: rifargli il tiro o
+    // ridargli gli oggetti iniziali sarebbe proprio ciò che il trasporto
+    // deve evitare.
+    fun buildSession(
+        manifest: Manifest,
+        difficulty: Difficulty,
+        startSceneId: String,
+        eroeImportato: Character? = null,
+        personaggioId: String? = null,
+    ): SessionData {
+        if (eroeImportato != null) {
+            return costruisciSessione(manifest, difficulty, startSceneId, eroeImportato, personaggioId)
+        }
         val weapon = selectedWeapon
         var hero = Character(
             role = CharacterRole.HERO,
@@ -204,6 +220,18 @@ class CreationState(private val dice: DiceRoller) {
         }
         startingItems.forEach { hero = Inventory.addItem(hero, it) }
         weapon?.let { hero = Inventory.equipWeapon(hero, it.name) }
+        return costruisciSessione(manifest, difficulty, startSceneId, hero, null)
+    }
+
+    // La parte comune ai due casi (eroe nuovo o importato): la sessione
+    // nasce e passa UNA volta dal TransitionEngine.
+    private fun costruisciSessione(
+        manifest: Manifest,
+        difficulty: Difficulty,
+        startSceneId: String,
+        hero: Character,
+        personaggioId: String?,
+    ): SessionData {
         val rawSession = SessionData(
             saveFormatVersion = 1,
             packageId = manifest.id,
@@ -212,6 +240,7 @@ class CreationState(private val dice: DiceRoller) {
             currentSceneId = startSceneId,
             characters = listOf(hero),
             lastUpdate = System.currentTimeMillis(),
+            personaggioId = personaggioId,
         )
         // BUG (21/07/2026, Michele: "non mi ha aggiunto nulla all'inventario"
         // — un libro di test dava oggetti via gameMechanics sulla scena
