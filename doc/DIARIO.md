@@ -7,6 +7,114 @@
 
 ---
 
+## 03/08/2026 (sera) — licenza GPL, e i testi di Lupo Solitario fuori da git
+
+Michele vuole annunciare il progetto (anche su gruppi come Librogame
+Italia) e chiede un'analisi realistica, "nessuna adulazione". Ne esce
+un problema che non riguardava il codice: **il repository è pubblico,
+con licenza MIT, e conteneva 1,8 MB di JSON derivati dai cinque libri
+Project Aon**, mentre il README dichiarava «uso personale, MAI
+distribuiti». L'APK rispettava la regola, il repository no.
+
+### GNU GPL v3
+
+Michele: *"vorrei che restasse OPEN e non che qualcuno la rendesse
+commerciale... credo che un programmatore abbia il diritto ad essere
+ricompensato per il suo lavoro però vorrei che il codice possa essere
+esempio per altri programmatori"*.
+
+Quella descrizione **è la GPL**, e conteneva una sfumatura da chiarire:
+la GPL **non vieta l'uso commerciale** — vendere software GPL è
+permesso. Vieta di **chiuderlo**: chi distribuisce, gratis o a
+pagamento, deve consegnare il sorgente con la stessa licenza. Il lavoro
+si paga, il sapere si condivide. Passati da MIT a GPL v3, con la
+motivazione scritta nel README §15.
+
+Chiarito anche che **cambiare licenza non risolveva il problema
+Project Aon**: una licenza vale sul proprio materiale, non può
+concedere diritti su materiale di terzi che sta nella stessa cartella.
+Quello si risolve togliendo i file.
+
+### Meccaniche in repository, testi scaricati in locale
+
+Stessa strada di kaichronicles (che infatti versiona `mechanics-N.xml`
+e fa scaricare i testi da Project Aon), ma realizzata meglio grazie a
+**due indicazioni di Michele**:
+
+1. **Un file solo con le etichette vuote**, invece dei due file separati
+   proposti da Claude. Non tocca lo schema `Scene`, né `PackageSource`,
+   né l'editor, né il validatore: lo scheletro è un pacchetto valido che
+   si apre e si modifica come qualunque altro. Costo quasi zero contro
+   una riscrittura.
+2. **La versione `xhtml-simple`**: `projectaon.org/en/xhtml-simple/lw/01fftd.htm`
+   è il libro intero in un file, esattamente ciò che il parser si
+   aspetta. La prima strada tentata era lo zip di `xhtml/`, che contiene
+   invece **una pagina per sezione** (472 file, da ricomporre a mano):
+   l'indicazione ha cancellato un pezzo di codice inutile e ha ridotto
+   il download a **una sola richiesta** al loro server.
+
+Marcatori nuovi: `Manifest.textsFrom` (`"projectaon:01fftd"`, da dove si
+scarica) e `Scene.source` (link al paragrafo originale — riferimento per
+chi legge il file, il motore non lo consulta mai: se il testo manca,
+manca, non va a prenderselo da Internet a partita in corso).
+
+**Il riempimento prende i TESTI dal sorgente ma le MECCANICHE dallo
+scheletro.** È il punto su cui regge tutto: in `doc/LIBRI` c'è il lavoro
+di mesi di correzioni a mano, e rigenerarlo dal parser a ogni giro lo
+butterebbe via. C'è un test apposta.
+
+Comandi: `:tool:cli --args="svuotaTesti <libro> <idPA>"` e
+`--args="riempiTesti <scheletro>"`, più il task `:tool:riempiTesti` che
+li fa tutti.
+
+**Verificato sui libri veri, non su esempi:**
+- `01fftd`: 122.138 caratteri di prosa rimossi da 362 scene; riempimento
+  362 su 362, **round-trip identico all'originale** su testi e meccaniche.
+- `04tcod`: 168.825 caratteri rimossi; **zero** scene con testo diverso
+  e **18 `rollModifiers` su 18** preservati.
+
+### Il grafo ufficiale trova un difetto vero (idea di Michele)
+
+Michele scopre che Project Aon pubblica **il grafo di tutti i percorsi**
+di ogni libro (`projectaon.org/en/svg/lw/01fftd.svgz`, Graphviz) e
+propone di confrontarlo con le nostre conversioni. È una **fonte
+indipendente**, ed è esattamente quello che mancava per verificarle.
+
+Esito su `01fftd`: **539 archi su 555 (97%)**, e soprattutto **zero
+archi inventati** — non abbiamo mai creato un collegamento inesistente.
+Dei 16 mancanti, 12 sono archi che rappresentiamo in due passi
+(attraverso finali fabbricati e nodi ponte): corretti, scritti
+diversamente.
+
+**Restano 4 buchi veri, tutti con la stessa firma**: scene in cui il
+libro offre *"combatti **oppure** evita"* e il parser prende solo il
+ramo "combatti".
+
+| scena | il libro | noi |
+|---|---|---|
+| 85 | «prepare to fight» → 229, oppure → 99 | solo 229 |
+| 144 | «fight, turn to 63» **or take evasive action** → 217 | solo 63 |
+| 262 | «if you wish to fight, turn to 191», oppure → 234 | solo 191 |
+| 322 | «stand and fight it» → 17, oppure → 89 | solo 89 mancante |
+
+In quelle quattro scene il giocatore **non può schivare uno scontro che
+il libro gli concede**. Controllata l'errata ufficiale (segnalata da
+Michele): non c'entra, sono correzioni tipografiche già applicate nel
+testo pubblicato. Il difetto è del nostro parser.
+
+**Da fare (non stasera)**: correggere il parser sul pattern
+"combatti/evita" e rifare il confronto su tutti e cinque i libri; e
+rendere il confronto col grafo un **comando stabile** — come controllo
+di qualità è qualcosa che nessun altro convertitore di librogame ha.
+
+**Non ancora fatto, decisione di Michele**: svuotare davvero i cinque
+libri in `doc/LIBRI/` e riscrivere la storia di git (un `git rm` non
+toglie i file dai commit precedenti). I libri di prova in
+`content/test-books/` e i libri originali dell'autore **non si toccano**:
+sono materiale del progetto.
+
+---
+
 ## 03/08/2026 — il leak, misurato davvero e tamponato
 
 Con gli strumenti nuovi (voce sotto) Michele fa tre partite complete:

@@ -109,6 +109,9 @@ tasks.register("riempiTesti") {
                 mainClass.set("io.github.luposolitario.immundanoctisex.tool.MainKt")
                 classpath = sourceSets["main"].runtimeClasspath
                 args = listOf("riempiTesti", scheletro.absolutePath)
+                // Senza questo, su Windows la JVM figlia stampa nella
+                // codepage di sistema e gli accenti escono a pezzi.
+                defaultCharacterEncoding = "UTF-8"
                 // Un libro senza `textsFrom` (uno tuo, uno di prova) esce
                 // con codice 2: non è un errore del task, è un libro che
                 // i testi ce li ha già.
