@@ -4821,6 +4821,39 @@ usciti al primo colpo. MSI e portatile **222 MB** (erano 96): dentro
 c'è il motore di inferenza. Verificato che la JVM imbustata sia la
 21.0.12 e che l'`.exe` si avvii davvero prima di pubblicare.
 
+## Il suono del finale che non finiva mai (03/08/2026)
+
+Michele, dopo il primo test del trasporto personaggio riuscito: *"ho
+notato un bug riguardante i suoni di fine avventura che vanno in loop e
+devo chiudere l'app"*.
+
+Causa: il suono del finale usava `playNamed`, cioè lo stesso meccanismo
+dei **sottofondi di scena**, che vanno in loop indefinito apposta. Un
+sottofondo però ha sempre qualcuno che lo ferma — il TTS che smette di
+parlare (`setDuckedByTts`) o il cambio di scena (`moveTo`). **Un finale
+non ha né l'uno né l'altro**: dopo l'ultima scena non si va da nessuna
+parte, e con l'auto-lettura spenta il TTS non parla mai. Restava a
+girare finché non si chiudeva l'applicazione.
+
+Due correzioni, perché una sola avrebbe lasciato scoperto un caso:
+
+1. **`playNamed(inLoop = false)`** per i finali: un suono conclusivo si
+   sente una volta. Con l'occasione, due dettagli che sarebbero diventati
+   bug a loro volta — un suono non in loop **non mette in pausa la
+   musica** (nessuno la farebbe ripartire, resterebbe zitta per sempre) e
+   **non si registra** fra gli stream da fermare (uno stream già finito
+   non va fermato).
+2. **`stopBackgroundSounds()` all'uscita dall'avventura**
+   (`DisposableEffect` in `AdventureRoute`): il cambio scena non copre
+   tutti i casi, e uscendo verso Home con un sottofondo attivo quello
+   continuava comunque.
+
+Nello stesso giro, richiesta di Michele: toccando il ritratto nella
+Scheda si apre **il personaggio, uomo o donna** (`hero_portrait_*`, lo
+stesso busto scelto in creazione) invece dell'icona animale ingrandita.
+L'animale resta il segno distintivo piccolo, in cima alla Scheda e nella
+card di stato.
+
 ## Il personaggio passa di libro in libro — FATTO (03/08/2026)
 
 Deciso con Michele a fine sessione del 03/08/2026, **non ancora

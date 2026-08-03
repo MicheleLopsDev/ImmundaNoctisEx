@@ -47,6 +47,7 @@ import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.CharacterRole
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
+import io.github.luposolitario.immundanoctisex.core.data.model.Gender
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
 import io.github.luposolitario.immundanoctisex.core.data.model.StatType
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
@@ -199,7 +200,19 @@ private fun HeroPortraitDialog(hero: Character, onDismiss: () -> Unit) {
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
-                    painter = painterResource(id = heroIconRes(hero.icon)),
+                    // Il RITRATTO dell'eroe, non l'icona animale
+                    // (03/08/2026, richiesta Michele): a schermo intero
+                    // si vuole vedere il personaggio, uomo o donna — lo
+                    // stesso busto scelto in creazione. L'animale resta
+                    // il segno distintivo piccolo, nella card e in cima
+                    // alla Scheda.
+                    painter = painterResource(
+                        id = if (hero.gender == Gender.FEMALE) {
+                            R.drawable.hero_portrait_female
+                        } else {
+                            R.drawable.hero_portrait_male
+                        },
+                    ),
                     contentDescription = hero.name,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier.fillMaxWidth().weight(1f, fill = false),

@@ -98,7 +98,16 @@ fun AdventureRoute(
             // quando cambiano le preferenze di narrazione.
             val ttsService = remember { TtsService(context) {} }
             DisposableEffect(Unit) {
-                onDispose { ttsService.shutdown() }
+                onDispose {
+                    ttsService.shutdown()
+                    // Rete di sicurezza (03/08/2026, bug di Michele: i
+                    // suoni del finale continuavano a suonare): uscendo
+                    // dall'avventura — verso Home, o in qualunque altro
+                    // modo — non deve restare nulla in sottofondo. Il
+                    // cambio scena non basta a coprire tutti i casi:
+                    // dall'ultima scena non si va da nessuna parte.
+                    container.soundEffectPlayer.stopBackgroundSounds()
+                }
             }
             val state = remember(currentSession) {
                 AdventureState(

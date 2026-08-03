@@ -769,7 +769,15 @@ class AdventureState(
         // .setDuckedByTts), la sovrapposizione che l'attesa serviva a
         // evitare è diventata l'effetto voluto — un sottofondo, non più
         // un suono a piena voce sopra il narratore.
-        soundEffectPlayer?.playNamed("ending_${outcome.name.lowercase()}", folder = "endings")
+        // Una volta sola, non in loop (03/08/2026): dopo l'ultima scena
+        // non c'è nessun cambio di scena a fermarlo, e con l'auto-lettura
+        // spenta nemmeno il TTS — restava a girare finché non si chiudeva
+        // l'app.
+        soundEffectPlayer?.playNamed(
+            "ending_${outcome.name.lowercase()}",
+            folder = "endings",
+            inLoop = false,
+        )
     }
 
     // Ogni mutazione dello stato di gioco passa di qui: è il punto giusto

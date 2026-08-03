@@ -207,8 +207,15 @@ class SoundEffectPlayer(
     // prova, `sfx/$folder/$name.mp3`. File mancante = silenzio, mai un
     // errore — Michele: "l'importante è che non vada in errore", così può
     // procurare gli asset con calma senza rompere nulla nel frattempo.
-    fun playNamed(name: String, folder: String = "images") {
-        playLooping(name, namedSoundIds) {
+    // `inLoop = false` per i suoni CONCLUSIVI (03/08/2026, bug segnalato
+    // da Michele: "i suoni di fine avventura vanno in loop e devo
+    // chiudere l'app"). I sottofondi di scena vanno in loop perché
+    // qualcosa li fermerà — il TTS che smette di parlare o il cambio di
+    // scena. Il suono di un FINALE non ha né l'uno né l'altro: dopo
+    // l'ultima scena non si va da nessuna parte, e con l'auto-lettura
+    // spenta il TTS non parla mai. Restava a girare per sempre.
+    fun playNamed(name: String, folder: String = "images", inLoop: Boolean = true) {
+        playLooping(name, namedSoundIds, inLoop) {
             context.assets.openFd("sfx/$folder/$name.mp3").use { afd -> pool.load(afd, 1) }
         }
     }
@@ -279,7 +286,12 @@ class SoundEffectPlayer(
     // musica per i suoni su SoundPool: i brevi asset bundlati, sia quelli
     // automatici per-immagine sia un Scene.sfx "static:". Gli url: hanno
     // un percorso tutto loro (startCustomSfx, MediaPlayer).
-    private fun playLooping(key: String, loadedIds: MutableMap<String, Int?>, loadSample: () -> Int?) {
+    private fun playLooping(
+        key: String,
+        loadedIds: MutableMap<String, Int?>,
+        inLoop: Boolean = true,
+        loadSample: () -> Int?,
+    ) {
         val id = if (loadedIds.containsKey(key)) {
             loadedIds[key]
         } else {
@@ -295,15 +307,25 @@ class SoundEffectPlayer(
         // sulla durata stimata del file (ora è in loop, potrebbe durare
         // ben più a lungo del singolo giro), ma la ripresa esplicita in
         // stopBackgroundSounds() quando il loop finisce davvero.
-        musicPlayer?.pause()
+        //
+        // Solo per i loop: un suono che finisce da sé non ha nessuno che
+        // poi rimetta in moto la musica, e la lascerebbe zitta per sempre.
+        if (inLoop) musicPlayer?.pause()
 
         val volume = effectiveVolume(ducked = duckedByTts)
         val playAction: () -> Unit = {
             // loop = -1: gira all'infinito finché non arriva uno stop
             // esplicito (setDuckedByTts quando il TTS finisce di parlare,
-            // o stopBackgroundSounds al cambio scena).
-            runCatching { pool.play(id, volume, volume, 1, -1, 1f) }
-                .onSuccess { streamId -> if (streamId != 0) namedSoundStreamIds[key] = streamId }
+            // o stopBackgroundSounds al cambio scena). loop = 0: una
+            // volta e basta, per i suoni conclusivi.
+            runCatching { pool.play(id, volume, volume, 1, if (inLoop) -1 else 0, 1f) }
+                .onSuccess { streamId ->
+                    // Solo i loop si registrano fra quelli da fermare:
+                    // uno stream già finito non va fermato, e tenerne
+                    // traccia farebbe credere a stopBackgroundSounds che
+                    // ci sia ancora qualcosa da spegnere.
+                    if (streamId != 0 && inLoop) namedSoundStreamIds[key] = streamId
+                }
         }
         if (id !in loaded) {
             pendingPlayOnLoad[id] = playAction
