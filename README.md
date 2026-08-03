@@ -366,7 +366,53 @@ Il seme narrativo (§7) resta il meccanismo di variazione tra le partite.
 9. TTS
 10. Test prestazionali reali su Motorola Razr 60 Ultra
 
-## 15. Changelog
+## 15. Licenza e materiale di terzi
+
+### Il codice: GNU GPL v3
+
+Questo progetto è rilasciato sotto **GNU General Public License v3**
+(vedi `LICENSE`). Prima era MIT; il cambio è del 03/08/2026, per una
+ragione precisa.
+
+Il progetto nasce anche per essere **un esempio leggibile** di come si
+costruisce una cosa del genere: motore di gioco, IA locale su telefono,
+strumenti di authoring. La GPL è la licenza che tiene insieme le due
+cose che contano qui:
+
+- **il lavoro si paga**: chiunque può usare questo codice anche per
+  lavoro e farsi pagare per quello che ci costruisce sopra — la GPL non
+  vieta l'uso commerciale, e non è quello lo scopo;
+- **il sapere si condivide**: chi distribuisce il progetto o un suo
+  derivato deve consegnare anche il sorgente, con la stessa licenza.
+  Nessuno può prendere questo motore, chiuderlo e farlo sparire dentro
+  un prodotto proprietario.
+
+Chi lo migliora, migliora l'esempio per tutti.
+
+### I libri di Lupo Solitario NON sono qui dentro
+
+I testi delle avventure di Lupo Solitario appartengono ai rispettivi
+autori e illustratori, e sono pubblicati da
+[Project Aon](https://www.projectaon.org) sotto una licenza che
+**permette il download per uso personale ma vieta la redistribuzione**.
+
+Questo repository, di conseguenza:
+
+- **non contiene** i testi delle avventure Project Aon;
+- contiene le **meccaniche** dei libri convertiti — identificativi delle
+  scene, collegamenti, intervalli di tiro, valori di combattimento,
+  modificatori: numeri e struttura, non prosa;
+- include uno strumento che, sulla macchina di chi lo usa, scarica i
+  libri dal sito di Project Aon e ne ricava il testo, **in locale**.
+
+Chi vuole giocare i libri originali li scarica da sé, per sé. Niente di
+tutto ciò passa da questo repository né dall'APK distribuito.
+
+I libri di prova in `content/test-books/` e i libri originali
+dell'autore sono un'altra cosa: sono materiale del progetto, versionati
+e distribuibili.
+
+## 16. Changelog
 
 - **13/07/2026** — Creazione documento. Prima bozza basata sull'analisi di
   fattibilità e sulla revisione del codice di Immunda Noctis v1.
