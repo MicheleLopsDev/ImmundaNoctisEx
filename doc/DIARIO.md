@@ -72,9 +72,41 @@ allargare l'interfaccia `InferenceEngine` per tutti i motori — contro
 il vincolo delle quattro interfacce motivate. Rifinitura a parte, se
 darà fastidio all'uso.
 
-**Cura vera, da provare**: esiste **`litertlm 0.15.0`** (Google Maven,
-pubblicata il 01/08/2026). Non aggiornata in questa sessione: cambia il
-motore su cui gira tutto e va provata sul device, non a scatola chiusa.
+### La 0.15.0: provata e rimessa indietro (stesso giorno)
+
+Michele: *"si dobbiamo provarla, prima però guarda se ci sono delle note
+che dicono le modifiche?"*
+
+**Note di rilascio non ce ne sono.** L'artefatto `0.15.0` è su Google
+Maven dal 01/08/2026, ma su GitHub l'ultima release pubblicata è la
+**v0.14.0** (08/07) e la tag `v0.15.0` risponde 404. Nei commit
+successivi alla 0.14.0, però, ce n'è uno che descrive **esattamente**
+il nostro caso: *"Reset current context and executor if only session is
+released"* (13/07/2026) — cioè: rilasciando solo la sessione, il
+contesto e l'executor restavano allocati. È la descrizione del leak
+misurato oggi. Inferenza, non conferma: senza changelog non si sa se
+quel commit sia dentro la 0.15.0, anche se le date lo suggeriscono.
+
+**Provata comunque, ed è andata male.** App e tool compilano entrambi,
+ma `:tool:test` fa **crashare la JVM** dentro `litertlm_jni.dll`:
+`EXCEPTION_UNCAUGHT_CXX_EXCEPTION` in `nativeCreateEngine`, cioè
+un'eccezione C++ che esce dal binding e uccide il processo. Verificato
+in **A/B sullo stesso codice**: con la 0.14.0 `:tool:test` passa, con la
+0.15.0 crasha, e tornando alla 0.14.0 ripassa.
+
+Rimessa la **0.14.0**, con un avviso in `gradle/libs.versions.toml` che
+racconta la prova, così nessuno la rialza senza rifarla.
+
+**Da tenere presente**: il crash è dell'artefatto litertlm-**JVM** su
+Windows. Su litertlm-**ANDROID** non dice nulla — sono native diverse,
+e il telefono potrebbe comportarsi in tutt'altro modo. Provare la
+0.15.0 sul solo lato Android resta possibile, ma vorrebbe dire tenere
+client ed editor su versioni diverse: l'editor esiste anche per
+simulare il client (*"voglio proprio avere una simulazione di quello
+che succede sul client"*), e due motori diversi romperebbero quella
+promessa. Non fatto senza una decisione esplicita di Michele.
+
+Per ora il leak resta coperto dal tampone qui sopra.
 
 ---
 

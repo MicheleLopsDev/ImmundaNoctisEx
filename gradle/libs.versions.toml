@@ -8,6 +8,22 @@ composeBom = "2024.09.00"
 junit = "4.13.2"
 kotlinxSerialization = "1.7.3"
 workManager = "2.10.0"
+# NON aggiornare alla 0.15.0 senza rifare la prova qui sotto.
+#
+# La 0.15.0 esiste su Google Maven (01/08/2026) e sarebbe la candidata
+# naturale per il leak del 03/08 (vedi doc/DIARIO.md): fra i commit
+# successivi alla 0.14.0 ce n'è uno che descrive esattamente il nostro
+# caso — "Reset current context and executor if only session is
+# released" (13/07/2026). Note di rilascio non ce ne sono: su GitHub
+# l'ultima release è la v0.14.0 e la tag v0.15.0 non esiste.
+#
+# PROVATA il 03/08/2026: app e tool compilano entrambi, ma i test di
+# :tool fanno CRASHARE la JVM dentro `litertlm_jni.dll` —
+# EXCEPTION_UNCAUGHT_CXX_EXCEPTION in `nativeCreateEngine`, cioè
+# un'eccezione C++ che esce dal binding e uccide il processo. Verificato
+# in A/B: con la 0.14.0 `:tool:test` passa, con la 0.15.0 crasha.
+# Il crash è dell'artefatto litertlm-JVM (Windows); su litertlm-ANDROID
+# non dice nulla, sono native diverse.
 litertlm = "0.14.0"
 coroutines = "1.11.0"
 jsoup = "1.17.2"
