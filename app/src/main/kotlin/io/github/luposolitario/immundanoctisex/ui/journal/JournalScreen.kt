@@ -23,10 +23,14 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import android.content.Context
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.CombatOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.JourneyEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.Transition
@@ -45,8 +49,8 @@ fun JournalScreen(
 
     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
         TabRow(selectedTabIndex = tab) {
-            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text("Racconto") })
-            Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text("Mappa logica") })
+            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(stringResource(R.string.journal_tab_story)) })
+            Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text(stringResource(R.string.journal_tab_map)) })
         }
         Spacer(Modifier.height(12.dp))
 
@@ -54,10 +58,10 @@ fun JournalScreen(
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onExport, modifier = Modifier.weight(1f)) {
-                Text("Esporta (Markdown)")
+                Text(stringResource(R.string.journal_export))
             }
             Button(onClick = onClose, modifier = Modifier.weight(1f)) {
-                Text("Chiudi")
+                Text(stringResource(R.string.common_close))
             }
         }
     }
@@ -65,6 +69,7 @@ fun JournalScreen(
 
 @Composable
 private fun StoryView(journey: List<JourneyEntry>, modifier: Modifier) {
+    val context = LocalContext.current
     LazyColumn(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(journey) { entry ->
             Card(modifier = Modifier.fillMaxWidth()) {
@@ -73,7 +78,10 @@ private fun StoryView(journey: List<JourneyEntry>, modifier: Modifier) {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text("Scena ${entry.sceneId}", fontWeight = FontWeight.Bold)
+                        Text(
+                            stringResource(R.string.adventure_scene, entry.sceneId),
+                            fontWeight = FontWeight.Bold,
+                        )
                         entry.locationName?.let {
                             Text(it, color = MaterialTheme.colorScheme.tertiary)
                         }
@@ -81,7 +89,7 @@ private fun StoryView(journey: List<JourneyEntry>, modifier: Modifier) {
                     Text(entry.enrichedText, style = MaterialTheme.typography.bodyMedium)
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        transitionText(entry.transition),
+                        transitionText(context, entry.transition),
                         fontStyle = FontStyle.Italic,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = MaterialTheme.typography.bodySmall,
@@ -113,29 +121,38 @@ private fun MapView(journey: List<JourneyEntry>, modifier: Modifier) {
     }
 }
 
-private fun transitionText(transition: Transition): String = when (transition) {
-    is Transition.ChoiceTaken -> "→ hai scelto (${transition.choiceId})"
-    is Transition.DisciplineUsed -> "→ hai usato ${transition.disciplineId}"
-    is Transition.CombatResolved -> when (transition.outcome) {
-        CombatOutcome.WIN -> "→ combattimento VINTO"
-        CombatOutcome.LOSE -> "→ combattimento PERSO"
-        CombatOutcome.EVADE -> "→ sei fuggito dal combattimento"
-    }
-    is Transition.AutoJump -> "→ il destino ha deciso (${transition.reason})"
+// Prende il Context invece di essere @Composable perché serve anche
+// all'export in Markdown, che gira fuori dalla composizione.
+private fun transitionText(context: Context, transition: Transition): String = when (transition) {
+    is Transition.ChoiceTaken ->
+        context.getString(R.string.journal_transition_choice, transition.choiceId)
+    is Transition.DisciplineUsed ->
+        context.getString(R.string.journal_transition_discipline, transition.disciplineId)
+    is Transition.CombatResolved -> context.getString(
+        when (transition.outcome) {
+            CombatOutcome.WIN -> R.string.journal_transition_combat_win
+            CombatOutcome.LOSE -> R.string.journal_transition_combat_lose
+            CombatOutcome.EVADE -> R.string.journal_transition_combat_evade
+        },
+    )
+    is Transition.AutoJump ->
+        context.getString(R.string.journal_transition_autojump, transition.reason)
 }
 
 // Il diario è già un generatore di racconto (STATO.md Blocco 3).
-fun journeyToMarkdown(bookTitle: String, journey: List<JourneyEntry>): String = buildString {
-    appendLine("# $bookTitle — Diario del viaggio")
+// I marcatori Markdown (#, ##, *) restano nel codice: sono sintassi, non
+// testo da tradurre — in strings.xml sta solo quello che si legge.
+fun journeyToMarkdown(context: Context, bookTitle: String, journey: List<JourneyEntry>): String = buildString {
+    appendLine("# " + context.getString(R.string.journal_export_title, bookTitle))
     appendLine()
     journey.forEach { entry ->
-        append("## Scena ${entry.sceneId}")
+        append("## " + context.getString(R.string.adventure_scene, entry.sceneId))
         entry.locationName?.let { append(" — $it") }
         appendLine()
         appendLine()
         appendLine(entry.enrichedText)
         appendLine()
-        appendLine("*${transitionText(entry.transition)}*")
+        appendLine("*${transitionText(context, entry.transition)}*")
         appendLine()
     }
 }

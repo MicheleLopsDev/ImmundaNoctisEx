@@ -21,8 +21,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
+import io.github.luposolitario.immundanoctisex.ui.sheet.kaiRankName
 import io.github.luposolitario.immundanoctisex.core.data.model.Discipline
 import io.github.luposolitario.immundanoctisex.core.data.model.PersonaggioSalvato
 import io.github.luposolitario.immundanoctisex.core.engine.character.TrasportoPersonaggio
@@ -62,31 +65,38 @@ fun PersonaggiSalvatiCard(
     daEliminare?.let { salvato ->
         AlertDialog(
             onDismissRequest = { daEliminare = null },
-            title = { Text("Eliminare ${salvato.nome}?") },
+            title = { Text(stringResource(R.string.hero_saved_delete_title, salvato.nome)) },
             text = {
                 Text(
-                    "Il personaggio sparisce con tutta la sua storia " +
-                        "(${salvato.libriCompletati.size} libri completati). Le partite salvate restano.",
+                    stringResource(
+                        R.string.hero_saved_delete_text,
+                        salvato.libriCompletati.size,
+                    ),
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     onElimina(salvato)
                     daEliminare = null
-                }) { Text("Elimina") }
+                }) { Text(stringResource(R.string.setup_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { daEliminare = null }) { Text("Annulla") }
+                TextButton(onClick = { daEliminare = null }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
             },
         )
     }
 
     Card(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Riprendi un personaggio", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Text(
-                "Porta con sé statistiche, discipline ed equipaggiamento. " +
-                    "Le statistiche non si tirano di nuovo: sono le sue per tutta la serie.",
+                stringResource(R.string.hero_saved_title),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                stringResource(R.string.hero_saved_text),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -117,18 +127,27 @@ private fun RigaPersonaggio(
             Text(
                 // Nome, rango e data: due eroi possono chiamarsi uguale,
                 // la data è ciò che li distingue a colpo d'occhio.
-                "${salvato.nome} · ${rango.name} · creato il ${formato.format(Date(salvato.creatoIl))}",
+                stringResource(
+                    R.string.hero_saved_line,
+                    salvato.nome,
+                    stringResource(kaiRankName(rango)),
+                    formato.format(Date(salvato.creatoIl)),
+                ),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium,
             )
+            val daLibro = stringResource(R.string.hero_saved_from, salvato.libroOrigineTitolo)
+            val nessunLibro = stringResource(R.string.hero_saved_no_books)
+            val libriFatti = stringResource(R.string.hero_saved_books, salvato.libriCompletati.size)
+            val ultimoLibro = ultimo?.let { stringResource(R.string.hero_saved_last_book, it.titolo) }
             Text(
                 buildString {
-                    append("Da \"${salvato.libroOrigineTitolo}\"")
+                    append(daLibro)
                     if (salvato.libriCompletati.isEmpty()) {
-                        append(" · nessun libro completato")
+                        append(nessunLibro)
                     } else {
-                        append(" · ${salvato.libriCompletati.size} libri completati")
-                        ultimo?.let { append(", ultimo \"${it.titolo}\"") }
+                        append(libriFatti)
+                        ultimoLibro?.let { append(it) }
                     }
                 },
                 style = MaterialTheme.typography.bodySmall,
@@ -136,13 +155,13 @@ private fun RigaPersonaggio(
             )
             if (salvato.disciplineDaAssegnare > 0) {
                 Text(
-                    "Ha diritto a ${salvato.disciplineDaAssegnare} nuova/e Disciplina Kai",
+                    stringResource(R.string.hero_saved_new_disciplines, salvato.disciplineDaAssegnare),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.tertiary,
                 )
             }
         }
-        Button(onClick = onRiprendi) { Text("Riprendi") }
+        Button(onClick = onRiprendi) { Text(stringResource(R.string.hero_saved_resume)) }
         TextButton(onClick = onElimina) { Text("✕") }
     }
 }

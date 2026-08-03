@@ -384,7 +384,8 @@ private fun WeaponSkillCard(state: CreationState) {
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                state.weaponSkillType?.let { stringResource(weaponTypeName(it)) } ?: "—",
+                state.weaponSkillType?.let { stringResource(weaponTypeName(it)) }
+                    ?: stringResource(R.string.creation_no_weapon_skill),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,

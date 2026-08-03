@@ -8,7 +8,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import io.github.luposolitario.immundanoctisex.AppContainer
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.Difficulty
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.model.checkpointBudget
@@ -49,12 +51,9 @@ fun SetupRoute(
     pendingChoice?.let { (session, slot) ->
         AlertDialog(
             onDismissRequest = { pendingChoice = null },
-            title = { Text("Hai un checkpoint salvato") },
+            title = { Text(stringResource(R.string.setup_checkpoint_title)) },
             text = {
-                Text(
-                    "Vuoi riprendere dal checkpoint o continuare da dove eri arrivato " +
-                        "(scena ${session.currentSceneId})?",
-                )
+                Text(stringResource(R.string.setup_checkpoint_text, session.currentSceneId))
             },
             confirmButton = {
                 TextButton(onClick = {
@@ -69,13 +68,13 @@ fun SetupRoute(
                     } else {
                         onContinueSession(session)
                     }
-                }) { Text("Carica il checkpoint") }
+                }) { Text(stringResource(R.string.setup_checkpoint_load)) }
             },
             dismissButton = {
                 TextButton(onClick = {
                     pendingChoice = null
                     onContinueSession(session)
-                }) { Text("Continua da dove ero") }
+                }) { Text(stringResource(R.string.setup_checkpoint_keep)) }
             },
         )
     }

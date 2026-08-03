@@ -64,16 +64,26 @@ fun AdventureSetupScreen(
     sessionPendingDelete?.let { session ->
         AlertDialog(
             onDismissRequest = { sessionPendingDelete = null },
-            title = { Text("Eliminare il salvataggio?") },
-            text = { Text("\"${session.packageId}\" — scena ${session.currentSceneId}. Non si può recuperare.") },
+            title = { Text(stringResource(R.string.setup_delete_title)) },
+            text = {
+                Text(
+                    stringResource(
+                        R.string.setup_delete_text,
+                        session.packageId,
+                        session.currentSceneId,
+                    ),
+                )
+            },
             confirmButton = {
                 TextButton(onClick = {
                     onDeleteSession(session)
                     sessionPendingDelete = null
-                }) { Text("Elimina") }
+                }) { Text(stringResource(R.string.setup_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { sessionPendingDelete = null }) { Text("Annulla") }
+                TextButton(onClick = { sessionPendingDelete = null }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
             },
         )
     }
@@ -146,7 +156,7 @@ private fun SavedSessionCard(session: SessionData, onContinue: () -> Unit, onDel
                 style = MaterialTheme.typography.bodySmall,
             )
             Text(
-                "${session.difficulty} — scena ${session.currentSceneId}",
+                stringResource(R.string.setup_session_line, session.difficulty, session.currentSceneId),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -161,7 +171,7 @@ private fun SavedSessionCard(session: SessionData, onContinue: () -> Unit, onDel
                     colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
-                ) { Text("Elimina") }
+                ) { Text(stringResource(R.string.setup_delete)) }
             }
         }
     }

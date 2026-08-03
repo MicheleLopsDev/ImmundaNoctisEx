@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
@@ -76,14 +77,18 @@ private fun StatsBreakdownCard(hero: Character) {
 @Composable
 private fun CombatSkillBreakdown(hero: Character, modifier: Modifier = Modifier) {
     Column(modifier) {
-        Text("Combattività", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            stringResource(R.string.stat_combat_skill),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Text("${effectiveCombatSkill(hero)}", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(4.dp))
-        BreakdownLine("Base ${hero.baseCombatSkill}")
+        BreakdownLine(stringResource(R.string.sheet_base, hero.baseCombatSkill))
         val weaponBonus = weaponskillBonus(hero)
         if (weaponBonus != 0) {
             val weaponName = hero.weaponSkillType?.let { stringResource(weaponTypeName(it)) } ?: ""
-            BreakdownLine("+$weaponBonus WEAPONSKILL ($weaponName)")
+            BreakdownLine(stringResource(R.string.sheet_weaponskill_bonus, weaponBonus, weaponName))
         }
         hero.activeModifiers.filter { it.stat == StatType.COMBAT_SKILL }.forEach {
             BreakdownLine(modifierLabel(it))
@@ -94,17 +99,21 @@ private fun CombatSkillBreakdown(hero: Character, modifier: Modifier = Modifier)
 @Composable
 private fun EnduranceBreakdown(hero: Character, modifier: Modifier = Modifier) {
     Column(modifier) {
-        Text("Resistenza", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            stringResource(R.string.stat_endurance),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Text(
             "${hero.currentEndurance} / ${effectiveMaxEndurance(hero)}",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
         )
         Spacer(Modifier.height(4.dp))
-        BreakdownLine("Base ${hero.maxEndurance}")
+        BreakdownLine(stringResource(R.string.sheet_base, hero.maxEndurance))
         hero.inventory.forEach { item ->
             val bonus = itemEnduranceBonus(item)
-            if (bonus != 0) BreakdownLine("+$bonus ${item.name}")
+            if (bonus != 0) BreakdownLine(stringResource(R.string.sheet_item_bonus, bonus, item.name))
         }
         hero.activeModifiers.filter { it.stat == StatType.ENDURANCE }.forEach {
             BreakdownLine(modifierLabel(it))
@@ -131,7 +140,7 @@ private fun modifierLabel(modifier: StatModifier): String {
 private fun WeaponsCard(hero: Character, onEquipWeapon: (String) -> Unit, onUnequipWeapon: () -> Unit) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Armi", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.sheet_weapons), style = MaterialTheme.typography.titleLarge)
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val weapons = hero.inventory.filter { it.type == ItemType.WEAPON }
                 repeat(Inventory.MAX_WEAPONS) { index ->
@@ -147,7 +156,7 @@ private fun WeaponsCard(hero: Character, onEquipWeapon: (String) -> Unit, onUneq
                 }
             }
             Text(
-                "+2 con l'arma della tua specializzazione · -4 senza armi",
+                stringResource(R.string.sheet_weapons_hint),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -222,7 +231,11 @@ private fun WeaponSlot(
             if (equippedHere) {
                 val bonus = weaponskillBonus(hero)
                 Text(
-                    if (bonus != 0) "Impugnata · +$bonus" else "Impugnata",
+                    if (bonus != 0) {
+                        stringResource(R.string.sheet_wielded_bonus, bonus)
+                    } else {
+                        stringResource(R.string.sheet_wielded)
+                    },
                     style = MaterialTheme.typography.bodySmall,
                 )
             }

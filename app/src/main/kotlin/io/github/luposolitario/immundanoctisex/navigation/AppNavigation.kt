@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import io.github.luposolitario.immundanoctisex.R
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -184,6 +186,6 @@ fun AppNavigation(
 @Composable
 private fun PlaceholderScreen(route: Route) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Schermata $route — in costruzione (Fase 3)")
+        Text(stringResource(R.string.screen_under_construction, route))
     }
 }

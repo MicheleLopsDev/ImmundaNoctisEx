@@ -294,7 +294,92 @@
     <string name="volume_general">Generale</string>
     <string name="volume_slider_label">%1$s — %2$d%%</string>
 
+    <!-- Scheda del personaggio -->
+    <string name="sheet_tab_stats">Stats e Discipline</string>
+    <string name="sheet_tab_equipment">Equipaggiamento</string>
+    <string name="sheet_disciplines">Discipline Kai</string>
+    <string name="sheet_tap_to_close">Tocca per chiudere</string>
+    <string name="sheet_combat_skill_value">Combattività: %1$d</string>
+    <string name="sheet_endurance_value">Resistenza: %1$d/%2$d</string>
+    <string name="sheet_base">Base %1$d</string>
+    <string name="sheet_base_ratio">Base %1$d/%2$d</string>
+    <string name="sheet_weapon_bonus">+%1$d CS (specializzazione)</string>
+    <string name="sheet_weaponskill_bonus">+%1$d WEAPONSKILL (%2$s)</string>
+    <string name="sheet_item_cs">%1$s +%2$d CS</string>
+    <string name="sheet_item_end">%1$s +%2$d RES</string>
+    <string name="sheet_item_bonus">+%1$d %2$s</string>
+    <string name="sheet_weapons">Armi</string>
+    <string name="sheet_weapons_hint">+2 con l\'arma della tua specializzazione · -4 senza armi</string>
+    <string name="sheet_wielded">Impugnata</string>
+    <string name="sheet_wielded_bonus">Impugnata · +%1$d</string>
+    <string name="sheet_backpack">Zaino</string>
+    <string name="sheet_empty_slot">Vuoto</string>
+    <string name="sheet_special_items">Oggetti speciali e borsa</string>
+    <string name="sheet_gold_line">Corone d\'oro: %1$d / %2$d</string>
+    <string name="sheet_item_bullet">• %1$s</string>
+    <string name="sheet_item_bullet_qty">• %1$s x%2$d</string>
+    <string name="sheet_discard_title">Scartare %1$s?</string>
+    <string name="sheet_discard_text">Non potrai più usarlo, a meno di trovarlo di nuovo.</string>
+    <string name="sheet_discard">Scarta</string>
+
+    <!-- Diario del viaggio. Le voci journal_export_* finiscono nel file
+         Markdown esportato, non a schermo. -->
+    <string name="journal_tab_story">Racconto</string>
+    <string name="journal_tab_map">Mappa logica</string>
+    <string name="journal_export">Esporta (Markdown)</string>
+    <string name="journal_transition_choice">→ hai scelto (%1$s)</string>
+    <string name="journal_transition_discipline">→ hai usato %1$s</string>
+    <string name="journal_transition_combat_win">→ combattimento VINTO</string>
+    <string name="journal_transition_combat_lose">→ combattimento PERSO</string>
+    <string name="journal_transition_combat_evade">→ sei fuggito dal combattimento</string>
+    <string name="journal_transition_autojump">→ il destino ha deciso (%1$s)</string>
+    <string name="journal_export_title">%1$s — Diario del viaggio</string>
+
+    <!-- Setup dell'avventura -->
+    <string name="setup_delete_title">Eliminare il salvataggio?</string>
+    <string name="setup_delete_text">"%1$s" — scena %2$s. Non si può recuperare.</string>
+    <string name="setup_delete">Elimina</string>
+    <string name="setup_session_line">%1$s — scena %2$s</string>
+    <string name="setup_checkpoint_title">Hai un checkpoint salvato</string>
+    <string name="setup_checkpoint_text">Vuoi riprendere dal checkpoint o continuare da dove eri arrivato (scena %1$s)?</string>
+    <string name="setup_checkpoint_load">Carica il checkpoint</string>
+    <string name="setup_checkpoint_keep">Continua da dove ero</string>
+
+    <!-- Personaggi salvati (trasporto fra libri) -->
+    <string name="hero_saved_title">Riprendi un personaggio</string>
+    <string name="hero_saved_text">Porta con sé statistiche, discipline ed equipaggiamento. Le statistiche non si tirano di nuovo: sono le sue per tutta la serie.</string>
+    <string name="hero_saved_delete_title">Eliminare %1$s?</string>
+    <string name="hero_saved_delete_text">Il personaggio sparisce con tutta la sua storia (%1$d libri completati). Le partite salvate restano.</string>
+    <string name="hero_saved_line">%1$s · %2$s · creato il %3$s</string>
+    <string name="hero_saved_from">Da "%1$s"</string>
+    <string name="hero_saved_no_books"> · nessun libro completato</string>
+    <string name="hero_saved_books"> · %1$d libri completati</string>
+    <string name="hero_saved_last_book">, ultimo "%1$s"</string>
+    <string name="hero_saved_new_disciplines">Ha diritto a %1$d nuova/e Disciplina Kai</string>
+    <string name="hero_saved_resume">Riprendi</string>
+    <string name="creation_no_weapon_skill">—</string>
+
+    <!-- Diario di Combattimento -->
+    <string name="combat_paragraph">Paragrafo %1$s</string>
+    <string name="combat_endurance_short">RES %1$d/%2$d</string>
+    <string name="combat_skill_short">CS %1$d</string>
+    <string name="combat_modifier_line">%1$s%2$d %3$s (%4$s)</string>
+    <!-- Sigle dentro le righe strette del Diario di Combattimento. -->
+    <string name="stat_cs_abbr">CS</string>
+    <string name="stat_end_abbr">RES</string>
+    <string name="combat_result_win">VITTORIA in %1$d round!</string>
+    <string name="combat_result_lose">SCONFITTA dopo %1$d round.</string>
+    <string name="combat_result_evade">Sei fuggito dopo %1$d round.</string>
+
+    <!-- Caricamento del libro (side-load) -->
+    <string name="book_loaded">Libro caricato: %1$s</string>
+    <string name="book_invalid">Pacchetto non valido</string>
+    <string name="book_none">nessuno</string>
+    <string name="book_load_failed">Impossibile caricare il libro (pacchetto non valido).</string>
+    <string name="screen_under_construction">Schermata %1$s — in costruzione (Fase 3)</string>
+
     <!-- Comuni -->
+    <string name="common_close">Chiudi</string>
     <string name="common_back">Indietro</string>
     <string name="common_confirm">Conferma</string>
     <string name="common_cancel">Annulla</string>

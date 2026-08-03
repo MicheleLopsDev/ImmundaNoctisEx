@@ -81,8 +81,12 @@ fun CharacterSheetScreen(
 
     Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
         TabRow(selectedTabIndex = tab) {
-            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text("Stats e Discipline") })
-            Tab(selected = tab == 1, onClick = { tab = 1 }, text = { Text("Equipaggiamento") })
+            Tab(selected = tab == 0, onClick = { tab = 0 }, text = { Text(stringResource(R.string.sheet_tab_stats)) })
+            Tab(
+                selected = tab == 1,
+                onClick = { tab = 1 },
+                text = { Text(stringResource(R.string.sheet_tab_equipment)) },
+            )
         }
         Spacer(Modifier.height(12.dp))
         Column(
@@ -96,7 +100,7 @@ fun CharacterSheetScreen(
             }
         }
         Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
-            Text("Chiudi")
+            Text(stringResource(R.string.common_close))
         }
     }
 }
@@ -140,7 +144,7 @@ private fun StatsTab(hero: Character) {
     }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Discipline Kai", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.sheet_disciplines), style = MaterialTheme.typography.titleLarge)
             hero.kaiDisciplines.forEach { id ->
                 // Prima si mostrava l'ID canonico grezzo ("MINDBLAST"):
                 // nome e descrizione erano già in strings.xml, inutilizzati.
@@ -230,7 +234,7 @@ private fun HeroPortraitDialog(hero: Character, onDismiss: () -> Unit) {
                     color = KAI_GOLD,
                 )
                 Text(
-                    "Tocca per chiudere",
+                    stringResource(R.string.sheet_tap_to_close),
                     style = MaterialTheme.typography.labelSmall,
                     color = Color.White.copy(alpha = 0.7f),
                 )
@@ -247,9 +251,12 @@ private fun HeroPortraitDialog(hero: Character, onDismiss: () -> Unit) {
 private fun CombatSkillBreakdown(hero: Character) {
     val weaponBonus = weaponskillBonus(hero)
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Combattività: ${effectiveCombatSkill(hero)}", fontWeight = FontWeight.Bold)
         Text(
-            "Base ${hero.baseCombatSkill}",
+            stringResource(R.string.sheet_combat_skill_value, effectiveCombatSkill(hero)),
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            stringResource(R.string.sheet_base, hero.baseCombatSkill),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -258,7 +265,7 @@ private fun CombatSkillBreakdown(hero: Character) {
         }
         if (weaponBonus != 0) {
             Text(
-                "+$weaponBonus CS (specializzazione)",
+                stringResource(R.string.sheet_weapon_bonus, weaponBonus),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.tertiary,
             )
@@ -268,7 +275,7 @@ private fun CombatSkillBreakdown(hero: Character) {
         // sotto — il giocatore deve poter risalire a ogni punto.
         hero.inventory.filter { itemCombatSkillBonus(it) != 0 }.forEach { item ->
             Text(
-                "${item.name} +${itemCombatSkillBonus(item)} CS",
+                stringResource(R.string.sheet_item_cs, item.name, itemCombatSkillBonus(item)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.tertiary,
             )
@@ -280,15 +287,22 @@ private fun CombatSkillBreakdown(hero: Character) {
 private fun EnduranceBreakdown(hero: Character) {
     val itemBonuses = hero.inventory.filter { itemEnduranceBonus(it) != 0 }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text("Resistenza: ${effectiveEndurance(hero)}/${effectiveMaxEndurance(hero)}", fontWeight = FontWeight.Bold)
         Text(
-            "Base ${hero.currentEndurance}/${hero.maxEndurance}",
+            stringResource(
+                R.string.sheet_endurance_value,
+                effectiveEndurance(hero),
+                effectiveMaxEndurance(hero),
+            ),
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            stringResource(R.string.sheet_base_ratio, hero.currentEndurance, hero.maxEndurance),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         itemBonuses.forEach { item ->
             Text(
-                "${item.name} +${itemEnduranceBonus(item)} RES",
+                stringResource(R.string.sheet_item_end, item.name, itemEnduranceBonus(item)),
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.tertiary,
             )

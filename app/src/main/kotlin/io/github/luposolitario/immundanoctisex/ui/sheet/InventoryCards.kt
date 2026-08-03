@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -48,20 +49,24 @@ fun BackpackCard(hero: Character, onConsumeItem: (String) -> Unit, onDiscardItem
     pendingDiscard?.let { item ->
         AlertDialog(
             onDismissRequest = { pendingDiscard = null },
-            title = { Text("Scartare ${item.name}?") },
-            text = { Text("Non potrai più usarlo, a meno di trovarlo di nuovo.") },
+            title = { Text(stringResource(R.string.sheet_discard_title, item.name)) },
+            text = { Text(stringResource(R.string.sheet_discard_text)) },
             confirmButton = {
-                TextButton(onClick = { onDiscardItem(item.name); pendingDiscard = null }) { Text("Scarta") }
+                TextButton(onClick = { onDiscardItem(item.name); pendingDiscard = null }) {
+                    Text(stringResource(R.string.sheet_discard))
+                }
             },
             dismissButton = {
-                TextButton(onClick = { pendingDiscard = null }) { Text("Annulla") }
+                TextButton(onClick = { pendingDiscard = null }) {
+                    Text(stringResource(R.string.common_cancel))
+                }
             },
         )
     }
 
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
-            Text("Zaino", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.sheet_backpack), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
             val slots = buildList {
                 hero.inventory.filter { it.type == ItemType.BACKPACK_ITEM }
@@ -107,7 +112,7 @@ fun BackpackCard(hero: Character, onConsumeItem: (String) -> Unit, onDiscardItem
                                 Spacer(Modifier.height(2.dp))
                             }
                             Text(
-                                item?.name ?: "Vuoto",
+                                item?.name ?: stringResource(R.string.sheet_empty_slot),
                                 style = MaterialTheme.typography.bodySmall,
                                 textAlign = TextAlign.Center,
                                 maxLines = 2,
@@ -150,11 +155,24 @@ private fun backpackItemIcon(item: GameItem?): Int? = when {
 fun SpecialItemsCard(hero: Character) {
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("Oggetti speciali e borsa", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.sheet_special_items), style = MaterialTheme.typography.titleLarge)
             hero.inventory.filter { it.type == ItemType.SPECIAL_ITEM }.forEach {
-                Text("• ${it.name}${if (it.quantity > 1) " x${it.quantity}" else ""}")
+                Text(
+                    if (it.quantity > 1) {
+                        stringResource(R.string.sheet_item_bullet_qty, it.name, it.quantity)
+                    } else {
+                        stringResource(R.string.sheet_item_bullet, it.name)
+                    },
+                )
             }
-            Text("Corone d'oro: ${Inventory.countOf(hero, "Gold Crowns")} / ${Inventory.MAX_GOLD}")
+            // "Gold Crowns" è l'ID canonico nei dati, non un testo mostrato.
+            Text(
+                stringResource(
+                    R.string.sheet_gold_line,
+                    Inventory.countOf(hero, "Gold Crowns"),
+                    Inventory.MAX_GOLD,
+                ),
+            )
         }
     }
 }

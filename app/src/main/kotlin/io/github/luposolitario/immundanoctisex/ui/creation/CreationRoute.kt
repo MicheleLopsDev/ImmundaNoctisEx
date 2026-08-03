@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import io.github.luposolitario.immundanoctisex.R
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,7 +106,7 @@ fun CreationRoute(
 
         // Pacchetto rotto: messaggio semplice, il gioco non crasha mai.
         else -> Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Impossibile caricare il libro (pacchetto non valido).")
+            Text(stringResource(R.string.book_load_failed))
         }
     }
 }

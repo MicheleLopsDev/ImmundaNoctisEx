@@ -147,6 +147,7 @@ fun AdventureScreen(
             journey = state.gameState.session.journey,
             onExport = {
                 val markdown = io.github.luposolitario.immundanoctisex.ui.journal.journeyToMarkdown(
+                    context,
                     state.bookTitle,
                     state.gameState.session.journey,
                 )

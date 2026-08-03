@@ -62,7 +62,7 @@ fun CombatDiaryPanel(state: AdventureState, session: CombatSession, diceColor: D
         // (Michele 22/07/2026, foto del registro): un dato che avevamo
         // già (currentScene.id), solo mai portato dentro al combattimento.
         Text(
-            "Paragrafo ${state.currentScene.id}",
+            stringResource(R.string.combat_paragraph, state.currentScene.id),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -127,7 +127,10 @@ private fun CombatantColumn(
             Spacer(Modifier.height(2.dp))
         }
         Text(name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-        Text("RES ${character.currentEndurance}/$maxEndurance", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            stringResource(R.string.combat_endurance_short, character.currentEndurance, maxEndurance),
+            style = MaterialTheme.typography.bodyMedium,
+        )
         // Barra RES verde per te, rossa per il nemico (24/07/2026,
         // richiesta Michele): stesso dato del testo sopra, solo più
         // leggibile a colpo d'occhio durante lo scambio di colpi.
@@ -138,7 +141,10 @@ private fun CombatantColumn(
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
         )
         Spacer(Modifier.height(2.dp))
-        Text("CS ${effectiveCombatSkill(character)}", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            stringResource(R.string.combat_skill_short, effectiveCombatSkill(character)),
+            style = MaterialTheme.typography.bodyMedium,
+        )
         // I modificatori attivi (MINDBLAST, ecc.): il fatto sta nel
         // personaggio, qui si mostra solo. Nome localizzato dove esiste
         // (le discipline Kai ce l'hanno già), altrimenti l'ID grezzo.
@@ -158,9 +164,11 @@ private fun CombatantColumn(
 @Composable
 internal fun modifierLabel(modifier: StatModifier): String {
     val sign = if (modifier.amount >= 0) "+" else ""
-    val stat = if (modifier.stat == StatType.COMBAT_SKILL) "CS" else "RES"
+    val stat = stringResource(
+        if (modifier.stat == StatType.COMBAT_SKILL) R.string.stat_cs_abbr else R.string.stat_end_abbr,
+    )
     val name = disciplineName(modifier.sourceType)?.let { stringResource(it) } ?: modifier.sourceType
-    return "$sign${modifier.amount} $stat ($name)"
+    return stringResource(R.string.combat_modifier_line, sign, modifier.amount, stat, name)
 }
 
 @Composable
@@ -201,18 +209,21 @@ private fun CenterColumn(state: AdventureState, session: CombatSession, diceColo
 // i numeri sopra restano visibili, congelati sull'ultimo round.
 @Composable
 private fun CombatOutcome(state: AdventureState, session: CombatSession) {
-    val text = when (session.status) {
-        CombatStatus.WIN -> "VITTORIA in ${session.roundsFought} round!"
-        CombatStatus.LOSE -> "SCONFITTA dopo ${session.roundsFought} round."
-        else -> "Sei fuggito dopo ${session.roundsFought} round."
-    }
+    val text = stringResource(
+        when (session.status) {
+            CombatStatus.WIN -> R.string.combat_result_win
+            CombatStatus.LOSE -> R.string.combat_result_lose
+            else -> R.string.combat_result_evade
+        },
+        session.roundsFought,
+    )
     Text(text, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
     Spacer(Modifier.height(8.dp))
     androidx.compose.material3.Button(
         onClick = { state.resolveCombat() },
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Text("Continua")
+        Text(stringResource(R.string.adventure_continue))
     }
 }
 

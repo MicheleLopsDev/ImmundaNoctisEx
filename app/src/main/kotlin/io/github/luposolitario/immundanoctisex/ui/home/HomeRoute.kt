@@ -8,7 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import android.content.Context
 import io.github.luposolitario.immundanoctisex.AppContainer
+import io.github.luposolitario.immundanoctisex.R
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 
 // Side-load del libro (20/07/2026, richiesta urgente di Michele — "devo
@@ -31,7 +33,7 @@ fun HomeRoute(
     onSettingsClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    var currentTitle by remember { mutableStateOf(currentBookTitle(container)) }
+    var currentTitle by remember { mutableStateOf(currentBookTitle(context, container)) }
     var feedback by remember { mutableStateOf<String?>(null) }
     var feedbackIsError by remember { mutableStateOf(false) }
 
@@ -51,11 +53,11 @@ fun HomeRoute(
                 // CreationRoute per "nuova avventura".
                 container.sessionStore.deleteAdventure(result.manifest.id)
                 currentTitle = result.manifest.title
-                feedback = "Libro caricato: ${result.manifest.title}"
+                feedback = context.getString(R.string.book_loaded, result.manifest.title)
                 feedbackIsError = false
             }
             is PackageLoadResult.Failure -> {
-                feedback = result.errors.firstOrNull() ?: "Pacchetto non valido"
+                feedback = result.errors.firstOrNull() ?: context.getString(R.string.book_invalid)
                 feedbackIsError = true
             }
         }
@@ -77,8 +79,8 @@ fun HomeRoute(
 // Il titolo del libro attualmente caricato, per il primo disegno della
 // Home: se il pacchetto di default (asset) è già valido lo si mostra
 // subito, senza aspettare un caricamento manuale.
-private fun currentBookTitle(container: AppContainer): String =
+private fun currentBookTitle(context: Context, container: AppContainer): String =
     when (val result = container.packageRepository.load()) {
         is PackageLoadResult.Success -> result.manifest.title
-        is PackageLoadResult.Failure -> "nessuno"
+        is PackageLoadResult.Failure -> context.getString(R.string.book_none)
     }
