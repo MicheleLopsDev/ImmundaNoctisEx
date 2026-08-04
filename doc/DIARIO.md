@@ -7,6 +7,47 @@
 
 ---
 
+## DA DOVE RIPARTIRE — aggiornato 04/08/2026
+
+Il client è completo e stabile (**258 test verdi**). Il capitolo aperto
+adesso non è più il gioco: è **rendere il progetto mostrabile ad altri**
+— Michele vuole annunciarlo pubblicamente, anche su gruppi come
+Librogame Italia.
+
+**Le tre cose in coda, in ordine:**
+
+1. **I libri Project Aon fuori da git** — è il passo che BLOCCA
+   l'annuncio. Il repository è pubblico e contiene 1,8 MB di prosa che
+   la licenza Project Aon non permette di ridistribuire, mentre il
+   README §15 dichiara il contrario. Il meccanismo per farlo è pronto e
+   provato (`svuotaTesti` / `riempiTesti`, vedi voce del 03/08 sera):
+   manca solo eseguirlo sui cinque libri e poi **riscrivere la storia
+   di git** — un `git rm` non toglie i file dai commit precedenti, e va
+   fatto con Michele presente perché comporta un force-push.
+2. **I 16 archi ancora mancanti** su 2984 (03tcok 4, 04tcod 4, 05sots
+   8). Pattern diversi da quello chiuso oggi, da guardare uno per uno
+   col grafo ufficiale.
+3. **Il confronto col grafo come comando stabile** — oggi è uno script
+   usa-e-getta. Come comando del `:tool` diventa un controllo di qualità
+   che nessun altro convertitore di librogame ha.
+
+**Aperte da prima, non urgenti:** spagnolo/francese/tedesco (struttura
+pronta, 355 chiavi per tre); il leak di memoria (tamponato, issue #2);
+le miniature nella mappa del diario (richiedono un campo nuovo in
+`JourneyEntry`, quindi toccano il formato del salvataggio); la issue #1
+(l'idea sul JSON generato da IA remota, ferma dal 21/07).
+
+**Ferma sulla specifica di Michele:** l'editor dei frammenti di prompt
+(issue #8). È l'ultimo pezzo dichiarato della milestone editor e non si
+parte dal codice.
+
+**Da non dimenticare:** i libri di prova in `content/test-books/` e i
+libri originali dell'autore NON si toccano mai in tutto questo — sono
+materiale del progetto, versionati e distribuibili. La separazione
+riguarda solo i cinque Project Aon in `doc/LIBRI/`.
+
+---
+
 ## 04/08/2026 — 19 vie di fuga restituite al giocatore
 
 Chiusi i 4 buchi trovati ieri col grafo ufficiale, e col parser corretto
