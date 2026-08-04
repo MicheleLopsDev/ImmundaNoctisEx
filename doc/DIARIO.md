@@ -7,6 +7,57 @@
 
 ---
 
+## 04/08/2026 — 19 vie di fuga restituite al giocatore
+
+Chiusi i 4 buchi trovati ieri col grafo ufficiale, e col parser corretto
+ne sono venuti fuori altri 15 negli altri libri.
+
+**La causa.** Il libro scrive spesso:
+
+> *"If you wish to fight, turn to 191.
+>  If you wish to evade combat, jump clear of the speeding caravan by
+>  turning to 234."*
+
+…ma i valori del nemico stanno **nella scena 191, non qui**. Il parser
+mandava la riga con "evade" in `Combat.evadeSceneId`; siccome in quella
+scena nessun nemico è dichiarato, il `Combat` non veniva mai costruito
+(`enemies` vuoto) e **quel campo spariva in silenzio, con la sua
+scelta**. Il giocatore si trovava il solo ramo "combatti", senza poter
+schivare uno scontro che il libro gli concede.
+
+Correzione: se alla fine della scena non c'è nessun combattimento, i
+rami "evadi"/"se vinci" rimasti orfani tornano a essere **scelte
+normali**, e la cosa finisce nel report della conversione invece di
+essere indovinata in silenzio. Col nemico dichiarato, invece, tutto
+resta com'era — l'evasione va dentro il combattimento, altrimenti si
+potrebbe fuggire saltando il round di danni previsto dalle regole.
+`ParserEvasioneSenzaNemicoTest` copre entrambi i casi.
+
+**Il risultato, misurato sul grafo ufficiale di tutti e cinque i libri:**
+
+| libro | archi ufficiali | buchi prima | dopo |
+|---|---|---|---|
+| 01fftd | 555 | 4 | **0** |
+| 02fotw | 576 | 4 | **0** |
+| 03tcok | 603 | 5 | 4 |
+| 04tcod | 568 | 8 | 4 |
+| 05sots | 682 | 14 | 8 |
+| **totale** | **2984** | **35** | **16** |
+
+Copertura da **98,83% a 99,46%**, e sempre **zero archi inventati**.
+
+**Applicate ai libri veri con un merge chirurgico**, non riconvertendo:
+solo le 19 scelte mancanti, senza toccare metadati, `customResources` o
+altro. Prima però ho verificato che la riconversione riproducesse da sé
+tutte le correzioni fatte a mano nei mesi scorsi — `rollModifiers`
+identici in tutti e cinque i libri (0, 2, 15, 18, 19) — quindi il merge
+non nasconde una perdita. Tutti e cinque restano VALIDI al validatore.
+
+**Restano 16 archi** su 2984, distribuiti su tre libri: pattern diversi
+da questo, da guardare uno per uno. 258 test verdi.
+
+---
+
 ## 03/08/2026 (sera) — licenza GPL, e i testi di Lupo Solitario fuori da git
 
 Michele vuole annunciare il progetto (anche su gruppi come Librogame

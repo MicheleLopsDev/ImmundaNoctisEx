@@ -246,6 +246,11 @@ object ProjectAonHtmlParser {
         var winSceneId: String? = null
         var evadeSceneId: String? = null
         var evadeAfterRound = 0
+        // Il testo delle righe "se vinci" / "se eviti": serve solo se poi
+        // si scopre che in questa scena un combattimento non c'è (vedi
+        // `scelteOrfane` più sotto).
+        var testoVittoria: String? = null
+        var testoEvasione: String? = null
         var isDeadend = false
         var choiceCounter = 0
 
@@ -318,10 +323,14 @@ object ProjectAonHtmlParser {
             }
 
             when {
-                winRegex.containsMatchIn(text) -> winSceneId = linkedSceneId
+                winRegex.containsMatchIn(text) -> {
+                    winSceneId = linkedSceneId
+                    testoVittoria = text
+                }
 
                 evadeRegex.containsMatchIn(text) -> {
                     evadeSceneId = linkedSceneId
+                    testoEvasione = text
                     val roundWord = evadeRoundsRegex.find(text)?.groupValues?.get(1)?.lowercase()
                     evadeAfterRound = roundWord?.let { numberWords[it] ?: it.toIntOrNull() } ?: 0
                 }
@@ -440,6 +449,40 @@ object ProjectAonHtmlParser {
                 winSceneId = if (enemies.size > 1) chainIdFor(1) else finalWinSceneId,
                 evadeSceneId = evadeSceneId,
             )
+        }
+
+        // "Combatti OPPURE evita", ma il combattimento è nella scena dopo
+        // (03/08/2026). Il libro scrive:
+        //
+        //   "If you wish to fight, turn to 191.
+        //    If you wish to evade combat, ... turn to 234."
+        //
+        // e i valori del nemico stanno in 191, non qui. `evadeSceneId` e
+        // `winSceneId` finiscono allora in un `Combat` che non viene mai
+        // costruito (`enemies` è vuoto) e sparivano in silenzio, con la
+        // loro scelta: il giocatore si trovava il solo ramo "combatti",
+        // senza poter schivare uno scontro che il libro gli concede.
+        //
+        // Trovato confrontando la nostra conversione col grafo ufficiale
+        // dei percorsi che Project Aon pubblica per ogni libro
+        // (`/en/svg/lw/01fftd.svgz`, idea di Michele): 4 archi mancanti su
+        // 555 in `01fftd`, tutti con questa firma.
+        if (combat == null) {
+            listOfNotNull(
+                evadeSceneId?.let { it to testoEvasione },
+                winSceneId?.let { it to testoVittoria },
+            ).forEach { (destinazione, testo) ->
+                if (choices.none { it.nextSceneId == destinazione }) {
+                    choiceCounter++
+                    choices += Choice(
+                        id = "choice_${raw.id}_$choiceCounter",
+                        choiceText = testo ?: "",
+                        nextSceneId = destinazione,
+                    )
+                    notes += "${label()}: \"$testo\" sarebbe l'uscita di un combattimento, ma qui " +
+                        "nessun nemico è dichiarato — tenuta come scelta normale verso $destinazione"
+                }
+            }
         }
 
         val hasAnyExit = choices.isNotEmpty() || disciplineChoices.isNotEmpty() || combat != null
