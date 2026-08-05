@@ -33,10 +33,11 @@ Project Aon sono fuori dal repository e fuori dalla sua storia (voce del
   che il giocatore deve dedurre. Restano 5 forme da guardare: 03tcok
   138 e 263 ("se perdi anche un punto di ENDURANCE"), 04tcod 133,
   05sots 20 e 357.
-- Il **confronto col grafo come comando** del `:tool`: oggi è uno script
-  usa-e-getta, come comando sarebbe un controllo di qualità che nessun
-  altro convertitore di librogame ha. **È il prossimo passo deciso con
-  Michele** (05/08).
+- **Gli altri 24 libri della serie.** Project Aon pubblica testi e grafi
+  di tutti e 29 (`xhtml-simple/` e `svg/lw/`, 30 file `.svgz`): con gli
+  strumenti che ci sono ora — convertitore, svuotamento, riempimento,
+  `verificaGrafo` — sono convertibili e verificabili. Da decidere se e
+  quando.
 - **Spagnolo, francese, tedesco**: struttura pronta, 355 chiavi per tre.
 - **Leak di memoria** (issue #2): tamponato, non risolto. Aspetta una
   libreria che liberi quello che alloca.
@@ -54,6 +55,68 @@ libri originali dell'autore NON si toccano — sono materiale del
 progetto, versionati e distribuibili. La separazione riguarda solo i
 cinque Project Aon in `doc/LIBRI/`, che ora contengono le sole
 meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
+
+---
+
+## 05/08/2026 — il confronto col grafo diventa un comando
+
+Lo script usa-e-getta dei giorni scorsi è ora `:tool:verificaGrafo`,
+e la prima cosa che ha fatto è stata **trovare un mio errore**.
+
+    ./gradlew :tool:verificaGrafo                       (tutti i libri)
+    ./gradlew :tool:cli --args="verificaGrafo <libro>"  (uno solo)
+
+Scarica il grafo da `projectaon.org/en/svg/lw/<id>.svgz` (o riusa la
+copia già presa), lo confronta col JSON ed esce con codice 1 se trova
+differenze — così un domani se ne accorge anche una CI.
+
+**L'errore che ha trovato.** Il merge chirurgico con cui avevo applicato
+le vittorie rapide aveva aggiunto `winSceneIdRapido` **senza correggere
+`winSceneId`**, che col parser vecchio era finito sul valore sbagliato:
+in 7 scene i due campi puntavano alla stessa destinazione e il ramo
+"vittoria lenta" era perso. Il comando l'ha visto subito
+(`04tcod: 47 -> 340` mancante).
+
+Provato a correggere quei 7 a mano: **6 puntavano a scene sintetiche che
+nel repository non esistono**, e il validatore li ha respinti. Il merge
+chirurgico non reggeva più — la conversione nuova non aggiunge solo
+campi, cambia la struttura (scene sintetiche in più). Sostituiti i cinque
+libri con le riconversioni intere, preservando dal repository i soli
+metadati (titolo, descrizione, `customResources`, posizioni dei nodi):
+ieri avevo già verificato che la riconversione riproduce tutte le
+correzioni fatte a mano.
+
+**Risultato, con la sostituzione:**
+
+| libro | archi ufficiali | nostri | copertura |
+|---|---|---|---|
+| 01fftd | 555 | 555 | **100,00%** |
+| 02fotw | 576 | 576 | **100,00%** |
+| 03tcok | 603 | 601 | 99,67% |
+| 04tcod | 568 | 567 | 99,82% |
+| 05sots | 682 | 678 | 99,41% |
+
+**Zero archi inventati** su tutti e cinque. Restano i 7 mancanti di
+ieri, due dei quali sono enigmi non esprimibili.
+
+**Nota Gradle**: i tre task che lavorano su tutti i libri
+(`svuotaTesti`, `riempiTesti`, `verificaGrafo`) sono ora un tipo solo,
+`CliSuTuttiILibri`, con `ExecOperations` iniettato. `javaexec {}` dentro
+un `doLast` cattura il `Project` e il configuration cache lo rifiuta
+("cannot serialize Gradle script object references") — con tre blocchi
+copiati il problema era anche triplicato.
+
+**443 test verdi.**
+
+### Project Aon pubblica i grafi di TUTTI i libri
+
+Segnalato da Michele: sotto `projectaon.org/en/svg/lw/` ci sono **30
+file `.svgz`**, cioè i grafi di tutta la serie di Lupo Solitario, non
+solo dei cinque che abbiamo convertito. Insieme ai testi in
+`xhtml-simple/`, questo significa che **gli altri 24 libri sono
+convertibili e verificabili con gli strumenti che ci sono già** — il
+convertitore, lo svuotamento, il riempimento e ora il confronto col
+grafo. Da decidere se e quando farlo.
 
 ---
 

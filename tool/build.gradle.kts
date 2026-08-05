@@ -92,63 +92,113 @@ tasks.register<JavaExec>("cli") {
 //
 // I file prodotti finiscono in `build/libri/` — dentro `build/`, quindi
 // già fuori da git: non è una svista, è il punto.
-// Il gemello di `riempiTesti`: prepara i libri per il repository
-// togliendo la prosa. Si esegue UNA VOLTA, quando si decide di
-// versionare le sole meccaniche; da lì in poi si lavora sempre sugli
-// scheletri. L'id Project Aon si deduce dal nome del file
-// (`01fftd.json` -> `01fftd`).
+// I tre comandi che lavorano su TUTTI i libri di doc/LIBRI hanno la
+// stessa forma: per ogni file, una invocazione della CLI. Un tipo di
+// task solo invece di tre blocchi `doLast` copiati.
 //
-//   ./gradlew :tool:svuotaTesti
-tasks.register("svuotaTesti") {
-    group = "immundanoctisex"
-    description = "Toglie la prosa dai libri in doc/LIBRI, lasciando le meccaniche (una tantum)"
-    dependsOn(tasks.named("classes"))
-    doLast {
-        val libri = file("${rootDir}/doc/LIBRI").listFiles { f -> f.extension == "json" }?.sorted().orEmpty()
-        if (libri.isEmpty()) {
-            println("Nessun libro in doc/LIBRI/.")
-            return@doLast
-        }
-        libri.forEach { libro ->
-            println("\n--- ${libro.name} ---")
-            javaexec {
-                mainClass.set("io.github.luposolitario.immundanoctisex.tool.MainKt")
-                classpath = sourceSets["main"].runtimeClasspath
-                args = listOf("svuotaTesti", libro.absolutePath, libro.nameWithoutExtension)
-                defaultCharacterEncoding = "UTF-8"
-                isIgnoreExitValue = true
-            }
-        }
-    }
-}
+// Perché una classe e non `javaexec {}` dentro `doLast`: quella forma
+// cattura il `Project`, e il configuration cache di Gradle la rifiuta
+// ("cannot serialize Gradle script object references"). Con
+// `ExecOperations` iniettato il task resta serializzabile.
+abstract class CliSuTuttiILibri : DefaultTask() {
 
-tasks.register("riempiTesti") {
-    group = "immundanoctisex"
-    description = "Scarica da Project Aon i testi dei libri in doc/LIBRI e li innesta negli scheletri (uso personale)"
-    dependsOn(tasks.named("classes"))
-    doLast {
-        val scheletri = file("${rootDir}/doc/LIBRI").listFiles { f -> f.extension == "json" }?.sorted().orEmpty()
-        if (scheletri.isEmpty()) {
-            println("Nessun libro in doc/LIBRI/.")
-            return@doLast
+    @get:InputFiles
+    abstract val classpathCli: ConfigurableFileCollection
+
+    @get:InputDirectory
+    abstract val cartellaLibri: DirectoryProperty
+
+    // Il sottocomando di `Main.kt` (svuotaTesti, riempiTesti, ...).
+    @get:Input
+    abstract val comando: Property<String>
+
+    // Alcuni comandi vogliono anche l'id Project Aon, che è il nome del
+    // file senza estensione.
+    @get:Input
+    abstract val passaIdLibro: Property<Boolean>
+
+    @get:Input
+    abstract val premessa: Property<String>
+
+    @get:Inject
+    abstract val exec: org.gradle.process.ExecOperations
+
+    @TaskAction
+    fun esegui() {
+        val libri = cartellaLibri.get().asFile.listFiles { f: File -> f.extension == "json" }?.sorted().orEmpty()
+        if (libri.isEmpty()) {
+            println("Nessun libro in ${cartellaLibri.get().asFile.path}.")
+            return
         }
-        println("Trovati ${scheletri.size} libri. I testi restano su questa macchina e non vanno redistribuiti.")
-        scheletri.forEach { scheletro ->
-            println("\n--- ${scheletro.name} ---")
-            javaexec {
+        if (premessa.get().isNotBlank()) println(premessa.get())
+        var conProblemi = 0
+        libri.forEach { libro ->
+            println("")
+            println("--- ${libro.name} ---")
+            val esito = exec.javaexec {
                 mainClass.set("io.github.luposolitario.immundanoctisex.tool.MainKt")
-                classpath = sourceSets["main"].runtimeClasspath
-                args = listOf("riempiTesti", scheletro.absolutePath)
+                classpath = classpathCli
+                args = buildList {
+                    add(comando.get())
+                    add(libro.absolutePath)
+                    if (passaIdLibro.get()) add(libro.nameWithoutExtension)
+                }
                 // Senza questo, su Windows la JVM figlia stampa nella
                 // codepage di sistema e gli accenti escono a pezzi.
                 defaultCharacterEncoding = "UTF-8"
-                // Un libro senza `textsFrom` (uno tuo, uno di prova) esce
-                // con codice 2: non è un errore del task, è un libro che
-                // i testi ce li ha già.
+                // Un'uscita diversa da zero è un DATO (differenze trovate,
+                // libro senza testi esterni), non un errore del task.
                 isIgnoreExitValue = true
             }
+            if (esito.exitValue != 0) conProblemi++
         }
+        println("")
+        println("$conProblemi libri su ${libri.size} segnalano qualcosa.")
     }
+}
+
+// Verifica le conversioni contro il grafo ufficiale dei percorsi che
+// Project Aon pubblica per ogni libro. L'unico controllo che usa una
+// fonte esterna invece di misurare la conversione con sé stessa.
+//
+//   ./gradlew :tool:verificaGrafo
+tasks.register<CliSuTuttiILibri>("verificaGrafo") {
+    group = "immundanoctisex"
+    description = "Confronta i libri in doc/LIBRI col grafo dei percorsi pubblicato da Project Aon"
+    dependsOn(tasks.named("classes"))
+    classpathCli.from(sourceSets["main"].runtimeClasspath)
+    cartellaLibri.set(layout.projectDirectory.dir("../doc/LIBRI"))
+    comando.set("verificaGrafo")
+    passaIdLibro.set(false)
+    premessa.set("")
+}
+
+// Prepara i libri per il repository togliendo la prosa. Si esegue UNA
+// VOLTA, quando si decide di versionare le sole meccaniche; da lì in poi
+// si lavora sempre sugli scheletri. L'id Project Aon è il nome del file.
+//
+//   ./gradlew :tool:svuotaTesti
+tasks.register<CliSuTuttiILibri>("svuotaTesti") {
+    group = "immundanoctisex"
+    description = "Toglie la prosa dai libri in doc/LIBRI, lasciando le meccaniche (una tantum)"
+    dependsOn(tasks.named("classes"))
+    classpathCli.from(sourceSets["main"].runtimeClasspath)
+    cartellaLibri.set(layout.projectDirectory.dir("../doc/LIBRI"))
+    comando.set("svuotaTesti")
+    passaIdLibro.set(true)
+    premessa.set("")
+}
+
+//   ./gradlew :tool:riempiTesti
+tasks.register<CliSuTuttiILibri>("riempiTesti") {
+    group = "immundanoctisex"
+    description = "Scarica da Project Aon i testi dei libri in doc/LIBRI e li innesta negli scheletri (uso personale)"
+    dependsOn(tasks.named("classes"))
+    classpathCli.from(sourceSets["main"].runtimeClasspath)
+    cartellaLibri.set(layout.projectDirectory.dir("../doc/LIBRI"))
+    comando.set("riempiTesti")
+    passaIdLibro.set(false)
+    premessa.set("I testi restano su questa macchina e non vanno redistribuiti (licenza Project Aon).")
 }
 
 // jpackage (usato da createDistributable/packageMsi/packageExe) richiede un

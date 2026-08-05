@@ -8,7 +8,7 @@ import kotlin.system.exitProcess
 // toccare application{} in build.gradle.kts ogni volta.
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
-        println("Uso: <validate|convert|illustrazioni|bonifica|svuotaTesti|riempiTesti> ...")
+        println("Uso: <validate|convert|illustrazioni|bonifica|svuotaTesti|riempiTesti|verificaGrafo> ...")
         exitProcess(2)
     }
     val rest = args.drop(1).toTypedArray()
@@ -21,10 +21,13 @@ fun main(args: Array<String>) {
         // (03/08/2026, README §15).
         "svuotaTesti" -> runSvuotaTesti(rest)
         "riempiTesti" -> runRiempiTesti(rest)
+        // Verifica della conversione contro il grafo ufficiale
+        // (05/08/2026): l'unico controllo con una fonte esterna.
+        "verificaGrafo" -> runVerificaGrafo(rest)
         else -> {
             println(
-                "Comando sconosciuto: '${args[0]}' " +
-                    "(usa 'validate', 'convert', 'illustrazioni', 'bonifica', 'svuotaTesti' o 'riempiTesti')",
+                "Comando sconosciuto: '${args[0]}' (usa 'validate', 'convert', 'illustrazioni', " +
+                    "'bonifica', 'svuotaTesti', 'riempiTesti' o 'verificaGrafo')",
             )
             exitProcess(2)
         }
