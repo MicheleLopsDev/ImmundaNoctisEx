@@ -132,11 +132,24 @@ class CombatSession(
     // globale, REGOLE.md §1.4).
     val destinationSceneId: String?
         get() = when (status) {
-            CombatStatus.WIN -> combat.winSceneId
+            // Vittoria rapida (05/08/2026): i libri premiano chi chiude
+            // in fretta con una scena diversa. `roundsFought` lo sappiamo
+            // già, bastava guardarlo.
+            CombatStatus.WIN -> vittoriaRapida() ?: combat.winSceneId
             CombatStatus.LOSE -> combat.loseSceneId
             CombatStatus.EVADED -> combat.evadeSceneId
             CombatStatus.ONGOING -> null
         }
+
+    // La destinazione della vittoria rapida, se il libro ne prevede una
+    // e il combattimento si è chiuso entro la soglia (inclusa: "in seven
+    // rounds OR LESS"). Serve che ci siano entrambi i dati — una soglia
+    // senza scena, o viceversa, non dice nulla.
+    private fun vittoriaRapida(): String? {
+        val scena = combat.winSceneIdRapido ?: return null
+        val soglia = combat.winEntroRound ?: return null
+        return scena.takeIf { roundsFought <= soglia }
+    }
 
     private fun lookupRound(): RoundResult {
         val ratio = effectiveCombatSkill(player) - effectiveCombatSkill(enemy)

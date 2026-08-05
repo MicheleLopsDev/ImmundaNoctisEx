@@ -35,6 +35,8 @@ class CombatSessionTest {
         evadeAfterRound: Int = 0,
         evadeSceneId: String? = null,
         loseSceneId: String? = "7",
+        winSceneIdRapido: String? = null,
+        winEntroRound: Int? = null,
     ) = Combat(
         enemyName = "Warehouse Thug",
         enemyCombatSkill = enemySkill,
@@ -42,6 +44,8 @@ class CombatSessionTest {
         immuneToMindblast = immune,
         evadeAfterRound = evadeAfterRound,
         winSceneId = "6",
+        winSceneIdRapido = winSceneIdRapido,
+        winEntroRound = winEntroRound,
         loseSceneId = loseSceneId,
         evadeSceneId = evadeSceneId,
     )
@@ -81,6 +85,41 @@ class CombatSessionTest {
         assertEquals(2, chronicle.size)
         assertEquals(CombatStatus.WIN, session.status)
         assertEquals("6", session.destinationSceneId)
+    }
+
+    // I libri premiano spesso chi chiude in fretta con una scena diversa
+    // (05/08/2026): "If you win the combat in seven rounds or less, turn
+    // to 272. If you win the combat in more than seven rounds, turn to
+    // 324." Misurato: 15 combattimenti sui 5 libri Project Aon.
+    @Test
+    fun laVittoriaRapidaUsaLaSuaScenaSoloEntroLaSoglia() {
+        // Stessi tiri di sopra: WIN in 2 round, soglia 2 -> vittoria rapida.
+        val entro = session(hero(), combat(winSceneIdRapido = "9", winEntroRound = 2), 5, 5)
+        entro.quickResolve()
+        assertEquals(CombatStatus.WIN, entro.status)
+        assertEquals("9", entro.destinationSceneId)
+    }
+
+    @Test
+    fun oltreLaSogliaLaVittoriaResta_QuellaNormale() {
+        // Nemico più resistente: servono più round della soglia di 1.
+        val oltre = session(hero(), combat(enemyEndurance = 20, winSceneIdRapido = "9", winEntroRound = 1), 5, 5, 5)
+        oltre.quickResolve()
+        assertEquals(CombatStatus.WIN, oltre.status)
+        assertEquals("6", oltre.destinationSceneId)
+    }
+
+    // Una soglia senza scena (o viceversa) non dice nulla: si degrada
+    // sulla vittoria normale invece di inventare una destinazione.
+    @Test
+    fun unaVittoriaRapidaIncompletaNonCambiaNulla() {
+        val soloSoglia = session(hero(), combat(winEntroRound = 5), 5, 5)
+        soloSoglia.quickResolve()
+        assertEquals("6", soloSoglia.destinationSceneId)
+
+        val soloScena = session(hero(), combat(winSceneIdRapido = "9"), 5, 5)
+        soloScena.quickResolve()
+        assertEquals("6", soloScena.destinationSceneId)
     }
 
     @Test

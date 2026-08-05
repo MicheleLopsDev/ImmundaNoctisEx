@@ -140,6 +140,22 @@ object ProjectAonHtmlParser {
     // creature".
     private val winRegex = Regex("""\bif you (?:win|kill|defeat|slay)\b""", RegexOption.IGNORE_CASE)
     private val evadeRegex = Regex("""\bevade\b""", RegexOption.IGNORE_CASE)
+
+    // La vittoria RAPIDA (05/08/2026). Due famiglie di frasi, entrambe
+    // copiate dai 5 libri veri:
+    //
+    //   "If you win the combat in seven rounds or less"     (03tcok 200)
+    //   "If you win the combat within four rounds"          (03tcok 208)
+    //   "If you win and the fight lasts for 3 rounds ... or less" (04tcod 56)
+    //   "If you win and the fight lasts 4 rounds ... or less"     (05sots 91)
+    //
+    // I rami opposti — "in MORE than seven rounds", "lasts LONGER than
+    // 3 rounds" — non devono matchare: quelli sono la vittoria normale.
+    // Da qui i due lookahead negativi.
+    private val vittoriaRapidaRegex = Regex(
+        """\b(?:in|within|lasts(?:\s+for)?)\s+(?!more\b)(?!longer\b)(\w+)\s+rounds?\b""",
+        RegexOption.IGNORE_CASE,
+    )
     private val evadeRoundsRegex = Regex("""after (\w+) rounds? of combat""", RegexOption.IGNORE_CASE)
     // Tabella dei Numeri Casuali (31/07/2026, Michele: la scena appariva
     // come scelte manuali invece del tiro del dado a bottone singolo —
@@ -212,9 +228,16 @@ object ProjectAonHtmlParser {
     private val combatLineRegex = Regex("""^(.+?):\s*COMBAT SKILL\s*(\d+)\s*ENDURANCE\s*(\d+)""", RegexOption.IGNORE_CASE)
     private val deductRegex = Regex("""Deduct (\d+) points? from your COMBAT SKILL""", RegexOption.IGNORE_CASE)
     private val exactSectHrefRegex = Regex("""^#sect(\d+)$""")
+    // Si fermava a "five" e bastava per l'evasione ("after two rounds").
+    // La vittoria rapida arriva più in là — "in seven rounds or less"
+    // (03tcok 200) — e una soglia non riconosciuta faceva perdere il
+    // ramo in silenzio.
     private val numberWords = mapOf(
         "one" to 1, "first" to 1, "two" to 2, "second" to 2,
-        "three" to 3, "third" to 3, "four" to 4, "fourth" to 4, "five" to 5,
+        "three" to 3, "third" to 3, "four" to 4, "fourth" to 4,
+        "five" to 5, "fifth" to 5, "six" to 6, "sixth" to 6,
+        "seven" to 7, "seventh" to 7, "eight" to 8, "eighth" to 8,
+        "nine" to 9, "ninth" to 9, "ten" to 10, "tenth" to 10,
     )
 
     private data class EnemyStats(val name: String, val combatSkill: Int, val endurance: Int)
@@ -250,6 +273,10 @@ object ProjectAonHtmlParser {
         // si scopre che in questa scena un combattimento non c'è (vedi
         // `scelteOrfane` più sotto).
         var testoVittoria: String? = null
+        // La vittoria rapida e la sua soglia di round, quando il libro
+        // ne prevede una.
+        var winSceneIdRapido: String? = null
+        var winEntroRound: Int? = null
         var testoEvasione: String? = null
         var isDeadend = false
         var choiceCounter = 0
@@ -324,8 +351,24 @@ object ProjectAonHtmlParser {
 
             when {
                 winRegex.containsMatchIn(text) -> {
-                    winSceneId = linkedSceneId
-                    testoVittoria = text
+                    // Due righe "se vinci" nella stessa scena: il libro
+                    // distingue la vittoria RAPIDA da quella lenta
+                    // ("in seven rounds or less" / "in more than seven
+                    // rounds"). Prima la seconda riga sovrascriveva la
+                    // prima e il ramo rapido spariva.
+                    val entro = vittoriaRapidaRegex.find(text)
+                    if (entro != null) {
+                        winSceneIdRapido = linkedSceneId
+                        val parola = entro.groupValues[1].lowercase()
+                        winEntroRound = numberWords[parola] ?: parola.toIntOrNull()
+                        if (winEntroRound == null) {
+                            notes += "${label()}: soglia di round non riconosciuta in \"$text\""
+                            winSceneIdRapido = null
+                        }
+                    } else {
+                        winSceneId = linkedSceneId
+                        testoVittoria = text
+                    }
                 }
 
                 evadeRegex.containsMatchIn(text) -> {
@@ -447,6 +490,11 @@ object ProjectAonHtmlParser {
                 enemyEndurance = first.endurance,
                 evadeAfterRound = evadeAfterRound,
                 winSceneId = if (enemies.size > 1) chainIdFor(1) else finalWinSceneId,
+                // Solo sul combattimento vero, non sugli anelli
+                // intermedi di una catena di nemici: la "vittoria
+                // rapida" si giudica sullo scontro intero.
+                winSceneIdRapido = if (enemies.size > 1) null else winSceneIdRapido,
+                winEntroRound = if (enemies.size > 1) null else winEntroRound,
                 evadeSceneId = evadeSceneId,
             )
         }

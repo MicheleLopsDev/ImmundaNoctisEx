@@ -43,6 +43,7 @@ internal object GraphValidator {
             }
             scene.combat?.let { combat ->
                 checkDestination(scene.id, "combat.winSceneId", combat.winSceneId)
+                checkDestination(scene.id, "combat.winSceneIdRapido", combat.winSceneIdRapido)
                 checkDestination(scene.id, "combat.loseSceneId", combat.loseSceneId)
                 checkDestination(scene.id, "combat.evadeSceneId", combat.evadeSceneId)
             }

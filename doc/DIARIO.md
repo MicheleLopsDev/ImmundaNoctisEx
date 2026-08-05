@@ -28,11 +28,15 @@ Project Aon sono fuori dal repository e fuori dalla sua storia (voce del
    quello che il tool di authoring dovrebbe servire a rendere possibile.
 
 **Lavoro tecnico in coda, nessuno urgente:**
-- I **16 archi** ancora mancanti su 2984 (03tcok 4, 04tcod 4, 05sots 8),
-  pattern diversi da quello chiuso il 04/08.
+- I **7 archi** ancora mancanti su 2984 (copertura 99,77%). **Due sono
+  enigmi e non saranno mai recuperabili** — la destinazione è un numero
+  che il giocatore deve dedurre. Restano 5 forme da guardare: 03tcok
+  138 e 263 ("se perdi anche un punto di ENDURANCE"), 04tcod 133,
+  05sots 20 e 357.
 - Il **confronto col grafo come comando** del `:tool`: oggi è uno script
   usa-e-getta, come comando sarebbe un controllo di qualità che nessun
-  altro convertitore di librogame ha.
+  altro convertitore di librogame ha. **È il prossimo passo deciso con
+  Michele** (05/08).
 - **Spagnolo, francese, tedesco**: struttura pronta, 355 chiavi per tre.
 - **Leak di memoria** (issue #2): tamponato, non risolto. Aspetta una
   libreria che liberi quello che alloca.
@@ -50,6 +54,68 @@ libri originali dell'autore NON si toccano — sono materiale del
 progetto, versionati e distribuibili. La separazione riguarda solo i
 cinque Project Aon in `doc/LIBRI/`, che ora contengono le sole
 meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
+
+---
+
+## 05/08/2026 — la vittoria rapida: chi vince in fretta ha la sua scena
+
+Chiusi altri 9 dei 16 archi rimasti. Ma qui l'analisi ha cambiato la
+natura del lavoro: **non era un bug del parser, era un limite dello
+schema**.
+
+I libri distinguono spesso due esiti di vittoria a seconda di quanto è
+durato lo scontro:
+
+> *"If you win the combat in seven rounds or less, turn to 272.*
+> *If you win the combat in more than seven rounds, turn to 324."*
+
+Il nostro `Combat` aveva un solo `winSceneId`: il parser leggeva
+entrambe le righe e la seconda sovrascriveva la prima, così **chi
+vinceva in fretta finiva comunque nella scena "lenta"**, perdendo la
+ricompensa che il libro gli aveva previsto. Misurate **10 scene** con
+questa forma sui cinque libri.
+
+`Combat` guadagna `winSceneIdRapido` + `winEntroRound` (in coda, con
+default: libri e salvataggi esistenti non si rompono). Il motore
+sapeva già quanti round erano passati — `roundsFought` lo usa il Diario
+di Combattimento — quindi la modifica a `CombatSession` è tre righe.
+
+**Due difetti veri trovati mentre si scriveva il test**, non dopo:
+- La regex copriva solo `"in N rounds"`, non `"the fight lasts (for) N
+  rounds"` — metà dei casi reali.
+- `numberWords` si fermava a **"five"**: bastava per l'evasione ("after
+  two rounds"), non per una soglia di sette. Una soglia non riconosciuta
+  faceva perdere il ramo **in silenzio**.
+
+Entrambi scoperti perché il test usa le frasi **copiate dai libri veri**,
+una forma per riga (`VittoriaRapidaTest`), invece di una frase inventata
+che sarebbe passata al primo colpo.
+
+| libro | archi ufficiali | ieri | oggi |
+|---|---|---|---|
+| 01fftd | 555 | 0 | 0 |
+| 02fotw | 576 | 0 | 0 |
+| 03tcok | 603 | 4 | 2 |
+| 04tcod | 568 | 4 | 1 |
+| 05sots | 682 | 8 | 4 |
+| **totale** | **2984** | **16** | **7** |
+
+Copertura **99,77%**, 15 vittorie rapide applicate ai libri.
+
+**I 7 archi rimasti, e perché non sono tutti recuperabili:**
+- **2 sono enigmi** (`<p class="puzzle">`): *"If you know the correct
+  number that will open the bronze door, turn to that section number"*.
+  La destinazione è un numero che il giocatore deve **dedurre**: il
+  grafo ufficiale conosce la risposta, noi no, e non è un arco
+  esprimibile in nessuno schema. Resteranno mancanti per sempre, ed è
+  corretto così.
+- Gli altri 5 sono forme diverse ancora da guardare (03tcok 138 e 263:
+  *"se perdi anche un solo punto di ENDURANCE"*; 04tcod 133; 05sots 20
+  e 357).
+
+**437 test verdi** su tutti i moduli (`test` da solo non esegue i
+`jvmTest` dei moduli multipiattaforma: servono anche
+`:core:data:jvmTest` e `:core:engine:jvmTest`).
 
 ---
 

@@ -138,6 +138,7 @@ class SceneNarrator(
             scene.disciplineChoices.forEach { add(it.nextSceneId) }
             scene.combat?.let { combat ->
                 add(combat.winSceneId)
+                combat.winSceneIdRapido?.let { add(it) }
                 combat.loseSceneId?.let { add(it) }
                 combat.evadeSceneId?.let { add(it) }
             }
