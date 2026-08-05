@@ -30,6 +30,16 @@ Elenco commentato in `doc/LIBRI-DI-PROVA.md`, si portano sul telefono
 con `./gradlew pushTestBooks`. `scenes.json` (libro Project
 Aon, uso locale) non è versionato.
 
+`doc/LIBRI/` contiene i cinque libri Lupo Solitario **senza la prosa**:
+solo le meccaniche, perché la licenza Project Aon vieta di
+redistribuire i testi (README §15). Si riempiono in locale con
+`./gradlew :tool:riempiTesti` e si verificano contro il grafo ufficiale
+dei percorsi con `./gradlew :tool:verificaGrafo`.
+
+Per creare un libro NUOVO da un canovaccio con l'aiuto di un'IA remota
+c'è `doc/PROMPT-GENERAZIONE-LIBRI.md`: due prompt pronti e lo schema
+JSON minimo, verificato contro il validatore.
+
 In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:
 consultala prima di copiare o riscrivere qualunque componente ereditato.
 
