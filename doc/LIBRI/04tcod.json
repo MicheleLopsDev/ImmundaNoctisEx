@@ -2538,7 +2538,8 @@
                 "enemyCombatSkill": 18,
                 "enemyEndurance": 35,
                 "winSceneId": "265",
-                "evadeSceneId": "307"
+                "evadeSceneId": "307",
+                "seColpitoSceneId": "17"
             }
         },
         {

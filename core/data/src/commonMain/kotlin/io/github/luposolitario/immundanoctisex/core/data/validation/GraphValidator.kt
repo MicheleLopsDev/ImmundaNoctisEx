@@ -46,6 +46,7 @@ internal object GraphValidator {
                 checkDestination(scene.id, "combat.winSceneIdRapido", combat.winSceneIdRapido)
                 checkDestination(scene.id, "combat.loseSceneId", combat.loseSceneId)
                 checkDestination(scene.id, "combat.evadeSceneId", combat.evadeSceneId)
+                checkDestination(scene.id, "combat.seColpitoSceneId", combat.seColpitoSceneId)
             }
         }
 

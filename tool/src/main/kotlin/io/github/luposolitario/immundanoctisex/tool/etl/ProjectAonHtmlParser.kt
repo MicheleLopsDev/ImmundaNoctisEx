@@ -141,6 +141,16 @@ object ProjectAonHtmlParser {
     private val winRegex = Regex("""\bif you (?:win|kill|defeat|slay)\b""", RegexOption.IGNORE_CASE)
     private val evadeRegex = Regex("""\bevade\b""", RegexOption.IGNORE_CASE)
 
+    // "If you lose ANY ENDURANCE points during this combat ... turn
+    // immediately to 66": uscita immediata per chi subisce danno, negli
+    // scontri in cui il libro premia solo chi ne esce illeso. Va provata
+    // PRIMA di `evadeRegex`, perché la frase contiene quasi sempre anche
+    // "even when attempting to evade" e finirebbe scambiata per una fuga.
+    private val colpitoRegex = Regex(
+        """\blose\s+any\s+ENDURANCE\b""",
+        RegexOption.IGNORE_CASE,
+    )
+
     // La vittoria RAPIDA (05/08/2026). Due famiglie di frasi, entrambe
     // copiate dai 5 libri veri:
     //
@@ -277,6 +287,7 @@ object ProjectAonHtmlParser {
         // ne prevede una.
         var winSceneIdRapido: String? = null
         var winEntroRound: Int? = null
+        var seColpitoSceneId: String? = null
         var testoEvasione: String? = null
         var isDeadend = false
         var choiceCounter = 0
@@ -350,6 +361,10 @@ object ProjectAonHtmlParser {
             }
 
             when {
+                // Prima di tutto il resto: la frase contiene sia "lose"
+                // sia "evade", e andrebbe a finire nel ramo sbagliato.
+                colpitoRegex.containsMatchIn(text) -> seColpitoSceneId = linkedSceneId
+
                 winRegex.containsMatchIn(text) -> {
                     // Due righe "se vinci" nella stessa scena: il libro
                     // distingue la vittoria RAPIDA da quella lenta
@@ -479,6 +494,9 @@ object ProjectAonHtmlParser {
                     evadeAfterRound = evadeAfterRound,
                     winSceneId = nextWin,
                     evadeSceneId = evadeSceneId,
+                    // La condizione "esci illeso" vale per l'intero
+                    // scontro, non solo per il primo nemico.
+                    seColpitoSceneId = seColpitoSceneId,
                 ),
             )
         }
@@ -496,6 +514,10 @@ object ProjectAonHtmlParser {
                 winSceneIdRapido = if (enemies.size > 1) null else winSceneIdRapido,
                 winEntroRound = if (enemies.size > 1) null else winEntroRound,
                 evadeSceneId = evadeSceneId,
+                // Vale su OGNI anello della catena: nei due scontri coi
+                // Kalkoth (03tcok 138 e 263) i nemici sono tre e basta un
+                // colpo preso da uno qualunque.
+                seColpitoSceneId = seColpitoSceneId,
             )
         }
 

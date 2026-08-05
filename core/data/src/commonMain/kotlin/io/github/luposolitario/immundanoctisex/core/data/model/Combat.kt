@@ -38,4 +38,16 @@ data class Combat(
     val winEntroRound: Int? = null,
     val loseSceneId: String? = null,
     val evadeSceneId: String? = null,
+    // "Se ti fanno male, il combattimento finisce QUI" (05/08/2026).
+    // Quattro scene sui 5 libri, tutte con la stessa frase:
+    //
+    //   "If you lose any ENDURANCE points during this combat, even when
+    //    attempting to evade, turn immediately to 66."
+    //
+    // Non è un esito finale come vittoria/sconfitta: è un'uscita
+    // IMMEDIATA che scatta appena il giocatore subisce un punto di
+    // danno, e batte tutto il resto — anche l'evasione, come dice il
+    // testo. Serve per gli scontri in cui il libro premia solo chi ne
+    // esce illeso (03tcok 138 e 263, 04tcod 133).
+    val seColpitoSceneId: String? = null,
 )

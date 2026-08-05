@@ -141,6 +141,7 @@ class SceneNarrator(
                 combat.winSceneIdRapido?.let { add(it) }
                 combat.loseSceneId?.let { add(it) }
                 combat.evadeSceneId?.let { add(it) }
+                combat.seColpitoSceneId?.let { add(it) }
             }
         }.distinct()
         return destinations.mapNotNull { id ->

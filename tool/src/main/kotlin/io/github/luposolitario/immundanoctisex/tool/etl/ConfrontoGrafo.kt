@@ -46,6 +46,7 @@ object ConfrontoGrafo {
                 collega(scena.id, combat.winSceneIdRapido)
                 collega(scena.id, combat.loseSceneId)
                 collega(scena.id, combat.evadeSceneId)
+                collega(scena.id, combat.seColpitoSceneId)
             }
             // I salti dichiarati dalle meccaniche (checkItemAndJump,
             // ifStat, skillCheck...) vivono nei `params`, che sono un

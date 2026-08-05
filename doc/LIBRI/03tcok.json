@@ -659,18 +659,12 @@
             "genre": "FANTASY",
             "source": "https://www.projectaon.org/en/xhtml/lw/03tcok/sect32.htm",
             "narrativeText": "",
-            "choices": [
-                {
-                    "id": "choice_32_1",
-                    "choiceText": "",
-                    "nextSceneId": "66"
-                }
-            ],
             "combat": {
                 "enemyName": "",
                 "enemyCombatSkill": 11,
                 "enemyEndurance": 35,
-                "winSceneId": "32-nemico2"
+                "winSceneId": "32-nemico2",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -682,7 +676,8 @@
                 "enemyName": "",
                 "enemyCombatSkill": 10,
                 "enemyEndurance": 32,
-                "winSceneId": "32-nemico3"
+                "winSceneId": "32-nemico3",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -694,7 +689,8 @@
                 "enemyName": "",
                 "enemyCombatSkill": 8,
                 "enemyEndurance": 30,
-                "winSceneId": "25"
+                "winSceneId": "25",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -2348,18 +2344,12 @@
             "genre": "FANTASY",
             "source": "https://www.projectaon.org/en/xhtml/lw/03tcok/sect123.htm",
             "narrativeText": "",
-            "choices": [
-                {
-                    "id": "choice_123_1",
-                    "choiceText": "",
-                    "nextSceneId": "66"
-                }
-            ],
             "combat": {
                 "enemyName": "",
                 "enemyCombatSkill": 11,
                 "enemyEndurance": 30,
-                "winSceneId": "174"
+                "winSceneId": "174",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -2641,7 +2631,8 @@
                 "enemyCombatSkill": 11,
                 "enemyEndurance": 35,
                 "winSceneId": "138-nemico2",
-                "evadeSceneId": "277"
+                "evadeSceneId": "277",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -2654,7 +2645,8 @@
                 "enemyCombatSkill": 10,
                 "enemyEndurance": 32,
                 "winSceneId": "25",
-                "evadeSceneId": "277"
+                "evadeSceneId": "277",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -2817,18 +2809,12 @@
             "genre": "FANTASY",
             "source": "https://www.projectaon.org/en/xhtml/lw/03tcok/sect147.htm",
             "narrativeText": "",
-            "choices": [
-                {
-                    "id": "choice_147_1",
-                    "choiceText": "",
-                    "nextSceneId": "66"
-                }
-            ],
             "combat": {
                 "enemyName": "",
                 "enemyCombatSkill": 10,
                 "enemyEndurance": 28,
-                "winSceneId": "84"
+                "winSceneId": "84",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -3470,18 +3456,12 @@
             "genre": "FANTASY",
             "source": "https://www.projectaon.org/en/xhtml/lw/03tcok/sect180.htm",
             "narrativeText": "",
-            "choices": [
-                {
-                    "id": "choice_180_1",
-                    "choiceText": "",
-                    "nextSceneId": "129"
-                }
-            ],
             "combat": {
                 "enemyName": "",
                 "enemyCombatSkill": 11,
                 "enemyEndurance": 35,
-                "winSceneId": "70"
+                "winSceneId": "70",
+                "seColpitoSceneId": "129"
             }
         },
         {
@@ -4919,18 +4899,12 @@
             "genre": "FANTASY",
             "source": "https://www.projectaon.org/en/xhtml/lw/03tcok/sect259.htm",
             "narrativeText": "",
-            "choices": [
-                {
-                    "id": "choice_259_1",
-                    "choiceText": "",
-                    "nextSceneId": "129"
-                }
-            ],
             "combat": {
                 "enemyName": "",
                 "enemyCombatSkill": 11,
                 "enemyEndurance": 35,
-                "winSceneId": "151"
+                "winSceneId": "151",
+                "seColpitoSceneId": "129"
             }
         },
         {
@@ -5002,7 +4976,8 @@
                 "enemyCombatSkill": 11,
                 "enemyEndurance": 35,
                 "winSceneId": "263-nemico2",
-                "evadeSceneId": "277"
+                "evadeSceneId": "277",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -5015,7 +4990,8 @@
                 "enemyCombatSkill": 10,
                 "enemyEndurance": 32,
                 "winSceneId": "263-nemico3",
-                "evadeSceneId": "277"
+                "evadeSceneId": "277",
+                "seColpitoSceneId": "66"
             }
         },
         {
@@ -5028,7 +5004,8 @@
                 "enemyCombatSkill": 8,
                 "enemyEndurance": 30,
                 "winSceneId": "25",
-                "evadeSceneId": "277"
+                "evadeSceneId": "277",
+                "seColpitoSceneId": "66"
             }
         },
         {

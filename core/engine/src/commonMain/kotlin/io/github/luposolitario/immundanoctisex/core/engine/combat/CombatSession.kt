@@ -10,7 +10,11 @@ import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 
-enum class CombatStatus { ONGOING, WIN, LOSE, EVADED }
+// COLPITO (05/08/2026): il combattimento finisce perché il giocatore ha
+// subito danno, in quegli scontri in cui il libro premia solo chi ne
+// esce illeso ("If you lose any ENDURANCE points ... turn immediately
+// to 66"). Non è né una vittoria né una sconfitta: è un'uscita a parte.
+enum class CombatStatus { ONGOING, WIN, LOSE, EVADED, COLPITO }
 
 // Esito di un round: dati puri, il testo lo compone la UI (REGOLE.md §1.2).
 data class RoundResult(
@@ -45,6 +49,10 @@ class CombatSession(
     )
         private set
 
+    // La Resistenza con cui il giocatore entra nello scontro: serve a
+    // sapere se ha preso anche un solo colpo (vedi CombatStatus.COLPITO).
+    private val enduranceIniziale: Int = player.currentEndurance
+
     var roundsFought: Int = 0
         private set
     var status: CombatStatus = CombatStatus.ONGOING
@@ -77,7 +85,13 @@ class CombatSession(
         val result = lookupRound()
         applyPlayerLoss(result.playerLoss)
         roundsFought++
-        status = if (player.currentEndurance <= 0) CombatStatus.LOSE else CombatStatus.EVADED
+        status = when {
+            player.currentEndurance <= 0 -> CombatStatus.LOSE
+            // "even when attempting to evade": il libro lo dice
+            // esplicitamente, il danno preso in fuga conta come gli altri.
+            eStatoColpito() -> CombatStatus.COLPITO
+            else -> CombatStatus.EVADED
+        }
         return result.copy(enemyLoss = 0)
     }
 
@@ -138,6 +152,7 @@ class CombatSession(
             CombatStatus.WIN -> vittoriaRapida() ?: combat.winSceneId
             CombatStatus.LOSE -> combat.loseSceneId
             CombatStatus.EVADED -> combat.evadeSceneId
+            CombatStatus.COLPITO -> combat.seColpitoSceneId
             CombatStatus.ONGOING -> null
         }
 
@@ -178,10 +193,21 @@ class CombatSession(
     private fun updateStatusAfterRound() {
         status = when {
             player.currentEndurance <= 0 -> CombatStatus.LOSE
+            // Prima della vittoria: se il libro chiede di uscirne
+            // ILLESI, un colpo preso conta anche nel round in cui il
+            // nemico cade.
+            eStatoColpito() -> CombatStatus.COLPITO
             enemy.currentEndurance <= 0 -> CombatStatus.WIN
             else -> CombatStatus.ONGOING
         }
     }
+
+    // Vero quando il libro prevede un'uscita per chi subisce danno e il
+    // giocatore ne ha subito. `enduranceIniziale` è fotografata alla
+    // creazione della sessione: i bonus da oggetti o discipline non
+    // contano come ferite.
+    private fun eStatoColpito(): Boolean =
+        combat.seColpitoSceneId != null && player.currentEndurance < enduranceIniziale
 
     private companion object {
         const val MINDBLAST_SOURCE = "MINDBLAST"

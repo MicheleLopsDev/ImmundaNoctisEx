@@ -37,6 +37,7 @@ class CombatSessionTest {
         loseSceneId: String? = "7",
         winSceneIdRapido: String? = null,
         winEntroRound: Int? = null,
+        seColpitoSceneId: String? = null,
     ) = Combat(
         enemyName = "Warehouse Thug",
         enemyCombatSkill = enemySkill,
@@ -48,6 +49,7 @@ class CombatSessionTest {
         winEntroRound = winEntroRound,
         loseSceneId = loseSceneId,
         evadeSceneId = evadeSceneId,
+        seColpitoSceneId = seColpitoSceneId,
     )
 
     private fun session(player: Character, combat: Combat, vararg rolls: Int) =
@@ -107,6 +109,52 @@ class CombatSessionTest {
         oltre.quickResolve()
         assertEquals(CombatStatus.WIN, oltre.status)
         assertEquals("6", oltre.destinationSceneId)
+    }
+
+    // Gli scontri in cui il libro premia solo chi ne esce ILLESO
+    // (05/08/2026): "If you lose any ENDURANCE points during this
+    // combat, even when attempting to evade, turn immediately to 66".
+    // Quattro scene sui 5 libri.
+    @Test
+    fun unColpoPresoChiudeIlCombattimentoQuandoIlLibroLoChiede() {
+        // Rapporto +1, tiro 5: il giocatore perde 2 punti.
+        val session = session(hero(), combat(seColpitoSceneId = "66"), 5)
+        session.fightRound()
+
+        assertEquals(CombatStatus.COLPITO, session.status)
+        assertEquals("66", session.destinationSceneId)
+    }
+
+    // Senza quel campo il combattimento prosegue come sempre: il danno
+    // subito è normale, non un'uscita.
+    @Test
+    fun senzaQuelCampoIlDannoSubitoNonChiudeNulla() {
+        val session = session(hero(), combat(), 5)
+        session.fightRound()
+
+        assertEquals(CombatStatus.ONGOING, session.status)
+    }
+
+    // "even when attempting to evade": il libro lo dice esplicitamente.
+    @Test
+    fun ancheIlDannoPresoInFugaConta() {
+        val session = session(hero(), combat(evadeSceneId = "9", seColpitoSceneId = "66"), 5)
+        session.evade()
+
+        assertEquals(CombatStatus.COLPITO, session.status)
+        assertEquals("66", session.destinationSceneId)
+    }
+
+    // Chi ne esce senza un graffio prende la vittoria normale.
+    @Test
+    fun senzaDanniLaVittoriaRestaQuellaNormale() {
+        // Rapporto +11 (CS 25 vs 14), tiro 9: il nemico muore, il
+        // giocatore non perde nulla.
+        val session = session(hero(combatSkill = 25), combat(seColpitoSceneId = "66"), 9)
+        session.fightRound()
+
+        assertEquals(CombatStatus.WIN, session.status)
+        assertEquals("6", session.destinationSceneId)
     }
 
     // Una soglia senza scena (o viceversa) non dice nulla: si degrada
