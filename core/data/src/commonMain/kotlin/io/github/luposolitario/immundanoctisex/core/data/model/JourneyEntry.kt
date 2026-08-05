@@ -52,4 +52,14 @@ data class JourneyEntry(
     val enrichedText: String,
     val transition: Transition,
     val locationName: String? = null,
+    // L'ID canonico dello sfondo della scena (SceneImageCatalog), per la
+    // mappa del viaggio nel diario (05/08/2026): una miniatura per tappa
+    // invece del solo nome del luogo.
+    //
+    // Si SALVA invece di risalire alla scena a ogni apertura perché il
+    // diario deve restare leggibile anche se il libro cambia sotto —
+    // stesso principio per cui si salva `enrichedText` invece di
+    // rigenerarlo (STATO.md Blocco 3). In coda con default: i
+    // salvataggi fatti prima di oggi si caricano senza miniatura.
+    val backgroundImage: String? = null,
 )

@@ -662,7 +662,16 @@ class AdventureState(
         // (STATO.md Blocco 3).
         val textJustRead = narrative
         gameState.addJourneyEntry(
-            JourneyEntry(currentScene.id, textJustRead, transition, currentLocation),
+            JourneyEntry(
+                currentScene.id,
+                textJustRead,
+                transition,
+                currentLocation,
+                // Lo sfondo VISTO in quella scena: se il narratore ne ha
+                // scelto uno diverso da quello del libro, nel diario
+                // resta quello che il giocatore ha davanti agli occhi.
+                backgroundImage = backgroundImage,
+            ),
         )
         val result = engine.transitionTo(gameState, targetSceneId)
         // Pasto mangiato durante la transizione (Michele 22/07/2026:
@@ -679,7 +688,15 @@ class AdventureState(
             val hopScene = sceneById(hop.fromSceneId)
             currentLocation = hopScene.locationName ?: currentLocation
             gameState.addJourneyEntry(
-                JourneyEntry(hop.fromSceneId, hopScene.narrativeText, Transition.AutoJump(hop.reason), currentLocation),
+                JourneyEntry(
+                    hop.fromSceneId,
+                    hopScene.narrativeText,
+                    Transition.AutoJump(hop.reason),
+                    currentLocation,
+                    // La scena saltata non è mai stata a schermo: qui
+                    // vale quello che il libro dichiara.
+                    backgroundImage = hopScene.backgroundImage,
+                ),
             )
         }
         currentScene = sceneById(result.sceneId)

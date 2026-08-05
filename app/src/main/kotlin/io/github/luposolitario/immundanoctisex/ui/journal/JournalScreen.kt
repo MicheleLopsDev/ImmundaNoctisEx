@@ -17,7 +17,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
@@ -43,7 +45,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import io.github.luposolitario.immundanoctisex.ui.adventure.sceneBackgroundRes
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -131,6 +136,10 @@ internal data class Tappa(
     val luogo: String?,
     val scene: Int,
     val uscita: Transition?,
+    // Lo sfondo della PRIMA scena della tappa: è l'immagine con cui il
+    // luogo si è presentato al giocatore. Null se quelle scene non ne
+    // avevano uno, o se il salvataggio è precedente al 05/08/2026.
+    val sfondo: String? = null,
 )
 
 // Le voci raggruppate per luogo CONSECUTIVO. Una voce senza
@@ -147,9 +156,21 @@ internal fun tappeDi(journey: List<JourneyEntry>): List<Tappa> {
         // si resta dove si era.
         val cambiaLuogo = entry.locationName != null && entry.locationName != precedente?.luogo
         if (precedente == null || cambiaLuogo) {
-            tappe += Tappa(entry.locationName ?: precedente?.luogo, scene = 1, uscita = uscita)
+            tappe += Tappa(
+                luogo = entry.locationName ?: precedente?.luogo,
+                scene = 1,
+                uscita = uscita,
+                sfondo = entry.backgroundImage,
+            )
         } else {
-            tappe[tappe.lastIndex] = precedente.copy(scene = precedente.scene + 1, uscita = uscita)
+            tappe[tappe.lastIndex] = precedente.copy(
+                scene = precedente.scene + 1,
+                uscita = uscita,
+                // La prima immagine incontrata resta: se la scena che
+                // apre la tappa non ne aveva una, la prende la prima che
+                // ce l'ha.
+                sfondo = precedente.sfondo ?: entry.backgroundImage,
+            )
         }
     }
     return tappe
@@ -193,6 +214,22 @@ private fun RigaTappa(tappa: Tappa, primaTappa: Boolean, ultimaTappa: Boolean) {
             Box(
                 Modifier.width(2.dp).weight(1f)
                     .background(if (ultimaTappa) Color.Transparent else coloreFilo),
+            )
+        }
+        // La miniatura del luogo (05/08/2026, richiesta di Michele): il
+        // viaggio si riconosce a colpo d'occhio dalle immagini, non solo
+        // leggendo i nomi. Assente sui salvataggi precedenti, e la riga
+        // si stringe senza lasciare un buco.
+        val sfondo = tappa.sfondo
+        if (sfondo != null) {
+            Image(
+                painter = painterResource(sceneBackgroundRes(sfondo)),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .padding(end = 8.dp, top = 2.dp)
+                    .size(44.dp)
+                    .clip(RoundedCornerShape(6.dp)),
             )
         }
         Column(modifier = Modifier.weight(1f).padding(start = 4.dp, bottom = 12.dp)) {
@@ -304,11 +341,14 @@ private fun MapViewPreview() {
     ImmundaNoctisTheme(darkTheme = true) {
         MapView(
             journey = listOf(
-                JourneyEntry("1", "", Transition.ChoiceTaken("c1"), "Riverside Inn"),
-                JourneyEntry("2", "", Transition.CombatResolved(CombatOutcome.WIN), "Harbour Town"),
-                JourneyEntry("3", "", Transition.DisciplineUsed("SIXTH_SENSE", "d1"), "Old Quarter"),
+                JourneyEntry("1", "", Transition.ChoiceTaken("c1"), "Riverside Inn", "static:loc_tavern"),
+                JourneyEntry("2", "", Transition.CombatResolved(CombatOutcome.WIN), "Harbour Town", "static:loc_harbor"),
+                JourneyEntry("3", "", Transition.DisciplineUsed("SIXTH_SENSE", "d1"), "Old Quarter", "static:loc_alley"),
+                // Le due senza luogo restano nel Vecchio Quartiere e non
+                // portano immagine: la miniatura è quella della prima.
                 JourneyEntry("4", "", Transition.CombatResolved(CombatOutcome.EVADE), null),
                 JourneyEntry("5", "", Transition.AutoJump(AutoJumpReason.RANDOM_CHOICE), null),
+                // Tappa senza sfondo: la riga si stringe, niente buco.
                 JourneyEntry("6", "", Transition.ChoiceTaken("c9"), "Ruanon"),
             ),
             modifier = Modifier.padding(12.dp),

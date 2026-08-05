@@ -58,6 +58,29 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 05/08/2026 — le miniature nella mappa del viaggio
+
+Completata la mappa del diario del 03/08, a cui mancava il pezzo che
+richiedeva di toccare il formato del salvataggio.
+
+`JourneyEntry` guadagna `backgroundImage` (in coda, con default: i
+salvataggi fatti prima si caricano senza miniatura e la mappa si stringe
+senza lasciare un buco). Si **salva** invece di risalire alla scena a
+ogni apertura, per lo stesso motivo per cui si salva `enrichedText`: il
+diario è un racconto già avvenuto e deve restare leggibile anche se il
+libro cambia sotto (STATO.md Blocco 3).
+
+Sfumatura voluta: la scena giocata registra lo sfondo **visto**
+(`AdventureState.backgroundImage`, che tiene conto di quello scelto dal
+narratore), mentre una scena saltata d'ufficio registra quello che il
+libro dichiara — non è mai stata a schermo.
+
+Una tappa prende l'immagine della sua prima scena; se quella non ne ha,
+la prima che ce l'ha. Tre test in più in `JournalMapTest`, **453 test
+verdi**.
+
+---
+
 ## 05/08/2026 — i cinque libri consolidati: 2982 archi su 2984
 
 Michele: *"dal 5 libro in poi cambiano [le regole], prima consolidiamo…
