@@ -19,6 +19,77 @@ il modello sbaglia.
 
 ---
 
+## Se il canovaccio è lungo: due giri, non uno
+
+Con un canovaccio di più capitoli, la Fase 1 si spezza in due.
+
+**Il limite non è l'input.** Sei capitoli sono ~10.000 token: un modello
+grosso ne regge venti volte tanti. **È l'output** a essere stretto — e i
+modelli non troncano di netto, *impoveriscono le ultime parti*: le prime
+cinque tappe vengono ricche, le ultime diventano una riga. Cioè il
+finale del tuo libro.
+
+Ma lavorare solo capitolo per capitolo costa altrettanto: il modello non
+vede l'arco narrativo (non semina indizi per una rivelazione che non
+sa), non può far rientrare i rami (non sa cosa viene dopo) e ogni giro
+riparte da "Tappa 1".
+
+Quindi:
+
+- **Giro A** — tutti i capitoli insieme, ma si chiede solo la
+  **struttura**: quante tappe per capitolo, dove stanno i bivi, quali
+  finali. Risposta corta, nessun impoverimento.
+- **Giro B** — un capitolo per volta, dando ogni volta il testo **più la
+  struttura del giro A**. Ogni capitolo viene dettagliato per bene, ma
+  sa da dove viene e dove va.
+
+La numerazione si fissa in partenza a blocchi — capitolo 1 → tappe 1-9,
+capitolo 2 → 10-19 — così non serve ricucire niente.
+
+### Giro A — la struttura d'insieme
+
+```
+Sei un autore di librogame. Ti do il CANOVACCIO completo di un romanzo,
+diviso in capitoli, più il documento di worldbuilding.
+
+NON scrivere ancora le tappe. Voglio solo la STRUTTURA.
+
+Rispondi con:
+
+1. ARCO NARRATIVO (5-8 righe): come la storia sale, dove sta il punto di
+   svolta, come si chiude.
+
+2. Per ogni capitolo, una riga così:
+   Capitolo <n> — <titolo> — <quante tappe servono> — bivio principale:
+   <la decisione vera che il giocatore prende in questo capitolo>
+
+3. FINALI (2-4): per ognuno, da quale capitolo si stacca e se è
+   vittoria, sconfitta o neutro.
+
+4. FILI DA SEMINARE: elementi che vanno anticipati nei capitoli
+   precedenti perché una rivelazione successiva funzioni.
+
+Tieni conto che il totale deve stare fra 40 e 60 tappe.
+
+CANOVACCIO E WORLDBUILDING:
+[qui incolli tutti i capitoli e il documento di worldbuilding]
+```
+
+### Giro B — un capitolo per volta
+
+Stesso prompt della Fase 1 qui sotto, con due righe in più in testa:
+
+```
+Questa è la struttura d'insieme del libro, già approvata:
+[qui incolli la risposta del Giro A]
+
+Ora lavora SOLO sul capitolo <n>. Numera le sue tappe da <inizio> a
+<fine>. Le tappe degli altri capitoli esistono già: puoi puntarci
+scrivendo il loro numero, non riscriverle.
+```
+
+---
+
 ## Fase 1 — dal canovaccio alle tappe
 
 Incolla questo prompt, e sotto il tuo canovaccio.
