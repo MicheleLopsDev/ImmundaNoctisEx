@@ -23,6 +23,13 @@ local.properties
 
 # Contenuti Project Aon, solo uso personale locale — non vanno nel repo né nell'APK
 content/scenes.json
+# I libri in doc/LIBRI/ SONO versionati, ma senza prosa: contengono le
+# sole meccaniche (README §15). I file riempiti con i testi originali
+# escono in tool/build/libri/ — già coperto da `build/` sopra, elencato
+# qui perché si veda a colpo d'occhio che è voluto e non una svista.
+tool/build/libri/
+# La copia locale scaricata da projectaon.org
+tool/build/projectaon/
 
 # Backup di rotazione dell'editor (§10 EDITOR.md, BookStorage.kt):
 # copie automatiche a ogni salvataggio, non contenuto da versionare —

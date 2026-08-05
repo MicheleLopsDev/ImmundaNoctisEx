@@ -53,8 +53,18 @@ fun HomeRoute(
                 // CreationRoute per "nuova avventura".
                 container.sessionStore.deleteAdventure(result.manifest.id)
                 currentTitle = result.manifest.title
-                feedback = context.getString(R.string.book_loaded, result.manifest.title)
-                feedbackIsError = false
+                // Uno "scheletro" ha le meccaniche ma non la prosa: i
+                // libri Project Aon si versionano così (README §15) e i
+                // testi se li scarica chi vuole giocarli. Caricato com'è
+                // darebbe un libro muto: meglio dirlo subito che lasciare
+                // il giocatore davanti a scene vuote.
+                if (result.manifest.textsFrom != null) {
+                    feedback = context.getString(R.string.book_needs_texts, result.manifest.title)
+                    feedbackIsError = true
+                } else {
+                    feedback = context.getString(R.string.book_loaded, result.manifest.title)
+                    feedbackIsError = false
+                }
             }
             is PackageLoadResult.Failure -> {
                 feedback = result.errors.firstOrNull() ?: context.getString(R.string.book_invalid)

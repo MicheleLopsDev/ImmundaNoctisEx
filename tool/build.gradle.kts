@@ -92,6 +92,36 @@ tasks.register<JavaExec>("cli") {
 //
 // I file prodotti finiscono in `build/libri/` — dentro `build/`, quindi
 // già fuori da git: non è una svista, è il punto.
+// Il gemello di `riempiTesti`: prepara i libri per il repository
+// togliendo la prosa. Si esegue UNA VOLTA, quando si decide di
+// versionare le sole meccaniche; da lì in poi si lavora sempre sugli
+// scheletri. L'id Project Aon si deduce dal nome del file
+// (`01fftd.json` -> `01fftd`).
+//
+//   ./gradlew :tool:svuotaTesti
+tasks.register("svuotaTesti") {
+    group = "immundanoctisex"
+    description = "Toglie la prosa dai libri in doc/LIBRI, lasciando le meccaniche (una tantum)"
+    dependsOn(tasks.named("classes"))
+    doLast {
+        val libri = file("${rootDir}/doc/LIBRI").listFiles { f -> f.extension == "json" }?.sorted().orEmpty()
+        if (libri.isEmpty()) {
+            println("Nessun libro in doc/LIBRI/.")
+            return@doLast
+        }
+        libri.forEach { libro ->
+            println("\n--- ${libro.name} ---")
+            javaexec {
+                mainClass.set("io.github.luposolitario.immundanoctisex.tool.MainKt")
+                classpath = sourceSets["main"].runtimeClasspath
+                args = listOf("svuotaTesti", libro.absolutePath, libro.nameWithoutExtension)
+                defaultCharacterEncoding = "UTF-8"
+                isIgnoreExitValue = true
+            }
+        }
+    }
+}
+
 tasks.register("riempiTesti") {
     group = "immundanoctisex"
     description = "Scarica da Project Aon i testi dei libri in doc/LIBRI e li innesta negli scheletri (uso personale)"

@@ -388,6 +388,9 @@
     <!-- Caricamento del libro (side-load) -->
     <string name="book_loaded">Libro caricato: %1$s</string>
     <string name="book_invalid">Pacchetto non valido</string>
+    <!-- Un libro versionato con le sole meccaniche: la prosa va
+         recuperata prima di giocarci (README §15). -->
+    <string name="book_needs_texts">"%1$s" ha le meccaniche ma non il testo: riempilo dall\'editor prima di giocarci.</string>
     <string name="book_none">nessuno</string>
     <string name="book_load_failed">Impossibile caricare il libro (pacchetto non valido).</string>
     <string name="screen_under_construction">Schermata %1$s — in costruzione (Fase 3)</string>

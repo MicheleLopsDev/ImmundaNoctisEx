@@ -48,6 +48,40 @@ riguarda solo i cinque Project Aon in `doc/LIBRI/`.
 
 ---
 
+## 04/08/2026 — i cinque libri versionati senza prosa
+
+Eseguito il passo preparato ieri: **840.136 caratteri di prosa fuori da
+`doc/LIBRI/`**, restano le sole meccaniche. La cartella passa da 1,8 MB
+a 1,1 MB e il repository torna coerente con quello che il README
+dichiara da sempre.
+
+**Verifica del giro completo, sui cinque libri veri:**
+`:tool:svuotaTesti` → `:tool:riempiTesti` → confronto con la versione in
+git. **Zero differenze**: testi, testi delle scelte, nomi dei nemici,
+archi del grafo e `rollModifiers` (0/2/15/18/19) tutti identici al
+carattere. I libri ricostruiti sono gli stessi di prima.
+
+Aggiunto il task `:tool:svuotaTesti`, gemello di `riempiTesti`: cinque
+invocazioni separate della CLI andavano in timeout per il solo overhead
+di Gradle.
+
+**Chiuso anche il buco segnalato ieri**: se qualcuno carica uno
+scheletro nell'app, ora legge *"«…» ha le meccaniche ma non il testo:
+riempilo dall'editor prima di giocarci"* invece di trovarsi scene
+vuote. Il controllo sta in `HomeRoute`, dove passa il side-load.
+
+`.gitignore` esteso a `tool/build/libri/` e `tool/build/projectaon/`:
+erano già coperti da `build/`, ma elencarli dice a chi guarda che è
+voluto e non una svista.
+
+258 test verdi, tutti e cinque i libri ancora VALIDI al validatore.
+
+**Manca solo la riscrittura della storia di git**: i testi restano nei
+commit precedenti finché non si riscrive, e va fatto con Michele
+presente (comporta un force-push).
+
+---
+
 ## 04/08/2026 — 19 vie di fuga restituite al giocatore
 
 Chiusi i 4 buchi trovati ieri col grafo ufficiale, e col parser corretto

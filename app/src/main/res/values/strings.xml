@@ -438,6 +438,9 @@
     <!-- Caricamento del libro (side-load) -->
     <string name="book_loaded">Book loaded: %1$s</string>
     <string name="book_invalid">Invalid package</string>
+    <!-- Un libro versionato con le sole meccaniche: la prosa va
+         recuperata prima di giocarci (README §15). -->
+    <string name="book_needs_texts">"%1$s" has the mechanics but not the text: fill it in from the editor before playing it.</string>
     <string name="book_none">none</string>
     <string name="book_load_failed">The book cannot be loaded (invalid package).</string>
     <string name="screen_under_construction">Screen %1$s — under construction (Phase 3)</string>
