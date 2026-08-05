@@ -7,44 +7,49 @@
 
 ---
 
-## DA DOVE RIPARTIRE — aggiornato 04/08/2026
+## DA DOVE RIPARTIRE — aggiornato 05/08/2026
 
-Il client è completo e stabile (**258 test verdi**). Il capitolo aperto
-adesso non è più il gioco: è **rendere il progetto mostrabile ad altri**
-— Michele vuole annunciarlo pubblicamente, anche su gruppi come
-Librogame Italia.
+Il client è completo e stabile. **Il problema legale è chiuso**: i testi
+Project Aon sono fuori dal repository e fuori dalla sua storia (voce del
+04-05/08). Il progetto è tecnicamente mostrabile.
 
-**Le tre cose in coda, in ordine:**
+**Restano tre cose prima di annunciarlo davvero** (dall'analisi del
+03/08, "nessuna adulazione"):
 
-1. **I libri Project Aon fuori da git** — è il passo che BLOCCA
-   l'annuncio. Il repository è pubblico e contiene 1,8 MB di prosa che
-   la licenza Project Aon non permette di ridistribuire, mentre il
-   README §15 dichiara il contrario. Il meccanismo per farlo è pronto e
-   provato (`svuotaTesti` / `riempiTesti`, vedi voce del 03/08 sera):
-   manca solo eseguirlo sui cinque libri e poi **riscrivere la storia
-   di git** — un `git rm` non toglie i file dai commit precedenti, e va
-   fatto con Michele presente perché comporta un force-push.
-2. **I 16 archi ancora mancanti** su 2984 (03tcok 4, 04tcod 4, 05sots
-   8). Pattern diversi da quello chiuso oggi, da guardare uno per uno
-   col grafo ufficiale.
-3. **Il confronto col grafo come comando stabile** — oggi è uno script
-   usa-e-getta. Come comando del `:tool` diventa un controllo di qualità
-   che nessun altro convertitore di librogame ha.
+1. **Provarlo su un telefono che non sia il Razr 60 Ultra.** Tutto
+   quello che sappiamo viene da un device con 15,5 GB di RAM. Su un
+   6-8 GB il tampone del leak potrebbe non bastare, e nessuno l'ha mai
+   verificato. Anche un telefono prestato, anche una volta sola.
+2. **Due schermate di benvenuto.** Chi apre l'app la prima volta non sa
+   che deve andare in "Modelli LLM" e scaricare 3-4 GB. Senza quello,
+   chi non è già motivato non arriva alla fine del download.
+3. **Un libro vero, tuo.** Il libro incluso ha 24 scene: chi prova
+   l'app gioca un assaggio, non un librogioco. È il lavoro grosso, ed è
+   quello che il tool di authoring dovrebbe servire a rendere possibile.
 
-**Aperte da prima, non urgenti:** spagnolo/francese/tedesco (struttura
-pronta, 355 chiavi per tre); il leak di memoria (tamponato, issue #2);
-le miniature nella mappa del diario (richiedono un campo nuovo in
-`JourneyEntry`, quindi toccano il formato del salvataggio); la issue #1
-(l'idea sul JSON generato da IA remota, ferma dal 21/07).
+**Lavoro tecnico in coda, nessuno urgente:**
+- I **16 archi** ancora mancanti su 2984 (03tcok 4, 04tcod 4, 05sots 8),
+  pattern diversi da quello chiuso il 04/08.
+- Il **confronto col grafo come comando** del `:tool`: oggi è uno script
+  usa-e-getta, come comando sarebbe un controllo di qualità che nessun
+  altro convertitore di librogame ha.
+- **Spagnolo, francese, tedesco**: struttura pronta, 355 chiavi per tre.
+- **Leak di memoria** (issue #2): tamponato, non risolto. Aspetta una
+  libreria che liberi quello che alloca.
+- **Miniature nella mappa del diario**: richiedono un campo nuovo in
+  `JourneyEntry`, quindi toccano il formato del salvataggio.
+- **Issue #1** (JSON generato da IA remota): ferma dal 21/07, o si
+  riprende o si chiude.
 
 **Ferma sulla specifica di Michele:** l'editor dei frammenti di prompt
 (issue #8). È l'ultimo pezzo dichiarato della milestone editor e non si
 parte dal codice.
 
 **Da non dimenticare:** i libri di prova in `content/test-books/` e i
-libri originali dell'autore NON si toccano mai in tutto questo — sono
-materiale del progetto, versionati e distribuibili. La separazione
-riguarda solo i cinque Project Aon in `doc/LIBRI/`.
+libri originali dell'autore NON si toccano — sono materiale del
+progetto, versionati e distribuibili. La separazione riguarda solo i
+cinque Project Aon in `doc/LIBRI/`, che ora contengono le sole
+meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
@@ -76,9 +81,35 @@ voluto e non una svista.
 
 258 test verdi, tutti e cinque i libri ancora VALIDI al validatore.
 
-**Manca solo la riscrittura della storia di git**: i testi restano nei
-commit precedenti finché non si riscrive, e va fatto con Michele
-presente (comporta un force-push).
+### La storia riscritta (05/08/2026)
+
+Fatto anche l'ultimo passo, quello irreversibile. `git-filter-repo`
+(installato con pip, non era presente) su `--path doc/LIBRI
+--invert-paths`: **7 commit riscritti**, poi gli scheletri rimessi con
+un commit nuovo.
+
+**Verifica seria, non a occhio**: cercate frasi vere del libro
+("thick undergrowth", "The merchant takes your Gold") dentro **ogni
+blob** di tutta la storia — zero risultati. La prosa non è nascosta,
+non c'è più.
+
+Due cose che si sarebbero perse facendo il lavoro di fretta:
+- **`main` aveva ancora i libri interi.** Pushando solo `develop` il
+  problema sarebbe rimasto lì intatto. Force-push su tutti e tre i
+  branch.
+- **I tag delle release** puntavano ai commit vecchi e li avrebbero
+  tenuti in vita da soli. Riscritti e ripubblicati anche quelli.
+
+Verificato dall'esterno via API GitHub: `doc/LIBRI/01fftd.json` servito
+dal sito ha `narrativeText: ""` e i due salti della scena 85. La
+cartella pesa 1,1 MB invece di 1,8.
+
+**Conseguenza da ricordare**: tutti gli hash dei commit sono cambiati.
+Una copia del progetto clonata altrove non si allinea con un `pull`, va
+riclonata (Michele, 05/08: "il progetto lo ho solo nella mia macchina",
+quindi nessun problema pratico). Il branch locale
+`backup-pre-filter-20260805` è stato riscritto anche lui e NON contiene
+più i testi.
 
 ---
 
