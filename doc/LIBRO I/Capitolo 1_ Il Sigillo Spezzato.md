@@ -28,7 +28,7 @@ Le ampie porte di quercia e bronzo della Sala del Trono si spalancarono con un p
 
 La sala, illuminata da alte vetrate a sesto acuto, trasudava la maestosità della Corona. Su una grande tavola di pietra situata ai piedi del trono erano stese antiche mappe geografiche della regione e pergamene vergate di fresco con inchiostro rosso.
 
-In piedi di fronte al tavolo c'era Re Roderic. Imponente, con la barba corta ben curata e le ampie shoulders avvolte in una piastra d'oro finemente lavorata, il sovrano osservava le carte con espressione severa. Accanto a lui, avvolto nelle sue ampie vesti di seta blu notte ricamate in filo d'oro, stava Vaelen, il Mago di Corte. Poco distante, visibilmente disagio nelle sue pesanti vesti da cerimoniale dorate, si trovava la Principessa Lyra, la giovane alchimista del castello.
+In piedi di fronte al tavolo c'era Re Roderic. Imponente, con la barba corta ben curata e le spalle ampie avvolte in una piastra d'oro finemente lavorata, il sovrano osservava le carte con espressione severa. Accanto a lui, avvolto nelle sue ampie vesti di seta blu notte ricamate in filo d'oro, stava Vaelen, il Mago di Corte. Poco distante, visibilmente disagio nelle sue pesanti vesti da cerimoniale dorate, si trovava la Principessa Lyra, la giovane alchimista del castello.
 
 Ariel avanzò lungo la navata di marmo, arrestò il passo a distanza rituale e portò il pugno destro al petto, inchinandosi con rispetto.
 
@@ -44,7 +44,7 @@ Re Roderic picchiò un pugno sul tavolo di pietra.
 
 «I mercanti che hanno tentato di far rotta verso quelle acque riferiscono di cieli perennemente oscurati,» continuò il Re. «Qualcosa o qualcuno sta corrompendo la rete arcana del Regno a partire da quelle isole. La tua missione è infiltrarti nelle isole, scoprire la sorgente della corruzione e reciderla.»
 
-«Hai la mia piena autorità, Scudiero,» decreed Re Roderic, porgendo ad Ariel una pergamena sigillata con la cera reale. «Cavalcherai immediatamente verso il porto di Puerto Valas per requisire un vascello ed un capitano esperto.»
+«Hai la mia piena autorità, Scudiero,» decretò Re Roderic, porgendo ad Ariel una pergamena sigillata con la cera reale. «Cavalcherai immediatamente verso il porto di Puerto Valas per requisire un vascello ed un capitano esperto.»
 
 Ariel accolse il documento reale con un profondo inchino.
 

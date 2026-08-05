@@ -8,7 +8,7 @@ Ariel tirò le briglie del proprio stallone, osservando dal colle l'intensa atti
 
 Spronando il cavallo, l'Apprendista-Cavaliere scese lungo la rampa di pietra che conduceva alle porte esterne della città. I due secondini della guardia cittadina, con le corazze intaccate dalla ruggine marittima, sfiorarono appena le lance in segno di saluto quando notarono il mantello e le piastre recanti il sigillo dei Cavalieri dell'Astra, lasciando varcare la soglia senza porre domande.
 
-I vicoli della città bassa erano una calca soffocante di marinai stranieri, venditori ambulanti e individui poco raccomandabili avvolti in mantelli logori. Ariel avanzò lentamente a cavallo, tenendo una mano vicina all'elsa della spada e l'altra a contatto con la giada dell'amuleto sotto la veste.
+I vicoli della città bassa erano una calca soffocante di marinai stranieri, venditori ambulanti e individui poco raccomandabili avvolti in mantelli logori. Ariel avanzò lentamente a cavallo, tenendo una mano vicina all'elsa della spada e l'altra a contatto con la giada dell'amuleto sotto la veste. La cavalcatura scartò di lato, innervosita dall'odore acre di pesce marcio e dal vociare della calca; Ariel le posò il palmo aperto sul collo e le trasmise un'onda calma e ferma, un pensiero senza parole che sapeva di stalla asciutta e di fieno \[Disciplina: Empatia Bestiale\]. L'animale sbuffò una volta, poi riprese il passo docile lungo il selciato bagnato.
 
 La capitaneria di porto svettava al termine del molo principale, un edificio massiccio in pietra arenaria corrotta dalle mareggiate. Ariel smontò da sella, affidò le briglie al mozzo di guardia e salì i gradini che conducevano agli uffici dell'Ammiragliato.
 

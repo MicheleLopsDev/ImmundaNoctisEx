@@ -2,6 +2,8 @@
 
 Il *Gabbiano di Ferro* prese il largo prima che i primi raggi di sole squarciassero le nubi basse di Puerto Valas. Con le vele gonfiate dal vento di ponente, il brigantino si lasciò alle spalle il frastuono del porto e la terraferma, puntando la prua verso le acque sconfinate del Mare Orientale.
 
+Nelle prime ore di navigazione Ariel restò a prua, con gli occhi chiusi e il respiro rallentato, lasciando che il calore dell'addestramento risalisse lungo i canali del corpo \[Disciplina: Rigenerazione Vitale\]. I tagli lasciati dalle lame dei cultisti nel vicolo smisero di sanguinare e si chiusero in croste sottili; la stanchezza della notte insonne si sciolse come sale nell'acqua.
+
 Per i primi due giorni di navigazione, il mare mantenne un'apparente tranquillità. Tuttavia, man mano che la nave procedeva verso est, il blu nitido delle onde cedette il passo a un grigio torbido e pesante. Il vento cadde quasi del tutto, sostituito da una brezza gelida e insidiosa che portava con sé un innaturale silenzio: neppure un gabbiano solcava più il cielo e la vita marina pareva svanita nel nulla.
 
 Al mattino del terzo giorno, una cortina di nebbia densa e innaturale awolse il veliero.
