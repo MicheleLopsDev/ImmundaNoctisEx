@@ -288,6 +288,10 @@ object ProjectAonHtmlParser {
         var winSceneIdRapido: String? = null
         var winEntroRound: Int? = null
         var seColpitoSceneId: String? = null
+        // Tutte le uscite di vittoria e di fuga, con il loro testo: il
+        // libro a volte ne offre più d'una fra cui scegliere.
+        val vittorie = mutableListOf<Pair<String, String>>()
+        val evasioni = mutableListOf<Pair<String, String>>()
         var testoEvasione: String? = null
         var isDeadend = false
         var choiceCounter = 0
@@ -381,12 +385,23 @@ object ProjectAonHtmlParser {
                             winSceneIdRapido = null
                         }
                     } else {
+                        // Vittorie senza condizione di durata: se ce n'è
+                        // più d'una il libro sta offrendo una SCELTA dopo
+                        // lo scontro — 05sots 357: "decide to search the
+                        // sentry's body" (207) oppure "ignore the body"
+                        // (224). Vedi `vittorie` sotto.
+                        vittorie += linkedSceneId to text
                         winSceneId = linkedSceneId
                         testoVittoria = text
                     }
                 }
 
                 evadeRegex.containsMatchIn(text) -> {
+                    // Un libro può offrire PIÙ MODI di fuggire — 05sots
+                    // 20: "jumping into the sea" (142) oppure
+                    // "surrendering" (176). Si tengono tutti: se sono più
+                    // d'uno diventano una scelta, vedi `evasioni` sotto.
+                    evasioni += linkedSceneId to text
                     evadeSceneId = linkedSceneId
                     testoEvasione = text
                     val roundWord = evadeRoundsRegex.find(text)?.groupValues?.get(1)?.lowercase()
@@ -439,6 +454,51 @@ object ProjectAonHtmlParser {
 
         val hasLeftoverChoices = choices.isNotEmpty() || disciplineChoices.isNotEmpty()
         val extraScenes = mutableListOf<Scene>()
+
+        // PIÙ USCITE DELLO STESSO TIPO (05/08/2026). Il libro a volte
+        // offre due modi di uscire dallo stesso scontro:
+        //
+        //   "If you win and decide to search the body, turn to 207.
+        //    If you win but decide to ignore it, turn to 224."   (357)
+        //   "...evade by jumping into the sea, turn to 142.
+        //    ...evade by surrendering, turn to 176."             (20)
+        //
+        // Il nostro `Combat` ha un campo solo per esito, e l'ultima riga
+        // letta sovrascriveva la precedente. Invece di allargare lo
+        // schema (e il motore, e la UI), si manda l'esito a una scena
+        // FABBRICATA che porta le due alternative come scelte normali:
+        // stesso meccanismo già usato per le catene di nemici, e per il
+        // giocatore è persino più chiaro — prima decide di vincere o
+        // fuggire, poi come.
+        fun sceneDiScelta(suffisso: String, alternative: List<Pair<String, String>>, testo: String): String {
+            val id = "${raw.id}-$suffisso"
+            extraScenes += Scene(
+                id = id,
+                sceneType = SceneType.TRANSITION,
+                genre = "FANTASY",
+                narrativeText = testo,
+                choices = alternative.mapIndexed { indice, (destinazione, etichetta) ->
+                    Choice(id = "${id}_c$indice", choiceText = etichetta, nextSceneId = destinazione)
+                },
+            )
+            return id
+        }
+
+        val vittoriaFinale = if (vittorie.size > 1) {
+            notes += "${label()}: ${vittorie.size} esiti di vittoria fra cui scegliere — creata la scena ${raw.id}-vittoria"
+            sceneDiScelta("vittoria", vittorie, "The fight is over. What do you do?")
+        } else {
+            null
+        }
+        val evasioneFinale = if (evasioni.size > 1) {
+            notes += "${label()}: ${evasioni.size} modi di fuggire — creata la scena ${raw.id}-fuga"
+            sceneDiScelta("fuga", evasioni, "You break away from the fight. How?")
+        } else {
+            null
+        }
+        if (vittoriaFinale != null) winSceneId = vittoriaFinale
+        if (evasioneFinale != null) evadeSceneId = evasioneFinale
+
 
         // La vera destinazione dopo l'ULTIMO nemico della catena: quella
         // già trovata in prosa ("if you win/kill...") se c'è, altrimenti —

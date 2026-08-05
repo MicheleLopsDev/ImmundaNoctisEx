@@ -58,6 +58,62 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 05/08/2026 — i cinque libri consolidati: 2982 archi su 2984
+
+Michele: *"dal 5 libro in poi cambiano [le regole], prima consolidiamo…
+devi finire i 5 libri ed essere al 100%"*. Fatto, tranne due archi che
+non sono recuperabili per natura.
+
+| libro | archi | copertura |
+|---|---|---|
+| 01fftd | 555/555 | **100%** |
+| 02fotw | 576/576 | **100%** |
+| 03tcok | 603/603 | **100%** |
+| 04tcod | 568/568 | **100%** |
+| 05sots | 680/682 | 99,71% |
+
+**Zero archi inventati** ovunque. Totale: **99,93%**.
+
+### Le uscite multiple, senza toccare lo schema
+
+Il libro a volte offre due modi di uscire dallo stesso scontro:
+
+> *"If you win and decide to search the body, turn to 207.*
+> *If you win but decide to ignore it, turn to 224."* (05sots 357)
+>
+> *"…evade by jumping into the sea, turn to 142.*
+> *…evade by surrendering, turn to 176."* (05sots 20)
+
+`Combat` ha un campo solo per esito e l'ultima riga letta sovrascriveva
+la precedente. La tentazione era allargare lo schema a liste — e con
+esso il motore e la UI. Invece l'esito porta a una **scena fabbricata**
+che offre le alternative come scelte normali: stesso meccanismo già in
+uso per le catene di nemici, **zero modifiche a schema, motore e
+interfaccia**. Per il giocatore è anche più chiaro: prima decide se
+vincere o fuggire, poi come.
+
+**Trappola trovata**: il blocco che crea queste scene era finito DOPO il
+calcolo di `finalWinSceneId`, che aveva già scelto la destinazione. Le
+scene si creavano ma nessuno ci andava (`357: win=224` invece di
+`357-vittoria`). Spostato prima.
+
+### I due archi che resteranno mancanti
+
+`05sots` 58→67 e 331→373 sono **enigmi**:
+
+> *"If you know the correct number that will open the bronze door, turn
+> to that section number."*
+
+La destinazione è un numero che il giocatore deve **dedurre** dal testo
+(il numero di oasi su un tragitto, di città in Vassagonia…). Il grafo
+ufficiale conosce la risposta perché la conosce l'autore; noi possiamo
+solo o scriverla nel JSON come scelta visibile — e allora l'enigma non
+esiste più — o costruire una meccanica che chieda il numero al
+giocatore, che è una feature d'interfaccia, non di conversione.
+Lasciati mancanti di proposito.
+
+---
+
 ## 05/08/2026 — il confronto col grafo diventa un comando
 
 Lo script usa-e-getta dei giorni scorsi è ora `:tool:verificaGrafo`,

@@ -421,8 +421,26 @@
                 "winSceneId": "20-vittoria",
                 "winSceneIdRapido": "125",
                 "winEntroRound": 3,
-                "evadeSceneId": "176"
+                "evadeSceneId": "20-fuga"
             }
+        },
+        {
+            "id": "20-fuga",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "narrativeText": "",
+            "choices": [
+                {
+                    "id": "20-fuga_c0",
+                    "choiceText": "",
+                    "nextSceneId": "142"
+                },
+                {
+                    "id": "20-fuga_c1",
+                    "choiceText": "",
+                    "nextSceneId": "176"
+                }
+            ]
         },
         {
             "id": "20-vittoria",
@@ -6849,8 +6867,26 @@
                 "enemyName": "",
                 "enemyCombatSkill": 15,
                 "enemyEndurance": 23,
-                "winSceneId": "224"
+                "winSceneId": "357-vittoria"
             }
+        },
+        {
+            "id": "357-vittoria",
+            "sceneType": "TRANSITION",
+            "genre": "FANTASY",
+            "narrativeText": "",
+            "choices": [
+                {
+                    "id": "357-vittoria_c0",
+                    "choiceText": "",
+                    "nextSceneId": "207"
+                },
+                {
+                    "id": "357-vittoria_c1",
+                    "choiceText": "",
+                    "nextSceneId": "224"
+                }
+            ]
         },
         {
             "id": "358",
