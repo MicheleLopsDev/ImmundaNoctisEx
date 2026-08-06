@@ -115,8 +115,8 @@ COSA DEVI FARE
 2. Costruisci una SPINA DORSALE LINEARE di 15-25 tappe: l'ordine in cui
    la storia procede se il giocatore fa le scelte "principali".
 3. Su questa spina, aggiungi DEVIAZIONI: percorsi alternativi che si
-   staccano da una tappa e RIENTRANO nella spina entro 2-3 tappe. Non
-   creare rami che non rientrano mai, tranne i finali.
+   staccano da una tappa e RIENTRANO nella spina dopo 2-3 tappe — mai
+   oltre 5. Non creare rami che non rientrano mai, tranne i finali.
 4. Prevedi 3-5 FINALI: una vittoria, il resto sconfitte.
 
 LA FORMA DEL LIBRO (numeri misurati su 29 librogame pubblicati,
@@ -129,6 +129,12 @@ rispettali: sono il punto di equilibrio fra "il lettore sceglie" e
 - Circa **una tappa su tre deve essere raggiungibile da più di un
   percorso**. È questo che tiene basso il numero totale di tappe: se i
   rami non rientrano mai, il libro raddoppia a ogni bivio.
+- **Quattro tappe su dieci, fra quelle che il lettore attraversa,
+  devono essere OBBLIGATORIE**: punti in cui tutte le strade
+  convergono, qualunque scelta abbia fatto prima. Sono i momenti che
+  devono succedere perché la storia sia quella storia. Le altre sei
+  dipendono da lui. Un libro dove tutto è evitabile non ha trama; uno
+  dove niente lo è non ha scelte.
 - **Nessuna tappa irraggiungibile**: ogni numero che scrivi deve essere
   citato da almeno un'altra tappa. Controlla prima di rispondere.
 - Le sconfitte sono **scene vere, con il loro racconto** (come muori,

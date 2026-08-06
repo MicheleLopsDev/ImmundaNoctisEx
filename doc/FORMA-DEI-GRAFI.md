@@ -116,6 +116,70 @@ noi il `deathSceneId` globale copre le morti *meccaniche*
 (combattimento, statistiche); le morti da scelta sbagliata restano
 scene `ENDING` vere, e devono avere la loro prosa.
 
+## Secondo giro: i modelli, non le medie
+
+Le misure sopra sono aggregate. La domanda di Michele però parlava di
+*modelli* — strutture ricorrenti. Tre misure locali, sugli stessi 29
+grafi.
+
+### Quanto della storia è obbligatorio
+
+Un nodo è **obbligato** se ogni singolo percorso dall'inizio alla
+vittoria ci passa (in gergo: lo *domina*). È lo scheletro vero del
+libro, quello che il lettore non può evitare comunque scelga.
+
+In numero assoluto varia moltissimo (da 2 nel libro 1 a 76 nel 29), e
+deriva lungo la serie come tutto il resto. Ma **in rapporto al cammino
+percorso è stabile**:
+
+> **il 42% del cammino principale è obbligato** (media su 29, dev.st
+> 10,8; escluso il libro 1 che è un outlier a 6%).
+
+Quattro tappe su dieci fra quelle che attraversi *dovevano* succedere;
+le altre sei dipendono da te. È il numero più utile per noi, perché è
+un **rapporto**: vale su 350 sezioni come su 50.
+
+### Dopo quanto rientra un ramo
+
+Su 4898 bivi di tutta la serie:
+
+| rientra dopo | quota | cumulato |
+|---|---|---|
+| 2 tappe | 39% | 39% |
+| 3 tappe | 37% | **76%** |
+| 4 tappe | 14% | 90% |
+| 5 tappe | 5% | **95%** |
+| 6+ tappe | 5% | 100% |
+
+Mediana **3**. Il 9% dei bivi non rientra mai: sono le deviazioni
+definitive, cioè i finali. Il "entro 2-3 tappe" che il prompt diceva a
+naso era **giusto** — ora si può anche dire il limite: oltre 5 non si
+va quasi mai.
+
+### Le misure che derivano e quelle che no
+
+Correlazione di ogni misura col numero del libro (cioè: quanto cambia
+lungo la serie):
+
+| misura | r |
+|---|---|
+| profondità | **+0,74** |
+| finali | **−0,73** |
+| tappe obbligatorie | +0,59 |
+| scene con 3+ uscite | −0,50 |
+| uscite per scena | −0,42 |
+| scene con più ingressi | −0,38 |
+| **quota di cammino obbligata** | **+0,28** |
+
+Si leggono due famiglie. Profondità e finali si muovono *molto*: sono
+le scelte di stile di un autore che cambia idea nel tempo. Grado,
+riconvergenza e quota obbligata si muovono *poco*: sono il mestiere.
+
+Questo è precisamente l'assetto che Michele ipotizzava — un parametro
+latente ("quanto largo scrivo") che si sposta e trascina con sé mezza
+dozzina di metriche, sopra un pavimento di invarianti che non si muove
+mai.
+
 ## Ricadute pratiche
 
 - Il prompt di Fase 1 (`PROMPT-GENERAZIONE-LIBRI.md`) ora chiede la
