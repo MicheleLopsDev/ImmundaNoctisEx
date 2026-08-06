@@ -446,9 +446,25 @@ fun MapScreen(
     // START, vedi SceneGraph.kt) finiscono tutte sull'ultimo livello
     // invece che sparire.
     val orphanLevel = (graph.nodes.filter { it.level != Int.MAX_VALUE }.maxOfOrNull { it.level } ?: 0) + 1
-    val byLevel = graph.nodes
-        .groupBy { if (it.level == Int.MAX_VALUE) orphanLevel else it.level }
-        .mapValues { (_, nodi) -> nodi.sortedBy { it.sceneId.toIntOrNull() ?: Int.MAX_VALUE } }
+    // L'ordine DENTRO ogni livello non e' piu' quello degli id
+    // (deterministico ma cieco al grafo: due scene vicine di numero
+    // possono stare ai capi opposti della storia, e ogni collegamento
+    // fra loro attraversava tutta la mappa). Ora e' il baricentro dei
+    // vicini, come fa Graphviz nei grafi che Project Aon pubblica —
+    // vedi LayoutGerarchico.kt. Il numero resta come ordine di
+    // PARTENZA, cosi' il risultato e' sempre lo stesso a parita' di
+    // libro (§ordinamento deterministico per ID).
+    val byLevel = remember(graph) {
+        val gruppi = graph.nodes
+            .groupBy { if (it.level == Int.MAX_VALUE) orphanLevel else it.level }
+            .mapValues { (_, nodi) -> nodi.sortedBy { it.sceneId.toIntOrNull() ?: Int.MAX_VALUE } }
+        val perId = graph.nodes.associateBy { it.sceneId }
+        val ordinato = LayoutGerarchico.ordina(
+            livelli = gruppi.mapValues { (_, nodi) -> nodi.map { it.sceneId } },
+            archi = graph.edges.filter { it.resolved }.map { it.fromSceneId to it.toSceneId },
+        )
+        ordinato.mapValues { (_, ids) -> ids.mapNotNull { perId[it] } }
+    }
 
     val positions = remember(graph, orizzontale) {
         // La spaziatura "tra livelli" resta legata alla dimensione del
@@ -1495,7 +1511,9 @@ fun MapScreen(
                             .offset { IntOffset(pos.x.roundToInt(), pos.y.roundToInt()) }
                             .size(NODE_WIDTH, NODE_HEIGHT)
                             .alpha(opacitaNodo)
-                            .clip(RoundedCornerShape(6.dp))
+                            // Ovale come i grafi di Graphviz (vedi
+                            // FormaOvale in LayoutGerarchico.kt).
+                            .clip(FormaOvale)
                             // Resta come fallback anche quando c'è
                             // un'immagine di copertina (§15.3): se
                             // l'immagine sta ancora caricando o fallisce
@@ -1519,7 +1537,7 @@ fun MapScreen(
                                     isCorrispondenza -> Color(0xFFFF9800)
                                     else -> coloreTipo ?: Color.Black
                                 },
-                                RoundedCornerShape(6.dp),
+                                FormaOvale,
                             )
                             .onPointerEvent(PointerEventType.Enter) { nodoSottoMouse = nodo.sceneId }
                             .onPointerEvent(PointerEventType.Exit) {
