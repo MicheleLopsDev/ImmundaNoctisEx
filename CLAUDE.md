@@ -40,8 +40,14 @@ Per creare un libro NUOVO da un canovaccio con l'aiuto di un'IA remota
 c'è `doc/PROMPT-GENERAZIONE-LIBRI.md`: due prompt pronti e lo schema
 JSON minimo, verificato contro il validatore. I vincoli di forma che
 quei prompt impongono (uscite per scena, riconvergenza, finali) non
-sono inventati: vengono da `doc/FORMA-DEI-GRAFI.md`, la misura dei 29
-grafi ufficiali della serie.
+sono inventati: vengono da `doc/FORMA-DEI-GRAFI.md`, la misura di 37
+librogame pubblicati — e si verificano su un libro vero col comando
+`./gradlew :tool:cli --args="forma <libro.json>"`.
+
+Se invece si parte da un **romanzo già scritto con un autore vivo**,
+il documento è `doc/DA-ROMANZO-A-LIBROGAME.md`: il metodo uomo-modello
+in cui il modello non scrive il libro ma **commissiona le scene** allo
+scrittore, che non vede mai un grafo.
 
 In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:
 consultala prima di copiare o riscrivere qualunque componente ereditato.

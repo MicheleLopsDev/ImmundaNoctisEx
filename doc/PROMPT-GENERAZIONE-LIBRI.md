@@ -466,6 +466,12 @@ CAPITOLO <n>:
 Poi si prosegue con la **Fase 2** qui sopra, invariata, e si verifica
 con `validate` e `forma`.
 
+> **Se il romanzo ha un autore vivo e disponibile**, questa variante non
+> basta: le scene alternative le deve scrivere lui, non il modello — una
+> voce imitata si riconosce alla seconda riga. Il metodo per farlo (come
+> si commissionano le scene a uno scrittore che non deve mai vedere un
+> grafo) sta in **`DA-ROMANZO-A-LIBROGAME.md`**.
+
 ## Note
 
 - **Il modello locale non c'entra.** Questi due prompt sono per un'IA
