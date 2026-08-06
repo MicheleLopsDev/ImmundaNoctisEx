@@ -109,6 +109,18 @@ private val NODE_HEIGHT = 72.dp
 private val H_SPACING = 230.dp
 private val V_SPACING = 130.dp
 
+// Vista compatta (06/08/2026, Michele: "non sembra leggibile facilmente
+// da un umano"). Il problema non era il layout — provate e MISURATE tre
+// strategie di posizionamento, tutte peggiori della griglia, vedi DIARIO
+// 06/08 — ma la DIMENSIONE dei nodi: a zoom 20% "275 · SC-TRANS-275" è
+// illeggibile lo stesso, e intanto occupa 190x72 punti. I grafi di
+// Project Aon hanno nodi piccoli col solo numero, ed è per questo che a
+// colpo d'occhio si vede la forma della storia invece di un muro.
+private val NODE_WIDTH_COMPATTO = 62.dp
+private val NODE_HEIGHT_COMPATTO = 34.dp
+private val H_SPACING_COMPATTO = 78.dp
+private val V_SPACING_COMPATTO = 56.dp
+
 // Stato della vista mappa (zoom/pan/orientamento/posizioni trascinate a
 // mano), tenuto DA CHI CHIAMA MapScreen (EditorMain.kt) invece che come
 // `remember` locale (30/07/2026, bug segnalato da Michele: "dopo che ho
@@ -124,6 +136,9 @@ class MapViewState {
     val panX = mutableStateOf(0f)
     val panY = mutableStateOf(0f)
     val orizzontale = mutableStateOf(false)
+    // Vista compatta: nodi piccoli col solo numero, per vedere la forma
+    // dell'intero libro invece dei dettagli di poche scene.
+    val compatto = mutableStateOf(false)
     val posizioniManuali = mutableStateOf<Map<String, Offset>>(emptyMap())
     // Scene selezionate (30/07/2026, Michele: "quando clicco una scena
     // devi contornarla di un blu"; §17.3: "una multi selezione tenendo
@@ -447,6 +462,14 @@ fun MapScreen(
     // disposizione — livelli in colonna (verticale, default) o in riga
     // (orizzontale).
     var orizzontale by mapViewState.orizzontale
+    var compatto by mapViewState.compatto
+    // Misure effettive del nodo: cambiano tutte insieme con la vista
+    // compatta, perché dimensione e spaziatura devono restare in
+    // proporzione o i nodi si toccano.
+    val larghezzaNodo = if (compatto) NODE_WIDTH_COMPATTO else NODE_WIDTH
+    val altezzaNodo = if (compatto) NODE_HEIGHT_COMPATTO else NODE_HEIGHT
+    val passoH = if (compatto) H_SPACING_COMPATTO else H_SPACING
+    val passoV = if (compatto) V_SPACING_COMPATTO else V_SPACING
 
     // Livello -> riga/colonna; le scene orfane (non raggiungibili da
     // START, vedi SceneGraph.kt) finiscono tutte sull'ultimo livello
@@ -478,8 +501,8 @@ fun MapScreen(
         // sé: ruotando la disposizione di 90°, chi prima spaziava le
         // colonne (H_SPACING, pensato per la larghezza del nodo) ora
         // spazia le righe, e viceversa per V_SPACING.
-        val spazioLivelli = if (orizzontale) H_SPACING.value else V_SPACING.value
-        val spazioFratelli = if (orizzontale) V_SPACING.value else H_SPACING.value
+        val spazioLivelli = if (orizzontale) passoH.value else passoV.value
+        val spazioFratelli = if (orizzontale) passoV.value else passoH.value
         buildMap {
             byLevel.forEach { (level, nodi) ->
                 nodi.forEachIndexed { index, nodo ->
@@ -513,7 +536,7 @@ fun MapScreen(
         val a = schermoALogico(inizio, pan, zoom)
         val b = schermoALogico(fine, pan, zoom)
         val posizioni = graph.nodes.mapNotNull { nodo -> posizioneEffettiva(nodo.sceneId)?.let { nodo.sceneId to it } }.toMap()
-        return nodiNelRettangolo(graph.nodes, posizioni, a, b, NODE_WIDTH.value, NODE_HEIGHT.value)
+        return nodiNelRettangolo(graph.nodes, posizioni, a, b, larghezzaNodo.value, altezzaNodo.value)
     }
 
     // §15.4 (Michele: "riordino automatico alla pressione del tasto
@@ -552,8 +575,8 @@ fun MapScreen(
             return
         }
         ricercaFallita = false
-        panX = viewportSize.width / 2f - (pos.x + NODE_WIDTH.value / 2f) * zoom
-        panY = viewportSize.height / 2f - (pos.y + NODE_HEIGHT.value / 2f) * zoom
+        panX = viewportSize.width / 2f - (pos.x + larghezzaNodo.value / 2f) * zoom
+        panY = viewportSize.height / 2f - (pos.y + altezzaNodo.value / 2f) * zoom
     }
 
     // §19.4 (Michele: "centrare la vista sulla selezione"): calcola il
@@ -567,8 +590,8 @@ fun MapScreen(
         if (posizioni.isEmpty() || viewportSize.width == 0 || viewportSize.height == 0) return
         val minX = posizioni.minOf { it.x }
         val minY = posizioni.minOf { it.y }
-        val maxX = posizioni.maxOf { it.x } + NODE_WIDTH.value
-        val maxY = posizioni.maxOf { it.y } + NODE_HEIGHT.value
+        val maxX = posizioni.maxOf { it.x } + larghezzaNodo.value
+        val maxY = posizioni.maxOf { it.y } + altezzaNodo.value
         val margine = 80f
         val zoomCheStaNellaLarghezza = (viewportSize.width - margine) / (maxX - minX).coerceAtLeast(1f)
         val zoomCheStaNellAltezza = (viewportSize.height - margine) / (maxY - minY).coerceAtLeast(1f)
@@ -652,7 +675,7 @@ fun MapScreen(
         if (sceneSelezionate.size < 2) return
         mapViewState.cronologia.registraCheckpoint(Documento(manifest, posizioniManuali))
         val posizioniAttuali = sceneSelezionate.associateWith { posizioneEffettiva(it) ?: Offset.Zero }
-        val spaziatura = if (inRiga) H_SPACING.value else V_SPACING.value
+        val spaziatura = if (inRiga) passoH.value else passoV.value
         posizioniManuali = posizioniManuali + allineaGruppo(sceneSelezionate, posizioniAttuali, orizzontale = inRiga, spaziatura = spaziatura)
     }
 
@@ -735,6 +758,14 @@ fun MapScreen(
                 Button(onClick = ::esportaImmagine) { Text("🖼 Esporta come immagine") }
                 Button(onClick = { orizzontale = !orizzontale; posizioniManuali = emptyMap() }) {
                     Text(if (orizzontale) "↕ Verticale" else "↔ Orizzontale")
+                }
+                // Vista compatta (06/08/2026): nodi piccoli col solo
+                // numero, come i grafi di Project Aon — per guardare la
+                // forma del libro invece del contenuto delle scene.
+                // Azzera le posizioni trascinate, che sono calcolate
+                // sulla spaziatura precedente.
+                Button(onClick = { compatto = !compatto; posizioniManuali = emptyMap() }) {
+                    Text(if (compatto) "⬜ Nodi grandi" else "▫ Nodi compatti")
                 }
                 Button(onClick = ::riordina) { Text("⟳ Riordina") }
                 Button(onClick = { zoom = (zoom - 0.1f).coerceAtLeast(0.2f) }) { Text("−") }
@@ -1436,8 +1467,8 @@ fun MapScreen(
                         }
                         val spessore = if (suPercorso) 4f else 2f
 
-                        val centroDa = Offset(from.x + NODE_WIDTH.value / 2, from.y + NODE_HEIGHT.value / 2)
-                        val centroA = Offset(to.x + NODE_WIDTH.value / 2, to.y + NODE_HEIGHT.value / 2)
+                        val centroDa = Offset(from.x + larghezzaNodo.value / 2, from.y + altezzaNodo.value / 2)
+                        val centroA = Offset(to.x + larghezzaNodo.value / 2, to.y + altezzaNodo.value / 2)
                         // Coppia collegata nei due versi: le due linee si
                         // sovrapporrebbero esattamente, e si vedrebbe un
                         // tratto solo. Si scostano di lato, ognuna con la
@@ -1451,10 +1482,10 @@ fun MapScreen(
                         // sono disegnati sopra questo canvas, al centro
                         // sarebbe invisibile.
                         val inizio = GeometriaArchi.bordoEllisse(
-                            centroDa, centroA, NODE_WIDTH.value / 2, NODE_HEIGHT.value / 2,
+                            centroDa, centroA, larghezzaNodo.value / 2, altezzaNodo.value / 2,
                         ) + scarto
                         val fine = GeometriaArchi.bordoEllisse(
-                            centroA, centroDa, NODE_WIDTH.value / 2, NODE_HEIGHT.value / 2,
+                            centroA, centroDa, larghezzaNodo.value / 2, altezzaNodo.value / 2,
                         ) + scarto
 
                         drawLine(color = colore, start = inizio, end = fine, strokeWidth = spessore)
@@ -1544,7 +1575,7 @@ fun MapScreen(
                     Box(
                         modifier = Modifier
                             .offset { IntOffset(pos.x.roundToInt(), pos.y.roundToInt()) }
-                            .size(NODE_WIDTH, NODE_HEIGHT)
+                            .size(larghezzaNodo, altezzaNodo)
                             .alpha(opacitaNodo)
                             // Ovale come i grafi di Graphviz (vedi
                             // FormaOvale in LayoutGerarchico.kt).
@@ -1780,7 +1811,15 @@ fun MapScreen(
                         // Sopra un'immagine invece il testo passa a
                         // bianco con uno scrim scuro dietro, altrimenti
                         // resterebbe illeggibile su una foto qualunque.
-                        val etichetta = if (scenaNodo != null) "${nodo.sceneId} · ${codiceScena(scenaNodo)}" else nodo.sceneId
+                        // In vista compatta solo il numero: il codice non
+                        // ci starebbe e a quella scala non si leggerebbe
+                        // comunque — è la forma del grafo che si guarda,
+                        // non il contenuto delle scene.
+                        val etichetta = when {
+                            compatto -> nodo.sceneId
+                            scenaNodo != null -> "${nodo.sceneId} · ${codiceScena(scenaNodo)}"
+                            else -> nodo.sceneId
+                        }
                         // Riga 1: chiave (id+codice). Riga 2: estratto del
                         // testo narrato — riconoscere la scena a colpo
                         // d'occhio senza doverla aprire (30/07/2026,
@@ -1801,7 +1840,10 @@ fun MapScreen(
                             )
                             Spacer(Modifier.height(2.dp))
                             Text(
-                                scenaNodo?.narrativeText?.replace("\n", " ")?.trim().orEmpty(),
+                                // La seconda riga sparisce in vista
+                                // compatta: in 34 punti d'altezza non ci
+                                // sta, e sarebbe illeggibile.
+                                if (compatto) "" else scenaNodo?.narrativeText?.replace("\n", " ")?.trim().orEmpty(),
                                 fontSize = 9.sp,
                                 textAlign = TextAlign.Center,
                                 color = if (immagineNodo != null) Color(0xFFE0E0E0) else Color.DarkGray,
