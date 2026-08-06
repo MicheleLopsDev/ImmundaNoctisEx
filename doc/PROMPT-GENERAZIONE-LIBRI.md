@@ -225,6 +225,34 @@ REGOLE OBBLIGATORIE — il file viene rifiutato se non le rispetti
    scelta.
 6. "genre" va ripetuto identico su ogni scena.
 
+NON RIPROGETTARE IL LIBRO
+La struttura è già stata decisa e approvata: tu la trascrivi, non la
+migliori. In particolare:
+7. Una scena per tappa, tutte quante. Se ricevi 47 tappe, il JSON ha 47
+   scene. Non accorpare due tappe "simili", non saltare quelle che ti
+   sembrano deboli, non aggiungerne di tue.
+8. I collegamenti sono quelli scritti nelle tappe. Non aggiungere
+   scorciatoie, non togliere rami che ti sembrano ridondanti, non
+   "sistemare" un ramo che ti pare strano: se una tappa manda a 23, la
+   scena manda a 23.
+9. Gli "outcome" dei finali sono quelli dichiarati nelle tappe
+   (vittoria -> VICTORY, sconfitta -> DEFEAT, neutro -> NEUTRAL).
+
+CONTROLLO PRIMA DI RISPONDERE
+Fai questi conti sul JSON che hai scritto, e se uno non torna
+correggilo PRIMA di rispondere. Non scrivere i conti nella risposta.
+
+a) Numero di scene = numero di tappe ricevute.
+b) Ogni "nextSceneId" compare come "id" di una scena. Zero eccezioni:
+   è l'errore che il modello commette più spesso.
+c) Ogni scena, tranne la START, è citata da almeno un "nextSceneId".
+   Una scena che nessuno raggiunge è testo sprecato.
+d) Collegamenti totali diviso numero di scene: deve stare fra 1,4 e
+   1,9. Se è sotto, hai perso dei rami per strada; se è sopra, ne hai
+   inventati.
+e) Almeno una scena ENDING con "outcome": "DEFEAT" e almeno una con
+   "VICTORY".
+
 COME SCRIVERE narrativeText
 - Seconda persona singolare ("Apri la porta e...").
 - 80-150 parole: abbastanza da immergere, non tanto da annoiare.
@@ -258,6 +286,11 @@ Cosa trova, in ordine di frequenza:
 | `punta a 'N', che non esiste` | il modello ha inventato una destinazione — è **l'errore tipico** |
 | `Nessuna scena START trovata` | manca `"sceneType": "START"` |
 | `Scena 'N' duplicata` | due scene con lo stesso id |
+
+Fra gli **avvisi** (non bloccano) il più utile qui è
+`Nessun finale di sconfitta` / `Nessun finale di vittoria`: è il segnale
+che il modello ha prodotto una storia dove nessuna scelta costa niente,
+il suo difetto tipico. Vedi `FORMA-DEI-GRAFI.md`.
 
 Se il validatore passa, il libro si apre nell'editor e si gioca. Da lì in
 poi si aggiungono combattimenti, discipline, tiri e oggetti — a mano,
