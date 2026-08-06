@@ -477,51 +477,27 @@ fun MapScreen(
     val passoH = if (compatto) H_SPACING_COMPATTO else H_SPACING
     val passoV = if (compatto) V_SPACING_COMPATTO else V_SPACING
 
-    // Livello -> riga/colonna; le scene orfane (non raggiungibili da
-    // START, vedi SceneGraph.kt) finiscono tutte sull'ultimo livello
-    // invece che sparire.
-    val orphanLevel = (graph.nodes.filter { it.level != Int.MAX_VALUE }.maxOfOrNull { it.level } ?: 0) + 1
-    // L'ordine DENTRO ogni livello non e' piu' quello degli id
-    // (deterministico ma cieco al grafo: due scene vicine di numero
-    // possono stare ai capi opposti della storia, e ogni collegamento
-    // fra loro attraversava tutta la mappa). Ora e' il baricentro dei
-    // vicini, come fa Graphviz nei grafi che Project Aon pubblica —
-    // vedi LayoutGerarchico.kt. Il numero resta come ordine di
-    // PARTENZA, cosi' il risultato e' sempre lo stesso a parita' di
-    // libro (§ordinamento deterministico per ID).
-    val byLevel = remember(graph) {
-        val gruppi = graph.nodes
-            .groupBy { if (it.level == Int.MAX_VALUE) orphanLevel else it.level }
-            .mapValues { (_, nodi) -> nodi.sortedBy { it.sceneId.toIntOrNull() ?: Int.MAX_VALUE } }
-        val perId = graph.nodes.associateBy { it.sceneId }
-        val ordinato = LayoutGerarchico.ordina(
-            livelli = gruppi.mapValues { (_, nodi) -> nodi.map { it.sceneId } },
+    // Il layout lo fa JGraphX (LayoutDelGrafo.kt), non piu' una griglia
+    // scritta a mano: livelli, ordine dentro il livello, posizioni E
+    // instradamento degli archi. Ricalcolato solo quando cambia il grafo
+    // o la forma della vista — ~740 ms su un libro da 364 scene, quindi
+    // mai a ogni fotogramma.
+    val disposizione = remember(graph, orizzontale, compatto) {
+        LayoutDelGrafo.calcola(
+            sceneIds = graph.nodes.map { it.sceneId }
+                // Ordine di partenza per ID: a parita' di libro il
+                // risultato e' sempre lo stesso (§ordinamento
+                // deterministico per ID).
+                .sortedBy { it.toIntOrNull() ?: Int.MAX_VALUE },
             archi = graph.edges.filter { it.resolved }.map { it.fromSceneId to it.toSceneId },
+            larghezzaNodo = larghezzaNodo.value,
+            altezzaNodo = altezzaNodo.value,
+            spazioFraNodi = (if (orizzontale) passoV.value else passoH.value) - larghezzaNodo.value,
+            spazioFraLivelli = (if (orizzontale) passoH.value else passoV.value) - altezzaNodo.value,
+            orizzontale = orizzontale,
         )
-        ordinato.mapValues { (_, ids) -> ids.mapNotNull { perId[it] } }
     }
-
-    val positions = remember(graph, orizzontale) {
-        // La spaziatura "tra livelli" resta legata alla dimensione del
-        // nodo lungo l'asse su cui i livelli finiscono, non all'asse in
-        // sé: ruotando la disposizione di 90°, chi prima spaziava le
-        // colonne (H_SPACING, pensato per la larghezza del nodo) ora
-        // spazia le righe, e viceversa per V_SPACING.
-        val spazioLivelli = if (orizzontale) passoH.value else passoV.value
-        val spazioFratelli = if (orizzontale) passoV.value else passoH.value
-        buildMap {
-            byLevel.forEach { (level, nodi) ->
-                nodi.forEachIndexed { index, nodo ->
-                    val posizione = if (orizzontale) {
-                        Offset(level * spazioLivelli, index * spazioFratelli)
-                    } else {
-                        Offset(index * spazioFratelli, level * spazioLivelli)
-                    }
-                    put(nodo.sceneId, posizione)
-                }
-            }
-        }
-    }
+    val positions = disposizione.posizioni
 
     // Trascinamento manuale dei nodi (§6.1, "riordinare come uno vuole"):
     // scarti dalla posizione auto-calcolata, non salvati nel JSON (le
@@ -1484,21 +1460,37 @@ fun MapScreen(
                         } else {
                             Offset.Zero
                         }
-                        // La punta si ferma sul BORDO dell'ellisse: i nodi
-                        // sono disegnati sopra questo canvas, al centro
-                        // sarebbe invisibile.
+                        // Il percorso INSTRADATO dal layout: l'arco aggira
+                        // i nodi invece di attraversarli in linea retta.
+                        // Se il nodo e' stato trascinato a mano il
+                        // percorso calcolato non vale piu': si torna al
+                        // segmento dritto fra i due centri.
+                        val trascinato = edge.fromSceneId in posizioniManuali ||
+                            edge.toSceneId in posizioniManuali
+                        val percorso = disposizione.percorsi[edge.fromSceneId to edge.toSceneId]
+                            ?.takeIf { it.size > 2 && !trascinato }
+                            ?: listOf(centroDa, centroA)
+
+                        // Gli estremi si fermano sul BORDO dell'ellisse: i
+                        // nodi sono disegnati sopra questo canvas, al
+                        // centro la punta sarebbe invisibile.
                         val inizio = GeometriaArchi.bordoEllisse(
-                            centroDa, centroA, larghezzaNodo.value / 2, altezzaNodo.value / 2,
+                            centroDa, percorso[1], larghezzaNodo.value / 2, altezzaNodo.value / 2,
                         ) + scarto
                         val fine = GeometriaArchi.bordoEllisse(
-                            centroA, centroDa, larghezzaNodo.value / 2, altezzaNodo.value / 2,
+                            centroA, percorso[percorso.size - 2], larghezzaNodo.value / 2, altezzaNodo.value / 2,
                         ) + scarto
+                        val spezzata = listOf(inizio) + percorso.drop(1).dropLast(1).map { it + scarto } + listOf(fine)
 
-                        drawLine(color = colore, start = inizio, end = fine, strokeWidth = spessore)
-                        // Niente punta sui collegamenti cortissimi: la
-                        // coprirebbe invece di indicarla.
-                        if (GeometriaArchi.abbastanzaLungo(inizio, fine)) {
-                            val (sinistra, destra) = GeometriaArchi.alettePunta(inizio, fine)
+                        spezzata.zipWithNext().forEach { (a, b) ->
+                            drawLine(color = colore, start = a, end = b, strokeWidth = spessore)
+                        }
+                        // La punta guarda lungo l'ULTIMO tratto, non lungo
+                        // la congiungente dei centri: su un arco instradato
+                        // sono due direzioni diverse.
+                        val penultimo = spezzata[spezzata.size - 2]
+                        if (GeometriaArchi.abbastanzaLungo(penultimo, fine, minimo = 8f)) {
+                            val (sinistra, destra) = GeometriaArchi.alettePunta(penultimo, fine)
                             drawLine(color = colore, start = fine, end = sinistra, strokeWidth = spessore)
                             drawLine(color = colore, start = fine, end = destra, strokeWidth = spessore)
                         }
