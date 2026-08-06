@@ -216,10 +216,56 @@ insieme di categorie. Un cursore, non un menu a tendina. Il che è più
 utile: un cursore si può impostare per generare, una categoria sarebbe
 stata solo un'etichetta.
 
-**Limite dichiarato:** sono 29 libri di *una sola serie*, con un autore
-principale. Vale per Lupo Solitario. Che valga per il genere è
-plausibile — i vincoli sono di mestiere, non di stile — ma non è stato
-misurato e questo documento non lo dimostra.
+## Terzo giro: il limite si restringe (37 opere, 2 autori, 2 generi)
+
+Il limite qui sopra è durato poco. Michele: *"la saga di Lupo Solitario
+è la più importante, la stragrande maggioranza degli autori ci si è
+ispirata… inoltre i libri sono molto famosi per la loro giocabilità e
+il fatto che erano progettati molto bene"*. Obiezione fondata, e
+verificabile: Project Aon pubblica i grafi di **altre due serie**.
+
+- **Grey Star** (`gs/`, 4 libri) — *The World of Lone Wolf*, scritti da
+  **Ian Page**: autore diverso, stesso mondo, stesso periodo.
+- **Freeway Warrior** (`fw/`, 4 libri) — Dever, ma **post-apocalittico**:
+  stesso autore, genere e ambientazione completamente diversi.
+
+Un controllo quasi sperimentale: la prima serie isola l'autore, la
+seconda isola il genere.
+
+| | Lone Wolf (29) | Grey Star (4)<br>*altro autore* | Freeway W. (4)<br>*altro genere* |
+|---|---|---|---|
+| uscite per scena | 1,57 | 1,66 | 1,48 |
+| scene con più ingressi | 32% | 35% | 26% |
+| quota obbligata | 42% | 43% | 50% |
+| **rientro (mediana)** | **3** | **3** | **3** |
+| finali | 12,6 | **27** | **24** |
+
+**Gli invarianti reggono.** Il grado resta fra 1,46 e 2,00 su tutte e
+37 le opere (un solo outlier, `03btng` a 2,00, il grafo più largo mai
+misurato). La quota obbligata sta fra 42% e 50%. E il rientro dei rami
+è **mediana 3 in tutte e trentasette**, senza una sola eccezione:
+cambia l'autore, cambia il genere, cambia il decennio, e i rami
+continuano a ricongiungersi dopo tre tappe.
+
+**Una cosa invece non regge, ed è istruttiva:** il numero di finali.
+Lone Wolf ne ha 12,6 di media, Grey Star 27 e Freeway Warrior 24 — il
+doppio. Quanto sei disposto a uccidere il lettore è **stile**, non
+mestiere: coerente con la deriva interna a Lone Wolf, che passa da 17 a
+8 nel corso della serie. Nel prompt va quindi trattato come una scelta
+dell'autore, non come un vincolo di forma.
+
+**Ha ragione anche sul secondo argomento, e conta di più del primo.**
+Lupo Solitario è ricordato per essere *progettato bene* come gioco. Se
+è così, i suoi numeri non descrivono "come scriveva Dever": descrivono
+**come si fa un librogame che funziona**. Per il nostro scopo — dare a
+un modello una forma da rispettare — è la fonte migliore possibile, e
+il fatto che due serie diverse per autore e genere ricadano sugli
+stessi valori dice che quei numeri non sono un'idiosincrasia.
+
+**Limite che resta**: tutte e tre le serie sono pubblicate dallo stesso
+editore e curate dalla stessa comunità. Non abbiamo misurato Fighting
+Fantasy o altre collane, semplicemente perché i loro grafi non
+esistono in questa forma.
 
 ## Ricadute pratiche
 

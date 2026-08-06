@@ -124,6 +124,50 @@ tutti e cinque. 462 test verdi.
 
 ---
 
+## 06/08/2026 — trentasette librogame: gli invarianti reggono fuori casa
+
+Alla domanda diretta *"le mie ipotesi erano giuste o no?"* la risposta
+è stata: schemi ricorrenti **sì**, categorie discrete **no** (k-means
+con silhouette 0,345 contro 0,188 del caso — un continuum, non
+scatole). Vedi `FORMA-DEI-GRAFI.md`.
+
+Avevo però dichiarato un limite: una sola serie, un autore. Michele ha
+obiettato che Lupo Solitario è il modello a cui tutti si sono ispirati
+e che è famoso *"per la loro giocabilità e il fatto che erano
+progettati molto bene"*. Obiezione fondata **e verificabile**: Project
+Aon pubblica i grafi di altre due serie.
+
+- **Grey Star** (4 libri, **Ian Page**): autore diverso, stesso mondo.
+- **Freeway Warrior** (4 libri, Dever): **post-apocalittico**, genere
+  del tutto diverso.
+
+Una isola l'autore, l'altra isola il genere. Risultato su 37 opere:
+
+| | Lone Wolf (29) | Grey Star (4) | Freeway W. (4) |
+|---|---|---|---|
+| uscite per scena | 1,57 | 1,66 | 1,48 |
+| quota obbligata | 42% | 43% | 50% |
+| rientro (mediana) | **3** | **3** | **3** |
+| finali | 12,6 | **27** | **24** |
+
+**Il rientro dei rami è mediana 3 in tutte e trentasette, senza una
+sola eccezione.** Cambia l'autore, cambia il genere, cambia il
+decennio: i rami si ricongiungono dopo tre tappe. Grado e quota
+obbligata reggono altrettanto bene.
+
+**Il numero di finali invece no**: 12,6 contro 24-27, il doppio.
+Quanto uccidi il lettore è stile, non mestiere — coerente con la
+deriva interna a Lone Wolf (da 17 a 8 lungo la serie). Nel prompt è
+stato riscritto come scelta dell'autore invece che come vincolo.
+
+Michele ha ragione anche sul secondo argomento, e conta di più: se
+Lupo Solitario è ricordato per essere progettato bene *come gioco*,
+allora i suoi numeri non descrivono lo stile di Dever ma **come si fa
+un librogame che funziona**. Che due serie diverse per autore e genere
+cadano sugli stessi valori lo conferma.
+
+---
+
 ## 06/08/2026 — ventinove librogame misurati: di modello ce n'è uno
 
 Michele: *"abbiamo i grafi per più avventure, ognuno è diverso però

@@ -119,10 +119,9 @@ COSA DEVI FARE
    oltre 5. Non creare rami che non rientrano mai, tranne i finali.
 4. Prevedi 3-5 FINALI: una vittoria, il resto sconfitte.
 
-LA FORMA DEL LIBRO (numeri misurati sui 29 librogame di una serie
-pubblicata,
-rispettali: sono il punto di equilibrio fra "il lettore sceglie" e
-"il libro si può scrivere")
+LA FORMA DEL LIBRO (numeri misurati su 37 librogame pubblicati, di tre
+serie diverse per autore e per genere; rispettali: sono il punto di
+equilibrio fra "il lettore sceglie" e "il libro si può scrivere")
 - In media **1,5-1,7 uscite per tappa**. Concretamente: circa metà delle
   tappe hanno UNA sola uscita (si prosegue), circa metà sono bivi a due,
   e solo una su dieci offre tre o più strade. Un libro in cui ogni tappa
@@ -138,6 +137,10 @@ rispettali: sono il punto di equilibrio fra "il lettore sceglie" e
   dove niente lo è non ha scelte.
 - **Nessuna tappa irraggiungibile**: ogni numero che scrivi deve essere
   citato da almeno un'altra tappa. Controlla prima di rispondere.
+- Quante sconfitte mettere è una **tua** scelta, non un vincolo di
+  forma: le serie misurate vanno dalle 12 alle 27 per libro, cioè
+  qualcuno uccide il lettore il doppio di qualcun altro. Ma almeno una
+  ci vuole, o nessuna scelta costa niente.
 - Le sconfitte sono **scene vere, con il loro racconto** (come muori,
   cosa vedi per ultimo), non un "hai perso". Una morte anonima è tempo
   del lettore buttato.
