@@ -63,11 +63,17 @@ Rispondi con:
    Capitolo <n> — <titolo> — <quante tappe servono> — bivio principale:
    <la decisione vera che il giocatore prende in questo capitolo>
 
-3. FINALI (2-4): per ognuno, da quale capitolo si stacca e se è
-   vittoria, sconfitta o neutro.
+3. FINALI (3-5): per ognuno, da quale capitolo si stacca e se è
+   vittoria, sconfitta o neutro. Una sola vittoria, il resto sconfitte.
 
 4. FILI DA SEMINARE: elementi che vanno anticipati nei capitoli
    precedenti perché una rivelazione successiva funzioni.
+
+5. PUNTI DI RIENTRO: per ogni capitolo, la tappa in cui le strade
+   alternative si ricongiungono. Circa un terzo delle tappe deve essere
+   raggiungibile da più di un percorso (misura reale sui librogame
+   pubblicati, vedi FORMA-DEI-GRAFI.md): senza rientri il libro
+   raddoppia a ogni bivio e non lo finisci più.
 
 Tieni conto che il totale deve stare fra 40 e 60 tappe.
 
@@ -111,7 +117,23 @@ COSA DEVI FARE
 3. Su questa spina, aggiungi DEVIAZIONI: percorsi alternativi che si
    staccano da una tappa e RIENTRANO nella spina entro 2-3 tappe. Non
    creare rami che non rientrano mai, tranne i finali.
-4. Prevedi 2-4 FINALI: almeno una vittoria, almeno una sconfitta.
+4. Prevedi 3-5 FINALI: una vittoria, il resto sconfitte.
+
+LA FORMA DEL LIBRO (numeri misurati su 29 librogame pubblicati,
+rispettali: sono il punto di equilibrio fra "il lettore sceglie" e
+"il libro si può scrivere")
+- In media **1,5-1,7 uscite per tappa**. Concretamente: circa metà delle
+  tappe hanno UNA sola uscita (si prosegue), circa metà sono bivi a due,
+  e solo una su dieci offre tre o più strade. Un libro in cui ogni tappa
+  è un bivio a tre non è più ricco: è ingestibile e non lo finisci.
+- Circa **una tappa su tre deve essere raggiungibile da più di un
+  percorso**. È questo che tiene basso il numero totale di tappe: se i
+  rami non rientrano mai, il libro raddoppia a ogni bivio.
+- **Nessuna tappa irraggiungibile**: ogni numero che scrivi deve essere
+  citato da almeno un'altra tappa. Controlla prima di rispondere.
+- Le sconfitte sono **scene vere, con il loro racconto** (come muori,
+  cosa vedi per ultimo), non un "hai perso". Una morte anonima è tempo
+  del lettore buttato.
 
 REGOLE
 - Ogni tappa deve chiudersi con una decisione vera del protagonista, non
@@ -119,7 +141,8 @@ REGOLE
 - Le scelte devono avere conseguenze diverse: se due scelte portano allo
   stesso posto senza differenza, accorpale.
 - Il protagonista è "tu" (seconda persona singolare).
-- Non scrivere ancora la prosa delle scene: solo cosa succede.
+- Non scrivere ancora la prosa delle scene: solo cosa succede — tranne
+  che per i finali, dove basta una riga su come va a finire.
 
 FORMATO DELLA RISPOSTA
 Prima un paragrafo con la storia arricchita (10-15 righe).

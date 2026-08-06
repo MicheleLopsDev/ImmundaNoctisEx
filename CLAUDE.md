@@ -38,7 +38,10 @@ dei percorsi con `./gradlew :tool:verificaGrafo`.
 
 Per creare un libro NUOVO da un canovaccio con l'aiuto di un'IA remota
 c'è `doc/PROMPT-GENERAZIONE-LIBRI.md`: due prompt pronti e lo schema
-JSON minimo, verificato contro il validatore.
+JSON minimo, verificato contro il validatore. I vincoli di forma che
+quei prompt impongono (uscite per scena, riconvergenza, finali) non
+sono inventati: vengono da `doc/FORMA-DEI-GRAFI.md`, la misura dei 29
+grafi ufficiali della serie.
 
 In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:
 consultala prima di copiare o riscrivere qualunque componente ereditato.

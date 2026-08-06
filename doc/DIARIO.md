@@ -56,6 +56,55 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 06/08/2026 — ventinove librogame misurati: di modello ce n'è uno
+
+Michele: *"abbiamo i grafi per più avventure, ognuno è diverso però
+alla fine immagino che di modelli non ce ne siano così tanti, sono
+variazioni statistiche rispetto a un numero limitato"*. Ipotesi giusta,
+e più forte del previsto. Misure complete in `doc/FORMA-DEI-GRAFI.md`,
+prese dai 29 grafi ufficiali `.svgz` di Project Aon (fonte
+indipendente dalla nostra conversione).
+
+**Il numero che conta: 1,57 uscite per scena, deviazione standard
+0,09.** Ventinove libri, vent'anni, autori diversi dopo il decimo, e la
+larghezza del grafo non si muove di un sei per cento. Non è uno stile,
+è il punto di equilibrio: sopra le due uscite medie il numero di
+sezioni esplode e il libro non si scrive. Stabili anche la
+riconvergenza (32%, cioè una scena su tre si raggiunge da più strade) e
+le scene irraggiungibili (0,24 su 350 — refusi, non scelte: il nostro
+controllo di raggiungibilità è un criterio giusto, non pedanteria).
+
+**La variante:** la serie deriva da *larga e letale* a *stretta e
+lunga*. Dai primi nove agli ultimi dieci, a parità di 350 sezioni, il
+cammino più lungo raddoppia (52 → 99) e i finali dimezzano (17 → 8).
+Lo stesso budget speso in profondità invece che in ampiezza.
+
+**Nota utile per i nostri libri:** i finali sono quasi tutti morti, e
+sono *scritte*. Nel libro 1, sedici finali su diciassette sono morti
+narrative con la loro prosa; la 350 è l'unica vittoria. Non esiste una
+schermata generica di sconfitta. Da noi il `deathSceneId` globale copre
+le morti meccaniche, ma le morti da scelta sbagliata restano scene
+`ENDING` vere e vogliono il loro racconto.
+
+**Ricaduta immediata:** i numeri di forma di
+`PROMPT-GENERAZIONE-LIBRI.md` erano scelti a naso ("i rami rientrano
+entro 2-3 tappe"). Ora sono misurati, con la spiegazione del *perché*
+— un modello che capisce il vincolo lo rispetta meglio di uno che
+riceve una soglia. Aggiunto al Giro A un punto 5 sui punti di rientro.
+
+**Ricaduta futura, non implementata:** un controllo di *forma
+strutturale* per i libri generati da IA. Grado fuori da 1,3-1,9,
+riconvergenza sotto il 20%, o una sola strada per scena, sono il segno
+che il modello ha prodotto un racconto lineare travestito da librogame.
+Il posto naturale è accanto a `ConfrontoGrafo` nel `:tool`.
+
+**Chiuso anche un dubbio di Michele su `xhtml-less-simple/`:** ha il
+markup Bootstrap del sito ma non le classi semantiche. `xhtml-simple`,
+che il convertitore già usa, resta la scelta giusta — il nome inganna,
+"less simple" riguarda la presentazione, non i dati.
+
+---
+
 ## 05/08/2026 — il benvenuto: «puoi giocare subito»
 
 Chi apriva l'app per la prima volta trovava una Home con una tile
