@@ -124,6 +124,55 @@ tutti e cinque. 462 test verdi.
 
 ---
 
+## 06/08/2026 — `forma`: le misure diventano un comando
+
+Michele: *"possiamo avere dei binari per evitare che il modello
+[sbandi]… tanto poi li correggiamo noi in seconda passata e io li
+verifico per dare l'ok"*. Il prompt è un binario morbido — un modello
+può ignorarlo. Una misura fatta dopo no.
+
+`FormaDelGrafo` + `runForma`, comando `forma` nel CLI del tool.
+`validate` dice se il grafo REGGE, questo se ha la FORMA di un
+librogame: sono domande diverse, e un racconto lineare con un bivio
+ogni tanto passa il validatore benissimo. Riusa `ConfrontoGrafo.archiDi()`
+per leggere gli archi, quindi vede anche i salti dentro le meccaniche.
+
+**Due tarature che i dati hanno imposto, contro quello che avevo
+scritto di getto:**
+
+1. **Il grado esclude i finali dal denominatore.** Il primo test
+   falliva su un libro di sei scene costruito apposta sano: grado 1,0,
+   "racconto lineare". Aveva ragione il test — un finale non può avere
+   uscite, e tenerlo al denominatore abbassa la media in proporzione a
+   quanto il libro è corto (3% su 350 scene, 33% su sei). Ricalcolate
+   le soglie sulle 37 opere con la formula giusta: 1,65 di media, da
+   1,45 a 2,18.
+2. **I rientri lunghi si contano in proporzione, non a uno a uno.** Al
+   primo giro il comando segnalava "20 bivi che rientrano tardi" su
+   `01fftd`, che è un libro sano. Misurati sui cinque: fra il 5% e il
+   12% dei bivi. Soglia al 15%, e l'avviso è sparito da tutti.
+
+**Terza regola, dalla stessa lezione:** sotto le 20 scene i controlli
+statistici non si applicano. Su sei scene "il 17% riconverge" vuol dire
+"una scena", e la quota obbligata viene 100% per pura aritmetica.
+Restano attivi quelli strutturali (scene orfane, vicoli ciechi, finali
+mancanti), che valgono a qualunque dimensione. Il libro incluso
+nell'APK ne ha 7: viene misurato e non giudicato, che è giusto.
+
+Sui cinque libri veri resta **un solo avviso**: `01fftd` al 6% di
+cammino obbligato. Non è un falso positivo — quel libro ha davvero due
+sole tappe obbligatorie su 33 di profondità, l'avevo già visto nel
+secondo giro di analisi. Il libro più famoso della serie è anche il più
+largo che sia mai stato scritto.
+
+Aggiunti anche i binari alla **Fase 2** del prompt, che aveva ottime
+regole di schema e nessun vincolo di struttura: "non riprogettare il
+libro" (una scena per tappa, i collegamenti sono quelli scritti) più un
+autocontrollo prima di rispondere, che include il rapporto
+collegamenti/scene.
+
+---
+
 ## 06/08/2026 — trentasette librogame: gli invarianti reggono fuori casa
 
 Alla domanda diretta *"le mie ipotesi erano giuste o no?"* la risposta

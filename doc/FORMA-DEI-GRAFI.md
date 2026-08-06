@@ -277,11 +277,24 @@ esistono in questa forma.
   nessuna scelta costa niente, che è il difetto tipico di un testo
   generato da un modello. Al primo giro ha trovato tre difetti veri nel
   nostro stesso materiale (vedi DIARIO 06/08).
-- Un controllo di **forma strutturale** completo resta da fare: grado
-  fuori da 1,3-1,9, riconvergenza sotto il 20%, o una sola strada per
-  ogni scena, sono segnali che il modello ha prodotto un racconto
-  lineare travestito da librogame. Il posto naturale è accanto a
-  `ConfrontoGrafo` nel `:tool`.
+- **`./gradlew :tool:cli --args="forma <libro.json>"` (fatto)**:
+  `FormaDelGrafo` misura un libro e lo confronta con questi numeri.
+  Errori (scene orfane, vicoli ciechi, nessuna vittoria) e avvisi
+  (grado fuori misura, rami che non rientrano, cammino obbligato
+  troppo basso o troppo alto). Due scelte tarate sui dati e non a
+  occhio:
+  - il grado **esclude i finali dal denominatore**, perché un finale
+    non può avere uscite: su 350 scene sposta il 3%, su un libro di 6
+    scene il 33% — abbastanza da far gridare "racconto lineare" a un
+    libro sano. Con questa formula le 37 opere danno 1,65 di media, da
+    1,45 a 2,18;
+  - i rientri lunghi si contano **in proporzione** (soglia 15%), non a
+    uno a uno: i cinque libri Project Aon ne hanno fra il 5% e il 12%,
+    e segnalarli tutti avrebbe reso l'avviso rumore.
+
+  Provato sui cinque libri veri: un solo avviso, `01fftd` al 6% di
+  cammino obbligato — che è **corretto**, quel libro ha davvero due
+  sole tappe obbligatorie su 33 di profondità.
 
 ## Nota sulle edizioni HTML di Project Aon
 

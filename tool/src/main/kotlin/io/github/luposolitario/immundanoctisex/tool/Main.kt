@@ -8,12 +8,16 @@ import kotlin.system.exitProcess
 // toccare application{} in build.gradle.kts ogni volta.
 fun main(args: Array<String>) {
     if (args.isEmpty()) {
-        println("Uso: <validate|convert|illustrazioni|bonifica|svuotaTesti|riempiTesti|verificaGrafo> ...")
+        println("Uso: <validate|forma|convert|illustrazioni|bonifica|svuotaTesti|riempiTesti|verificaGrafo> ...")
         exitProcess(2)
     }
     val rest = args.drop(1).toTypedArray()
     when (args[0]) {
         "validate" -> runValidate(rest)
+        // La forma del grafo contro quella dei librogame pubblicati
+        // (06/08/2026): validate dice se il grafo regge, questo se ha
+        // la forma di un librogame. Vedi doc/FORMA-DEI-GRAFI.md.
+        "forma" -> runForma(rest)
         "convert" -> runConvert(rest)
         "illustrazioni" -> runIllustrazioni(rest)
         "bonifica" -> runBonifica(rest)
@@ -26,7 +30,7 @@ fun main(args: Array<String>) {
         "verificaGrafo" -> runVerificaGrafo(rest)
         else -> {
             println(
-                "Comando sconosciuto: '${args[0]}' (usa 'validate', 'convert', 'illustrazioni', " +
+                "Comando sconosciuto: '${args[0]}' (usa 'validate', 'forma', 'convert', 'illustrazioni', " +
                     "'bonifica', 'svuotaTesti', 'riempiTesti' o 'verificaGrafo')",
             )
             exitProcess(2)

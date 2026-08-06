@@ -292,9 +292,36 @@ Fra gli **avvisi** (non bloccano) il più utile qui è
 che il modello ha prodotto una storia dove nessuna scelta costa niente,
 il suo difetto tipico. Vedi `FORMA-DEI-GRAFI.md`.
 
-Se il validatore passa, il libro si apre nell'editor e si gioca. Da lì in
-poi si aggiungono combattimenti, discipline, tiri e oggetti — a mano,
-perché sono decisioni di gioco.
+### E poi la forma
+
+`validate` dice se il grafo **regge**; questo dice se ha la **forma** di
+un librogame. Sono domande diverse: un racconto lineare con un bivio
+ogni tanto passa il validatore benissimo.
+
+```bash
+./gradlew :tool:cli --args="forma ../percorso/del/libro.json"
+```
+
+```
+libro.json: 47 scene, 61 collegamenti, 4 finali
+  uscite per scena     1,45      (libri veri 1,45-2,18)
+  scene con piu' vie   28%       (libri veri 23-44%)
+  cammino obbligato    44%       (libri veri 42-50%)
+  rientro dei rami     3 tappe   (libri veri: mediana 3)
+```
+
+Gli **errori** vanno corretti (scene che nessuno raggiunge, scene senza
+uscita che non sono finali, nessuna vittoria). Gli **avvisi**
+descrivono un libro che si gioca ma non ha la forma giusta: grado
+troppo basso (racconto lineare), rami che non rientrano, cammino
+obbligato fuori misura.
+
+Sotto le 20 scene i controlli statistici non si applicano: su un libro
+di sei scene "il 17% riconverge" vuol dire "una scena".
+
+Se validatore e forma passano, il libro si apre nell'editor e si gioca.
+Da lì in poi si aggiungono combattimenti, discipline, tiri e oggetti —
+a mano, perché sono decisioni di gioco.
 
 ---
 

@@ -159,13 +159,26 @@ ogni campo), `BarraAnteprima` (il pulsante e lo stato), `SezioneScheda`
 
 ## La CLI
 
-`Main.kt` smista verso tre comandi:
+`Main.kt` smista verso i sottocomandi:
 
 | Comando | File | Cosa fa |
 |---|---|---|
 | `validate` | `ValidateMain.kt` | Valida un libro con lo stesso `PackageValidator` del gioco |
+| `forma` | `FormaMain.kt` | Misura la **forma** del grafo e la confronta con quella dei librogame pubblicati |
 | `convert` | `ConvertMain.kt` | Converte un libro Project Aon da HTML a JSON |
 | `illustrazioni` | `IllustrazioniMain.kt` | Elenca le illustrazioni originali di un libro |
+| `bonifica` | `BonificaMain.kt` | Ripulisce i riferimenti alle risorse |
+| `svuotaTesti` / `riempiTesti` | `TestiMain.kt` | Separano le meccaniche dalla prosa Project Aon (README §15) |
+| `verificaGrafo` | `VerificaGrafoMain.kt` | Confronta la conversione col grafo ufficiale dei percorsi |
+
+`validate` e `forma` rispondono a due domande diverse, ed è il motivo
+per cui sono comandi separati: il primo dice se il grafo **regge**
+(destinazioni esistenti, niente scene duplicate), il secondo se ha la
+**forma** di un librogame. Un racconto lineare con un bivio ogni tanto
+passa `validate` senza un rilievo. Le soglie di `FormaDelGrafo.kt`
+vengono da `doc/FORMA-DEI-GRAFI.md`, la misura di 37 opere pubblicate;
+sotto le 20 scene i controlli statistici si spengono, perché una
+percentuale su sei elementi non è una misura.
 
 ### `ProjectAonHtmlParser.kt`
 Il pezzo più delicato della CLI: riconosce nel testo inglese scelte,
