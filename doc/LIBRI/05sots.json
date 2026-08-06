@@ -6370,7 +6370,7 @@
         },
         {
             "id": "331",
-            "sceneType": "ENDING",
+            "sceneType": "TRANSITION",
             "genre": "FANTASY",
             "source": "https://www.projectaon.org/en/xhtml/lw/05sots/sect331.htm",
             "narrativeText": "",
@@ -6381,8 +6381,7 @@
                         "answerSceneId": "373"
                     }
                 }
-            ],
-            "outcome": "NEUTRAL"
+            ]
         },
         {
             "id": "332",
@@ -7729,7 +7728,7 @@
             "npcImage": "url:https://www.projectaon.org/en/xhtml/lw/05sots/ill24.png",
             "source": "https://www.projectaon.org/en/xhtml/lw/05sots/sect400.htm",
             "narrativeText": "",
-            "outcome": "NEUTRAL"
+            "outcome": "VICTORY"
         }
     ],
     "customResources": {

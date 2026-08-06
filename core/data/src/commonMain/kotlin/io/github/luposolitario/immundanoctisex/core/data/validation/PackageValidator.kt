@@ -16,6 +16,7 @@ object PackageValidator {
             ImageReferenceValidator.validate(manifest) +
             CustomResourcesValidator.validate(manifest) +
             SfxValidator.validate(manifest) +
-            RollModifierValidator.validate(manifest)
+            RollModifierValidator.validate(manifest) +
+            EndingsValidator.validate(manifest)
     }
 }

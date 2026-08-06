@@ -56,6 +56,74 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 06/08/2026 — morire di meccanica dice la morte
+
+Domanda di Michele dopo le misure: *"forse dovremmo rivedere anche il
+meccanismo di deathSceneId visto che sono tutte singole e scritte a
+mano, ma quello mi ricordo che lo avevamo creato per fallback"*.
+
+**Il meccanismo non va rivisto, e il regolamento originale lo prova.**
+Il libro dice, testuale: *"If at any time your ENDURANCE points fall to
+zero or below, you are dead and the adventure is over."* — una
+**regola**, non una sezione. E ogni combattimento scrive solo "If you
+win, turn to X": la sconfitta non ha destinazione. Nei nostri cinque
+libri convertiti, 219 combattimenti e **zero** `loseSceneId`.
+
+Sono due morti diverse e Lupo Solitario le separa esattamente come noi:
+
+| | nel libro | da noi |
+|---|---|---|
+| morte meccanica (Resistenza 0) | una riga di regolamento | `deathSceneId` |
+| morte da scelta sbagliata | sezione scritta, con prosa | scena `ENDING` normale |
+
+Le 16 morti narrative del libro 1 sono tutte del secondo tipo e
+funzionavano già: sono scene come le altre, raggiunte da una `choice`.
+
+**Il difetto vero era un altro**, ed è emerso da lì. Nei cinque libri
+`deathSceneId` è assente, quindi morire in combattimento cadeva su
+`__ex_synthetic_defeat__` e col modello spento si leggeva *"Qui la tua
+storia si interrompe. Il libro non racconta cosa accadde dopo"*. Ma il
+libro **non tace affatto**: dice che sei morto. Stavamo dando la frase
+da buco-nel-grafo a una morte che il regolamento descrive benissimo.
+Ora i ripieghi sono due: `ending_death_fallback` per chi ci arriva
+morendo (sempre, di fatto: è il `deathSceneId`), quello vecchio per i
+finali senza testo che non sono la morte built-in.
+
+**`EndingsValidator`** (richiesta di Michele nella stessa risposta):
+avvisa quando un libro dichiara finali ma nessuno è una sconfitta —
+oppure nessuno è una vittoria. Il perché sta in `FORMA-DEI-GRAFI.md`:
+un libro senza morti non è benevolo, è un libro dove nessuna scelta
+costa niente, che è il difetto tipico di un testo generato da un
+modello. Avviso e non errore: un giallo può legittimamente non avere
+morte. Non si applica ai pacchetti senza nessuna scena ENDING (un
+frammento non va giudicato sui finali che non dichiara).
+
+**Al primo giro ha trovato tre difetti veri, tutti nostri:**
+
+1. **La fixture `core/data/src/jvmTest/resources/scenes.sample.json`
+   era di nuovo fuori sincrono** — i suoi due finali non dichiaravano
+   l'esito. È lo stesso problema che il commento di
+   `ContenutiRealiValidiTest` racconta essere già successo una volta.
+   La duplicazione con `content/test-books/` continuerà a divergere:
+   varrebbe la pena farle leggere il file vero come fa quel test.
+2. **Nessuno dei cinque libri aveva una vittoria dichiarata.** Il
+   convertitore lo sapeva e lo scriveva nelle note (*"esito assunto
+   NEUTRAL, correggi a VICTORY se è la conclusione vittoriosa"*), ma
+   nessuno le aveva applicate: finire il libro 1 mostrava "Avventura
+   conclusa" invece di "Vittoria". Corrette tutte e cinque (350, 350,
+   350, 350, 400 — verificate sul testo originale).
+3. **Due scene classificate male.** `03tcok/61` era NEUTRAL ma il testo
+   dice *"you have failed your mission"* → DEFEAT. `05sots/331` era
+   ENDING pur avendo già l'enigma numerico completo con la risposta
+   (→373): era un finale che finale non è → TRANSITION. Quest'ultima
+   chiude anche una discrepanza col grafo ufficiale, che per `05sots`
+   contava 13 finali mentre il JSON ne aveva 14. **Ora combaciano.**
+
+Copertura del grafo ufficiale invariata: 2984 archi su 2984, 100% su
+tutti e cinque. 462 test verdi.
+
+---
+
 ## 06/08/2026 — ventinove librogame misurati: di modello ce n'è uno
 
 Michele: *"abbiamo i grafi per più avventure, ognuno è diverso però

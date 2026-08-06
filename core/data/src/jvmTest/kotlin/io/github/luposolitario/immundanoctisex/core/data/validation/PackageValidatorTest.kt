@@ -6,6 +6,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.ComparisonOperato
 import io.github.luposolitario.immundanoctisex.core.data.model.CustomResourceEntry
 import io.github.luposolitario.immundanoctisex.core.data.model.CustomResources
 import io.github.luposolitario.immundanoctisex.core.data.model.DisciplineChoice
+import io.github.luposolitario.immundanoctisex.core.data.model.EndingOutcome
 import io.github.luposolitario.immundanoctisex.core.data.model.GameMechanic
 import io.github.luposolitario.immundanoctisex.core.data.model.GlobalRule
 import io.github.luposolitario.immundanoctisex.core.data.model.GlobalRuleType
@@ -366,5 +367,61 @@ class PackageValidatorTest {
 
         assertTrue(result.errors.isEmpty())
         assertTrue(result.warnings.any { it.contains("rollModifiers") && it.contains("nessuna scelta") })
+    }
+
+    // EndingsValidator (06/08/2026): l'equilibrio dei finali. Vedi
+    // doc/FORMA-DEI-GRAFI.md per il perche' — nei librogame veri le
+    // sconfitte sono la maggioranza dei finali, e sono scritte.
+    private fun finale(id: String, outcome: EndingOutcome?) = Scene(
+        id = id,
+        sceneType = SceneType.ENDING,
+        genre = "FANTASY",
+        narrativeText = "testo",
+        outcome = outcome,
+    )
+
+    @Test
+    fun unLibroSenzaFinaliDiSconfittaDaUnAvviso() {
+        val scene = listOf(scene("1", SceneType.START), finale("2", EndingOutcome.VICTORY))
+
+        val result = PackageValidator.validate(manifest(scene))
+
+        assertTrue(result.errors.isEmpty())
+        assertTrue(result.warnings.any { it.contains("sconfitta") && it.contains("DEFEAT") })
+        assertTrue(result.warnings.none { it.contains("vittoria") })
+    }
+
+    @Test
+    fun unLibroSenzaFinaliDiVittoriaDaUnAvviso() {
+        val scene = listOf(scene("1", SceneType.START), finale("2", EndingOutcome.DEFEAT))
+
+        val result = PackageValidator.validate(manifest(scene))
+
+        assertTrue(result.warnings.any { it.contains("vittoria") && it.contains("VICTORY") })
+        assertTrue(result.warnings.none { it.contains("sconfitta") })
+    }
+
+    @Test
+    fun unLibroConVittoriaESconfittaNonDaAvvisiSuiFinali() {
+        val scene = listOf(
+            scene("1", SceneType.START),
+            finale("2", EndingOutcome.VICTORY),
+            finale("3", EndingOutcome.DEFEAT),
+            finale("4", EndingOutcome.NEUTRAL),
+        )
+
+        val result = PackageValidator.validate(manifest(scene))
+
+        assertTrue(result.warnings.none { it.contains("finale") })
+    }
+
+    @Test
+    fun unPacchettoSenzaNessunaScenaEndingNonVieneGiudicatoSuiFinali() {
+        // Un frammento (fixture di test, libro in costruzione) non
+        // dichiara finali: la domanda non ha senso, e a runtime ci pensa
+        // AdventureEnding.withGuaranteedEnding.
+        val result = PackageValidator.validate(manifest(listOf(scene("1", SceneType.START))))
+
+        assertTrue(result.warnings.none { it.contains("finale") })
     }
 }

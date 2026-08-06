@@ -258,7 +258,23 @@ fun AdventureScreen(
                         // scrive il narratore. Se non ha potuto (modello assente
                         // o generazione fallita) si mette quello fisso, perché
                         // una schermata vuota non è un finale.
-                        text = state.narrative.ifBlank { stringResource(R.string.ending_synthetic_fallback) },
+                        //
+                        // Due ripieghi diversi, non uno (06/08/2026): alla
+                        // scena sintetica ci si arriva SEMPRE morendo di
+                        // meccanica — Resistenza a zero o combattimento perso
+                        // senza loseSceneId. Il libro, lì, non tace affatto:
+                        // il regolamento di Lupo Solitario dice "you are dead
+                        // and the adventure is over". Dare a quel caso la
+                        // frase da buco-nel-grafo ("il libro non racconta
+                        // cosa accadde dopo") era una scusa al posto di una
+                        // morte. L'altra resta per i finali senza testo che
+                        // non sono la morte built-in.
+                        text = state.narrative.ifBlank {
+                            stringResource(
+                                if (state.isSyntheticEnding) R.string.ending_death_fallback
+                                else R.string.ending_synthetic_fallback,
+                            )
+                        },
                         style = MaterialTheme.typography.bodyLarge,
                         fontFamily = readingFont,
                         fontWeight = if (boldText) FontWeight.Bold else FontWeight.Normal,

@@ -49,9 +49,14 @@
     <string name="ending_victory_title">Victory</string>
     <string name="ending_defeat_title">The journey ends here</string>
     <string name="ending_neutral_title">Adventure over</string>
-    <!-- Testo di riserva per il finale FABBRICATO quando il pacchetto non
-         ne ha uno e il narratore non è riuscito a scriverlo. -->
+    <!-- Testo di riserva per un finale SENZA testo che il narratore non è
+         riuscito a scrivere: qui il grafo si interrompe davvero. -->
     <string name="ending_synthetic_fallback">Here your story breaks off. The book does not tell what happened next.</string>
+    <!-- Diverso dal precedente (06/08/2026): alla scena di morte fabbricata
+         ci si arriva morendo di meccanica, e su quello il libro NON tace —
+         "you are dead and the adventure is over", dice il regolamento di
+         Lupo Solitario. Va detta la morte, non l'assenza di racconto. -->
+    <string name="ending_death_fallback">Your strength leaves you. You fall, and you do not rise again: here your adventure ends.</string>
 
     <!-- Zona scelte (24/07/2026, richiesta Michele: menu a comparsa +
          conferma al posto dei bottoni impilati, per non schiacciare il

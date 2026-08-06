@@ -120,12 +120,17 @@ scene `ENDING` vere, e devono avere la loro prosa.
 
 - Il prompt di Fase 1 (`PROMPT-GENERAZIONE-LIBRI.md`) ora chiede la
   forma misurata invece che una inventata.
-- Un controllo di **forma strutturale** per i libri generati da IA
-  diventa possibile: grado fuori da 1,3-1,9, riconvergenza sotto il
-  20%, o una sola strada per ogni scena, sono segnali che il modello ha
-  prodotto un racconto lineare travestito da librogame. Non è ancora
-  implementato — il posto naturale è accanto a `ConfrontoGrafo` nel
-  `:tool`.
+- **`EndingsValidator` (fatto)**: avvisa quando un libro dichiara dei
+  finali ma nessuno è una sconfitta, o nessuno è una vittoria. Viene
+  dal punto 5 — un libro senza morti non è benevolo, è un libro dove
+  nessuna scelta costa niente, che è il difetto tipico di un testo
+  generato da un modello. Al primo giro ha trovato tre difetti veri nel
+  nostro stesso materiale (vedi DIARIO 06/08).
+- Un controllo di **forma strutturale** completo resta da fare: grado
+  fuori da 1,3-1,9, riconvergenza sotto il 20%, o una sola strada per
+  ogni scena, sono segnali che il modello ha prodotto un racconto
+  lineare travestito da librogame. Il posto naturale è accanto a
+  `ConfrontoGrafo` nel `:tool`.
 
 ## Nota sulle edizioni HTML di Project Aon
 
