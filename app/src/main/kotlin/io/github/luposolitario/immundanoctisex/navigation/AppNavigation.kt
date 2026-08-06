@@ -21,6 +21,7 @@ import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.ui.adventure.AdventureRoute
 import io.github.luposolitario.immundanoctisex.ui.creation.CreationRoute
 import io.github.luposolitario.immundanoctisex.ui.home.HomeRoute
+import io.github.luposolitario.immundanoctisex.ui.welcome.BenvenutoScreen
 import io.github.luposolitario.immundanoctisex.ui.models.ModelsRoute
 import io.github.luposolitario.immundanoctisex.ui.options.OptionsRoute
 import io.github.luposolitario.immundanoctisex.ui.setup.SetupRoute
@@ -29,6 +30,8 @@ import io.github.luposolitario.immundanoctisex.util.AccentColor
 // Le destinazioni dell'app (le 7 schermate di UI.md). Solo routing qui
 // (ARCHITETTURA.md: ~100 righe max): niente logica, niente stato di gioco.
 enum class Route {
+    // Il primo schermo di chi apre l'app la prima volta (05/08/2026).
+    BENVENUTO,
     HOME,
     ADVENTURE_SETUP,
     CHARACTER_CREATION,
@@ -47,7 +50,10 @@ fun AppNavigation(
     onThemeOverrideChange: (Boolean?) -> Unit,
     onAccentColorChange: (AccentColor) -> Unit,
 ) {
-    var route by rememberSaveable { mutableStateOf(Route.HOME) }
+    // Al primo avvio si parte dal benvenuto, poi mai più.
+    var route by rememberSaveable {
+        mutableStateOf(if (container.benvenutoPreferences.benvenutoVisto) Route.HOME else Route.BENVENUTO)
+    }
     val backStack = remember { ArrayDeque<Route>() }
     // Parametri di navigazione della partita in corso (solo routing:
     // la logica vive nelle route delle schermate).
@@ -116,6 +122,24 @@ fun AppNavigation(
     }
 
     when (route) {
+        Route.BENVENUTO -> BenvenutoScreen(
+            isDarkTheme = isDarkTheme,
+            // Se il libro parla già la lingua del telefono, il modello
+            // serve solo per l'arricchimento: dirlo evita di far
+            // sembrare che manchi qualcosa per giocare (Michele,
+            // 05/08/2026).
+            modelloSuperfluo = container.libroNellaLinguaDiSistema(),
+            onInizia = {
+                container.benvenutoPreferences.benvenutoVisto = true
+                route = Route.HOME
+            },
+            onVaiAiModelli = {
+                container.benvenutoPreferences.benvenutoVisto = true
+                route = Route.HOME
+                navigateTo(Route.MODELS)
+            },
+        )
+
         Route.HOME -> HomeRoute(
             container = container,
             isDarkTheme = isDarkTheme,

@@ -80,6 +80,13 @@ class EditorPreferences {
         get() = prefs.getBoolean(KEY_TEMA_SCURO, false)
         set(value) = prefs.putBoolean(KEY_TEMA_SCURO, value)
 
+    // Il pannello di benvenuto si chiude una volta e non torna
+    // (05/08/2026). È un pannello e non una schermata di passaggio
+    // apposta: chi sa già cosa fare apre il suo libro e lo ignora.
+    var benvenutoChiuso: Boolean
+        get() = prefs.getBoolean(KEY_BENVENUTO, false)
+        set(value) = prefs.putBoolean(KEY_BENVENUTO, value)
+
     var font: FontEditor
         get() = runCatching { FontEditor.valueOf(prefs.get(KEY_FONT, FontEditor.ALMENDRA.name)) }.getOrDefault(FontEditor.ALMENDRA)
         set(value) = prefs.put(KEY_FONT, value.name)
@@ -154,6 +161,7 @@ class EditorPreferences {
 
     private companion object {
         const val KEY_TEMA_SCURO = "tema_scuro"
+        const val KEY_BENVENUTO = "benvenuto_chiuso"
         const val KEY_FONT = "font"
         const val KEY_SCALA_TESTO = "scala_testo"
         const val KEY_LIVELLI_BACKUP = "livelli_backup"

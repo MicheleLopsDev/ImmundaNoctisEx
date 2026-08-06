@@ -56,6 +56,44 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 05/08/2026 — il benvenuto: «puoi giocare subito»
+
+Chi apriva l'app per la prima volta trovava una Home con una tile
+"Modelli LLM" e nessuno che gli dicesse se doveva scaricare 3-4 GB per
+cominciare. Era **l'ostacolo più grosso** fra uno sconosciuto e il
+gioco, individuato nell'analisi del 03/08.
+
+La soluzione viene da un'osservazione di Michele: *"se il libro è
+scritto nella tua stessa lingua e non vuoi arricchimento la parte llm
+potrebbe non servire… quando il libro coincide con il linguaggio di
+sistema il modello è inutile"*.
+
+Quindi il benvenuto non dice «scarica il modello», dice **tre cose**:
+un libro è già incluso e si parte subito; il modello è facoltativo e
+serve solo per traduzione e arricchimento; tutto resta sul telefono.
+
+**E il secondo punto cambia da solo**: `AppContainer.libroNellaLinguaDiSistema()`
+confronta la lingua del manifest con quella del telefono (solo la
+lingua, non il paese: un libro `it` va bene tanto a `it-IT` quanto a
+`it-CH`). Se coincidono, il testo diventa *"Il libro parla già la tua
+lingua: non ti serve nessun modello"* — invece di far sembrare che
+manchi qualcosa.
+
+Due pulsanti, non uno: «Inizia a giocare» e «Guarda i modelli». Chi ha
+fretta parte, chi è curioso guarda.
+
+**Nell'editor** la stessa cosa, ma come **pannello** dentro la schermata
+d'avvio, non come schermata di passaggio: chi sa già cosa fare apre il
+suo libro e lo ignora. Dice le due cose che l'editor non dichiarava —
+che fa libri **da zero** e non solo conversioni, e che il modello serve
+solo all'anteprima e ai riassunti, non per scrivere o salvare.
+
+Entrambi si mostrano una volta sola (`BenvenutoPreferences` sull'app,
+`benvenutoChiuso` in `EditorPreferences`). **458 test verdi**, 378
+chiavi in inglese e 377 in italiano.
+
+---
+
 ## 05/08/2026 — gli enigmi, e i cinque libri al 100%
 
 Michele: *"correggiamo anche l'ultimo libro 05sots per portarlo al

@@ -139,6 +139,19 @@
     <string name="item_shield_desc">+2 Combattività finché lo possiedi.</string>
     <string name="creation_start">Inizia l\'Avventura</string>
 
+    <!-- Benvenuto al primo avvio. Risponde alle due domande che chi apre
+         l'app si fa subito: devo scaricare qualcosa? a cosa serve la voce
+         "Modelli LLM"? -->
+    <string name="welcome_title">Benvenuto in Immunda Noctis</string>
+    <string name="welcome_what_it_is">Un librogioco che si legge e si gioca: scegli, tiri il dado, combatti — e la storia si ricorda.</string>
+    <string name="welcome_play_now">Un libro è già incluso: puoi iniziare subito, senza scaricare niente.</string>
+    <string name="welcome_model_optional">Un modello linguistico, se lo scarichi, traduce il libro nella tua lingua e arricchisce le scene. È facoltativo.</string>
+    <string name="welcome_model_not_needed">Il libro parla già la tua lingua: non ti serve nessun modello. Scaricane uno solo se vuoi che il narratore arricchisca le scene.</string>
+    <string name="welcome_offline">Tutto avviene su questo telefono. Niente di ciò che leggi o scrivi esce da qui.</string>
+    <string name="welcome_start">Inizia a giocare</string>
+    <string name="welcome_go_to_models">Guarda i modelli</string>
+    <string name="welcome_change_later">Puoi cambiare idea quando vuoi dalle Impostazioni.</string>
+
     <!-- Home a riquadri -->
     <string name="home_load_book">Carica libro</string>
     <string name="home_toggle_theme">Cambia tema</string>

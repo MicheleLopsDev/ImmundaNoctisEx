@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -462,6 +464,44 @@ fun main() = application {
     }
 }
 
+// Il benvenuto dell'editor (05/08/2026, richiesta di Michele insieme a
+// quello dell'app). Un PANNELLO e non una schermata di passaggio: chi sa
+// già cosa fare apre il suo libro e lo ignora; chi lo apre per la prima
+// volta scopre le due cose che nessuno gli diceva — che l'editor fa
+// libri da zero e non solo conversioni, e che il modello serve solo per
+// l'anteprima della traduzione, non per lavorare.
+@Composable
+private fun BenvenutoEditor() {
+    val preferenze = remember { EditorPreferences() }
+    var chiuso by remember { mutableStateOf(preferenze.benvenutoChiuso) }
+    if (chiuso) return
+
+    Card(modifier = Modifier.widthIn(max = 720.dp)) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Da dove si comincia", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Da qui si scrivono libri di avventura: scene, scelte, combattimenti e tiri di dado. " +
+                    "Puoi partire da zero con «Crea libro nuovo», oppure aprire un libro già esistente.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Text(
+                "Il modello linguistico è facoltativo. Serve solo a due cose: mostrarti in anteprima " +
+                    "come suonerà una scena tradotta o arricchita, e riassumere un percorso. " +
+                    "Per scrivere e per salvare non serve.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(onClick = {
+                    preferenze.benvenutoChiuso = true
+                    chiuso = true
+                }) {
+                    Text("Ho capito")
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun AvvioScreen(
     onCaricaLibro: (File) -> Unit,
@@ -477,7 +517,9 @@ private fun AvvioScreen(
         verticalArrangement = Arrangement.Center,
     ) {
         Text("ImmundaNoctisEx — Editor", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(16.dp))
+        BenvenutoEditor()
+        Spacer(Modifier.height(16.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             Button(onClick = { scegliFileJsonDaAprire()?.let(onCaricaLibro) }) {
                 Text("Carica libro esistente")

@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageLoadResult
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageRepository
 import io.github.luposolitario.immundanoctisex.core.data.pkg.PackageSource
 import io.github.luposolitario.immundanoctisex.core.data.session.FilePersonaggiStore
@@ -25,6 +26,7 @@ import io.github.luposolitario.immundanoctisex.music.MusicPlayer
 import io.github.luposolitario.immundanoctisex.sfx.SoundEffectPlayer
 import io.github.luposolitario.immundanoctisex.util.AccentColorPreferences
 import io.github.luposolitario.immundanoctisex.util.AudioPreferences
+import io.github.luposolitario.immundanoctisex.util.BenvenutoPreferences
 import io.github.luposolitario.immundanoctisex.util.DiceColorPreferences
 import io.github.luposolitario.immundanoctisex.util.FontPreferences
 import io.github.luposolitario.immundanoctisex.util.LanguagePreferences
@@ -91,6 +93,24 @@ class AppContainer(context: Context) {
     )
 
     val audioPreferences = AudioPreferences(context)
+
+    val benvenutoPreferences = BenvenutoPreferences(context)
+
+    // Vero quando il libro caricato è GIÀ nella lingua del telefono
+    // (05/08/2026, osservazione di Michele: *"se il libro è scritto nella
+    // tua stessa lingua e non vuoi arricchimento la parte llm potrebbe
+    // non servire"*).
+    //
+    // Serve al benvenuto per non far sembrare che manchi qualcosa: in
+    // quel caso il modello aggiunge solo l'arricchimento, non la
+    // comprensione. Confronto sulla sola lingua, non sul paese: un libro
+    // "it" va bene tanto a it-IT quanto a it-CH.
+    fun libroNellaLinguaDiSistema(): Boolean {
+        val libro = (packageRepository.load() as? PackageLoadResult.Success)
+            ?.manifest?.language?.take(2)?.lowercase() ?: return false
+        val sistema = java.util.Locale.getDefault().language.lowercase()
+        return libro == sistema
+    }
 
     val accentColorPreferences = AccentColorPreferences(context)
 

@@ -100,4 +100,4 @@ class MainActivity : ComponentActivity() {
 // questa riga va toccata ad ogni modifica di codice, così Michele legge
 // "BUILD_MARKER = ..." in logcat e sa a colpo d'occhio se il device ha
 // ricompilato l'ultima versione o una vecchia.
-private const val BUILD_MARKER = "2026-08-05-02 enigmi numerici: i cinque libri al 100% sul grafo ufficiale"
+private const val BUILD_MARKER = "2026-08-05-03 schermata di benvenuto al primo avvio (il modello e' facoltativo)"
