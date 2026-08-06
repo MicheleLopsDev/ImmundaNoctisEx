@@ -121,6 +121,19 @@ private val NODE_HEIGHT_COMPATTO = 34.dp
 private val H_SPACING_COMPATTO = 78.dp
 private val V_SPACING_COMPATTO = 56.dp
 
+// Spaziature del layout: sono GAP fra i BORDI dei nodi, non passi fra i
+// centri, e JGraphX li applica lungo l'asse giusto a seconda
+// dell'orientamento — quindi valgono uguali in verticale e orizzontale.
+//
+// Larghe di proposito fra i rami (06/08/2026, Michele: "sarebbe bello
+// aumentare le distanze tra i rami"): due rami che si sfiorano si
+// leggono come uno solo, e con l'instradamento degli archi lo spazio
+// in mezzo serve anche alle linee per passare.
+private const val GAP_FRA_RAMI = 110f
+private const val GAP_FRA_LIVELLI = 70f
+private const val GAP_FRA_RAMI_COMPATTO = 46f
+private const val GAP_FRA_LIVELLI_COMPATTO = 34f
+
 // Stato della vista mappa (zoom/pan/orientamento/posizioni trascinate a
 // mano), tenuto DA CHI CHIAMA MapScreen (EditorMain.kt) invece che come
 // `remember` locale (30/07/2026, bug segnalato da Michele: "dopo che ho
@@ -492,8 +505,15 @@ fun MapScreen(
             archi = graph.edges.filter { it.resolved }.map { it.fromSceneId to it.toSceneId },
             larghezzaNodo = larghezzaNodo.value,
             altezzaNodo = altezzaNodo.value,
-            spazioFraNodi = (if (orizzontale) passoV.value else passoH.value) - larghezzaNodo.value,
-            spazioFraLivelli = (if (orizzontale) passoH.value else passoV.value) - altezzaNodo.value,
+            // Sono GAP fra i bordi, non passi fra i centri, e JGraphX li
+            // applica gia' lungo l'asse giusto per l'orientamento scelto.
+            // Prima li ricavavo dai passi sottraendo la dimensione del
+            // nodo, ma sottraevo sempre la LARGHEZZA: in orizzontale,
+            // dove i nodi di uno stesso livello sono impilati in
+            // verticale, veniva 130 - 190 = -60 — spaziatura negativa, e
+            // i nodi si sovrapponevano (bug visto da Michele, 06/08).
+            spazioFraNodi = if (compatto) GAP_FRA_RAMI_COMPATTO else GAP_FRA_RAMI,
+            spazioFraLivelli = if (compatto) GAP_FRA_LIVELLI_COMPATTO else GAP_FRA_LIVELLI,
             orizzontale = orizzontale,
         )
     }

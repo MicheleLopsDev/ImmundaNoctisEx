@@ -24,8 +24,8 @@ class LayoutDelGrafoTest {
         archi = archi,
         larghezzaNodo = 190f,
         altezzaNodo = 72f,
-        spazioFraNodi = 40f,
-        spazioFraLivelli = 58f,
+        spazioFraNodi = 110f,
+        spazioFraLivelli = 70f,
         orizzontale = orizzontale,
     )
 
@@ -41,6 +41,47 @@ class LayoutDelGrafoTest {
         assertTrue(p.getValue("2").y < p.getValue("4").y, "2 doveva stare sopra 4")
         assertEquals(p.getValue("2").y, p.getValue("3").y, "2 e 3 sullo stesso livello")
         assertTrue(p.getValue("2").x != p.getValue("3").x, "2 e 3 dovevano affiancarsi")
+    }
+
+    // Il bug del 06/08: in orizzontale i nodi si SOVRAPPONEVANO, perche'
+    // la spaziatura veniva ricavata sottraendo sempre la larghezza del
+    // nodo anche dove l'asse trasversale era l'altezza — 130 - 190 = -60,
+    // spaziatura negativa. Questo controllo vale per entrambi gli
+    // orientamenti proprio perche' l'errore stava in uno solo.
+    private fun verificaNessunaSovrapposizione(orizzontale: Boolean) {
+        val ids = (1..9).map { "$it" }
+        // Un ventaglio: 1 si apre in quattro rami, che riconvergono.
+        val archi = listOf("1" to "2", "1" to "3", "1" to "4", "1" to "5") +
+            listOf("2" to "6", "3" to "6", "4" to "7", "5" to "7") +
+            listOf("6" to "8", "7" to "8", "8" to "9")
+        val d = calcola(ids, archi, orizzontale)
+
+        val riquadri = d.posizioni.mapValues { (_, p) ->
+            listOf(p.x, p.y, p.x + 190f, p.y + 72f)
+        }
+        riquadri.entries.toList().let { voci ->
+            for (i in voci.indices) {
+                for (j in i + 1 until voci.size) {
+                    val (a, b) = voci[i].value to voci[j].value
+                    val sovrapposti = a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]
+                    assertTrue(
+                        !sovrapposti,
+                        "${voci[i].key} e ${voci[j].key} si sovrappongono " +
+                            "(orizzontale=$orizzontale): $a e $b",
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `in verticale nessun nodo si sovrappone a un altro`() {
+        verificaNessunaSovrapposizione(orizzontale = false)
+    }
+
+    @Test
+    fun `in orizzontale nessun nodo si sovrappone a un altro`() {
+        verificaNessunaSovrapposizione(orizzontale = true)
     }
 
     @Test
