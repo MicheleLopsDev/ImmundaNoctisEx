@@ -102,7 +102,7 @@ fun riepilogoLibro(nomeFile: String, manifest: Manifest): String {
 // prima di ricompilare. Qui non c'è logcat: si stampa sulla console di
 // `:tool:run` e finisce nel titolo della finestra, così la versione si
 // legge a colpo d'occhio anche senza guardare l'output.
-const val EDITOR_BUILD_MARKER = "2026-08-06-02 grafo alla Graphviz: nodi ovali e rami districati"
+const val EDITOR_BUILD_MARKER = "2026-08-06-03 frecce sugli archi, doppie sulle coppie bidirezionali"
 
 fun main() = application {
     println("EDITOR_BUILD_MARKER = $EDITOR_BUILD_MARKER")

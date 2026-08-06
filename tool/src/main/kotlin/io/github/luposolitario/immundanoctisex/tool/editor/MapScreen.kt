@@ -388,6 +388,12 @@ fun MapScreen(
     val archiPercorso = remember(nodoSottoMouse, graph) {
         nodoSottoMouse?.let { percorsoDaStart(graph, it).zipWithNext().toSet() } ?: emptySet()
     }
+    // Le coppie di scene collegate nei DUE versi: le loro linee vanno
+    // scostate di lato, o si sovrappongono e se ne vede una sola
+    // (06/08/2026). Calcolate una volta per grafo, non per ogni arco.
+    val coppieDoppie = remember(graph) {
+        GeometriaArchi.coppieBidirezionali(graph.edges.map { it.fromSceneId to it.toSceneId })
+    }
     // Nodi sul percorso (30/07/2026, dopo la segnalazione di Michele "non
     // capisco... perché lo start alle volte è grigio e alle volte no"): il
     // vicinato (attenuazione) DEVE includere gli stessi nodi che la linea
@@ -759,7 +765,9 @@ fun MapScreen(
                     "grigio = fuori da quel percorso (anche se il collegamento esiste)  " +
                     "🩷 scena START  💛 scena ENDING  " +
                     "👻 scena orfana (non raggiungibile da START)  " +
-                    "⛔ vicolo cieco (nessuna uscita)",
+                    "⛔ vicolo cieco (nessuna uscita)  " +
+                    "➤ la punta indica dove porta il collegamento; due linee affiancate " +
+                    "= le scene si raggiungono a vicenda",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -1411,6 +1419,7 @@ fun MapScreen(
                     graph.edges.forEach { edge ->
                         val from = posizioneEffettiva(edge.fromSceneId) ?: return@forEach
                         val to = posizioneEffettiva(edge.toSceneId) ?: return@forEach
+                        if (GeometriaArchi.eCappio(edge.fromSceneId, edge.toSceneId)) return@forEach
                         // Arco estraneo al vicinato del nodo sotto il
                         // mouse -> attenuato, stessa idea dei nodi sotto.
                         val estraneo = nodoSottoMouse != null &&
@@ -1419,17 +1428,43 @@ fun MapScreen(
                         // mouse -> viola e più spesso, sopra il
                         // verde/rosso di risoluzione (§6.2).
                         val suPercorso = (edge.fromSceneId to edge.toSceneId) in archiPercorso
-                        drawLine(
-                            color = if (suPercorso) {
-                                Color(0xFF8E24AA)
-                            } else {
-                                (if (edge.resolved) Color(0xFF4CAF50) else Color(0xFFE53935))
-                                    .copy(alpha = if (estraneo) 0.15f else 1f)
-                            },
-                            start = Offset(from.x + NODE_WIDTH.value / 2, from.y + NODE_HEIGHT.value / 2),
-                            end = Offset(to.x + NODE_WIDTH.value / 2, to.y + NODE_HEIGHT.value / 2),
-                            strokeWidth = if (suPercorso) 4f else 2f,
-                        )
+                        val colore = if (suPercorso) {
+                            Color(0xFF8E24AA)
+                        } else {
+                            (if (edge.resolved) Color(0xFF4CAF50) else Color(0xFFE53935))
+                                .copy(alpha = if (estraneo) 0.15f else 1f)
+                        }
+                        val spessore = if (suPercorso) 4f else 2f
+
+                        val centroDa = Offset(from.x + NODE_WIDTH.value / 2, from.y + NODE_HEIGHT.value / 2)
+                        val centroA = Offset(to.x + NODE_WIDTH.value / 2, to.y + NODE_HEIGHT.value / 2)
+                        // Coppia collegata nei due versi: le due linee si
+                        // sovrapporrebbero esattamente, e si vedrebbe un
+                        // tratto solo. Si scostano di lato, ognuna con la
+                        // sua punta (06/08/2026).
+                        val scarto = if ((edge.fromSceneId to edge.toSceneId) in coppieDoppie) {
+                            GeometriaArchi.scostamento(centroDa, centroA)
+                        } else {
+                            Offset.Zero
+                        }
+                        // La punta si ferma sul BORDO dell'ellisse: i nodi
+                        // sono disegnati sopra questo canvas, al centro
+                        // sarebbe invisibile.
+                        val inizio = GeometriaArchi.bordoEllisse(
+                            centroDa, centroA, NODE_WIDTH.value / 2, NODE_HEIGHT.value / 2,
+                        ) + scarto
+                        val fine = GeometriaArchi.bordoEllisse(
+                            centroA, centroDa, NODE_WIDTH.value / 2, NODE_HEIGHT.value / 2,
+                        ) + scarto
+
+                        drawLine(color = colore, start = inizio, end = fine, strokeWidth = spessore)
+                        // Niente punta sui collegamenti cortissimi: la
+                        // coprirebbe invece di indicarla.
+                        if (GeometriaArchi.abbastanzaLungo(inizio, fine)) {
+                            val (sinistra, destra) = GeometriaArchi.alettePunta(inizio, fine)
+                            drawLine(color = colore, start = fine, end = sinistra, strokeWidth = spessore)
+                            drawLine(color = colore, start = fine, end = destra, strokeWidth = spessore)
+                        }
                     }
                 }
 

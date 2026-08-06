@@ -76,6 +76,26 @@ l'81-85% degli incroci**.
 L'id resta l'ordine di *partenza*, quindi il risultato e' stabile a
 parita' di libro.
 
+### `GeometriaArchi.kt`
+Dove finiscono le frecce e da che lato passano.
+
+Due problemi, entrambi geometrici e quindi tenuti fuori dal disegno:
+gli archi vanno da centro a centro ma i nodi sono disegnati **sopra** il
+canvas degli archi (una punta al centro sarebbe invisibile: va fermata
+sul bordo dell'ellisse, che si calcola risolvendo l'equazione lungo la
+direzione); e quando esistono sia A→B sia B→A le due linee si
+sovrappongono esattamente, quindi vanno scostate di lato.
+
+Sul secondo un test ha trovato un bug che a occhio non si sarebbe
+visto: il primo tentativo moltiplicava lo scostamento per il confronto
+fra gli id **oltre** che per la direzione, e i due segni si annullavano
+mandando entrambe le linee dallo stesso lato. Basta la perpendicolare
+al vettore: i due archi di una coppia hanno vettori opposti, quindi le
+perpendicolari lo sono già.
+
+Nei cinque libri Project Aon le coppie bidirezionali sono rare ma
+reali: 10 in `01fftd`, 5 in `03tcok`, 3 in `02fotw`.
+
 ### `MapScreen.kt`
 La mappa: disegno, selezione (anche a rettangolo), trascinamento di
 gruppo, allineamenti, menu col tasto destro. È il file più grande del
