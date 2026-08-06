@@ -87,7 +87,12 @@ object ConfrontoGrafo {
     // chiavi che il motore legge davvero (`MechanicsExecutor`,
     // `StatMechanics`), cercate anche dentro `action` e negli `outcomes`
     // della tabella dei risultati — lì il salto sta annidato.
-    private val CHIAVI_DI_SCENA = listOf("nextSceneId", "targetScene")
+    // `answerSceneId`/`wrongSceneId`/`giveUpSceneId` sono le tre uscite
+    // di un enigma numerico: il grafo ufficiale le conosce tutte e tre,
+    // quindi vanno contate anche qui.
+    private val CHIAVI_DI_SCENA = listOf(
+        "nextSceneId", "targetScene", "answerSceneId", "wrongSceneId", "giveUpSceneId",
+    )
 
     internal fun destinazioniDi(params: kotlinx.serialization.json.JsonObject): List<String> {
         val trovate = mutableListOf<String>()

@@ -294,6 +294,7 @@ object ProjectAonHtmlParser {
         val evasioni = mutableListOf<Pair<String, String>>()
         var testoEvasione: String? = null
         var isDeadend = false
+        var haEnigma = false
         var choiceCounter = 0
 
         fun label() = "Scena ${raw.id}"
@@ -342,6 +343,22 @@ object ProjectAonHtmlParser {
 
             if (element.hasClass("deadend")) {
                 isDeadend = true
+                narrative.append(text).append("\n\n")
+                continue
+            }
+
+            // ENIGMA NUMERICO (05/08/2026). Project Aon marca con
+            // `p.puzzle` i paragrafi in cui il libro chiede un numero che
+            // il lettore deve DEDURRE — "turn to that section number".
+            //
+            // È l'unico caso in cui la destinazione non è scritta da
+            // nessuna parte nel testo: sta nella testa di chi legge. Il
+            // convertitore la lascia vuota e lo dice, invece di
+            // indovinare; si completa a mano (due scene su 2984, e sono
+            // proprio i due archi che il grafo ufficiale segnalava come
+            // mancanti).
+            if (element.hasClass("puzzle")) {
+                haEnigma = true
                 narrative.append(text).append("\n\n")
                 continue
             }
@@ -629,6 +646,25 @@ object ProjectAonHtmlParser {
                     "correggi a VICTORY se è la conclusione vittoriosa del libro"
                 EndingOutcome.NEUTRAL
             }
+        }
+
+        // L'enigma prende il posto delle scelte: quelle che restano sono
+        // le sue vie d'uscita ("se sbagli, 98"; "se non lo sai, 156") e
+        // vanno nei parametri, non fra le opzioni — mostrarle come scelte
+        // normali svelerebbe che una porta esiste.
+        if (haEnigma) {
+            val sbagliata = choices.getOrNull(0)?.nextSceneId
+            val rinuncia = choices.getOrNull(1)?.nextSceneId
+            gameMechanics += GameMechanic(
+                command = "numberPuzzle",
+                params = buildJsonObject {
+                    sbagliata?.let { put("wrongSceneId", it) }
+                    rinuncia?.let { put("giveUpSceneId", it) }
+                },
+            )
+            choices.clear()
+            notes += "${label()}: ENIGMA NUMERICO — la risposta non è scritta nel libro, va aggiunta a mano " +
+                "come 'answerSceneId' nei parametri di numberPuzzle (senza, la scena non è giocabile)"
         }
 
         val mainScene = Scene(

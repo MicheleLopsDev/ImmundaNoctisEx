@@ -1165,16 +1165,14 @@
             "genre": "FANTASY",
             "source": "https://www.projectaon.org/en/xhtml/lw/05sots/sect58.htm",
             "narrativeText": "",
-            "choices": [
+            "gameMechanics": [
                 {
-                    "id": "choice_58_1",
-                    "choiceText": "",
-                    "nextSceneId": "98"
-                },
-                {
-                    "id": "choice_58_2",
-                    "choiceText": "",
-                    "nextSceneId": "156"
+                    "command": "numberPuzzle",
+                    "params": {
+                        "wrongSceneId": "98",
+                        "giveUpSceneId": "156",
+                        "answerSceneId": "67"
+                    }
                 }
             ]
         },
@@ -6376,6 +6374,14 @@
             "genre": "FANTASY",
             "source": "https://www.projectaon.org/en/xhtml/lw/05sots/sect331.htm",
             "narrativeText": "",
+            "gameMechanics": [
+                {
+                    "command": "numberPuzzle",
+                    "params": {
+                        "answerSceneId": "373"
+                    }
+                }
+            ],
             "outcome": "NEUTRAL"
         },
         {

@@ -193,6 +193,14 @@
 
     <!-- Dado del Destino. Quando un rollModifier è attivo il numero va
          SPIEGATO, non mostrato e basta. -->
+    <!-- Enigma numerico: il libro chiede un numero da dedurre e manda
+         al paragrafo che indica. -->
+    <string name="puzzle_prompt">Il libro ti chiede un numero.</string>
+    <string name="puzzle_label">Il numero che hai ricavato</string>
+    <string name="puzzle_try">Prova questo numero</string>
+    <string name="puzzle_give_up">Non lo conosco</string>
+    <string name="puzzle_wrong_stay">Non è quello il numero. Rileggi.</string>
+
     <string name="dice_prompt">Il destino decide: tira il Dado.</string>
     <string name="dice_roll">Tira il Dado del Destino</string>
     <string name="dice_result">Hai tirato: %1$d</string>

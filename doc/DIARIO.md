@@ -28,11 +28,9 @@ Project Aon sono fuori dal repository e fuori dalla sua storia (voce del
    quello che il tool di authoring dovrebbe servire a rendere possibile.
 
 **Lavoro tecnico in coda, nessuno urgente:**
-- I **7 archi** ancora mancanti su 2984 (copertura 99,77%). **Due sono
-  enigmi e non saranno mai recuperabili** — la destinazione è un numero
-  che il giocatore deve dedurre. Restano 5 forme da guardare: 03tcok
-  138 e 263 ("se perdi anche un punto di ENDURANCE"), 04tcod 133,
-  05sots 20 e 357.
+- ~~Gli archi mancanti~~ — **CHIUSI il 05/08**: tutti e cinque i libri
+  coprono il **100%** del grafo ufficiale, 2984 archi su 2984, zero
+  inventati. Sulla conversione dei cinque non resta niente da fare.
 - **Gli altri 24 libri della serie.** Project Aon pubblica testi e grafi
   di tutti e 29 (`xhtml-simple/` e `svg/lw/`, 30 file `.svgz`): con gli
   strumenti che ci sono ora — convertitore, svuotamento, riempimento,
@@ -55,6 +53,67 @@ libri originali dell'autore NON si toccano — sono materiale del
 progetto, versionati e distribuibili. La separazione riguarda solo i
 cinque Project Aon in `doc/LIBRI/`, che ora contengono le sole
 meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
+
+---
+
+## 05/08/2026 — gli enigmi, e i cinque libri al 100%
+
+Michele: *"correggiamo anche l'ultimo libro 05sots per portarlo al
+100%"*. Erano rimasti due archi, e li avevo dichiarati **non
+recuperabili per natura**. Sbagliato: non erano irrecuperabili, erano
+una feature che non avevamo.
+
+| libro | archi | copertura |
+|---|---|---|
+| 01fftd | 555/555 | **100%** |
+| 02fotw | 576/576 | **100%** |
+| 03tcok | 603/603 | **100%** |
+| 04tcod | 568/568 | **100%** |
+| 05sots | 682/682 | **100%** |
+
+**2984 archi su 2984**, zero inventati.
+
+### Cos'è un enigma numerico
+
+Project Aon marca con `<p class="puzzle">` i paragrafi in cui il libro
+chiede un numero che il lettore deve **dedurre**:
+
+> *"If you know the correct number that will open the bronze door, turn
+> to that section number."* (58)
+>
+> *"The first of the three numbers is equal to the number of oases on
+> the trail between Ikaresh and Bir Rabalou… turn to the entry number
+> that they indicate."* (331)
+
+È l'unico caso in cui **la destinazione non è scritta da nessuna parte
+nel testo**: sta nella testa di chi legge. Per questo non si può
+convertire come una scelta normale — metterla fra le opzioni
+regalerebbe la soluzione.
+
+### Come è fatto
+
+`NumberPuzzle` in `:core:engine` (accanto a `ChoiceAvailability`: sono
+entrambi "quali porte sono aperte"), letto da una `gameMechanic`
+`numberPuzzle` con tre parametri — `answerSceneId`, `wrongSceneId`,
+`giveUpSceneId`. Nella schermata una zona con campo numerico, sullo
+stampo di `DiceZone`.
+
+Tre scelte volute:
+- **Il convertitore non indovina la risposta.** La lascia vuota e lo
+  scrive nel report: *"la risposta non è scritta nel libro, va aggiunta
+  a mano"*. Le due risposte (67 e 373) vengono dal **grafo ufficiale**,
+  che le conosce perché le conosce l'autore.
+- **Senza risposta l'enigma non è giocabile** e la scena degrada sulle
+  scelte normali: il gioco non si blocca mai.
+- **Chi sbaglia dove il libro non dice** (331: o risolvi o niente)
+  **resta lì a rileggere**, con un messaggio — come col libro di carta
+  in mano. Non si inventa una punizione che il libro non prevede.
+
+Il campo accetta **solo cifre**: una tastiera che accetta lettere
+inviterebbe a scrivere risposte che il libro non sa leggere.
+
+`ConfrontoGrafo` conta ora anche le tre uscite dell'enigma. **458 test
+verdi.**
 
 ---
 

@@ -243,6 +243,14 @@
 
     <!-- Dado del Destino. Quando un rollModifier è attivo il numero va
          SPIEGATO, non mostrato e basta. -->
+    <!-- Enigma numerico: il libro chiede un numero da dedurre e manda
+         al paragrafo che indica. -->
+    <string name="puzzle_prompt">The book asks you for a number.</string>
+    <string name="puzzle_label">The number you have worked out</string>
+    <string name="puzzle_try">Try this number</string>
+    <string name="puzzle_give_up">I do not know it</string>
+    <string name="puzzle_wrong_stay">That is not the number. Read again.</string>
+
     <string name="dice_prompt">Fate decides: roll the Die.</string>
     <string name="dice_roll">Roll the Die of Fate</string>
     <string name="dice_result">You rolled: %1$d</string>

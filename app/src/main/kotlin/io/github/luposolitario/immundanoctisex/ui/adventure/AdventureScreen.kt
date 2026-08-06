@@ -310,6 +310,7 @@ fun AdventureScreen(
             state.isGenerating -> Unit
             state.currentScene.combat != null -> CombatEntryZone(state)
             state.isEnding -> EndingZone(state, onExitToHome, onReloadCheckpoint)
+            state.richiedeEnigma -> EnigmaZone(state)
             state.requiresRoll -> DiceZone(state)
             else -> {
                 if (state.availableItems.isNotEmpty()) {
@@ -564,6 +565,62 @@ private fun EngineOfflinePrompt(onStartNow: () -> Unit, onSkip: () -> Unit) {
         }
         OutlinedButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.adventure_engine_skip))
+        }
+    }
+}
+
+// L'enigma numerico (05/08/2026): il libro chiede un numero che il
+// giocatore deve DEDURRE dal testo — quale combinazione apre la porta di
+// bronzo, quali tre cifre compongono la posizione della tomba. È l'unico
+// caso in cui la destinazione non sta scritta fra le scelte: metterla lì
+// regalerebbe la soluzione.
+//
+// Chi non ci arriva non resta bloccato: se il libro prevede una via
+// d'uscita ("se non conosci il numero, vai a 156") c'è il pulsante per
+// rinunciare; se non la prevede (05sots 331) si resta a rileggere, come
+// col libro di carta in mano.
+@Composable
+private fun EnigmaZone(state: AdventureState) {
+    val enigma = state.enigma ?: return
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(stringResource(R.string.puzzle_prompt), fontWeight = FontWeight.Bold)
+        androidx.compose.material3.OutlinedTextField(
+            value = state.numeroEnigma,
+            onValueChange = { nuovo ->
+                // Solo cifre: il paragrafo è un numero, e una tastiera
+                // che accetta lettere inviterebbe a scrivere risposte
+                // che il libro non sa leggere.
+                if (nuovo.all { it.isDigit() } && nuovo.length <= 4) {
+                    state.numeroEnigma = nuovo
+                    state.enigmaSbagliato = false
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.puzzle_label)) },
+            singleLine = true,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                keyboardType = androidx.compose.ui.text.input.KeyboardType.Number,
+            ),
+            isError = state.enigmaSbagliato,
+        )
+        if (state.enigmaSbagliato) {
+            Text(
+                stringResource(R.string.puzzle_wrong_stay),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+        Button(
+            onClick = { state.tentaEnigma() },
+            enabled = state.numeroEnigma.isNotBlank(),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.puzzle_try))
+        }
+        if (enigma.sceneRinuncia != null) {
+            OutlinedButton(onClick = { state.rinunciaEnigma() }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.puzzle_give_up))
+            }
         }
     }
 }

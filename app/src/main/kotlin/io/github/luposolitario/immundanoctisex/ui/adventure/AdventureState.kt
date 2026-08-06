@@ -19,7 +19,9 @@ import io.github.luposolitario.immundanoctisex.core.data.model.SceneType
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.model.Transition
 import io.github.luposolitario.immundanoctisex.core.data.session.SessionStore
+import io.github.luposolitario.immundanoctisex.core.data.model.AutoJumpReason
 import io.github.luposolitario.immundanoctisex.core.engine.choice.ChoiceAvailability
+import io.github.luposolitario.immundanoctisex.core.engine.choice.NumberPuzzle
 import io.github.luposolitario.immundanoctisex.core.engine.choice.RollModifiers
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatSession
 import io.github.luposolitario.immundanoctisex.core.engine.combat.CombatStatus
@@ -449,6 +451,45 @@ class AdventureState(
     // v0.1: il tiro è un bottone; l'overlay animato arriva in Fase 7.
     val requiresRoll: Boolean
         get() = combatSession == null && ChoiceAvailability.rollChoices(currentScene).isNotEmpty()
+
+    // L'enigma numerico (05/08/2026): il libro chiede un numero che il
+    // giocatore deve DEDURRE e lo manda al paragrafo corrispondente.
+    // Senza risposta dichiarata non è giocabile e la scena mostra le
+    // scelte normali — il gioco non si blocca mai.
+    val enigma: NumberPuzzle?
+        get() = NumberPuzzle.di(currentScene)?.takeIf { it.giocabile }
+
+    val richiedeEnigma: Boolean
+        get() = combatSession == null && enigma != null
+
+    // Il numero scritto dal giocatore, mentre lo scrive.
+    var numeroEnigma: String by mutableStateOf("")
+
+    // Vero dopo un tentativo sbagliato in una scena che non dice dove
+    // mandare chi sbaglia (05sots 331): si resta lì a rileggere, come
+    // col libro di carta in mano.
+    var enigmaSbagliato: Boolean by mutableStateOf(false)
+
+    fun tentaEnigma() {
+        val puzzle = enigma ?: return
+        val numero = numeroEnigma.trim()
+        if (numero.isEmpty()) return
+        val destinazione = puzzle.destinazionePer(numero)
+        if (destinazione == null) {
+            enigmaSbagliato = true
+            return
+        }
+        numeroEnigma = ""
+        enigmaSbagliato = false
+        moveTo(destinazione, Transition.AutoJump(AutoJumpReason.RANDOM_CHOICE))
+    }
+
+    fun rinunciaEnigma() {
+        val destinazione = enigma?.sceneRinuncia ?: return
+        numeroEnigma = ""
+        enigmaSbagliato = false
+        moveTo(destinazione, Transition.AutoJump(AutoJumpReason.RANDOM_CHOICE))
+    }
 
     // Il tiro GREZZO, sempre: è il fatto ("si serializzano i fatti, i
     // bonus si calcolano"). Il bonus condizionale sta in rollModifier
