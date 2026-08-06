@@ -46,33 +46,90 @@ Il passaggio nuovo, rispetto ai prompt già scritti, è **COMMISSIONI**:
 la traduzione da "qui il grafo ha bisogno di un ramo" a "scrivimi questa
 scena".
 
-## Il romanzo è la spina dorsale, non l'unica strada giusta
+## Il romanzo è il percorso canonico: il più ricco, non l'unico
 
-Vale la pena dirlo prima delle commissioni, perché cambia *cosa* si
-chiede allo scrittore.
+Michele, 06/08/2026: *"esiste un percorso canonico che ti permette di
+acquisire tutti gli artefatti, fare le conoscenze con tutti gli NPC —
+diciamo il percorso più ricco e quello vero; tu puoi però tagliare delle
+cose ed arrivare al finale"*.
 
-Verrebbe naturale pensare che il romanzo sia il percorso **corretto**, e
-tutto ciò che se ne discosta un errore. I dati dicono di no: nei 37
-librogame misurati il **95% delle scene può ancora portare alla
-vittoria**, e il cammino vincente più lungo è il doppio del più corto
-(83 tappe contro 163). Non esiste "la" strada giusta — ne esistono
-moltissime, e il libro premia chi esplora, non chi indovina
-(`FORMA-DEI-GRAFI.md`).
+È il modello giusto, e i numeri dei 37 librogame lo descrivono con
+precisione:
 
-Quindi:
+| | tappe | quota del canonico |
+|---|---|---|
+| tappe **obbligate** (nessun percorso le evita) | 37 | **23%** |
+| percorso **più corto** che arriva alla vittoria | 84 | 52% |
+| percorso **più lungo**, cioè il canonico | 163 | 100% |
 
-> Il romanzo dà **un** cammino vincente, completo e già scritto. Le
-> deviazioni non sono trappole: sono **altri modi di arrivare in
-> fondo**, che costano qualcosa o fanno vedere altro.
+Tre livelli, non due. **Si può saltare fino a metà libro e vincere lo
+stesso**, ma sotto c'è uno scheletro del 23% che nessuno evita mai. Il
+romanzo è il livello pieno: chi lo percorre tutto raccoglie tutto.
 
-Per lo scrittore è una notizia ottima. Non deve inventare venti modi di
-morire — quello è game design, e non è il suo mestiere. Deve rispondere
-venti volte alla domanda *«e se invece Ariel avesse preso il vicolo?»*,
-che è narrativa pura.
+Da qui esce un procedimento, ed è quello che Michele descrive.
 
-Le sconfitte restano, ma sono **poche e nette**: tre-cinque in tutto il
-libro, ognuna conseguenza diretta e riconoscibile di una scelta. Mai una
-condanna che si sconta venti tappe dopo.
+### Il ciclo di costruzione
+
+**1. Il romanzo diventa il cammino canonico.** Si taglia in tappe con
+criterio narrativo — una tappa finisce dove il protagonista *decide*
+qualcosa, non ogni tot parole. Da 6 capitoli escono 45-55 tappe.
+
+**2. Si marcano le tappe OBBLIGATE** (~23%, quindi 10-13). Sono quelle
+senza cui la storia non è più quella storia: la convocazione dal Re, il
+rito interrotto, il risveglio del Lich. Nessuna scorciatoia potrà mai
+saltarle.
+
+**3. Si cercano le tappe di ACQUISIZIONE.** Sono il cuore del metodo:
+i punti in cui il canonico fa *guadagnare* qualcosa al lettore — un
+artefatto (la Pozione Mangiaferro), una conoscenza (Tobias), una
+informazione (il sangue di Ariel), un'abilità. Ogni acquisizione è un
+candidato naturale a diventare **saltabile**, perché saltarla ha già di
+suo un prezzo narrativo evidente: dopo, non ce l'hai.
+
+Questo è anche il motivo per cui il metodo si sposa col motore: nel
+gioco, non avere la Pozione Mangiaferro significa che al Capitolo 4 una
+porta è chiusa davvero.
+
+**4. Si commissionano le scorciatoie.** Per ogni acquisizione scelta,
+una scena che la aggira: due o tre tappe che rientrano nel canonico più
+avanti, senza quell'oggetto o senza quell'alleato.
+
+**5. `forma` dice se basta.** Cammino obbligato oltre il 50% → servono
+altre scorciatoie. "Può ancora vincere" sotto l'80% → i rami finiscono
+troppo spesso in morte, vanno fatti rientrare.
+
+**6. Si itera.** Ogni giro aggiunge un livello di scorciatoie, e le
+misure dicono quando fermarsi. Non serve indovinare al primo colpo:
+serve un criterio per sapere quanto manca.
+
+### Quanto ne serve, in numeri
+
+Su un canonico di 50 tappe:
+
+- **11-12 obbligate** (23%): si marcano, non si toccano;
+- il percorso più corto deve arrivare a **~26 tappe** (52%): quindi le
+  scorciatoie devono poter far risparmiare in tutto una ventina di
+  tappe;
+- ogni scorciatoia salta **2-3 tappe** (il rientro mediano misurato):
+  quindi servono **8-10 scorciatoie**;
+- più **3-5 sconfitte**, sparse, di cui almeno una nella prima metà.
+
+Cioè: **13-15 commissioni**, non venti alla cieca. E ognuna ha una
+domanda precisa da girare allo scrittore — *"e se Ariel non ricevesse le
+pozioni di Lyra?"* — invece di un generico "inventa un ramo".
+
+### Perché è una buona notizia per lo scrittore
+
+Nei 37 librogame misurati il **95% delle scene può ancora portare alla
+vittoria**: perdere è l'eccezione. Le scorciatoie quindi **non sono
+trappole** — sono altri modi di arrivare in fondo, più poveri.
+
+Allo scrittore non si chiede di inventare venti modi di morire (è game
+design, non il suo mestiere): si chiede di rispondere una dozzina di
+volte a *«e se Ariel non avesse ricevuto le pozioni?»*, che è narrativa
+pura. Le sconfitte restano poche e nette — tre-cinque in tutto, ognuna
+conseguenza diretta e riconoscibile di una scelta, mai una condanna che
+si sconta venti tappe dopo senza saperlo.
 
 ## Il formato di una commissione
 
@@ -151,14 +208,32 @@ romanzo, che ha la sua voce e va rispettata. Il tuo compito e'
 COMMISSIONARGLIELE.
 
 PRINCIPIO DA NON SBAGLIARE
-Il romanzo e' UN cammino che arriva alla fine, non l'unico giusto. Le
-deviazioni che commissioni sono ALTRI MODI DI ARRIVARE IN FONDO, non
-errori da punire: chi le percorre paga un prezzo o vede altro, ma la
-storia continua. Le sconfitte sono poche (3-5 in tutto il libro) e
+Il romanzo e' il percorso CANONICO: il piu' ricco, quello in cui il
+protagonista raccoglie tutti gli oggetti, incontra tutti i personaggi e
+scopre tutto. Non e' l'unico che arriva alla fine, e' il piu' pieno.
+Le scene che commissioni sono le SCORCIATOIE: strade che aggirano
+qualcosa e arrivano lo stesso in fondo, con meno in tasca. Non sono
+errori da punire. Le sconfitte sono poche (3-5 in tutto il libro) e
 sempre la conseguenza diretta e riconoscibile di una scelta — mai una
 condanna che il lettore sconta venti tappe dopo senza saperlo.
 
-Per ogni deviazione e per ogni sconfitta della struttura, scrivi una
+PRIMA DELLE SCHEDE, elenca le ACQUISIZIONI del romanzo: i punti in cui
+il protagonista guadagna qualcosa che gli servira' dopo — un oggetto,
+un alleato, un'informazione, un'abilita'. Per ognuna una riga: cosa
+guadagna, in quale capitolo, e dove quel guadagno torna utile piu'
+avanti.
+
+Sono quelle le candidate a diventare saltabili: aggirarle ha gia' di
+suo un prezzo evidente, perche' dopo il lettore non ce l'ha. Scegli fra
+queste i punti da commissionare, e aggiungi alla scheda una voce:
+
+**Cosa si perde**: <l'oggetto, l'alleato o l'informazione che chi
+prende questa strada NON avra'>
+
+Non commissionare scorciatoie su tappe in cui non si guadagna niente:
+sarebbero due strade identiche scritte con parole diverse.
+
+Per ogni scorciatoia e per ogni sconfitta della struttura, scrivi una
 scheda cosi':
 
 ### <codice> - "<titolo>"
