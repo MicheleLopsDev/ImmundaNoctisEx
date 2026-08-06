@@ -17,6 +17,12 @@ dado, oggetti, modificatori. Quelli si aggiungono dopo, nell'editor, e
 sono decisioni di gioco — non di racconto. Meno campi si chiedono, meno
 il modello sbaglia.
 
+> **Canovaccio o romanzo?** I prompt qui sotto partono da una storia
+> *abbozzata*, da arricchire. Se invece hai già la **prosa finita** —
+> capitoli veri, con dialoghi — salta alla [variante per un romanzo già
+> scritto](#variante-partire-da-un-romanzo-gia-scritto): il compito è
+> diverso e chiedere "arricchisci" a un testo finito lo peggiora.
+
 ---
 
 ## Se il canovaccio è lungo: due giri, non uno
@@ -330,6 +336,135 @@ a mano, perché sono decisioni di gioco.
 > colpo, e cambiando un `nextSceneId` in uno inesistente il validatore
 > risponde `Scena '2': choice 'c1'.nextSceneId punta a '99', che non
 > esiste`. Non è uno schema dedotto dal codice: è verificato.
+
+## Variante: partire da un romanzo già scritto
+
+Il caso di `doc/LIBRO I/` (Michele, 06/08/2026): sei capitoli di **prosa
+finita**, con dialoghi, più un documento di worldbuilding.
+
+**Il compito è l'opposto di quello sopra.** Lì si chiedeva di
+arricchire un abbozzo; qui non c'è niente da arricchire — c'è da
+*ramificare*. Un romanzo ha **un solo cammino**: il 100% delle sue
+tappe è obbligatorio, e in un librogame quella quota deve scendere al
+42% (`FORMA-DEI-GRAFI.md`). Le deviazioni non ci sono e vanno inventate;
+le sconfitte nemmeno, perché nei romanzi il protagonista non muore a
+metà.
+
+Tre regole che valgono solo in questa variante:
+
+1. **La prosa esistente non si riscrive.** Si taglia in tappe e si
+   ricuce. Un modello a cui chiedi di "migliorare" un capitolo finito
+   lo riscrive con la propria voce, ed è esattamente quello che non
+   vuoi.
+2. **Il nuovo testo è solo quello dei rami** — le strade che il romanzo
+   non percorre. Lì il modello scrive davvero, ma su un binario stretto:
+   deve riportare il lettore dove la storia riprende.
+3. **I marcatori del testo si conservano.** `*[Inizio Scontro]*` e
+   `[Disciplina: Nome]` diventeranno `combat` e `disciplineChoices`
+   nell'editor: buttarli via significa rifare a mano un lavoro già
+   fatto.
+
+### Giro A — la struttura, da prosa a grafo
+
+Da dare **una volta sola**, con tutti i capitoli e il worldbuilding.
+
+```
+Sei un progettista di librogame. Ti do un ROMANZO FANTASY COMPLETO in
+capitoli, piu' un documento di worldbuilding.
+
+Il romanzo e' finito e scritto bene. NON devi riscriverlo, ne'
+migliorarlo, ne' riassumerlo. Devi trasformarlo in un LIBROGAME, e per
+farlo serve una cosa che il romanzo non ha: le strade alternative.
+
+In un romanzo il lettore percorre un solo cammino. In un librogame ne
+esistono decine, e circa il 40% delle tappe che attraversa deve essere
+obbligatorio, il resto sceglibile. Il tuo lavoro e' trovare DOVE la
+storia puo' biforcarsi senza tradirsi.
+
+NON scrivere ancora le tappe. Voglio solo la STRUTTURA.
+
+Rispondi con:
+
+1. ARCO NARRATIVO (5-8 righe): come sale la storia, dove sta il punto
+   di svolta, come si chiude.
+
+2. Per ogni capitolo, una riga cosi':
+   Capitolo <n> — <titolo> — <quante tappe> — DECISIONE: <la scelta
+   vera che il lettore compie in questo capitolo>
+
+   La decisione dev'essere gia' implicita nel testo: un momento in cui
+   il protagonista sceglie e il romanzo racconta un solo esito. Non
+   inventare svolte che contraddicono il seguito.
+
+3. DEVIAZIONI (2 o 3 per capitolo): per ognuna
+   - da quale tappa si stacca e a quale rientra (dopo 2-3 tappe, mai
+     oltre 5);
+   - cosa succede di diverso;
+   - cosa cambia al lettore che la percorre (un oggetto, un'informazione,
+     una ferita) — se non cambia niente, non e' una deviazione, e'
+     una perdita di tempo.
+
+4. SCONFITTE (3-5 in tutto): dove il lettore puo' morire o fallire, e
+   per quale scelta sbagliata. Il romanzo non ne ha nessuna: le
+   inventi tu, e devono essere credibili in quel punto della storia.
+   Almeno una nella prima meta' del libro, o il lettore non crede al
+   pericolo.
+
+5. PUNTI DI RIENTRO: per ogni capitolo, la tappa in cui tutte le strade
+   si ricongiungono. Una tappa su tre deve essere raggiungibile da piu'
+   di un percorso.
+
+6. COSA SI PERDE: se per ramificare hai dovuto spostare o tagliare
+   qualcosa del romanzo, dillo qui in chiaro. Non farlo di nascosto.
+
+Il totale deve stare fra 40 e 60 tappe.
+
+ROMANZO E WORLDBUILDING:
+[qui incolli i capitoli e il documento di worldbuilding]
+```
+
+### Giro B — un capitolo per volta
+
+Da ripetere per ogni capitolo, allegando **la risposta del Giro A** e il
+**solo capitolo** in lavorazione.
+
+```
+Questa e' la struttura del libro, gia' approvata:
+[qui incolli la risposta del Giro A]
+
+Ora lavora SOLO sul capitolo <n>. Numera le sue tappe da <inizio> a
+<fine>; le tappe degli altri capitoli esistono gia' e puoi puntarci
+scrivendo il loro numero.
+
+COME TRATTARE IL TESTO
+- Il testo del capitolo e' gia' scritto: taglialo in tappe e usalo
+  COSI' COM'E'. Puoi accorciare una descrizione o aggiungere la frase
+  che porta alla scelta, non riscrivere i dialoghi ne' cambiare le
+  parole dell'autore.
+- Scrivi di tuo SOLO il testo delle deviazioni e delle sconfitte, che
+  nel romanzo non esistono. Li' imita il tono del capitolo.
+- Conserva i marcatori del testo dove li trovi: *[Inizio Scontro]*,
+  *[Fine Scontro]*, [Disciplina: Nome]. Servono al motore di gioco.
+- Ogni tappa chiude sulla soglia di una decisione, mai su "prosegue".
+
+FORMATO
+## Tappa <numero> — <titolo breve>
+- **Dove**: <luogo>
+- **Testo**: <la prosa della tappa, presa dal capitolo o scritta da te
+  se e' un ramo nuovo>
+- **Scelte**:
+  - <cosa fa il lettore> -> Tappa <numero>
+  - <cosa fa il lettore> -> Tappa <numero>
+
+Per i finali, al posto delle scelte:
+- **Finale**: vittoria | sconfitta | neutro
+
+CAPITOLO <n>:
+[qui incolli il solo capitolo <n>]
+```
+
+Poi si prosegue con la **Fase 2** qui sopra, invariata, e si verifica
+con `validate` e `forma`.
 
 ## Note
 
