@@ -180,6 +180,47 @@ latente ("quanto largo scrivo") che si sposta e trascina con sé mezza
 dozzina di metriche, sopra un pavimento di invarianti che non si muove
 mai.
 
+## La domanda diretta: ci sono categorie?
+
+Michele, 06/08/2026: *"le mie ipotesi erano giuste o no, ci sono degli
+schemi ricorrenti e si possono classificare i grafi in poche categorie
+sì o no?"*. Sono due domande e hanno due risposte diverse.
+
+**Schemi ricorrenti: sì.** Grado 1,57 con deviazione standard 0,09,
+riconvergenza 32 ± 3, rientro dei rami con mediana 3 su 4898 bivi,
+quota obbligata 42%. Sono invarianti solidi.
+
+**Categorie: no.** Verificato con k-means sulle sei metriche
+standardizzate, misurando la silhouette contro una nuvola casuale di
+controllo (stesso numero di libri, stesse dimensioni, nessuna
+struttura):
+
+| k | silhouette | su dati casuali |
+|---|---|---|
+| 2 | 0,345 | 0,188 |
+| 3 | 0,300 | 0,168 |
+| 4 | 0,309 | 0,187 |
+| 5 | 0,257 | 0,174 |
+
+C'è **più struttura del caso**, ma nessun k arriva a una separazione
+netta (servirebbe > 0,5; sotto 0,25 è nulla). E i due gruppi che
+k-means trova con k=2 sono i primi dieci libri più quattro tardi contro
+tutti gli altri: è di nuovo **la deriva temporale**, non due specie
+diverse di grafo.
+
+I libri stanno su un **continuum**, non in scatole. L'ipotesi completa
+di Michele era *"variazioni statistiche rispetto a un numero limitato
+da cui il resto deriva"* — e quella regge: il "numero limitato" esiste,
+solo che è **un asse continuo** (quanto largo / quanto lungo) e non un
+insieme di categorie. Un cursore, non un menu a tendina. Il che è più
+utile: un cursore si può impostare per generare, una categoria sarebbe
+stata solo un'etichetta.
+
+**Limite dichiarato:** sono 29 libri di *una sola serie*, con un autore
+principale. Vale per Lupo Solitario. Che valga per il genere è
+plausibile — i vincoli sono di mestiere, non di stile — ma non è stato
+misurato e questo documento non lo dimostra.
+
 ## Ricadute pratiche
 
 - Il prompt di Fase 1 (`PROMPT-GENERAZIONE-LIBRI.md`) ora chiede la

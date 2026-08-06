@@ -119,7 +119,8 @@ COSA DEVI FARE
    oltre 5. Non creare rami che non rientrano mai, tranne i finali.
 4. Prevedi 3-5 FINALI: una vittoria, il resto sconfitte.
 
-LA FORMA DEL LIBRO (numeri misurati su 29 librogame pubblicati,
+LA FORMA DEL LIBRO (numeri misurati sui 29 librogame di una serie
+pubblicata,
 rispettali: sono il punto di equilibrio fra "il lettore sceglie" e
 "il libro si può scrivere")
 - In media **1,5-1,7 uscite per tappa**. Concretamente: circa metà delle
