@@ -36,6 +36,70 @@ object RilieviDiForma {
         statistici(m)
     }
 
+    // Il BILANCIO di un giro: dove si e' arrivati rispetto ai bersagli,
+    // detto anche quando va tutto bene (06/08/2026, Michele: "se vede
+    // che lo scrittore sta andando troppo in la', gli dice attenzione,
+    // non aggiungete piu' nuove sottotrame, oppure attenzione il numero
+    // delle scelte e' ormai compiuto").
+    //
+    // I rilievi qui sopra parlano solo quando manca qualcosa. In un
+    // ciclo iterativo serve anche il segnale opposto — "basta cosi'" —
+    // altrimenti si continua ad aggiungere finche' qualcuno non decide a
+    // occhio che e' abbastanza, ed e' il modo in cui un libro si gonfia.
+    fun bilancio(m: Misura): List<String> = buildList {
+        if (m.scene < FormaDelGrafo.SCENE_MINIME) {
+            add("$COMPLETO ${m.scene} scene: troppo poche per giudicare la forma (da ${FormaDelGrafo.SCENE_MINIME} in su)")
+            return@buildList
+        }
+        // Il bersaglio 40-60 viene dal nostro prompt di generazione, non
+        // dai grafi: i libri di Dever ne hanno 350, che e' un'altra
+        // scala editoriale. Oltre il doppio del bersaglio non si dice
+        // "stop" — non e' un libro in costruzione col nostro metodo.
+        add(
+            when {
+                m.scene > SCENE_MAX * 2 -> "$COMPLETO ${m.scene} scene (libro di scala editoriale, non del nostro formato)"
+                m.scene > SCENE_MAX ->
+                    "$OLTRE ${m.scene} scene (bersaglio $SCENE_MIN-$SCENE_MAX): non aggiungerne altre, " +
+                        "collega quelle che ci sono"
+                m.scene < SCENE_MIN ->
+                    "$SOTTO ${m.scene} scene: ce n'e' spazio per altre ${SCENE_MIN - m.scene}-${SCENE_MAX - m.scene}"
+                else -> "$COMPLETO ${m.scene} scene, dentro il bersaglio $SCENE_MIN-$SCENE_MAX"
+            },
+        )
+        add(
+            if (m.grado >= GRADO_TARGET) {
+                "$COMPLETO %.2f uscite per scena: il numero delle scelte e' compiuto".format(m.grado)
+            } else {
+                "$SOTTO %.2f uscite per scena (bersaglio %.2f)".format(m.grado, GRADO_TARGET)
+            },
+        )
+        add(
+            if (m.riconvergenza >= RICONVERGENZA_TARGET) {
+                "$COMPLETO %.0f%% di scene raggiunte da piu' vie: i rami rientrano a sufficienza".format(m.riconvergenza)
+            } else {
+                "$SOTTO %.0f%% di scene raggiunte da piu' vie (bersaglio %.0f%%)".format(m.riconvergenza, RICONVERGENZA_TARGET)
+            },
+        )
+        // Le sconfitte in PROPORZIONE, non in numero fisso: nei libri
+        // veri sono il 3-7% delle scene (12-27 su 350), che su un libro
+        // da 50 fa 2-4. Un numero fisso direbbe "troppe" a un libro di
+        // Dever e "abbastanza" a uno di trecento scene con tre morti.
+        // Sono anche la misura delle sottotrame aperte: un ramo che non
+        // rientra e' un finale, non una storia parallela.
+        val morti = m.finaliPerEsito[EndingOutcome.DEFEAT] ?: 0
+        val attese = (m.scene * MORTI_QUOTA_MIN / 100.0).roundToInt().coerceAtLeast(MORTI_MINIME)
+        val massime = (m.scene * MORTI_QUOTA_MAX / 100.0).roundToInt().coerceAtLeast(MORTI_MINIME + 2)
+        add(
+            when {
+                morti > massime ->
+                    "$OLTRE $morti finali di sconfitta su ${m.scene} scene (attesi $attese-$massime): " +
+                        "niente nuove sottotrame, falle riconfluire"
+                morti >= attese -> "$COMPLETO $morti finali di sconfitta, nel bersaglio $attese-$massime"
+                else -> "$SOTTO $morti finali di sconfitta (bersaglio $attese-$massime)"
+            },
+        )
+    }
+
     // Valgono a qualunque dimensione: sono difetti, non scostamenti.
     private fun MutableList<Rilievo>.strutturali(m: Misura) {
         if (m.irraggiungibili.isNotEmpty()) {
@@ -160,6 +224,21 @@ object RilieviDiForma {
     private const val GRADO_TARGET = 1.65
     private const val RICONVERGENZA_TARGET = 32.0
     private const val QUOTA_TARGET = 46.0
+
+    // Bersagli del bilancio. SCENE_MIN/MAX vengono dal prompt di
+    // generazione (40-60 tappe), non dai grafi: i libri di Dever ne
+    // hanno 350, ma sono di un'altra scala editoriale.
+    private const val SCENE_MIN = 40
+    private const val SCENE_MAX = 60
+
+    // Quota di sconfitte misurata sui librogame veri: 12-27 finali su
+    // 350 scene. Proporzionale, cosi' vale a ogni scala.
+    private const val MORTI_QUOTA_MIN = 3.0
+    private const val MORTI_QUOTA_MAX = 7.0
+
+    private const val COMPLETO = "[ok]   "
+    private const val SOTTO = "[manca]"
+    private const val OLTRE = "[stop] "
 
     // Ogni scorciatoia aggira 2-3 tappe (rientro mediano misurato: 3).
     private const val TAPPE_PER_SCORCIATOIA = 2.5

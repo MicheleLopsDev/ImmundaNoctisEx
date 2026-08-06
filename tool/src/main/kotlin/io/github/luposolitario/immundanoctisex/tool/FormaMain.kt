@@ -47,9 +47,15 @@ fun runForma(args: Array<String>) {
     val esiti = m.finaliPerEsito.entries.joinToString(", ") { "${it.value} ${it.key}" }
     println("  finali               ${esiti.ifBlank { "nessun esito dichiarato" }}")
 
+    // Il bilancio si stampa SEMPRE, anche quando non c'e' niente che
+    // non va: in un ciclo iterativo serve sapere anche quando fermarsi,
+    // non solo cosa manca ancora.
+    println("\nA che punto siamo:")
+    RilieviDiForma.bilancio(m).forEach { println("  $it") }
+
     val rilievi = RilieviDiForma.di(m)
     if (rilievi.isEmpty()) {
-        println("\nLa forma regge: niente da segnalare.")
+        println("\nLa forma regge: niente da correggere.")
         return
     }
     println()

@@ -2,12 +2,10 @@
 
 Michele, 06/08/2026: *"lo scrittore che conosco non vuole scrivere
 libri game, lui crea romanzi… lui può riscrivere quante scene vogliamo
-ma dobbiamo dirgli quali scrivere e cosa. Il senso di usare un modello è
-proprio quello: generare una modalità semplificata uomo-modello per
-passare da una specie di romanzo a un grafo"*.
+ma dobbiamo dirgli quali scrivere e cosa"*.
 
-Questo documento è quel metodo. `PROMPT-GENERAZIONE-LIBRI.md` contiene i
-prompt; qui c'è **come si lavora**, e soprattutto *chi fa cosa*.
+Questo documento è il metodo. `PROMPT-GENERAZIONE-LIBRI.md` contiene i
+prompt, `FORMA-DEI-GRAFI.md` i numeri che lo governano.
 
 ## Il problema, detto in una riga
 
@@ -15,293 +13,195 @@ Un romanzo ha **un cammino**; un libro-game ne ha decine. Il romanzo
 esiste già ed è buono. Manca tutto ciò che il lettore avrebbe potuto
 fare *invece*.
 
-E quel materiale mancante lo può scrivere solo lo scrittore — un modello
-che imita la sua voce si riconosce alla seconda riga. Ma lo scrittore non
-sa **quali** scene mancano, perché per saperlo bisogna ragionare sul
-grafo, che non è il suo mestiere e non deve diventarlo.
+Quel materiale lo può scrivere solo lo scrittore — un modello che imita
+la sua voce si riconosce alla seconda riga. Ma lo scrittore non sa
+**quali** scene mancano, perché per saperlo bisogna ragionare sul grafo,
+che non è il suo mestiere e non deve diventarlo.
 
 ## I tre ruoli
 
 | Chi | Cosa fa | Cosa NON vede mai |
 |---|---|---|
-| **Lo scrittore** | Scrive le scene che gli vengono commissionate, in prosa, come scriverebbe un romanzo | Numeri di tappa, grafi, JSON, la parola "riconvergenza" |
-| **Il modello** | Legge il romanzo, propone dove ramificare, **scrive le commissioni**, e a consegna avvenuta ricuce il tutto in tappe | — |
-| **Il curatore** (Michele) | Approva le commissioni prima che partano e i testi quando tornano; taglia quelle che non convincono | — |
+| **Lo scrittore** | Consegna il romanzo, poi risponde alle domande scrivendo scene | Numeri di tappa, grafi, JSON, la parola "riconvergenza" |
+| **Il modello** | Legge, taglia in scene, **fa le domande**, integra le risposte, e **sorveglia i numeri** | — |
+| **Il curatore** (Michele) | Approva il sunto e le domande prima che partano | — |
 
-Il modello non scrive il libro. **Scrive la lista della spesa.**
+Il modello non scrive il libro. **Fa le domande e tiene il conto.**
+
+## Da dove nascono le domande
+
+Non da una quota da riempire: **dal testo**. Il romanzo dichiara già
+dove si combatte e dove si usa un'abilità, e ognuno di quei punti è una
+casella vuota del nostro JSON.
+
+| Nel romanzo c'è | Il JSON ha bisogno di | Quindi si chiede |
+|---|---|---|
+| uno scontro | `combat.loseSceneId` | *"se perde, cosa gli succede?"* |
+| un uso di abilità | il ramo di chi non ce l'ha | *"cosa fa chi non ha quell'abilità?"* |
+| una decisione | l'altra `choice` | *"e se avesse scelto il contrario?"* |
+
+**Il dato che rende tutto necessario**: il giocatore sceglie **5
+discipline su 10** alla creazione. Il Libro I ne usa **37 volte**.
+In 37 punti c'è circa una probabilità su due che il lettore *non abbia*
+quello che il protagonista usa — e senza una via alternativa, lì il
+libro non è giocabile. I rami non sono una scelta di design: sono una
+necessità meccanica, e il testo dice esattamente dove.
+
+**Non si chiede per tutte e dieci le abilità.** Su 28 scene farebbe 280
+domande, e nei libri di Dever il 91% delle scene non ha nessuna
+disciplina usabile: sarebbero centinaia di "non supportata" e lo
+scrittore si stanca prima del Capitolo 2. Si chiede solo dove il testo
+già usa qualcosa. In più, separatamente, il modello può *proporre*
+cinque o sei scene dove un'altra abilità avrebbe senso — come
+suggerimento da accettare o scartare, non come questionario.
 
 ## Il ciclo
 
 ```
-  romanzo  ──Giro A──►  struttura  ──►  COMMISSIONI  ──►  [curatore]
-                                                              │
-                                                         approvate
-                                                              ▼
-  JSON ◄──Fase 2──  tappe  ◄──Giro B──  scene nuove  ◄── [scrittore]
-   │
-   └──►  validate + forma  ──►  editor  ──►  si gioca
+   romanzo
+      ↓
+  [1] il modello taglia in scene  →  SUNTO  →  [curatore approva]
+      ↓
+  [2] il modello fa le DOMANDE (una per casella vuota)
+      ↓
+  [3] lo scrittore risponde scrivendo le scene
+      ↓
+  [4] il modello INTEGRA — spezza le risposte lunghe in più scene
+      ↓
+  [5] il modello CONTA e avvisa ────┐
+      ↓                             │ restano caselle vuote?
+   niente più caselle vuote?        └──────► torna a [2]
+      ↓
+  validate + forma + morti su misura  →  il libro si gioca
 ```
 
-Il passaggio nuovo, rispetto ai prompt già scritti, è **COMMISSIONI**:
-la traduzione da "qui il grafo ha bisogno di un ramo" a "scrivimi questa
-scena".
+Il ciclo **termina da solo**: si chiude quando nessun punto di gioco è
+rimasto senza risposta. Non serve decidere a occhio quando basta.
 
-## Il romanzo è il percorso canonico: il più ricco, non l'unico
+### Il freno alla ricorsione
 
-Michele, 06/08/2026: *"esiste un percorso canonico che ti permette di
-acquisire tutti gli artefatti, fare le conoscenze con tutti gli NPC —
-diciamo il percorso più ricco e quello vero; tu puoi però tagliare delle
-cose ed arrivare al finale"*.
+I rami nuovi possono contenere altri scontri e altre abilità, e
+generare altre domande. Perché il giro finisca:
 
-È il modello giusto, e i numeri dei 37 librogame lo descrivono con
-precisione:
+> **Dal secondo livello in poi, i rami rientrano.** Possono avere uno
+> scontro, ma quello scontro non apre altri mondi: le sue uscite
+> tornano su scene che esistono già.
 
-| | tappe | quota del canonico |
-|---|---|---|
-| tappe **obbligate** (nessun percorso le evita) | 37 | **23%** |
-| percorso **più corto** che arriva alla vittoria | 84 | 52% |
-| percorso **più lungo**, cioè il canonico | 163 | 100% |
+**«Tutta la storia fino al finale» resta un'eccezione**: va bene per
+uno o due rami maggiori, dichiarati in partenza, che meritano un finale
+alternativo vero. Se lo si concede a tutti, il libro raddoppia a ogni
+giro.
 
-Tre livelli, non due. **Si può saltare fino a metà libro e vincere lo
-stesso**, ma sotto c'è uno scheletro del 23% che nessuno evita mai. Il
-romanzo è il livello pieno: chi lo percorre tutto raccoglie tutto.
+## Cosa sorveglia il modello, giro per giro
 
-Da qui esce un procedimento, ed è quello che Michele descrive.
+Michele: *"se vede che lo scrittore sta andando troppo in là, gli dice
+attenzione, non aggiungete più nuove sottotrame, oppure attenzione il
+numero delle scelte è ormai compiuto"*.
 
-### Il ciclo di costruzione
+Le misure non servono solo alla fine come collaudo: servono **a ogni
+giro come termostato**. A fine integrazione il modello confronta lo
+stato con i bersagli e dichiara se si è sotto, in linea o oltre.
 
-**1. Il romanzo diventa il cammino canonico.** Si taglia in tappe con
-criterio narrativo — una tappa finisce dove il protagonista *decide*
-qualcosa, non ogni tot parole. Da 6 capitoli escono 45-55 tappe.
+| Cosa | Bersaglio | Se si è sotto | Se si è oltre |
+|---|---|---|---|
+| scene totali | 40-60 | c'è spazio | **stop: non aggiungere scene, collega quelle che ci sono** |
+| uscite per scena | 1,65 | servono altre scelte | **le scelte bastano** |
+| scene con più vie | 32% | i rami non rientrano | in linea |
+| rientro dei rami | 3 tappe, mai oltre 5 | — | **rami troppo lunghi: accorciali** |
+| cammino obbligato | 42-46% | manca la spina dorsale | servono scorciatoie |
+| può ancora vincere | ≥ 86% | **troppe strade condannate: falle rientrare** | — |
+| finali | 1 vittoria, 3-5 sconfitte | ne mancano | bastano |
+| rami che non rientrano | 1-2 in tutto | — | **stop alle sottotrame** |
 
-In questo stesso passaggio il modello **marca i punti di gioco** già
-presenti nel testo: dove c'è uno scontro, dove il protagonista usa
-un'abilità, dove supera una prova. Nel materiale di `doc/LIBRO I/`
-sono già scritti a mano (`*[Inizio Scontro]*`, `[Disciplina: Nome]`) —
-vanno raccolti, non reinventati. Il prompt sta in
-`PROMPT-GENERAZIONE-LIBRI.md` come **Fase 0**.
+Da quando esiste un JSON parziale — cioè dal primo giro di
+integrazione in poi — questa tabella non si compila a mano:
 
-**2. Si marcano le tappe OBBLIGATE** (~23%, quindi 10-13). Sono quelle
-senza cui la storia non è più quella storia: la convocazione dal Re, il
-rito interrotto, il risveglio del Lich. Nessuna scorciatoia potrà mai
-saltarle.
-
-**3. Si cercano le tappe di ACQUISIZIONE.** Sono il cuore del metodo:
-i punti in cui il canonico fa *guadagnare* qualcosa al lettore — un
-artefatto (la Pozione Mangiaferro), una conoscenza (Tobias), una
-informazione (il sangue di Ariel), un'abilità. Ogni acquisizione è un
-candidato naturale a diventare **saltabile**, perché saltarla ha già di
-suo un prezzo narrativo evidente: dopo, non ce l'hai.
-
-Questo è anche il motivo per cui il metodo si sposa col motore: nel
-gioco, non avere la Pozione Mangiaferro significa che al Capitolo 4 una
-porta è chiusa davvero.
-
-**4. Si commissionano le scorciatoie.** Per ogni acquisizione scelta,
-una scena che la aggira: due o tre tappe che rientrano nel canonico più
-avanti, senza quell'oggetto o senza quell'alleato.
-
-**5. `forma` dice se basta.** Cammino obbligato oltre il 50% → servono
-altre scorciatoie. "Può ancora vincere" sotto l'80% → i rami finiscono
-troppo spesso in morte, vanno fatti rientrare.
-
-**6. Si itera.** Ogni giro aggiunge un livello di scorciatoie, e le
-misure dicono quando fermarsi. Non serve indovinare al primo colpo:
-serve un criterio per sapere quanto manca.
-
-### Quanto ne serve, in numeri
-
-Su un canonico di 50 tappe:
-
-- **11-12 obbligate** (23%): si marcano, non si toccano;
-- il percorso più corto deve arrivare a **~26 tappe** (52%): quindi le
-  scorciatoie devono poter far risparmiare in tutto una ventina di
-  tappe;
-- ogni scorciatoia salta **2-3 tappe** (il rientro mediano misurato):
-  quindi servono **8-10 scorciatoie**;
-- più **3-5 sconfitte**, sparse, di cui almeno una nella prima metà.
-
-Cioè: **13-15 commissioni**, non venti alla cieca. E ognuna ha una
-domanda precisa da girare allo scrittore — *"e se Ariel non ricevesse le
-pozioni di Lyra?"* — invece di un generico "inventa un ramo".
-
-### Perché è una buona notizia per lo scrittore
-
-Nei 37 librogame misurati il **95% delle scene può ancora portare alla
-vittoria**: perdere è l'eccezione. Le scorciatoie quindi **non sono
-trappole** — sono altri modi di arrivare in fondo, più poveri.
-
-Allo scrittore non si chiede di inventare venti modi di morire (è game
-design, non il suo mestiere): si chiede di rispondere una dozzina di
-volte a *«e se Ariel non avesse ricevuto le pozioni?»*, che è narrativa
-pura. Le sconfitte restano poche e nette — tre-cinque in tutto, ognuna
-conseguenza diretta e riconoscibile di una scelta, mai una condanna che
-si sconta venti tappe dopo senza saperlo.
-
-## Il formato di una commissione
-
-È la parte che conta. Una commissione è scritta **nella lingua dello
-scrittore**: dove siamo, cosa cambia, come va a finire. Il rientro non si
-esprime con un numero ma **citando una frase del romanzo**.
-
-```
-### R-07 — "Il vicolo sbagliato"
-
-**Quando**: Capitolo 2, subito dopo che Ariel esce dalla taverna con
-Tobias.
-
-**Cosa cambia**: invece di prendere la strada larga verso il porto,
-Ariel taglia per i vicoli del quartiere vecchio.
-
-**Chi c'e'**: Ariel, Tobias. I cultisti osservano ma non si mostrano.
-
-**Come finisce**: Ariel sbuca sul molo in ritardo, e Tobias ha un
-taglio all'avambraccio che non sa spiegare.
-
-**Poi la storia riprende** da dove il capitolo dice: «Il vascello li
-attendeva, la chiglia scura contro il molo».
-
-**Lunghezza**: 250-350 parole.
-
-**Continuita'**: Ariel non deve ancora sospettare dei cultisti — la
-rivelazione e' nel Capitolo 4.
+```bash
+./gradlew :tool:cli --args="forma ../percorso/del/libro.json"
 ```
 
-Sette voci, nessun tecnicismo. Le regole che le governano:
+Il comando misura e **dice quanto manca**, non solo cosa non va:
+*«aggiungi ~18 scelte»*, *«fai rientrare ~8 rami»*, *«servono ~7
+scorciatoie»*. È quello che il modello gira allo scrittore al giro
+dopo, tradotto in domande.
 
-- **"Poi la storia riprende da"** è il punto di rientro, espresso come
-  una citazione. Se una commissione non ce l'ha, è un ramo che non
-  rientra — cioè un finale, e va detto: *"Come finisce: qui Ariel muore.
-  Dopo non c'è nulla."*
-- **"Cosa cambia"** deve produrre una differenza vera per il lettore: un
-  oggetto, un'informazione, una ferita, un alleato in meno. Se al rientro
-  non è cambiato niente, la commissione non va mandata — è lavoro chiesto
-  a vuoto.
-- **"Continuità"** protegge il romanzo: dice allo scrittore cosa il
-  protagonista non può ancora sapere. È la voce che evita di rompere una
-  rivelazione posata tre capitoli dopo.
-- **Le sconfitte hanno bisogno di più cura delle deviazioni.** In un
-  romanzo il protagonista non muore mai, quindi lo scrittore non le ha
-  mai scritte. Vanno commissionate esplicitamente, con la scelta
-  sbagliata che ci porta.
+## Il formato di una domanda
 
-## Quanto lavoro è, davvero
-
-Su un libro da 50 tappe, il romanzo ne copre circa la metà: le altre
-sono rami e finali. Sono **20-25 scene nuove da 250-350 parole**, cioè
-6.000-8.000 parole in tutto — un paio di capitoli come mole, ma spezzati
-in pezzi corti e indipendenti, ognuno col suo contesto già scritto
-dentro la commissione.
-
-Non è un dettaglio: è la ragione per cui il metodo può funzionare con
-uno scrittore vero. Nessuna delle scene richiede di tenere in testa
-l'intera struttura.
-
-## Il prompt che genera le commissioni
-
-Da lanciare **dopo** il Giro A, allegando la struttura approvata e i
-capitoli.
+Scritto **nella lingua dello scrittore**. Il rientro non è un numero di
+nodo: è una frase del suo romanzo, copiata esatta.
 
 ```
-Questa e' la struttura di un libro-game ricavata da un romanzo, gia'
-approvata:
-[qui incolli la risposta del Giro A]
+### D-07 — Cap. 3, lo scontro coi banditi nella notte
 
-E questo e' il romanzo:
-[qui incolli i capitoli]
+**Dove siamo**: Ariel e il capitano Tobias, la strada per Basara,
+dopo il guado. Ariel ha ancora l'Astro di Giada e le due Pozioni di
+Cura; non ha ancora incontrato Agata.
 
-Le scene alternative NON le scrivi tu: le scrivera' l'autore del
-romanzo, che ha la sua voce e va rispettata. Il tuo compito e'
-COMMISSIONARGLIELE.
+**La domanda**: nel romanzo Ariel vince lo scontro. **Se lo perde,
+cosa gli succede?**
 
-PRINCIPIO DA NON SBAGLIARE
-Il romanzo e' il percorso CANONICO: il piu' ricco, quello in cui il
-protagonista raccoglie tutti gli oggetti, incontra tutti i personaggi e
-scopre tutto. Non e' l'unico che arriva alla fine, e' il piu' pieno.
-Le scene che commissioni sono le SCORCIATOIE: strade che aggirano
-qualcosa e arrivano lo stesso in fondo, con meno in tasca. Non sono
-errori da punire. Le sconfitte sono poche (3-5 in tutto il libro) e
-sempre la conseguenza diretta e riconoscibile di una scelta — mai una
-condanna che il lettore sconta venti tappe dopo senza saperlo.
+**Le strade possibili** (scegline una e scrivila):
+  a) sopravvive ma perde qualcosa — e allora la storia riprende da
+     dove il capitolo dice: «All'alba il profilo di Basara si stagliò
+     contro il cielo lattiginoso»;
+  b) muore, e questo è un finale: dopo non c'è nulla.
 
-PRIMA DELLE SCHEDE, elenca le ACQUISIZIONI del romanzo: i punti in cui
-il protagonista guadagna qualcosa che gli servira' dopo — un oggetto,
-un alleato, un'informazione, un'abilita'. Per ognuna una riga: cosa
-guadagna, in quale capitolo, e dove quel guadagno torna utile piu'
-avanti.
+**Quanto**: 250-350 parole.
 
-Sono quelle le candidate a diventare saltabili: aggirarle ha gia' di
-suo un prezzo evidente, perche' dopo il lettore non ce l'ha. Scegli fra
-queste i punti da commissionare, e aggiungi alla scheda una voce:
-
-**Cosa si perde**: <l'oggetto, l'alleato o l'informazione che chi
-prende questa strada NON avra'>
-
-Non commissionare scorciatoie su tappe in cui non si guadagna niente:
-sarebbero due strade identiche scritte con parole diverse.
-
-Per ogni scorciatoia e per ogni sconfitta della struttura, scrivi una
-scheda cosi':
-
-### <codice> - "<titolo>"
-**Quando**: <in quale capitolo e dopo quale momento preciso del
-romanzo si stacca>
-**Cosa cambia**: <cosa fa il protagonista di diverso>
-**Chi c'e'**: <personaggi presenti, e chi resta fuori scena>
-**Come finisce**: <lo stato in cui il lettore arriva alla fine>
-**Poi la storia riprende** da dove il capitolo dice: «<una frase
-letterale del romanzo, copiata esatta>»
-**Lunghezza**: <parole, fra 250 e 400>
-**Continuita'**: <cosa il protagonista NON deve ancora sapere qui>
-
-REGOLE
-- Scrivi nella lingua di un romanziere. Non nominare mai tappe,
-  numeri, nodi, grafi, JSON: l'autore non deve sapere che esistono.
-- La frase di rientro va COPIATA dal romanzo, parola per parola, non
-  parafrasata: e' li' che il testo nuovo si ricuce a quello vecchio.
-- Per una sconfitta, al posto del rientro scrivi: "Come finisce: qui
-  <protagonista> muore / fallisce. Dopo non c'e' nulla." e aggiungi
-  **Perche' ci si arriva**: <la scelta sbagliata che porta qui>.
-- Se una deviazione non lascia al lettore niente di diverso (un
-  oggetto, una ferita, un'informazione, un alleato in meno), NON
-  scrivere la scheda: elencala invece in fondo, sotto "SCARTATE", con
-  una riga di motivo.
-- Ordina le schede per capitolo.
-
-Chiudi con un CONTEGGIO: quante schede, quante parole in totale.
+**Attenzione a**: Tobias deve restare vivo, serve al Capitolo 5.
 ```
 
-## Cosa torna indietro, e come rientra
+Le regole che governano le schede:
 
-Lo scrittore consegna le scene in un file, una per codice (`R-07`, …).
-Da lì:
+- **«la storia riprende da»** è il punto di rientro come citazione. Se
+  manca, è un finale, e va detto.
+- **«Attenzione a»** protegge il romanzo: dice cosa non si può rompere
+  perché serve più avanti.
+- **«Dove siamo»** elenca cosa il protagonista ha in mano in quel
+  punto: è ciò che permette allo scrittore di scrivere senza rileggere
+  tutto, e a noi di sapere quali oggetti il ramo può usare.
 
-1. Si aggiungono al Giro B come materiale del capitolo, e il modello le
-   taglia in tappe insieme alla prosa originale.
-2. Fase 2 per il JSON.
-3. `validate` (il grafo regge?) e `forma` (ha la forma di un
-   libro-game?). Vedi `FORMA-DEI-GRAFI.md` per il significato dei
-   numeri.
+## Quanto lavoro è, sul Libro I
 
-Due misure di `forma` guidano direttamente il lavoro:
+| | |
+|---|---|
+| romanzo | 7.581 parole, 6 capitoli |
+| scene stimate | ~28 |
+| scontri marcati | 6 → 6 domande |
+| usi di disciplina | 37 → 37 domande |
+| **primo giro** | **~43 domande** |
 
-- **cammino obbligato** troppo alto → servono più deviazioni: è la
-  misura che dice *quante* scene chiedere ancora;
-- **"può ancora vincere"** sotto l'80% → ci sono troppe strade
-  condannate. Non servono altre scene: serve **collegare** quelle che ci
-  sono, facendole rientrare invece di finire in una morte.
+Molte hanno risposte corte (*"perde la spada e prosegue zoppicando"*).
+Le altre valgono 250-350 parole. I giri successivi calano in fretta:
+i rami di secondo livello rientrano e basta.
+
+## Cosa arriva già fatto, e non è poco
+
+Siccome le domande nascono dai punti di gioco, le risposte arrivano
+**già mappate sui campi del JSON**: *"se perde"* → `loseSceneId`,
+*"chi non ha Scudo Mentale"* → il ramo alternativo della
+`disciplineChoice`. Le meccaniche non sono un lavoro separato da fare
+dopo nell'editor: nascono insieme al testo.
+
+Restano da mettere a mano solo le cose che il romanzo non può sapere:
+i valori di Combattività e Resistenza dei nemici, i tiri della tabella,
+i bonus. Quelle sono decisioni di gioco.
+
+## Alla fine
+
+1. **`validate`** — il grafo regge?
+2. **`forma`** — ha la forma di un libro-game? (`FORMA-DEI-GRAFI.md`)
+3. **Morti su misura** — le sconfitte generiche diventano scene scritte.
+   Nei librogame veri sedici finali su diciassette sono morti con la
+   loro prosa: una morte anonima è tempo del lettore buttato.
+4. Numeri dei nemici, tiri, oggetti: nell'editor.
 
 ## Perché questo giro può reggere
 
-Ogni pezzo è dato a chi lo sa fare:
+Ogni pezzo è dato a chi lo sa fare: lo **scrittore** scrive prosa,
+l'unica cosa che un modello non sa imitare senza che si veda; il
+**modello** legge, taglia, chiede e tiene il conto; il **curatore**
+decide, che è l'unica cosa che nessuno dei due può fare al posto suo.
 
-- lo **scrittore** scrive prosa, l'unica cosa che un modello non sa
-  imitare senza che si veda;
-- il **modello** fa il lavoro noioso e combinatorio — leggere 60 KB,
-  trovare i punti di frattura, formulare richieste;
-- il **curatore** decide, che è l'unica cosa che nessuno dei due può
-  fare al posto suo;
-- le **misure** (`forma`) dicono quando basta, invece di lasciarlo al
-  colpo d'occhio.
-
-Nessuno dei tre fa il mestiere di un altro. È tutto qui.
+E il criterio di fine non è un'opinione: **le caselle vuote sono
+finite, e i numeri lo confermano**.
