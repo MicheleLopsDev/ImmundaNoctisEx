@@ -364,6 +364,64 @@ Tre regole che valgono solo in questa variante:
    nell'editor: buttarli via significa rifare a mano un lavoro già
    fatto.
 
+### Fase 0 — dal romanzo alla catena di tappe
+
+Il primo passaggio, prima ancora di pensare ai rami: **il romanzo
+diventa una catena lineare di tappe**, e si raccoglie quello che il
+testo già dichiara — scontri, abilità, prove. Non si inventa niente
+qui: si legge e si mette in ordine.
+
+```
+Ti do un ROMANZO in capitoli. Trasformalo in una CATENA DI TAPPE: il
+percorso canonico di un librogame, quello piu' ricco, dove il lettore
+vede tutto e raccoglie tutto.
+
+Non inventare niente e non riscrivere niente. Dividi e cataloga.
+
+1. TAGLIA IN TAPPE
+   Una tappa finisce dove il protagonista DECIDE qualcosa, o dove
+   cambia luogo o interlocutore — mai a un tot di parole fisso. Ogni
+   tappa e' un pezzo continuo del testo originale.
+   Per ognuna: numero, titolo breve, capitolo, la prima e l'ultima
+   frase del testo che contiene (copiate esatte, servono a ritagliare).
+
+2. MARCA I PUNTI DI GIOCO gia' presenti nel testo:
+   - SCONTRO: dove il testo descrive un combattimento (nel materiale
+     e' delimitato da *[Inizio Scontro]* e *[Fine Scontro]*). Segna
+     chi combatte.
+   - ABILITA': dove il protagonista usa una dote (nel materiale e'
+     scritto come [Disciplina: Nome]). Segna quale.
+   - PROVA: dove il testo dice che qualcosa poteva andare storto —
+     una serratura, un salto, una menzogna, un inseguimento. Anche
+     senza marcatore: si riconosce perche' l'esito e' incerto.
+   - ACQUISIZIONE: dove il protagonista ottiene un oggetto, un
+     alleato, un'informazione o un'abilita' che gli servira' dopo.
+     Segna cosa ottiene e, se lo vedi nel testo, dove torna utile.
+
+3. SEGNALA I BIVI FORZATI: i punti in cui il romanzo fa scegliere al
+   protagonista e racconta un solo esito. Sono i candidati naturali a
+   diventare bivi veri. Per ognuno, la scelta alternativa che il testo
+   nomina o lascia intendere.
+
+4. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
+   abilita' usate, quante prove, quante acquisizioni, quanti bivi
+   forzati.
+
+FORMATO
+## Tappa <n> — <titolo> (Cap. <c>)
+- **Dal testo**: «<prima frase>» … «<ultima frase>»
+- **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
+  ACQUISIZIONE: … | nessuno>
+- **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
+
+ROMANZO:
+[qui incolli i capitoli]
+```
+
+Il risultato è il **canonico**: una catena senza rami, che è
+esattamente il 100% da cui si parte. Le tappe con acquisizione e i
+bivi forzati sono la materia prima del Giro A.
+
 ### Giro A — la struttura, da prosa a grafo
 
 Da dare **una volta sola**, con tutti i capitoli e il worldbuilding.

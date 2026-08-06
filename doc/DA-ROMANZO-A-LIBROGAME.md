@@ -74,6 +74,13 @@ Da qui esce un procedimento, ed è quello che Michele descrive.
 criterio narrativo — una tappa finisce dove il protagonista *decide*
 qualcosa, non ogni tot parole. Da 6 capitoli escono 45-55 tappe.
 
+In questo stesso passaggio il modello **marca i punti di gioco** già
+presenti nel testo: dove c'è uno scontro, dove il protagonista usa
+un'abilità, dove supera una prova. Nel materiale di `doc/LIBRO I/`
+sono già scritti a mano (`*[Inizio Scontro]*`, `[Disciplina: Nome]`) —
+vanno raccolti, non reinventati. Il prompt sta in
+`PROMPT-GENERAZIONE-LIBRI.md` come **Fase 0**.
+
 **2. Si marcano le tappe OBBLIGATE** (~23%, quindi 10-13). Sono quelle
 senza cui la storia non è più quella storia: la convocazione dal Re, il
 rito interrotto, il risveglio del Lich. Nessuna scorciatoia potrà mai

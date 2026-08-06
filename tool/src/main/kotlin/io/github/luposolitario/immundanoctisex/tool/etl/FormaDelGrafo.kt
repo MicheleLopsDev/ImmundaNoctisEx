@@ -55,10 +55,6 @@ object FormaDelGrafo {
             get() = if (scene == finali) 0.0 else collegamenti.toDouble() / (scene - finali)
     }
 
-    enum class Gravita { ERRORE, AVVISO }
-
-    data class Rilievo(val gravita: Gravita, val messaggio: String)
-
     fun misura(manifest: Manifest): Misura {
         val archi = ConfrontoGrafo.archiDi(manifest)
         val scene = manifest.scenes.map { it.id }
@@ -93,94 +89,6 @@ object FormaDelGrafo {
         )
     }
 
-    // I rilievi, dal più grave. Errore = il libro non si gioca com'è;
-    // avviso = si gioca, ma non ha la forma di un librogame.
-    //
-    // I controlli STRUTTURALI (scene orfane, vicoli ciechi, finali
-    // mancanti) valgono a qualunque dimensione. Quelli STATISTICI
-    // (grado, riconvergenza, quota obbligata, rientri) solo da
-    // SCENE_MINIME in su: su un libro di sei scene "il 17% riconverge"
-    // vuol dire "una scena", e la quota obbligata viene 100% per pura
-    // aritmetica. Segnalare lì sarebbe rumore garantito sui libri di
-    // prova, ed e' cosi' che si impara a ignorare gli avvisi.
-    fun rilievi(m: Misura): List<Rilievo> = buildList {
-        if (m.irraggiungibili.isNotEmpty()) {
-            add(errore("${m.irraggiungibili.size} scene che nessuno raggiunge: ${elenco(m.irraggiungibili)}"))
-        }
-        if (m.vicoliCiechi.isNotEmpty()) {
-            add(errore("${m.vicoliCiechi.size} scene senza uscita che non sono finali: ${elenco(m.vicoliCiechi)}"))
-        }
-        if (m.finaliPerEsito[EndingOutcome.VICTORY] == null) {
-            add(errore("nessun finale di vittoria: l'avventura non si può vincere"))
-        }
-        if (m.finaliPerEsito[EndingOutcome.DEFEAT] == null) {
-            add(avviso("nessun finale di sconfitta: nessuna scelta costa niente"))
-        }
-        if (m.scene < SCENE_MINIME) return@buildList
-        when {
-            m.grado < GRADO_MIN -> add(
-                avviso(
-                    "%.2f uscite per scena: sotto %.1f e' un racconto lineare travestito da librogame"
-                        .format(m.grado, GRADO_MIN),
-                ),
-            )
-            m.grado > GRADO_MAX -> add(
-                avviso(
-                    "%.2f uscite per scena: sopra %.1f il libro esplode e non lo si finisce"
-                        .format(m.grado, GRADO_MAX),
-                ),
-            )
-        }
-        if (m.riconvergenza < RICONVERGENZA_MIN) {
-            add(
-                avviso(
-                    "%.0f%% di scene raggiunte da piu' percorsi (i libri veri: 26-35%%): i rami non rientrano"
-                        .format(m.riconvergenza),
-                ),
-            )
-        }
-        // In proporzione, non in numero assoluto: anche un libro sano ha
-        // una minoranza di rami lunghi (nei cinque Project Aon fra il 5%
-        // e il 12% dei bivi). Contarli e basta segnalerebbe ogni libro
-        // vero, ed e' cosi' che si impara a ignorare gli avvisi.
-        val quotaTardivi = percentuale(m.rientriTardivi.size, m.bivi)
-        if (quotaTardivi > TARDIVI_MAX) {
-            add(
-                avviso(
-                    "%.0f%% dei bivi rientra dopo piu' di $RIENTRO_MAX tappe (nei libri veri la mediana e' 3): %s"
-                        .format(quotaTardivi, elenco(m.rientriTardivi)),
-                ),
-            )
-        }
-        // Il controllo piu' severo sui libri generati (06/08/2026,
-        // dall'intuizione di Michele "e se il libro fosse il percorso
-        // lineare, quello piu' semplice e corretto per arrivare alla
-        // fine?"). I dati dicono l'opposto: nei librogame veri il 95%
-        // delle scene puo' ancora vincere, e il cammino vincente piu'
-        // lungo e' il doppio del piu' corto. Non esiste "la" strada
-        // giusta. Un libro molto sotto questa quota e' un "indovina il
-        // percorso": il lettore cammina per pagine senza sapere di aver
-        // gia' perso.
-        m.quotaViva?.let { viva ->
-            if (viva < QUOTA_VIVA_MIN) {
-                add(
-                    avviso(
-                        ("solo %.0f%% delle scene puo' ancora arrivare alla vittoria (i libri veri: 86-100%%): " +
-                            "chi sbaglia una scelta cammina senza saperlo verso una sconfitta obbligata")
-                            .format(viva),
-                    ),
-                )
-            }
-        }
-        m.quotaObbligata?.let { quota ->
-            if (quota < QUOTA_MIN) {
-                add(avviso("solo %.0f%% del cammino e' obbligato (i libri veri: 42-50%%): la storia non ha spina dorsale".format(quota)))
-            } else if (quota > QUOTA_MAX) {
-                add(avviso("%.0f%% del cammino e' obbligato (i libri veri: 42-50%%): le scelte contano poco".format(quota)))
-            }
-        }
-    }
-
     // --- misure di supporto ---
 
     private fun distanzeDa(uscite: Map<String, Set<String>>, partenza: String?): Map<String, Int> {
@@ -210,7 +118,15 @@ object FormaDelGrafo {
         distanze: Map<String, Int>,
     ): Double? {
         if (partenza == null || vittoria == null || vittoria !in distanze) return null
-        val profondita = distanze.values.maxOrNull()?.takeIf { it > 0 } ?: return null
+        // Denominatore: le tappe del cammino PIU' CORTO verso la vittoria,
+        // non la profondita' massima del grafo. Un dominatore sta per
+        // definizione su ogni cammino, quindi anche sul piu' corto: con
+        // questo denominatore la quota non puo' superare il 100%, mentre
+        // con la profondita' massima un libro quasi lineare dava 104%.
+        // Sui 37 grafi le due formule danno 44% e 42%: il riferimento
+        // pubblicato in FORMA-DEI-GRAFI.md resta valido.
+        val camminoBreve = distanze.getValue(vittoria) + 1
+        if (camminoBreve <= 1) return null
         val raggiungibili = distanze.keys
         val ingressi = raggiungibili.associateWith { nodo ->
             raggiungibili.filter { nodo in uscite[it].orEmpty() }
@@ -233,7 +149,7 @@ object FormaDelGrafo {
                 }
             }
         }
-        return percentuale(dominatori.getValue(vittoria).size, profondita)
+        return percentuale(dominatori.getValue(vittoria).size, camminoBreve)
     }
 
     // Le scene da cui si arriva ancora a `meta`: si risale il grafo
@@ -274,12 +190,6 @@ object FormaDelGrafo {
 
     private fun percentuale(parte: Int, totale: Int) =
         if (totale == 0) 0.0 else 100.0 * parte / totale
-
-    private fun elenco(ids: List<String>) =
-        ids.take(10).joinToString(", ") + if (ids.size > 10) ", ... e altre ${ids.size - 10}" else ""
-
-    private fun errore(messaggio: String) = Rilievo(Gravita.ERRORE, messaggio)
-    private fun avviso(messaggio: String) = Rilievo(Gravita.AVVISO, messaggio)
 
     // Soglie da doc/FORMA-DEI-GRAFI.md. Larghe di proposito: segnalano
     // un libro fuori forma, non uno diverso dai gusti di Dever. Sulle 37

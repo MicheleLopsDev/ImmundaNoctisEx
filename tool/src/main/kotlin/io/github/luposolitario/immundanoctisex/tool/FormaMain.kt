@@ -2,6 +2,7 @@ package io.github.luposolitario.immundanoctisex.tool
 
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.tool.etl.FormaDelGrafo
+import io.github.luposolitario.immundanoctisex.tool.etl.RilieviDiForma
 import kotlinx.serialization.json.Json
 import java.io.File
 import kotlin.system.exitProcess
@@ -46,16 +47,21 @@ fun runForma(args: Array<String>) {
     val esiti = m.finaliPerEsito.entries.joinToString(", ") { "${it.value} ${it.key}" }
     println("  finali               ${esiti.ifBlank { "nessun esito dichiarato" }}")
 
-    val rilievi = FormaDelGrafo.rilievi(m)
+    val rilievi = RilieviDiForma.di(m)
     if (rilievi.isEmpty()) {
         println("\nLa forma regge: niente da segnalare.")
         return
     }
     println()
-    rilievi.forEach { println("  [${it.gravita}] ${it.messaggio}") }
+    rilievi.forEach {
+        println("  [${it.gravita}] ${it.messaggio}")
+        // L'istruzione, quando si sa quantificare: e' il pezzo che si
+        // gira a un modello o a una persona per il giro dopo.
+        it.cosaFare?.let { fare -> println("           -> $fare") }
+    }
 
     // Esce 1 solo sugli ERRORI: gli avvisi descrivono un libro che si
     // gioca comunque, e bloccare su quelli renderebbe il comando
     // inutilizzabile sui libri di prova a poche scene.
-    if (rilievi.any { it.gravita == FormaDelGrafo.Gravita.ERRORE }) exitProcess(1)
+    if (rilievi.any { it.gravita == RilieviDiForma.Gravita.ERRORE }) exitProcess(1)
 }

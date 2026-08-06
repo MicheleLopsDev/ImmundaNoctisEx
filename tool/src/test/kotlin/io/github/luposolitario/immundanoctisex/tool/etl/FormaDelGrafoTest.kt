@@ -38,10 +38,15 @@ class FormaDelGrafoTest {
     // dopo. Ogni blocco aggiunge tre scene e quattro collegamenti.
     private fun libroDiDiamanti(blocchi: Int, vararg extra: Scene): Manifest {
         val scene = mutableListOf<Scene>()
+        val bivioLetale = 1 + (blocchi / 2) * 3
         repeat(blocchi) { i ->
             val bivio = 1 + i * 3
             val tipo = if (i == 0) SceneType.START else SceneType.TRANSITION
-            scene += scena("$bivio", listOf("${bivio + 1}", "${bivio + 2}"), tipo)
+            // A meta' libro una terza strada porta alla morte: i librogame
+            // veri hanno 3-5 sconfitte sparse, non una sola in fondo.
+            val uscite = listOf("${bivio + 1}", "${bivio + 2}") +
+                if (bivio == bivioLetale) listOf("morteAMeta") else emptyList()
+            scene += scena("$bivio", uscite, tipo)
             scene += scena("${bivio + 1}", listOf("${bivio + 3}"))
             scene += scena("${bivio + 2}", listOf("${bivio + 3}"))
         }
@@ -51,6 +56,7 @@ class FormaDelGrafoTest {
             scena("$ultimo", listOf("fine", "morte")),
             finale("fine", EndingOutcome.VICTORY),
             finale("morte", EndingOutcome.DEFEAT),
+            finale("morteAMeta", EndingOutcome.DEFEAT),
             *extra,
         )
     }
@@ -68,7 +74,7 @@ class FormaDelGrafoTest {
 
     @Test
     fun `un libro della forma giusta non ha rilievi`() {
-        val rilievi = FormaDelGrafo.rilievi(FormaDelGrafo.misura(libroDiDiamanti(7)))
+        val rilievi = RilieviDiForma.di(FormaDelGrafo.misura(libroDiDiamanti(7)))
         assertTrue(rilievi.isEmpty(), "atteso nessun rilievo, ottenuti: ${rilievi.map { it.messaggio }}")
     }
 
@@ -88,10 +94,10 @@ class FormaDelGrafoTest {
         val m = FormaDelGrafo.misura(libroCorto())
 
         assertEquals(1.5, m.grado)
-        assertEquals(100.0, m.quotaObbligata)
+        assertEquals(75.0, m.quotaObbligata)
         // Su sei scene "il 17% riconverge" vuol dire "una scena":
         // giudicarlo sarebbe rumore garantito sui libri di prova.
-        assertTrue(FormaDelGrafo.rilievi(m).isEmpty())
+        assertTrue(RilieviDiForma.di(m).isEmpty())
     }
 
     @Test
@@ -105,8 +111,8 @@ class FormaDelGrafoTest {
         )
 
         assertEquals(listOf("99"), m.irraggiungibili)
-        val rilievo = FormaDelGrafo.rilievi(m).first()
-        assertEquals(FormaDelGrafo.Gravita.ERRORE, rilievo.gravita)
+        val rilievo = RilieviDiForma.di(m).first()
+        assertEquals(RilieviDiForma.Gravita.ERRORE, rilievo.gravita)
         assertTrue(rilievo.messaggio.contains("99"))
     }
 
@@ -120,7 +126,7 @@ class FormaDelGrafoTest {
             libro(*catena.toTypedArray(), finale("fine", EndingOutcome.VICTORY)),
         )
 
-        val messaggi = FormaDelGrafo.rilievi(m).map { it.messaggio }
+        val messaggi = RilieviDiForma.di(m).map { it.messaggio }
         assertTrue(messaggi.any { it.contains("racconto lineare") }, "ottenuti: $messaggi")
     }
 
@@ -138,7 +144,7 @@ class FormaDelGrafoTest {
         val m = FormaDelGrafo.misura(libro(*scene.toTypedArray(), finale("fine", EndingOutcome.VICTORY)))
 
         assertEquals(0.0, m.riconvergenza)
-        assertTrue(FormaDelGrafo.rilievi(m).any { it.messaggio.contains("non rientrano") })
+        assertTrue(RilieviDiForma.di(m).any { it.messaggio.contains("non rientrano") })
     }
 
     @Test
@@ -153,8 +159,8 @@ class FormaDelGrafoTest {
 
         assertEquals(listOf("2"), m.vicoliCiechi)
         assertTrue(
-            FormaDelGrafo.rilievi(m).any {
-                it.gravita == FormaDelGrafo.Gravita.ERRORE && it.messaggio.contains("senza uscita")
+            RilieviDiForma.di(m).any {
+                it.gravita == RilieviDiForma.Gravita.ERRORE && it.messaggio.contains("senza uscita")
             },
         )
     }
@@ -169,12 +175,12 @@ class FormaDelGrafoTest {
             ),
         )
 
-        val rilievi = FormaDelGrafo.rilievi(m)
+        val rilievi = RilieviDiForma.di(m)
         assertTrue(
-            rilievi.any { it.gravita == FormaDelGrafo.Gravita.ERRORE && it.messaggio.contains("vittoria") },
+            rilievi.any { it.gravita == RilieviDiForma.Gravita.ERRORE && it.messaggio.contains("vittoria") },
         )
         assertTrue(
-            rilievi.any { it.gravita == FormaDelGrafo.Gravita.AVVISO && it.messaggio.contains("sconfitta") },
+            rilievi.any { it.gravita == RilieviDiForma.Gravita.AVVISO && it.messaggio.contains("sconfitta") },
         )
     }
 
@@ -218,29 +224,33 @@ class FormaDelGrafoTest {
         // Uno solo su otto bivi (12%) sta sotto soglia: anche i libri
         // veri ne hanno fra il 5% e il 12%, segnalarlo sarebbe rumore.
         val pochi = FormaDelGrafo.misura(conRamiLunghi(listOf("1")))
-        assertTrue(FormaDelGrafo.rilievi(pochi).none { it.messaggio.contains("rientra dopo piu'") })
+        assertTrue(RilieviDiForma.di(pochi).none { it.messaggio.contains("rientra dopo piu'") })
 
         // Tre su otto (37%) e' un'altra cosa.
         val molti = FormaDelGrafo.misura(conRamiLunghi(listOf("1", "4", "7")))
         assertEquals(3, molti.rientriTardivi.size)
-        assertTrue(FormaDelGrafo.rilievi(molti).any { it.messaggio.contains("rientra dopo piu'") })
+        assertTrue(RilieviDiForma.di(molti).any { it.messaggio.contains("rientra dopo piu'") })
     }
 
     @Test
     fun `la quota obbligata conta le scene che ogni percorso attraversa`() {
         // Verso la vittoria "5" ogni strada passa da 1, 4 e 5: tre scene
-        // obbligate su una profondita' di 3.
-        assertEquals(100.0, FormaDelGrafo.misura(libroCorto()).quotaObbligata)
+        // obbligate sulle quattro del cammino piu' corto (1-2-4-5).
+        // Denominatore = cammino piu' corto, non profondita' massima:
+        // un dominatore sta su OGNI cammino, quindi anche sul piu' corto,
+        // e cosi' la quota non puo' superare il 100%.
+        assertEquals(75.0, FormaDelGrafo.misura(libroCorto()).quotaObbligata)
     }
 
     @Test
     fun `un libro dove quasi tutte le scene possono ancora vincere non ha rilievi`() {
-        // Nella catena di diamanti ogni ramo torna sulla spina, quindi
-        // da ovunque si arriva alla vittoria: solo la scena di morte e'
-        // senza ritorno.
+        // Nella catena di diamanti ogni ramo torna sulla spina, quindi da
+        // ovunque si arriva alla vittoria: senza ritorno sono solo le due
+        // scene di morte.
         val m = FormaDelGrafo.misura(libroDiDiamanti(7))
 
-        assertEquals(96.0, m.quotaViva?.let { Math.round(it).toDouble() })
+        assertEquals(92.0, m.quotaViva?.let { Math.round(it).toDouble() })
+        assertTrue((m.quotaViva ?: 0.0) > FormaDelGrafo.QUOTA_VIVA_MIN)
     }
 
     @Test
@@ -262,7 +272,7 @@ class FormaDelGrafoTest {
         )
 
         assertTrue((m.quotaViva ?: 100.0) < FormaDelGrafo.QUOTA_VIVA_MIN)
-        assertTrue(FormaDelGrafo.rilievi(m).any { it.messaggio.contains("puo' ancora arrivare alla vittoria") })
+        assertTrue(RilieviDiForma.di(m).any { it.messaggio.contains("puo' ancora arrivare alla vittoria") })
     }
 
     @Test
