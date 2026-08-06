@@ -105,6 +105,35 @@ class SondeDiFormaTest {
     }
 
     @Test
+    fun `un libro di scala editoriale non viene bocciato sul numero di scene`() {
+        // 40-60 e' il bersaglio del NOSTRO formato: un libro di Dever ne
+        // ha 350 e la sonda resterebbe rossa per sempre, segnalando un
+        // difetto che non esiste (visto sul primo libro, 06/08/2026).
+        val scene = (1..130).map { n ->
+            scena("$n", listOf(if (n == 130) "fine" else "${n + 1}"), if (n == 1) SceneType.START else SceneType.TRANSITION)
+        }
+        val m = libro(*scene.toTypedArray(), finale("fine", EndingOutcome.VICTORY))
+
+        val s = sonda(m, "scene")
+        assertEquals("131", s.valore)
+        assertEquals("—", s.bersaglio)
+        assertEquals(1f, s.salute)
+    }
+
+    @Test
+    fun `un libro del nostro formato viene invece giudicato sul numero di scene`() {
+        val scene = (1..30).map { n ->
+            scena("$n", listOf(if (n == 30) "fine" else "${n + 1}"), if (n == 1) SceneType.START else SceneType.TRANSITION)
+        }
+        val m = libro(*scene.toTypedArray(), finale("fine", EndingOutcome.VICTORY))
+
+        val s = sonda(m, "scene")
+        assertEquals("40-60", s.bersaglio)
+        // 31 su 40 attese: tre quarti di strada.
+        assertTrue(s.salute in 0.7f..0.8f, "salute attesa ~0,78, era ${s.salute}")
+    }
+
+    @Test
     fun `sotto le venti scene le sonde non mentono, semplicemente non ci sono`() {
         // La barra non le disegna affatto: qui si verifica che la misura
         // resti calcolabile, cosi' il composable puo' decidere da solo.

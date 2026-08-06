@@ -28,14 +28,23 @@ object SondeDiForma {
     )
 
     fun di(m: Misura): List<Sonda> = buildList {
+        // Il bersaglio 40-60 e' del NOSTRO formato, non dei libri di
+        // Dever, che ne hanno 350: su un libro di quella scala la sonda
+        // resterebbe rossa per sempre segnalando un difetto inesistente.
+        // Sopra il doppio del bersaglio si mostra il numero e basta.
+        val fuoriScala = m.scene > SCENE_MAX * 2
         add(
             Sonda(
                 etichetta = "scene",
                 valore = "${m.scene}",
-                bersaglio = "$SCENE_MIN-$SCENE_MAX",
+                bersaglio = if (fuoriScala) "—" else "$SCENE_MIN-$SCENE_MAX",
                 // Una scena in piu' del bersaglio non e' un difetto come
                 // esserne a meta': si esce dal verde piano.
-                salute = saluteInIntervallo(m.scene.toDouble(), SCENE_MIN.toDouble(), SCENE_MAX.toDouble(), tolleranza = 0.5),
+                salute = if (fuoriScala) {
+                    1f
+                } else {
+                    saluteInIntervallo(m.scene.toDouble(), SCENE_MIN.toDouble(), SCENE_MAX.toDouble(), tolleranza = 0.5)
+                },
             ),
         )
         add(

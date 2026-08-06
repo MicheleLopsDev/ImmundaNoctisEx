@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.luposolitario.immundanoctisex.core.data.model.Manifest
 import io.github.luposolitario.immundanoctisex.tool.etl.FormaDelGrafo
@@ -63,14 +64,22 @@ fun SondeDiFormaBar(manifest: Manifest, modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         SondeDiForma.di(misura).forEach { sonda ->
+            // Larghezza generosa e `maxLines = 1` sull'etichetta: con
+            // 132.dp "cammino obbligato" e "puo' ancora vincere"
+            // andavano a capo, i riquadri crescevano di un'altezza
+            // diversa dagli altri e le barrette non erano piu' allineate
+            // — che e' proprio quello che rende una fila di indicatori
+            // leggibile a colpo d'occhio (06/08/2026, sul primo libro).
             Column(
                 modifier = Modifier
-                    .width(132.dp)
+                    .width(158.dp)
                     .clip(RoundedCornerShape(4.dp))
                     .background(MaterialTheme.colorScheme.surfaceVariant)
                     .padding(horizontal = 8.dp, vertical = 5.dp),
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
+                    // maxLines anche qui: "16 / 11-25" e' corto, ma su
+                    // un libro con numeri a quattro cifre no.
                     Text(
                         sonda.valore,
                         style = MaterialTheme.typography.titleSmall,
@@ -87,6 +96,8 @@ fun SondeDiFormaBar(manifest: Manifest, modifier: Modifier = Modifier) {
                     sonda.etichetta,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 // La barretta: la stessa informazione del colore, ma
                 // leggibile anche da chi non distingue rosso e verde.
