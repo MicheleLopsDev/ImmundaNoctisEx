@@ -62,6 +62,24 @@ La mappa: disegno, selezione (anche a rettangolo), trascinamento di
 gruppo, allineamenti, menu col tasto destro. È il file più grande del
 modulo perché l'interazione con la mappa è tutta lì.
 
+### `SondeDiFormaBar.kt` + `etl/SondeDiForma.kt`
+La striscia semaforica in cima alla mappa: appena si carica un libro
+mostra uscite per scena, riconvergenza, rientro dei rami, cammino
+obbligato, "può ancora vincere" e finali di sconfitta, ognuno col
+proprio bersaglio e un colore che va dal rosso al verde con continuità.
+
+Sono gli stessi numeri del comando `forma`, ma qui non si leggono: si
+guardano. Il **calcolo** sta in `etl/SondeDiForma.kt` senza Compose,
+così la regola con cui un numero diventa rosso è verificabile da un
+test invece di stare dentro una `@Composable`.
+
+Una scelta che vale la pena conoscere: i due lati dell'intervallo non
+sono simmetrici. Sotto il minimo la salute è la *frazione raggiunta*
+(zero sconfitte su due attese fa rosso pieno, non giallo); sopra il
+massimo cala piano, perché averne un po' troppi è meno grave che
+mancarne metà. Sotto le 20 scene la barra non compare affatto: una
+percentuale su sei elementi non è una misura.
+
 ### `SceneEditorScreen.kt`
 La scheda di una scena: testo narrato, immagini, suono, combattimento,
 scelte e scelte-disciplina, più la vista JSON grezza. Valida in locale

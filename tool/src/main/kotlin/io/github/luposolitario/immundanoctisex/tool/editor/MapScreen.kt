@@ -636,6 +636,11 @@ fun MapScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+            // La forma del libro, appena caricato (06/08/2026, Michele:
+            // "sarebbe bello che questa cosa venga messa in alto così
+            // sarebbe a occhio per l'editor vedere se la cosa va o non
+            // va"). Prima di ogni pulsante: e' la prima cosa da vedere.
+            SondeDiFormaBar(manifest, modifier = Modifier.padding(bottom = 8.dp))
             // 30/07/2026, Michele: prima due Row separate (una a sinistra
             // coi pulsanti, una a destra con orizzontale/riordina/zoom)
             // dentro una Row esterna con SpaceBetween — con la finestra
