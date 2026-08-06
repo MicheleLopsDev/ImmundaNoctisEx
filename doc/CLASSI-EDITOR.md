@@ -96,6 +96,37 @@ perpendicolari lo sono già.
 Nei cinque libri Project Aon le coppie bidirezionali sono rare ma
 reali: 10 in `01fftd`, 5 in `03tcok`, 3 in `02fotw`.
 
+### `LayoutDelGrafo.kt`
+Il layout della mappa, affidato a **JGraphX** invece che scritto a mano.
+
+`mxHierarchicalLayout` è Sugiyama completo: livelli, ordine dentro il
+livello, posizioni e — la fase che mancava del tutto alla versione
+scritta da noi — **instradamento degli archi**, cioè le linee che
+aggirano i nodi invece di attraversare la mappa in retta passando sopra
+tutto. Era quella l'unica vera causa del groviglio: l'ordine dei nodi
+era già stato sistemato.
+
+Su `01fftd`: 364 scene, 569 archi, il 99% instradati, ~160 ms — si
+ricalcola a ogni caricamento senza che si noti.
+
+Torna anche il **percorso** di ogni arco (estremi compresi): il disegno
+segue quella spezzata, e la punta della freccia guarda lungo l'ultimo
+tratto, non lungo la congiungente dei centri — su un arco instradato
+sono direzioni diverse. Se un nodo viene trascinato a mano il percorso
+calcolato non vale più e quell'arco torna dritto.
+
+Le spaziature sono **gap fra i bordi**, non passi fra i centri, e
+JGraphX le applica lungo l'asse giusto per l'orientamento: ricavarle
+sottraendo la dimensione del nodo ha prodotto un bug vero (in
+orizzontale veniva `130 − 190 = −60`, e i nodi si sovrapponevano).
+I pulsanti *Avvicina*/*Allontana* le moltiplicano da 0,4x a 3x — non è
+lo zoom, che ingrandisce e basta: qui il grafo viene ricalcolato e gli
+archi si reinstradano nello spazio nuovo.
+
+Qui vive anche `FormaOvale`, l'ellisse dei nodi.
+
+Perché JGraphX e non Eclipse ELK, che sarebbe migliore: vedi README §15.
+
 ### `MapScreen.kt`
 La mappa: disegno, selezione (anche a rettangolo), trascinamento di
 gruppo, allineamenti, menu col tasto destro. È il file più grande del

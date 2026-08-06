@@ -152,6 +152,11 @@ class MapViewState {
     // Vista compatta: nodi piccoli col solo numero, per vedere la forma
     // dell'intero libro invece dei dettagli di poche scene.
     val compatto = mutableStateOf(false)
+    // Quanto stanno larghi i rami (06/08/2026, Michele: "aggiungi due
+    // icone che aumentano o diminuiscono la distanza tra i nodi"):
+    // moltiplicatore delle spaziature del layout. Un libro fitto si
+    // guarda stretto, uno che si sta scrivendo si guarda largo.
+    val fattoreDistanza = mutableStateOf(1f)
     // NOTA (06/08/2026): qui stava per nascere un interruttore per
     // nascondere gli archi che tornano indietro (il 32% del primo libro,
     // e l'unica causa del groviglio: in avanti nessun arco salta piu' di
@@ -482,6 +487,7 @@ fun MapScreen(
     // (orizzontale).
     var orizzontale by mapViewState.orizzontale
     var compatto by mapViewState.compatto
+    var fattoreDistanza by mapViewState.fattoreDistanza
     // Misure effettive del nodo: cambiano tutte insieme con la vista
     // compatta, perché dimensione e spaziatura devono restare in
     // proporzione o i nodi si toccano.
@@ -495,7 +501,7 @@ fun MapScreen(
     // instradamento degli archi. Ricalcolato solo quando cambia il grafo
     // o la forma della vista — ~740 ms su un libro da 364 scene, quindi
     // mai a ogni fotogramma.
-    val disposizione = remember(graph, orizzontale, compatto) {
+    val disposizione = remember(graph, orizzontale, compatto, fattoreDistanza) {
         LayoutDelGrafo.calcola(
             sceneIds = graph.nodes.map { it.sceneId }
                 // Ordine di partenza per ID: a parita' di libro il
@@ -512,8 +518,8 @@ fun MapScreen(
             // dove i nodi di uno stesso livello sono impilati in
             // verticale, veniva 130 - 190 = -60 — spaziatura negativa, e
             // i nodi si sovrapponevano (bug visto da Michele, 06/08).
-            spazioFraNodi = if (compatto) GAP_FRA_RAMI_COMPATTO else GAP_FRA_RAMI,
-            spazioFraLivelli = if (compatto) GAP_FRA_LIVELLI_COMPATTO else GAP_FRA_LIVELLI,
+            spazioFraNodi = (if (compatto) GAP_FRA_RAMI_COMPATTO else GAP_FRA_RAMI) * fattoreDistanza,
+            spazioFraLivelli = (if (compatto) GAP_FRA_LIVELLI_COMPATTO else GAP_FRA_LIVELLI) * fattoreDistanza,
             orizzontale = orizzontale,
         )
     }
@@ -770,6 +776,29 @@ fun MapScreen(
                     Text(if (compatto) "⬜ Nodi grandi" else "▫ Nodi compatti")
                 }
                 Button(onClick = ::riordina) { Text("⟳ Riordina") }
+                // Distanza fra i nodi (06/08/2026, Michele: "aggiungi
+                // due icone che aumentano o diminuiscono la distanza tra
+                // i nodi"). Diverso dallo zoom, che ingrandisce tutto
+                // insieme: qui il grafo viene ricalcolato, quindi anche
+                // gli archi si reinstradano nello spazio nuovo. Le
+                // posizioni trascinate a mano si azzerano, perche' erano
+                // riferite alla spaziatura precedente.
+                Button(
+                    onClick = {
+                        fattoreDistanza = (fattoreDistanza - 0.2f).coerceAtLeast(0.4f)
+                        posizioniManuali = emptyMap()
+                    },
+                ) { Text("→← Avvicina") }
+                Text(
+                    "${(fattoreDistanza * 100).roundToInt()}%",
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                )
+                Button(
+                    onClick = {
+                        fattoreDistanza = (fattoreDistanza + 0.2f).coerceAtMost(3f)
+                        posizioniManuali = emptyMap()
+                    },
+                ) { Text("←→ Allontana") }
                 Button(onClick = { zoom = (zoom - 0.1f).coerceAtLeast(0.2f) }) { Text("−") }
                 Text("${(zoom * 100).roundToInt()}%", modifier = Modifier.align(Alignment.CenterVertically))
                 Button(onClick = { zoom = (zoom + 0.1f).coerceAtMost(3f) }) { Text("+") }
