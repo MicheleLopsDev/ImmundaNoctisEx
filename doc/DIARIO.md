@@ -56,6 +56,242 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 06/08/2026 — «perché inventare l'acqua calda?»
+
+Michele, dopo il terzo tentativo di rendere leggibile il grafo: *"forse
+potremmo usare una libreria che risolve il problema per noi, perché
+inventare l'acqua calda?"*. Ha ragione, ed è una correzione di metodo
+più che di codice: avevo riscritto a mano il baricentro di Sugiyama
+quando esistono librerie che lo fanno meglio **e** fanno la fase che non
+avevo — l'**instradamento degli archi**, che li fa aggirare i nodi
+invece di attraversare la mappa in linea retta. È proprio quella la fase
+mancante: il problema non era l'ordine dei nodi (già risolto, −84% di
+incroci) ma le linee dritte che passano sopra tutto.
+
+### La libreria migliore è scartata, e il motivo è legale
+
+**Eclipse Layout Kernel** è la scelta naturale, ed è pure
+`EPL-2.0 OR GPL-3.0-or-later`. Verificato con due test: gira fuori da
+Eclipse e instrada gli archi. Ma trascina
+`org.eclipse.xtext.xbase.lib`, che ELK usa nel codice generato **senza
+dichiararla nel POM** (il ServiceLoader muore con
+`NoClassDefFoundError: CollectionLiterals`) — e quella è EPL-2.0 e basta.
+
+Michele: *"approfondisci xtext prima di andare avanti"*. Approfondito, e
+la risposta è definitiva. Nell'issue
+[eclipse-xtext/xtext#2590](https://github.com/eclipse-xtext/xtext/issues/2590)
+il **licensing contact della Eclipse Foundation** scrive che quella
+libreria *"is licensed EPL-2.0, which both the Eclipse Foundation and
+FSF believe is incompatible with (A)GPL"*, e aggiunge che aggiungere una
+secondary license non è una formalità: è un cambio di licenza, e
+richiede il consenso di **tutti** i detentori del copyright. Il
+manutentore di Xtext ha chiuso il 20/07/2023 con *"so i propose to stay
+as we are"*. Non cambierà.
+
+### La sostituta: JGraphX
+
+**BSD, zero dipendenze**, `mxHierarchicalLayout` è Sugiyama completo.
+Stessi test, tutti passati:
+
+- gira headless (diamante coi livelli in ordine, i due nodi di mezzo
+  affiancati);
+- **instrada gli archi**: sull'arco che scavalca tre livelli escono
+  **8 punti di passaggio** — esce dal nodo, si sposta di lato, scende
+  costeggiando i nodi di mezzo e rientra;
+- **738 ms per 364 nodi**, le dimensioni del primo Lupo Solitario.
+
+Rischio noto: il progetto è archiviato a monte. Ma è BSD e senza
+dipendenze — nel peggiore dei casi il codice resta utilizzabile com'è.
+
+---
+
+## 06/08/2026 — il layout non era il problema: la vista compatta
+
+Michele: *"abbiamo migliorato ma non sembra leggibile facilmente da un
+umano"*.
+
+Ipotesi: manca il **terzo** passo di Graphviz, quello che assegna le
+coordinate invece di usare una griglia rigida. Implementato in tre
+varianti, misurato sui cinque libri, e **peggiora**:
+
+| | arco medio | larghezza mappa |
+|---|---|---|
+| griglia (attuale) | 1214 | 5.750 |
+| baricentro con spinta | 3736 | **141.584** |
+| priority method | 2162 | 15.351 |
+| baricentro ricentrato | 1307 | 6.882 |
+
+La prima rende la mappa venticinque volte più larga. Tolto tutto.
+
+**Il motivo:** questi grafi non sono alberi. Col 35% delle scene
+raggiunte da più percorsi, un nodo ha tre o quattro genitori in punti
+diversi e non può stare "sotto" nessuno.
+
+Aggiunta invece la **vista compatta**: nodi 62x34 col solo numero, come
+i grafi di Project Aon. La mappa si stringe a un terzo per lato
+(01fftd: 27.600x4.290 → 9.360x1.848). Non è bastata — vedi la voce
+sopra.
+
+---
+
+## 06/08/2026 — frecce sugli archi, doppie sulle coppie
+
+Michele: *"aggiungerei le frecce per permettere anche situazioni in cui
+le chiamate sono bidirezionali e quelle in cui non lo sono"*.
+
+Due problemi prima di poter disegnare una punta: gli archi vanno da
+centro a centro ma i nodi stanno **sopra** il canvas degli archi (la
+punta sarebbe invisibile: ora si ferma sul bordo dell'ellisse), e A→B
+con B→A si sovrappongono esattamente (ora si scostano di lato).
+
+**Un bug trovato dal test, non a occhio:** lo scostamento moltiplicava
+per il confronto fra gli id *oltre* che per la direzione del vettore, e
+i due segni si annullavano mandando entrambe le linee dallo stesso lato.
+Il commento che avevo scritto sopra la funzione era esattamente il
+ragionamento sbagliato.
+
+Nei cinque libri le coppie bidirezionali sono rare ma reali: 10 in
+`01fftd`, 5 in `03tcok`, 3 in `02fotw`.
+
+---
+
+## 06/08/2026 — il grafo si districa: −84% di incroci
+
+Michele: *"trovare una metodologia grafica che permette di dividere bene
+il grafo e farlo assomigliare a quello svg che ti ho passato… invece di
+un quadrato usare degli ovali"*.
+
+Graphviz fa tre cose: assegna i livelli, **ordina i nodi dentro ogni
+livello per ridurre gli incroci**, poi sistema le coordinate. Noi
+facevamo la prima e la terza. L'ordine dentro il livello era quello
+degli **id**: deterministico ma cieco al grafo — due scene vicine di
+numero possono stare ai capi opposti della storia.
+
+`LayoutGerarchico.kt` aggiunge il passo mancante col baricentro:
+
+| libro | prima | dopo | |
+|---|---|---|---|
+| 01fftd | 1379 | 217 | −84% |
+| 02fotw | 703 | 134 | −81% |
+| 03tcok | 1253 | 217 | −83% |
+| 04tcod | 1015 | 150 | −85% |
+| 05sots | 847 | 152 | −82% |
+
+L'id resta l'ordine di **partenza**, quindi due riordini danno lo stesso
+risultato. I nodi senza vicini tornano alla posizione originale invece
+di accalcarsi in testa. Nodi **ovali** (`FormaOvale`): ellisse vera, non
+capsula.
+
+---
+
+## 06/08/2026 — le sonde semaforiche in cima all'editor
+
+Michele: *"vorrei che le informazioni statistiche venissero integrate
+nell'editor… con colori semaforici che rappresentano la distanza dal
+valore voluto in percentuale… in alto, così sarebbe a occhio vedere se
+la cosa va o non va"*.
+
+Sette sonde sopra la mappa, ognuna col valore, il bersaglio e una
+barretta che va dal rosso al verde **con continuità**. Calcolo in
+`etl/SondeDiForma.kt` senza Compose, disegno in
+`editor/SondeDiFormaBar.kt`.
+
+**Un difetto trovato dal test:** con la prima formula, zero sconfitte su
+due attese dava salute 0,5 — giallo. Un libro senza morti deve essere
+rosso pieno. Corretto rendendo i due lati dell'intervallo asimmetrici.
+
+**Due difetti trovati caricando il primo libro:** la sonda "scene" era
+rossa su 364 scene, ma 40-60 è il bersaglio del *nostro* formato, non
+dei libri di Dever; e le etichette lunghe andavano a capo sfalsando le
+barrette.
+
+Taratura verificata: i cinque libri Project Aon escono verdi su tutte le
+sonde, come dev'essere visto che sono la fonte dei bersagli.
+
+---
+
+## 06/08/2026 — il metodo si rovescia: le domande le detta il testo
+
+Michele riscrive il giro, e il suo è migliore del mio. Nel mio piano i
+rami li sceglieva il modello per far tornare una statistica; nel suo li
+**determina il testo**: dove c'è uno scontro serve sapere cosa succede
+se perdi, dove c'è un'abilità cosa fa chi non ce l'ha.
+
+**Le domande allo scrittore sono le caselle vuote del JSON.** Ogni
+`combat` vuole un `loseSceneId`, ogni `disciplineChoice` un ramo. Non è
+un processo inventato: è lo schema letto al contrario.
+
+Il dato che lo rende necessario: il giocatore sceglie **5 discipline su
+10** e il Libro I ne usa **37 volte**. Senza via alternativa, in 37
+punti metà dei lettori trova un libro ingiocabile.
+
+Non si chiede però per tutte e dieci le abilità: nei libri di Dever il
+91% delle scene non ne ha nessuna usabile (0,11 per scena), sarebbero
+280 domande di cui il 90% "non supportata". Freno alla ricorsione: dal
+secondo livello i rami rientrano.
+
+E le statistiche cambiano ruolo: da guida a **termostato di ogni giro**.
+`RilieviDiForma.bilancio()` dice anche "basta così", non solo "manca
+questo".
+
+---
+
+## 06/08/2026 — il percorso canonico: tre livelli, non due
+
+Michele precisa: *"esiste un percorso canonico che ti permette di
+acquisire tutti gli artefatti, fare le conoscenze con tutti gli NPC — il
+percorso più ricco e quello vero; tu puoi però tagliare delle cose ed
+arrivare al finale"*.
+
+Non "il cammino corretto" ma il **cammino massimale**. Misurato sui 37
+grafi, il modello ha tre livelli:
+
+| | tappe | quota del canonico |
+|---|---|---|
+| tappe obbligate (nessuno le evita) | 37 | **23%** |
+| percorso più corto che vince | 84 | 52% |
+| percorso più lungo = il canonico | 163 | 100% |
+
+**Si può saltare fino a metà libro e vincere lo stesso**, ma sotto c'è
+uno scheletro del 23% che nessun percorso evita.
+
+Da qui il procedimento: il romanzo diventa il canonico, si marcano le
+obbligate, si cercano le **tappe di acquisizione** — dove il lettore
+guadagna un oggetto, un alleato, un'informazione — e sono quelle a
+diventare saltabili, perché aggirarle ha già di suo un prezzo evidente.
+
+È anche il punto in cui il metodo si sposa col motore: saltare la tappa
+della Pozione Mangiaferro significa che al Capitolo 4 una porta resta
+chiusa davvero, con un `checkItemAndJump`.
+
+---
+
+## 06/08/2026 — non esiste "la" strada giusta
+
+Intuizione di Michele: *"e se il libro fosse il percorso lineare, quello
+più semplice e corretto per arrivare alla fine?"*. Misurabile sui 37
+grafi: da quante scene la vittoria è **ancora raggiungibile**?
+
+| | media | min | max |
+|---|---|---|---|
+| scene da cui si può ancora vincere | **95%** | 86% | 100% |
+| cammino più corto alla vittoria | 83 tappe | | |
+| cammino più lungo alla vittoria | **163 tappe** | | |
+
+Il 95% delle scene può ancora vincere: **perdere è l'eccezione**. E il
+cammino vincente più lungo è il doppio del più corto. Il libro premia
+l'esplorazione, non la precisione.
+
+Il nucleo dell'intuizione resta giusto: il romanzo è *un* cammino
+vincente, completo e già scritto. Solo che le strade che se ne staccano
+non sono errori, sono altri modi di arrivare in fondo.
+
+Implementato in `forma` come `quotaViva`, soglia 80%. Verifica
+incrociata riuscita: i valori dal nostro JSON combaciano con quelli dei
+grafi SVG ufficiali.
+
+---
+
 ## 06/08/2026 — morire di meccanica dice la morte
 
 Domanda di Michele dopo le misure: *"forse dovremmo rivedere anche il
@@ -121,6 +357,39 @@ frammento non va giudicato sui finali che non dichiara).
 
 Copertura del grafo ufficiale invariata: 2984 archi su 2984, 100% su
 tutti e cinque. 462 test verdi.
+
+---
+
+## 06/08/2026 — dagli avvisi alle istruzioni
+
+Michele descrive il ciclo completo e chiede che, dopo l'indagine
+statistica, *"il modello possa suggerire se inserire altri nodi scelta
+perché il loro numero è basso, aggiungere nuovi finali di morte ecc"*.
+
+Il passo statistico esisteva già (`forma`), ma **diceva cosa non va
+senza dire quanto**. In un ciclo iterativo serve un'istruzione, non una
+diagnosi. Ora ogni rilievo porta la quantità:
+
+```
+[AVVISO] 1,07 uscite per scena: è un racconto lineare travestito
+      -> aggiungi ~18 scelte: 18 scene su 30 diventano bivi
+[AVVISO] 100% del cammino è obbligato: le scelte contano poco
+      -> servono ~7 scorciatoie che aggirino una tappa di acquisizione
+```
+
+Le quantità puntano alla **media** misurata, non al minimo: col minimo
+il libro resta appena sopra soglia e al giro dopo ci si torna.
+
+`FormaDelGrafo.kt` era a 310 righe: diviso in misura e giudizio
+(`RilieviDiForma`).
+
+**Due difetti trovati provandolo** su un libro finto "da modello pigro":
+"cammino obbligato 104%" (il denominatore era la profondità massima
+invece del cammino più corto alla vittoria) e "un bivio ogni 1 tappe
+circa", che non è un'istruzione.
+
+Aggiunta anche la **Fase 0** al prompt: dal romanzo alla catena di
+tappe, raccogliendo i punti di gioco che il testo già dichiara.
 
 ---
 

@@ -30,11 +30,14 @@ jsoup = "1.17.2"
 coil = "2.7.0"
 composeMultiplatform = "1.11.1"
 jlayer = "1.0.1"
-# Eclipse Layout Kernel: layout gerarchico dei grafi (Sugiyama completo
-# + instradamento degli archi). EPL-2.0 OR GPL-3.0-or-later, quindi
-# compatibile con la nostra GPL v3.
-elk = "0.12.0"
-xtext = "2.43.0"
+# Layout gerarchico dei grafi (Sugiyama + instradamento degli archi).
+# JGraphX, licenza BSD e zero dipendenze. Scelta dopo aver scartato
+# Eclipse ELK, che sarebbe stato tecnicamente migliore ma trascina
+# org.eclipse.xtext.xbase.lib, EPL-2.0 puro e incompatibile con la
+# nostra GPL v3 (vedi DIARIO 06/08: confermato dal licensing contact
+# della Eclipse Foundation, issue eclipse-xtext/xtext#2590 chiusa senza
+# modifiche).
+jgraphx = "4.2.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -62,9 +65,7 @@ jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 coil-gif = { group = "io.coil-kt", name = "coil-gif", version.ref = "coil" }
 jlayer = { group = "javazoom", name = "jlayer", version.ref = "jlayer" }
-elk-core = { group = "org.eclipse.elk", name = "org.eclipse.elk.core", version.ref = "elk" }
-elk-layered = { group = "org.eclipse.elk", name = "org.eclipse.elk.alg.layered", version.ref = "elk" }
-xtext-xbase-lib = { group = "org.eclipse.xtext", name = "org.eclipse.xtext.xbase.lib", version.ref = "xtext" }
+jgraphx = { group = "com.github.vlsi.mxgraph", name = "jgraphx", version.ref = "jgraphx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

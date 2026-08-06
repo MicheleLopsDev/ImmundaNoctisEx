@@ -412,6 +412,25 @@ I libri di prova in `content/test-books/` e i libri originali
 dell'autore sono un'altra cosa: sono materiale del progetto, versionati
 e distribuibili.
 
+### Librerie di terzi, e una che abbiamo dovuto scartare
+
+Tutte le dipendenze devono essere compatibili con la GPL v3. In genere
+non è un vincolo che si sente — jsoup è MIT, JLayer LGPL, JGraphX BSD —
+ma una volta ha deciso una scelta tecnica.
+
+Per il layout del grafo nell'editor la libreria migliore sarebbe
+**Eclipse ELK**, che è addirittura `EPL-2.0 OR GPL-3.0-or-later`. Il
+problema non è ELK: è che usa `org.eclipse.xtext.xbase.lib`, licenziata
+**EPL-2.0 e basta**. Il licensing contact della Eclipse Foundation lo ha
+confermato incompatibile con la (A)GPL, e la richiesta di aggiungere una
+secondary license
+([eclipse-xtext/xtext#2590](https://github.com/eclipse-xtext/xtext/issues/2590))
+è stata chiusa senza modifiche nel luglio 2023 — cambiare licenza
+richiederebbe il consenso di tutti i detentori del copyright.
+
+Si usa quindi **JGraphX** (BSD, zero dipendenze), tecnicamente un po'
+meno raffinata ma libera davvero.
+
 ## 16. Changelog
 
 - **13/07/2026** — Creazione documento. Prima bozza basata sull'analisi di

@@ -57,17 +57,17 @@ dependencies {
 
     // Layout dei grafi (06/08/2026, Michele: "forse potremmo usare una
     // libreria che risolve il problema per noi, perche' inventare
-    // l'acqua calda?"). Eclipse Layout Kernel: l'algoritmo di Sugiyama
-    // completo, comprese le fasi che avevo scritto a mano (riduzione
-    // incroci) e quelle che NON avevo (posizionamento dei nodi e
-    // instradamento degli archi, che li fa aggirare i nodi invece di
-    // attraversare la mappa in linea retta).
-    // Licenza EPL-2.0 OR GPL-3.0-or-later: la seconda l'hanno aggiunta
-    // apposta per i progetti GPL, quindi va bene con la nostra.
-    implementation(libs.elk.core)
-    implementation(libs.elk.layered)
-    // ELK la usa nel codice generato ma non la dichiara nel POM.
-    implementation(libs.xtext.xbase.lib)
+    // l'acqua calda?"). JGraphX: `mxHierarchicalLayout` e' Sugiyama
+    // completo, comprese le fasi che mancavano al nostro (posizionamento
+    // dei nodi e INSTRADAMENTO degli archi, che li fa aggirare i nodi
+    // invece di attraversare la mappa in linea retta).
+    //
+    // BSD e zero dipendenze. Prima scelta era Eclipse ELK, migliore sul
+    // piano tecnico ma scartata per licenza: trascina
+    // org.eclipse.xtext.xbase.lib, EPL-2.0 puro, incompatibile con la
+    // nostra GPL v3 — confermato dal licensing contact della Eclipse
+    // Foundation in eclipse-xtext/xtext#2590, chiusa senza modifiche.
+    implementation(libs.jgraphx)
 
     // Lo STESSO motore del client, versione JVM (02/08/2026, Michele:
     // "possiamo usare quello che usiamo per il client e lo includiamo
