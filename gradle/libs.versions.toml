@@ -30,6 +30,11 @@ jsoup = "1.17.2"
 coil = "2.7.0"
 composeMultiplatform = "1.11.1"
 jlayer = "1.0.1"
+# Eclipse Layout Kernel: layout gerarchico dei grafi (Sugiyama completo
+# + instradamento degli archi). EPL-2.0 OR GPL-3.0-or-later, quindi
+# compatibile con la nostra GPL v3.
+elk = "0.12.0"
+xtext = "2.43.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -57,6 +62,9 @@ jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 coil-gif = { group = "io.coil-kt", name = "coil-gif", version.ref = "coil" }
 jlayer = { group = "javazoom", name = "jlayer", version.ref = "jlayer" }
+elk-core = { group = "org.eclipse.elk", name = "org.eclipse.elk.core", version.ref = "elk" }
+elk-layered = { group = "org.eclipse.elk", name = "org.eclipse.elk.alg.layered", version.ref = "elk" }
+xtext-xbase-lib = { group = "org.eclipse.xtext", name = "org.eclipse.xtext.xbase.lib", version.ref = "xtext" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

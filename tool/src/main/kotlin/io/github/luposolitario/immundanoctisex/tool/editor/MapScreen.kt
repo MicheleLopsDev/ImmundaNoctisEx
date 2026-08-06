@@ -139,6 +139,12 @@ class MapViewState {
     // Vista compatta: nodi piccoli col solo numero, per vedere la forma
     // dell'intero libro invece dei dettagli di poche scene.
     val compatto = mutableStateOf(false)
+    // NOTA (06/08/2026): qui stava per nascere un interruttore per
+    // nascondere gli archi che tornano indietro (il 32% del primo libro,
+    // e l'unica causa del groviglio: in avanti nessun arco salta piu' di
+    // un livello). Sospeso: la strada giusta e' ELK, che instrada gli
+    // archi invece di lasciarli attraversare la mappa in linea retta.
+    // Vedi DIARIO 06/08 e ProvaElkTest.
     val posizioniManuali = mutableStateOf<Map<String, Offset>>(emptyMap())
     // Scene selezionate (30/07/2026, Michele: "quando clicco una scena
     // devi contornarla di un blu"; §17.3: "una multi selezione tenendo
