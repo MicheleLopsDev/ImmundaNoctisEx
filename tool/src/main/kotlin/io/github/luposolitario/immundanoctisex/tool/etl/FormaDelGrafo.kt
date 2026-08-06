@@ -32,6 +32,12 @@ object FormaDelGrafo {
         // null se il libro non dichiara nessuna vittoria.
         val quotaObbligata: Double?,
         val rientroMediano: Int?,
+        // Quota di scene da cui la vittoria e' ANCORA raggiungibile.
+        // Nei librogame pubblicati e' il 95% (min 86%): perdere e'
+        // l'eccezione, non la norma, e non esiste "la" strada giusta —
+        // il cammino vincente piu' lungo e' il doppio del piu' corto.
+        // null se il libro non dichiara nessuna vittoria.
+        val quotaViva: Double?,
         val irraggiungibili: List<String>,
         val vicoliCiechi: List<String>,
         val bivi: Int,
@@ -75,6 +81,7 @@ object FormaDelGrafo {
             profondita = distanze.values.maxOrNull() ?: 0,
             riconvergenza = percentuale(scene.count { (ingressi[it] ?: 0) > 1 }, scene.size),
             quotaObbligata = quotaObbligata(uscite, partenza, vittoria, distanze),
+            quotaViva = vittoria?.let { percentuale(risalgonoA(uscite, distanze.keys, it).size, distanze.size) },
             rientroMediano = rientri(uscite).sorted().let { if (it.isEmpty()) null else it[it.size / 2] },
             irraggiungibili = scene.filterNot { it in distanze }.sorted(),
             vicoliCiechi = manifest.scenes
@@ -145,6 +152,26 @@ object FormaDelGrafo {
                 ),
             )
         }
+        // Il controllo piu' severo sui libri generati (06/08/2026,
+        // dall'intuizione di Michele "e se il libro fosse il percorso
+        // lineare, quello piu' semplice e corretto per arrivare alla
+        // fine?"). I dati dicono l'opposto: nei librogame veri il 95%
+        // delle scene puo' ancora vincere, e il cammino vincente piu'
+        // lungo e' il doppio del piu' corto. Non esiste "la" strada
+        // giusta. Un libro molto sotto questa quota e' un "indovina il
+        // percorso": il lettore cammina per pagine senza sapere di aver
+        // gia' perso.
+        m.quotaViva?.let { viva ->
+            if (viva < QUOTA_VIVA_MIN) {
+                add(
+                    avviso(
+                        ("solo %.0f%% delle scene puo' ancora arrivare alla vittoria (i libri veri: 86-100%%): " +
+                            "chi sbaglia una scelta cammina senza saperlo verso una sconfitta obbligata")
+                            .format(viva),
+                    ),
+                )
+            }
+        }
         m.quotaObbligata?.let { quota ->
             if (quota < QUOTA_MIN) {
                 add(avviso("solo %.0f%% del cammino e' obbligato (i libri veri: 42-50%%): la storia non ha spina dorsale".format(quota)))
@@ -209,6 +236,26 @@ object FormaDelGrafo {
         return percentuale(dominatori.getValue(vittoria).size, profondita)
     }
 
+    // Le scene da cui si arriva ancora a `meta`: si risale il grafo
+    // all'indietro partendo dalla vittoria. Quelle fuori sono partite
+    // gia' perse — il lettore cammina ancora ma non puo' piu' vincere.
+    private fun risalgonoA(
+        uscite: Map<String, Set<String>>,
+        raggiungibili: Set<String>,
+        meta: String,
+    ): Set<String> {
+        val entranti = mutableMapOf<String, MutableList<String>>()
+        uscite.forEach { (da, verso) ->
+            if (da in raggiungibili) verso.forEach { entranti.getOrPut(it) { mutableListOf() }.add(da) }
+        }
+        val vive = mutableSetOf(meta)
+        val coda = ArrayDeque(listOf(meta))
+        while (coda.isNotEmpty()) {
+            entranti[coda.removeFirst()].orEmpty().forEach { if (vive.add(it)) coda.addLast(it) }
+        }
+        return vive intersect raggiungibili
+    }
+
     private fun bivi(uscite: Map<String, Set<String>>): List<String> =
         uscite.filterValues { it.size >= 2 }.keys.toList()
 
@@ -250,6 +297,11 @@ object FormaDelGrafo {
     const val TARDIVI_MAX = 15.0
     const val QUOTA_MIN = 20.0
     const val QUOTA_MAX = 75.0
+
+    // Misurato fra 86% e 100% sulle 37 opere: la soglia sta sotto il
+    // caso peggiore osservato, cosi' segnala solo i libri davvero
+    // punitivi.
+    const val QUOTA_VIVA_MIN = 80.0
 
     // Sotto questa soglia si misura ma non si giudica (vedi `rilievi`).
     // Venti scene e' il minimo perche' una percentuale voglia dire

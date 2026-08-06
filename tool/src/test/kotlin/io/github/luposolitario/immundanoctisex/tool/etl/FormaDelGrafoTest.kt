@@ -234,6 +234,38 @@ class FormaDelGrafoTest {
     }
 
     @Test
+    fun `un libro dove quasi tutte le scene possono ancora vincere non ha rilievi`() {
+        // Nella catena di diamanti ogni ramo torna sulla spina, quindi
+        // da ovunque si arriva alla vittoria: solo la scena di morte e'
+        // senza ritorno.
+        val m = FormaDelGrafo.misura(libroDiDiamanti(7))
+
+        assertEquals(96.0, m.quotaViva?.let { Math.round(it).toDouble() })
+    }
+
+    @Test
+    fun `un libro dove si perde senza saperlo viene segnalato`() {
+        // Meta' delle strade porta in un corridoio lungo che finisce in
+        // una morte: il lettore cammina per tappe senza poter piu'
+        // vincere.
+        val condannati = (1..12).map { i ->
+            scena("x$i", listOf(if (i == 12) "morteLenta" else "x${i + 1}"))
+        }
+        val m = FormaDelGrafo.misura(
+            libro(
+                *libroDiDiamanti(7).scenes.map { s ->
+                    if (s.id == "1") scena("1", listOf("2", "3", "x1"), SceneType.START) else s
+                }.toTypedArray(),
+                *condannati.toTypedArray(),
+                finale("morteLenta", EndingOutcome.DEFEAT),
+            ),
+        )
+
+        assertTrue((m.quotaViva ?: 100.0) < FormaDelGrafo.QUOTA_VIVA_MIN)
+        assertTrue(FormaDelGrafo.rilievi(m).any { it.messaggio.contains("puo' ancora arrivare alla vittoria") })
+    }
+
+    @Test
     fun `senza una vittoria dichiarata la quota obbligata non si misura`() {
         val m = FormaDelGrafo.misura(
             libro(

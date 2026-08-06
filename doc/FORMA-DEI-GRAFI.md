@@ -180,6 +180,44 @@ latente ("quanto largo scrivo") che si sposta e trascina con sé mezza
 dozzina di metriche, sopra un pavimento di invarianti che non si muove
 mai.
 
+## Quarto giro: non esiste "la" strada giusta
+
+Michele, 06/08/2026: *"e se il libro fosse il percorso lineare, quello
+più semplice e corretto per arrivare alla fine dell'avventura?"* —
+l'idea che il romanzo di partenza sia **il** cammino corretto, e tutto
+il resto un errore. Misurabile, e misurata.
+
+Per ogni libro: da quante scene la vittoria è **ancora raggiungibile**?
+Si risale il grafo all'indietro dal finale vittorioso.
+
+| | media su 37 opere | min | max |
+|---|---|---|---|
+| scene da cui si può ancora vincere | **95%** | 86% | 100% |
+| cammino più **corto** alla vittoria | 83 tappe | | |
+| cammino più **lungo** alla vittoria | **163 tappe** | | |
+
+**Due numeri che ribaltano il corollario dell'ipotesi.**
+
+Il 95% delle scene può ancora portare alla vittoria: perdere è
+l'eccezione, non la norma. E il cammino vincente più lungo è **il
+doppio** del più corto — due lettori possono percorrere 83 e 163 tappe e
+vincere entrambi.
+
+Quindi nei librogame veri **non esiste "il" percorso corretto**: ne
+esistono moltissimi, di lunghezza molto diversa. Il libro premia
+l'esplorazione, non la precisione. Un libro in cui una scelta sbagliata
+ti condanna venti tappe prima che tu lo scopra è il difetto peggiore del
+genere — quello che i lettori chiamano "indovina la strada giusta", e i
+libri buoni non lo fanno.
+
+**Il nucleo dell'intuizione resta però giusto e utile**: il romanzo è
+*un* cammino vincente, completo e sensato. È la spina dorsale da cui
+partire. Solo che le strade che si staccano non sono errori: sono
+**altri modi di arrivare in fondo**. Vedi `DA-ROMANZO-A-LIBROGAME.md`,
+dove questo cambia direttamente cosa si chiede allo scrittore.
+
+Implementato in `forma` come `quotaViva`, soglia 80%.
+
 ## La domanda diretta: ci sono categorie?
 
 Michele, 06/08/2026: *"le mie ipotesi erano giuste o no, ci sono degli

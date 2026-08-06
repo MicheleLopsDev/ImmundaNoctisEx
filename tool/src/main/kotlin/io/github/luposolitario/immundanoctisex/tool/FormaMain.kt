@@ -38,6 +38,7 @@ fun runForma(args: Array<String>) {
     println("${file.name}: ${m.scene} scene, ${m.collegamenti} collegamenti, ${m.finali} finali")
     println("  uscite per scena     %.2f      (libri veri 1,45-2,18)".format(m.grado))
     println("  scene con piu' vie   %.0f%%       (libri veri 23-44%%)".format(m.riconvergenza))
+    m.quotaViva?.let { println("  puo' ancora vincere  %.0f%%       (libri veri 86-100%%)".format(it)) }
     m.quotaObbligata?.let { println("  cammino obbligato    %.0f%%       (libri veri 42-50%%)".format(it)) }
     m.rientroMediano?.let { println("  rientro dei rami     $it tappe   (libri veri: mediana 3)") }
     println("  bivi                 ${m.bivi}, di cui ${m.rientriTardivi.size} a rientro lungo")

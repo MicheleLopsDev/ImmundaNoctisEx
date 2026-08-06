@@ -46,6 +46,34 @@ Il passaggio nuovo, rispetto ai prompt già scritti, è **COMMISSIONI**:
 la traduzione da "qui il grafo ha bisogno di un ramo" a "scrivimi questa
 scena".
 
+## Il romanzo è la spina dorsale, non l'unica strada giusta
+
+Vale la pena dirlo prima delle commissioni, perché cambia *cosa* si
+chiede allo scrittore.
+
+Verrebbe naturale pensare che il romanzo sia il percorso **corretto**, e
+tutto ciò che se ne discosta un errore. I dati dicono di no: nei 37
+librogame misurati il **95% delle scene può ancora portare alla
+vittoria**, e il cammino vincente più lungo è il doppio del più corto
+(83 tappe contro 163). Non esiste "la" strada giusta — ne esistono
+moltissime, e il libro premia chi esplora, non chi indovina
+(`FORMA-DEI-GRAFI.md`).
+
+Quindi:
+
+> Il romanzo dà **un** cammino vincente, completo e già scritto. Le
+> deviazioni non sono trappole: sono **altri modi di arrivare in
+> fondo**, che costano qualcosa o fanno vedere altro.
+
+Per lo scrittore è una notizia ottima. Non deve inventare venti modi di
+morire — quello è game design, e non è il suo mestiere. Deve rispondere
+venti volte alla domanda *«e se invece Ariel avesse preso il vicolo?»*,
+che è narrativa pura.
+
+Le sconfitte restano, ma sono **poche e nette**: tre-cinque in tutto il
+libro, ognuna conseguenza diretta e riconoscibile di una scelta. Mai una
+condanna che si sconta venti tappe dopo.
+
 ## Il formato di una commissione
 
 È la parte che conta. Una commissione è scritta **nella lingua dello
@@ -122,6 +150,14 @@ Le scene alternative NON le scrivi tu: le scrivera' l'autore del
 romanzo, che ha la sua voce e va rispettata. Il tuo compito e'
 COMMISSIONARGLIELE.
 
+PRINCIPIO DA NON SBAGLIARE
+Il romanzo e' UN cammino che arriva alla fine, non l'unico giusto. Le
+deviazioni che commissioni sono ALTRI MODI DI ARRIVARE IN FONDO, non
+errori da punire: chi le percorre paga un prezzo o vede altro, ma la
+storia continua. Le sconfitte sono poche (3-5 in tutto il libro) e
+sempre la conseguenza diretta e riconoscibile di una scelta — mai una
+condanna che il lettore sconta venti tappe dopo senza saperlo.
+
 Per ogni deviazione e per ogni sconfitta della struttura, scrivi una
 scheda cosi':
 
@@ -165,9 +201,13 @@ Da lì:
    libro-game?). Vedi `FORMA-DEI-GRAFI.md` per il significato dei
    numeri.
 
-Se `forma` dice che il cammino obbligato è troppo alto, servono più
-commissioni: è la misura che dice **quante** scene chiedere ancora, e
-dove.
+Due misure di `forma` guidano direttamente il lavoro:
+
+- **cammino obbligato** troppo alto → servono più deviazioni: è la
+  misura che dice *quante* scene chiedere ancora;
+- **"può ancora vincere"** sotto l'80% → ci sono troppe strade
+  condannate. Non servono altre scene: serve **collegare** quelle che ci
+  sono, facendole rientrare invece di finire in una morte.
 
 ## Perché questo giro può reggere
 
