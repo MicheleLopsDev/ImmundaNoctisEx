@@ -156,7 +156,9 @@ REGOLE
   con "prosegue".
 - Le scelte devono avere conseguenze diverse: se due scelte portano allo
   stesso posto senza differenza, accorpale.
-- Il protagonista è "tu" (seconda persona singolare).
+- Scegli una forma e tienila per tutto il libro: **LIBROGAME**
+  (seconda persona, «Apri la porta») oppure **DIARIO** (prima
+  persona, «Apro la porta»). Nel dubbio, LIBROGAME.
 - Non scrivere ancora la prosa delle scene: solo cosa succede — tranne
   che per i finali, dove basta una riga su come va a finire.
 
@@ -403,17 +405,25 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
    diventare bivi veri. Per ognuno, la scelta alternativa che il testo
    nomina o lascia intendere.
 
-4. CONTROLLA LA PERSONA. Il testo di un librogame sta in SECONDA
-   persona singolare ("Apri la porta", "Scarti di lato"): e' il lettore
-   che agisce. Segnala ogni tappa scritta in terza persona ("Ariel apri'
-   la porta").
-   NON correggerla e non riscriverla: e' un AVVISO, decidiamo noi caso
-   per caso. Una scena puramente descrittiva in terza persona puo'
-   restare tale — succede anche nei libri pubblicati — mentre una in cui
-   il protagonista agisce di solito va convertita.
-   Per ognuna di' anche se ti sembra DESCRITTIVA (il protagonista non
-   agisce: un luogo, un antefatto, una scena vista da lontano) o
-   AZIONE (il protagonista fa qualcosa).
+4. CONTROLLA LA FORMA NARRATIVA. Un libro-game si scrive in due modi, e
+   l'autore ne sceglie UNO per tutto il libro:
+   - **LIBROGAME**: seconda persona, "Apri la porta", "Scarti di lato";
+   - **DIARIO**: prima persona, "Apro la porta", "Scarto di lato".
+   Tutto il resto e' TERZA persona ("Ariel apri' la porta"), che guarda
+   il protagonista da fuori.
+
+   Di' per ogni tappa quale forma usa. Poi, nel conteggio, dichiara la
+   forma PREVALENTE del capitolo e quante tappe se ne discostano: e'
+   quello il dato che conta, perche' mescolare le due forme si sente
+   subito alla lettura.
+
+   NON correggere niente: e' un AVVISO. Una scena puramente descrittiva
+   in terza persona puo' restare tale — succede anche nei libri
+   pubblicati — mentre una in cui il protagonista agisce di solito va
+   convertita, ma lo decide l'autore.
+   Per le tappe in terza di' anche se ti sembra DESCRITTIVA (il
+   protagonista non agisce: un luogo, un antefatto, una scena vista da
+   lontano) o AZIONE (il protagonista fa qualcosa).
 
 5. DICHIARA OGNI TOCCO AL TESTO. Il libro resta come l'autore l'ha
    deciso: tu puoi tagliarlo, e puoi aggiungere UNA frase per chiudere
@@ -424,8 +434,9 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
 
 6. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
    abilita' usate, quante prove, quante acquisizioni, quanti bivi
-   forzati, quante tappe in terza persona (di cui quante descrittive) e
-   **quante tappe hanno il testo modificato**.
+   forzati, **la forma prevalente del capitolo** (LIBROGAME o DIARIO) con
+   quante tappe se ne discostano, quante tappe in terza persona (di cui
+   quante descrittive) e **quante tappe hanno il testo modificato**.
 
 FORMATO
 ## Tappa <n> — <titolo> (Cap. <c>)
@@ -435,7 +446,7 @@ FORMATO
 - **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuno>
 - **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
-- **Persona**: <seconda | TERZA (descrittiva) | TERZA (azione)>
+- **Forma**: <LIBROGAME | DIARIO | TERZA (descrittiva) | TERZA (azione)>
 
 ROMANZO:
 [qui incolli i capitoli]

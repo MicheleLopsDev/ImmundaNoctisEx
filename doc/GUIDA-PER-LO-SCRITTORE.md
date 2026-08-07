@@ -8,18 +8,40 @@ cose.
 
 ---
 
-## 1. Scrivi in seconda persona
+## 1. Scegli una forma, e tienila per tutto il libro
 
-Il lettore **è** il protagonista. Non lo guarda: lo fa.
+Il lettore **è** il protagonista. Non lo guarda da fuori: lo vive. Ci
+sono due modi di ottenerlo, e vanno bene entrambi — scegline uno
+all'inizio e non cambiarlo più.
+
+### Forma **LIBROGAME** — seconda persona
+
+> *Scarti di lato per schivare il fendente. La lama ti sfiora la spalla.*
+
+È la forma classica del genere, quella di Lupo Solitario. Il testo parla
+al lettore: lui agisce mentre legge.
+
+### Forma **DIARIO** — prima persona
+
+> *Scarto di lato per schivare il fendente. La lama mi sfiora la spalla.*
+
+Il protagonista racconta mentre accade. Più intima, meno usata nel
+genere, ma perfettamente valida — e adattissima a una storia che vive
+di pensieri e ricordi.
+
+### Quello che non va, in entrambe
 
 | | |
 |---|---|
 | ❌ | *Ariel scartò di lato per schivare il fendente.* |
-| ✅ | *Scarti di lato per schivare il fendente.* |
 
-È l'unica regola che cambia il modo in cui scrivi, e c'è un motivo
-pratico: in un libro-game il lettore prende decisioni. «Ariel decise di
-entrare» gli toglie la scelta che invece deve essere sua.
+La terza persona guarda il protagonista da fuori, e in un libro-game
+toglie al lettore la decisione che dovrebbe essere sua: «Ariel decise di
+entrare» è una scelta già fatta da qualcun altro.
+
+**Non mescolare le due forme.** Un capitolo in LIBROGAME e uno in DIARIO
+si sentono subito, e a metà libro il lettore non sa più chi sta
+parlando. Se non sai quale scegliere: LIBROGAME è la strada battuta.
 
 Il nome del protagonista puoi usarlo quando parlano gli altri
 personaggi — *«Ariel! Aspetta!» esclama la principessa*.
@@ -36,8 +58,13 @@ vive di persona.
 > antiche mappe.*
 
 Va bene, purché sia **l'eccezione** e non l'abitudine, e purché nel
-paragrafo il protagonista non stia agendo. Appena si muove, torna il
-«tu»: *Avanzi lungo la navata di marmo e ti arresti a distanza rituale.*
+paragrafo il protagonista non stia agendo. Appena si muove, si torna
+alla forma scelta:
+
+> LIBROGAME · *Avanzi lungo la navata di marmo e ti arresti a distanza
+> rituale.*
+> DIARIO · *Avanzo lungo la navata di marmo e mi arresto a distanza
+> rituale.*
 
 Non devi segnalarcele: le troviamo noi rileggendo, e decidiamo insieme
 se tenerle o convertirle.
@@ -183,7 +210,7 @@ perché. È una risposta utile quanto le altre.
 
 | | |
 |---|---|
-| Persona | **seconda** — «Scarti di lato» |
+| Forma | **LIBROGAME** «Scarti di lato» *oppure* **DIARIO** «Scarto di lato» — una sola, per tutto il libro |
 | Combattimento | `*[Inizio Scontro]*` … `*[Fine Scontro]*` |
 | Uso di una dote | `[Disciplina: Nome]` dopo la frase |
 | Oggetto ottenuto | `[Ottieni: cosa]` |
