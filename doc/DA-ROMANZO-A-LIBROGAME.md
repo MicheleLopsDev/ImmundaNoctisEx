@@ -7,6 +7,42 @@ ma dobbiamo dirgli quali scrivere e cosa"*.
 Questo documento è il metodo. `PROMPT-GENERAZIONE-LIBRI.md` contiene i
 prompt, `FORMA-DEI-GRAFI.md` i numeri che lo governano.
 
+## La regola che viene prima di tutte
+
+> **Il modello non tocca il testo dell'autore. Mai. Nemmeno per
+> migliorarlo.**
+
+Non lo riscrive, non lo accorcia, non aggiunge una frase di raccordo,
+non converte la persona verbale, non corregge un refuso. L'unica cosa
+che gli è permessa è **tagliarlo in tappe**: dove tagliare è una sua
+scelta, cosa c'è scritto no.
+
+Michele, 07/08/2026, quando avevo proposto di far convertire al modello
+i sei capitoli dalla terza alla seconda persona: *"significa rivedere
+ogni scena e secondo me non deve essere fatto dal modello, che potrebbe
+cambiare troppo il senso o aggiungere cose che lo scrittore non vuole,
+lo trovo pericoloso"*.
+
+Ha ragione due volte. La prima è la ragione di merito: una conversione
+riga per riga è mille micro-decisioni, e a ognuna il modello può
+aggiungere un gesto che «fa scorrere meglio» — dopo mille frasi il testo
+non è più quello dell'autore, e nessuno se n'è accorto perché ogni
+singolo cambiamento sembrava innocuo.
+
+La seconda è che quella conversione contraddiceva un principio già
+scritto in questo stesso metodo: `01-romanzo/` è sola lettura, perché
+contiene l'unica cosa che nessuno può riprodurre.
+
+**Conseguenza pratica:** se il romanzo arriva in una forma che non va
+bene per il gioco — persona sbagliata, marcatori mancanti — non lo
+sistema il modello. Lo segnala (vedi il controllo della persona in
+Fase 0), e poi o lo riscrive l'autore, o si tiene così. Sono le uniche
+due strade.
+
+Per questo la [`GUIDA-PER-LO-SCRITTORE.md`](GUIDA-PER-LO-SCRITTORE.md)
+esiste: le convenzioni vanno date **prima** che scriva, non applicate
+dopo su ciò che ha scritto.
+
 ## Il problema, detto in una riga
 
 Un romanzo ha **un cammino**; un libro-game ne ha decine. Il romanzo

@@ -94,9 +94,17 @@ libri/erede-dell-astra/
 | `02-catena/`, `03-`, `04-`, `06-tappe/`, `libro.json` | **il modello** |
 | tutte, in lettura e correzione | **il curatore** |
 
-`01-romanzo/` è **sola lettura** per chiunque non sia l'autore. Se una
-correzione serve, si chiede a lui: è la sua voce, ed è l'unica cosa che
-un modello non può rifare.
+`01-romanzo/` è **sola lettura** per chiunque non sia l'autore, e non è
+una raccomandazione: il modello non ci scrive mai, nemmeno per
+correggere un refuso o convertire la persona verbale. Se una modifica
+serve, si chiede a lui.
+
+Vale anche per `05-risposte/`. Il motivo sta in
+[`DA-ROMANZO-A-LIBROGAME.md`](DA-ROMANZO-A-LIBROGAME.md), in cima: una
+conversione automatica è fatta di mille micro-decisioni, e basta che a
+ognuna il modello aggiunga un dettaglio «che fa scorrere meglio» perché
+dopo mille frasi il testo non sia più quello dell'autore — senza che
+nessun singolo cambiamento fosse sbagliato.
 
 ## I nomi
 

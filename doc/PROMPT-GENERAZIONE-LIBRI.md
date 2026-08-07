@@ -509,11 +509,16 @@ scrivendo il loro numero.
 
 COME TRATTARE IL TESTO
 - Il testo del capitolo e' gia' scritto: taglialo in tappe e usalo
-  COSI' COM'E'. Puoi accorciare una descrizione o aggiungere la frase
-  che porta alla scelta, non riscrivere i dialoghi ne' cambiare le
-  parole dell'autore.
+  COSI' COM'E'. **Non cambiare nemmeno una parola**: non riscrivere, non
+  accorciare, non aggiungere una frase di raccordo, non correggere la
+  persona verbale o il tempo, non sistemare un refuso. Se un pezzo non
+  funziona come tappa, NON aggiustarlo: segnalalo e basta, decide
+  l'autore.
+- Il taglio e' l'unica cosa che fai al testo dell'autore. Dove tagli e'
+  una tua scelta; cosa c'e' scritto no.
 - Scrivi di tuo SOLO il testo delle deviazioni e delle sconfitte, che
-  nel romanzo non esistono. Li' imita il tono del capitolo.
+  nel romanzo non esistono — e solo quando ti viene chiesto
+  esplicitamente. Li' imita il tono del capitolo.
 - Conserva i marcatori del testo dove li trovi: *[Inizio Scontro]*,
   *[Fine Scontro]*, [Disciplina: Nome]. Servono al motore di gioco.
 - Ogni tappa chiude sulla soglia di una decisione, mai su "prosegue".
