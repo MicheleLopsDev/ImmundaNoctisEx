@@ -46,8 +46,16 @@ librogame pubblicati — e si verificano su un libro vero col comando
 
 Se invece si parte da un **romanzo già scritto con un autore vivo**,
 il documento è `doc/DA-ROMANZO-A-LIBROGAME.md`: il metodo uomo-modello
-in cui il modello non scrive il libro ma **commissiona le scene** allo
-scrittore, che non vede mai un grafo.
+in cui il modello non scrive il libro ma **fa le domande** all'autore —
+una per ogni casella vuota del JSON — e tiene il conto delle statistiche
+a ogni giro.
+
+`doc/CANTIERE-DI-UN-LIBRO.md` dice invece **dove stanno i file e come
+si chiamano**: cartelle numerate come le fasi, `01-romanzo/` e
+`05-risposte/` in sola lettura perché contengono le parole dell'autore,
+tutto il resto rigenerabile. I libri in lavorazione stanno in
+`libri/<nome-corto>/`, non in `doc/` — un cantiere non è documentazione.
+Il primo è `libri/erede-dell-astra/`.
 
 In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:
 consultala prima di copiare o riscrivere qualunque componente ereditato.

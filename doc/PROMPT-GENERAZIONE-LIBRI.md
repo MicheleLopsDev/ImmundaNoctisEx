@@ -339,7 +339,7 @@ a mano, perché sono decisioni di gioco.
 
 ## Variante: partire da un romanzo già scritto
 
-Il caso di `doc/LIBRO I/` (Michele, 06/08/2026): sei capitoli di **prosa
+Il caso di `libri/erede-dell-astra/` (Michele, 06/08/2026): sei capitoli di **prosa
 finita**, con dialoghi, più un documento di worldbuilding.
 
 **Il compito è l'opposto di quello sopra.** Lì si chiedeva di
