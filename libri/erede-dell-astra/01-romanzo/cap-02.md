@@ -1,75 +1,77 @@
 # **Capitolo 2: Nel Ventre di Puerto Valas**
 
-Il viaggio verso meridione durò quattro giorni di galoppo serrato. La rigida architettura in pietra bianca e granito della Capitale sfumò gradualmente nelle brughiere umide del sud, per poi cedere il passo alle colline boscose che digradavano verso il mare. Grazie all'addestramento e al costante controllo energetico \[Disciplina: Sostentamento Arcano\], Ariel affrontò la traversata con minima fatica fisica.
+Il viaggio verso meridione dura quattro giorni di galoppo serrato. La rigida architettura in pietra bianca e granito della Capitale sfuma gradualmente nelle brughiere umide del sud, per poi cedere il passo alle colline boscose che digradano verso il mare. Grazie all'addestramento e al costante controllo energetico \[Disciplina: Sostentamento Arcano\], affronti la traversata con minima fatica fisica.
 
-Quando la strada imperiale svoltò lungo il promontorio di Capo Spezzato, Puerto Valas apparve allo sguardo di Ariel come un groviglio caotico di moli in legno nerastro, tetti di paglia marcita e locande affastellate l'una sull'altra. L'aria, carica dell'odore pungente di sale, catrame e pesce marcio, era un brusco risveglio rispetto all'austera e profumata tranquillità delle sale dell'Accademia.
+Quando la strada imperiale svolta lungo il promontorio di Capo Spezzato, Puerto Valas appare al tuo sguardo come un groviglio caotico di moli in legno nerastro, tetti di paglia marcita e locande affastellate l'una sull'altra. L'aria, carica dell'odore pungente di sale, catrame e pesce marcio, è un brusco risveglio rispetto all'austera e profumata tranquillità delle sale dell'Accademia.
 
-Ariel tirò le briglie del proprio stallone, osservando dal colle l'intensa attività della città portuale. Puerto Valas non era soltanto il polmone commerciale del regno verso le rotte del sud, ma anche un porto franco per contrabbandieri, mercenari e fuggiaschi che cercavano di lasciarsi alle spalle la giustizia della Corona.
+Tiri le briglie del tuo stallone, osservando dal colle l'intensa attività della città portuale. Puerto Valas non è soltanto il polmone commerciale del regno verso le rotte del sud, ma anche un porto franco per contrabbandieri, mercenari e fuggiaschi che cercano di lasciarsi alle spalle la giustizia della Corona.
 
-Spronando il cavallo, l'Apprendista-Cavaliere scese lungo la rampa di pietra che conduceva alle porte esterne della città. I due secondini della guardia cittadina, con le corazze intaccate dalla ruggine marittima, sfiorarono appena le lance in segno di saluto quando notarono il mantello e le piastre recanti il sigillo dei Cavalieri dell'Astra, lasciando varcare la soglia senza porre domande.
+Spronando il cavallo, scendi lungo la rampa di pietra che conduce alle porte esterne della città. I due secondini della guardia cittadina, con le corazze intaccate dalla ruggine marittima, sfiorano appena le lance in segno di saluto quando notano il mantello e le piastre recanti il sigillo dei Cavalieri dell'Astra, lasciandoti varcare la soglia senza porre domande.
 
-I vicoli della città bassa erano una calca soffocante di marinai stranieri, venditori ambulanti e individui poco raccomandabili avvolti in mantelli logori. Ariel avanzò lentamente a cavallo, tenendo una mano vicina all'elsa della spada e l'altra a contatto con la giada dell'amuleto sotto la veste. La cavalcatura scartò di lato, innervosita dall'odore acre di pesce marcio e dal vociare della calca; Ariel le posò il palmo aperto sul collo e le trasmise un'onda calma e ferma, un pensiero senza parole che sapeva di stalla asciutta e di fieno \[Disciplina: Empatia Bestiale\]. L'animale sbuffò una volta, poi riprese il passo docile lungo il selciato bagnato.
+I vicoli della città bassa sono una calca soffocante di marinai stranieri, venditori ambulanti e individui poco raccomandabili avvolti in mantelli logori. Avanzi lentamente a cavallo, tenendo una mano vicina all'elsa della spada e l'altra a contatto con la giada dell'amuleto sotto la veste. La cavalcatura scarta di lato, innervosita dall'odore acre di pesce marcio e dal vociare della calca; le posi il palmo aperto sul collo e le trasmetti un'onda calma e ferma, un pensiero senza parole che sa di stalla asciutta e di fieno \[Disciplina: Empatia Bestiale\]. L'animale sbuffa una volta, poi riprende il passo docile lungo il selciato bagnato.
 
-La capitaneria di porto svettava al termine del molo principale, un edificio massiccio in pietra arenaria corrotta dalle mareggiate. Ariel smontò da sella, affidò le briglie al mozzo di guardia e salì i gradini che conducevano agli uffici dell'Ammiragliato.
+La capitaneria di porto svetta al termine del molo principale, un edificio massiccio in pietra arenaria corrotta dalle mareggiate. Smonti da sella, affidi le briglie al mozzo di guardia e sali i gradini che conducono agli uffici dell'Ammiragliato.
 
-All'interno dell'ufficio, l'aria era satura di fumo di pipa e vapori di rum. Dietro una solida scrivania di quercia ricoperta di mappe nautiche e registri di carico, un uomo tarchiato dalla barba folta spruzzata di grigio e il collo segnato dal tatuaggio d'un drago marino stava esaminando una pergamena.
+All'interno dell'ufficio, l'aria è satura di fumo di pipa e vapori di rum. Dietro una solida scrivania di quercia ricoperta di mappe nautiche e registri di carico, un uomo tarchiato dalla barba folta spruzzata di grigio e il collo segnato dal tatuaggio d'un drago marino sta esaminando una pergamena.
 
-«L'Ammiragliato richiede la requisizione immediata di un vascello d'alto mare e di un capitano in grado di doppiare le correnti dell'Est,» esordì Ariel senza indugio, advancing al centro della stanza e depositando sulla scrivania la pergamena sigillata con la cera reale.
+«L'Ammiragliato richiede la requisizione immediata di un vascello d'alto mare e di un capitano in grado di doppiare le correnti dell'Est,» esordisci senza indugio, advancing al centro della stanza e depositando sulla scrivania la pergamena sigillata con la cera reale.
 
-L'uomo sollevò lo sguardo, squadrando Ariel con occhi scuri, piccoli e penetranti. Passò un dito deformato dal lavoro con le cime sopra la cera rossa del sigillo, rompendo il timbro e srotolando il documento.
+L'uomo solleva lo sguardo, squadrandoti con occhi scuri, piccoli e penetranti. Passa un dito deformato dal lavoro con le cime sopra la cera rossa del sigillo, rompendo il timbro e srotolando il documento.
 
-«Un sigillo della Corona... e un Cavaliere dell'Astra in persona,» borbottò l'uomo con voce promossa da anni di salsedine e tabacco. «Il mio nome è Tobias. Capitano del *Gabbiano di Ferro*. Ma se la destinazione sono le Isole della Nebbia Grigia, Scudiero, il Re può firmare tutte le carte che vuole: nessun marinaio sano di mente farebbe rotta verso quell'inferno per tutto l'oro del Regno.»
+«Un sigillo della Corona... e un Cavaliere dell'Astra in persona,» borbotta l'uomo con voce promossa da anni di salsedine e tabacco. «Il mio nome è Tobias. Capitano del *Gabbiano di Ferro*. Ma se la destinazione sono le Isole della Nebbia Grigia, Scudiero, il Re può firmare tutte le carte che vuole: nessun marinaio sano di mente farebbe rotta verso quell'inferno per tutto l'oro del Regno.»
 
-«Non è una richiesta di cortesia, Capitano Tobias,» replicò Ariel con tono fermo e misurato. «La Corona dispone della tua nave e della tua esperienza. E la questione riguarda la sicurezza dell'intero regno.»
+«Non è una richiesta di cortesia, Capitano Tobias,» replichi con tono fermo e misurato. «La Corona dispone della tua nave e della tua esperienza. E la questione riguarda la sicurezza dell'intero regno.»
 
-Tobias ristrinse gli occhi, poi lasciò ricadere la pergamena sul tavolo, traendo un lungo sospiro.
+Tobias ristringe gli occhi, poi lascia ricadere la pergamena sul tavolo, traendo un lungo sospiro.
 
-«Avete un bel coraggio, voi dell'Accademia,» grugnì il Capitano. «Le dicerie che arrivano dai pescatori di ritorno da est parlano di maree morte, banchi di nebbia che divorano la bussola e canti spettrali tra le scogliere. Ma un ordine reale è un ordine reale... e il *Gabbiano* ha il fasciame abbastanza solido da sfidare qualche maledizione.» Tobias si alzò, allungando una mano ruvida. «Salperemo con l'alta marea di domattina. Ma stasera ti consiglio di tenerti stretto il portafoglio e la spada. Questa città non ama le divise della Corona.»
+«Avete un bel coraggio, voi dell'Accademia,» grugnisce il Capitano. «Le dicerie che arrivano dai pescatori di ritorno da est parlano di maree morte, banchi di nebbia che divorano la bussola e canti spettrali tra le scogliere. Ma un ordine reale è un ordine reale... e il *Gabbiano* ha il fasciame abbastanza solido da sfidare qualche maledizione.» Tobias si alza, allungando una mano ruvida. «Salperemo con l'alta marea di domattina. Ma stasera ti consiglio di tenerti stretto il portafoglio e la spada. Questa città non ama le divise della Corona.»
+\[Ottieni: il Gabbiano di Ferro e il capitano Tobias\]
 
-Il crepuscolo calò rapidamente su Puerto Valas, tingendo il cielo di un viola cupo e allungando ombre minacciose tra le viuzze dei quartieri bassi. Ariel, lasciati il cavallo e la sacca da viaggio agli ormeggi del *Gabbiano di Ferro*, decise di percorrere il molo dei mercanti per procurarsi alcune scorte alchemiche aggiuntive prima della traversata.
+Il crepuscolo cala rapidamente su Puerto Valas, tingendo il cielo di un viola cupo e allungando ombre minacciose tra le viuzze dei quartieri bassi. Lasciati il cavallo e la sacca da viaggio agli ormeggi del *Gabbiano di Ferro*, decidi di percorrere il molo dei mercanti per procurarti alcune scorte alchemiche aggiuntive prima della traversata.
 
-Mentre svoltava in una stretta traversa che conduceva al mercato delle spezie, i sensi affinati di Ariel captarono una nitida anomalia \[Disciplina: Percezione Arcana\].
+Mentre svolti in una stretta traversa che conduce al mercato delle spezie, i tuoi sensi affinati captano una nitida anomalia \[Disciplina: Percezione Arcana\].
 
-Il brusio lontano del porto parve affievolirsi d'un tratto. Le ombre sulle pareti di legno dei magazzini parvero allungarsi in modo anomalo, piegandosi contro la direzione della poca luce delle lanterne.
+Il brusio lontano del porto pare affievolirsi d'un tratto. Le ombre sulle pareti di legno dei magazzini paiono allungarsi in modo anomalo, piegandosi contro la direzione della poca luce delle lanterne.
 
-Ariel arrestò il passo, poggiando istintivamente la mano destra sull'elsa della lama da cavaliere.
+Arresti il passo, poggiando istintivamente la mano destra sull'elsa della lama da cavaliere.
 
-«Mostratevi,» disse con voce calma, che echeggiò nel vicolo deserto.
+«Mostratevi,» dici con voce calma, che echeggia nel vicolo deserto.
 
-Dalle rientranze dei portoni e dai tetti bassi dei depositi scesero quattro figure avvolte in mantelli scuri d'erba e cuoio. Non erano semplici tagliagole da strada: sui loro avambracci spiccavano fasce di canapa nera intessute di rune d'argento deprimente — i simboli del Culto che Vaelen e il Re avevano paventato \[Disciplina: Tracciamento Arcano\].
+Dalle rientranze dei portoni e dai tetti bassi dei depositi scendono quattro figure avvolte in mantelli scuri d'erba e cuoio. Non sono semplici tagliagole da strada: sui loro avambracci spiccano fasce di canapa nera intessute di rune d'argento deprimente — i simboli del Culto che Vaelen e il Re avevano paventato \[Disciplina: Tracciamento Arcano\].
 
-«Il cagnolino del Re ha fiuto,» sibilò uno degli assalitori, sguainando un pugnale curvo dalla lama annerita con il veleno. «Ma il nostro Signore non permetterà che nessun vascello della Corona contamini le acque dell'Est.»
+«Il cagnolino del Re ha fiuto,» sibila uno degli assalitori, sguainando un pugnale curvo dalla lama annerita con il veleno. «Ma il nostro Signore non permetterà che nessun vascello della Corona contamini le acque dell'Est.»
 
 *\[Inizio Scontro\]*
 
-*Senza concedere un istante di tregua, tre degli sgherri scattarono in avanti. Due di loro cercarono di accerchiare Ariel con affondi incrociati di lama, mentre il terzo, rimasto al fondo del vicolo, iniziò a tracciare nell'aria un segno somatico morboso, mormorando una formula in lingua necromantica.*
+*Senza concedere un istante di tregua, tre degli sgherri scattano in avanti. Due di loro cercano di accerchiarti con affondi incrociati di lama, mentre il terzo, rimasto al fondo del vicolo, inizia a tracciare nell'aria un segno somatico morboso, mormorando una formula in lingua necromantica.*
 
-*Ariel non attese l'impatto. Incanalando un impulso di forza cinetica \[Disciplina: Telecinesi Arcana\], distese il braccio sinistro ed emise una scarica d'urto invisibile. Il cultista alla sua destra venne investito in pieno petto dalla forza cinetica, venendo scagliato contro una catasta di botti di rovere che crollarono con uno schianto fragoroso.*
+*Non attendi l'impatto. Incanalando un impulso di forza cinetica \[Disciplina: Telecinesi Arcana\], distendi il braccio sinistro ed emetti una scarica d'urto invisibile. Il cultista alla tua destra viene investito in pieno petto dalla forza cinetica, venendo scagliato contro una catasta di botti di rovere che crollano con uno schianto fragoroso.*
 
-*Ruotando sul tacco, Ariel sguainò la spada d'acciaio con un bagliore metallico e parò il fendente del secondo aggressore. Il metallo risuonò nella notte; con un gesto fluido e appreso nella Scherma dell'Astra \[Disciplina: Scherma dell'Astra\], Ariel deviò la lama nemica, penetrò la guardia dell'avversario e lo neutralizzò con un colpo preciso d'elsa alla tempia, facendolo crollare svenuto sul selciato.*
+*Ruotando sul tacco, sguaini la spada d'acciaio con un bagliore metallico e pari il fendente del secondo aggressore. Il metallo risuona nella notte; con un gesto fluido e appreso nella Scherma dell'Astra \[Disciplina: Scherma dell'Astra\], devii la lama nemica, penetri la guardia dell'avversario e lo neutralizzi con un colpo preciso d'elsa alla tempia, facendolo crollare svenuto sul selciato.*
 
 *Rimanente soltanto il terzo incantatore in fondo al vicolo.*
 
-*L'uomo completò la sua invocazione oscura. Un raggio di energia viola e deprimente, carico della magia di decomposizione tipica dei servi del Lich, scaturì dalle sue dita contorte, sfrecciando direttamente verso il petto di Ariel.*
+*L'uomo completa la sua invocazione oscura. Un raggio di energia viola e deprimente, carico della magia di decomposizione tipica dei servi del Lich, scaturisce dalle sue dita contorte, sfrecciando direttamente verso il tuo petto.*
 
-*Ariel tentò di erigere una barriera protettiva di fretta, ma la velocità dell'incantesimo era tale da non lasciare il tempo per il gesto somatico.*
+*Tenti di erigere una barriera protettiva di fretta, ma la velocità dell'incantesimo è tale da non lasciarti il tempo per il gesto somatico.*
 
-*Fu in quel momento che l'amuleto al collo di Ariel si attivò spontaneamente.*
+*È in quel momento che l'amuleto al tuo collo si attiva spontaneamente.*
 
-*L'Astro di Giada emise una vibrazione acuta e caldissima contro la pelle dell'Apprendista-Cavaliere. Una barriera invisibile e pulsante di luce verde-azzurrina \[Disciplina: Scudo Mentale\] scattò attorno al corpo di Ariel, impattando contro il raggio di magia nera e dissolvendolo in innocue scintille che svanirono nell'aria.*
+*L'Astro di Giada emette una vibrazione acuta e caldissima contro la tua pelle. Una barriera invisibile e pulsante di luce verde-azzurrina \[Disciplina: Scudo Mentale\] scatta attorno al tuo corpo, impattando contro il raggio di magia nera e dissolvendolo in innocue scintille che svaniscono nell'aria.*
 
 *\[Fine Scontro\]*
 
-L'incantatore del Culto sgranò gli occhi per il terrore e la sorpresa, indietreggiando di tre passi.
+L'incantatore del Culto sgrana gli occhi per il terrore e la sorpresa, indietreggiando di tre passi.
 
-«Quell'amuleto...» balbettò l'uomo con voce tremante. «Com'è possibile? Il marchio della...»
+«Quell'amuleto...» balbetta l'uomo con voce tremante. «Com'è possibile? Il marchio della...»
 
-Ariel non gli lasciò il tempo di finire la frase. Scattando con passo velato, accorciò la distanza e abbatté il piatto della lama sul collo del cultista, privandolo dei senses prima che potesse pronunciare un'altra parola o tentare la fuga.
+Non gli lasci il tempo di finire la frase. Scattando con passo velato, accorci la distanza e abbatti il piatto della lama sul collo del cultista, privandolo dei senses prima che possa pronunciare un'altra parola o tentare la fuga.
 
-Il vicolo tornò nel silenzio. Ariel rimase in posizione di guardia per alcuni secondi, con il respiro accelerato e la spada pronta, mentre le rune dell'amuleto al collo si raffreddavano lentamente, riassumendo la consueta levigatezza fredda.
+Il vicolo torna nel silenzio. Rimani in posizione di guardia per alcuni secondi, con il respiro accelerato e la spada pronta, mentre le rune dell'amuleto al tuo collo si raffreddano lentamente, riassumendo la consueta levigatezza fredda.
 
-Ariel si chinò sul corpo dell'incantatore svenuto, esaminando la fascia nera e i simboli del Culto. Le parole dell'uomo rimbombavano nella mente con un'eco inquietante: *Com'è possibile? Il marchio della...*
+Ti chini sul corpo dell'incantatore svenuto, esaminando la fascia nera e i simboli del Culto. Le parole dell'uomo rimbombano nella tua mente con un'eco inquietante: *Com'è possibile? Il marchio della...*
+\[Ottieni: il sospetto che l'amuleto porti un marchio noto al Culto\]
 
-Con gesti rapidi, Ariel rinfoderò la spada e legò i cultisti alle inferriate del magazzino vicino, prima di riprendere la strada verso i moli sotto le prime luci delle stelle.
+Con gesti rapidi, rinfoderi la spada e leghi i cultisti alle inferriate del magazzino vicino, prima di riprendere la strada verso i moli sotto le prime luci delle stelle.
 
-Non c'era tempo da perdere. Il Culto era già infiltrato nella città portuale e la notizia della presenza di un Cavaliere dell'Astra si sarebbe sparsa prima dell'alba. Il *Gabbiano di Ferro* doveva prendere il mare prima che la morsa del male si stringesse attorno al porto.
+Non c'è tempo da perdere. Il Culto è già infiltrato nella città portuale e la notizia della presenza di un Cavaliere dell'Astra si spargerà prima dell'alba. Il *Gabbiano di Ferro* deve prendere il mare prima che la morsa del male si stringa attorno al porto.

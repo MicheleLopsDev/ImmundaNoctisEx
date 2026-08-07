@@ -1,85 +1,88 @@
 # **Capitolo 4: Il Sangue dell'Altare**
 
-La scialuppa di salvataggio si incagliò sulla battigia di ciottoli neri con un sibilo sordo. Ariel saltò a terra, affondando gli stivali nella sabbia scura e gelida dell'isola principale.
+La scialuppa di salvataggio si incaglia sulla battigia di ciottoli neri con un sibilo sordo. Salti a terra, affondando gli stivali nella sabbia scura e gelida dell'isola principale.
 
-Attorno al piccolo approdo regnava una desolazione spettrale. Le piante arrampicate sulle pareti di roccia erano rinsecchite, ridotte a rovi neri infestati da una muffa grigiastra. La nebbia corruttrice che avvolgeva l'arcipelago ristagnava a mezz'aria, filtrando la luce del giorno in un crepuscolo perenne e insalubre. Ariel canalizzò la propria resistenza corporea \[Disciplina: Sostentamento Arcano\] per ignorare la stretta del freddo e i miasmi venefici dell'aria.
+Attorno al piccolo approdo regna una desolazione spettrale. Le piante arrampicate sulle pareti di roccia sono rinsecchite, ridotte a rovi neri infestati da una muffa grigiastra. La nebbia corruttrice che avvolge l'arcipelago ristagna a mezz'aria, filtrando la luce del giorno in un crepuscolo perenne e insalubre. Canalizzi la tua resistenza corporea \[Disciplina: Sostentamento Arcano\] per ignorare la stretta del freddo e i miasmi venefici dell'aria.
 
-Ariel incanalò la percezione spirituale \[Disciplina: Percezione Arcana\]. Un brivido freddo risalì lungo la colonna vertebrale: la rete magica dell'isola non era soltanto alterata, ma attivamente piegata verso un unico punto focale situato sulla sommità del promontorio roccioso che sovrastava la costa. Là, tra le chiome caduche degli alberi morti, svettavano le guglie spezzate di un antico tempio di pietra nera.
+Incanali la percezione spirituale \[Disciplina: Percezione Arcana\]. Un brivido freddo ti risale lungo la colonna vertebrale: la rete magica dell'isola non è soltanto alterata, ma attivamente piegata verso un unico punto focale situato sulla sommità del promontorio roccioso che sovrasta la costa. Là, tra le chiome caduche degli alberi morti, svettano le guglie spezzate di un antico tempio di pietra nera.
 
-«La sorgente del male è lassù,» disse Ariel rivolgendosi al Capitano Tobias, che insieme a due marinai armati di balestra presidiava la battigia. «Mantenete la guardia alla scialuppa. Se non sarò di ritorno prima del tramonto, prendete il largo e tornate a Puerto Valas.»
+«La sorgente del male è lassù,» dici rivolgendoti al Capitano Tobias, che insieme a due marinai armati di balestra presidia la battigia. «Mantenete la guardia alla scialuppa. Se non sarò di ritorno prima del tramonto, prendete il largo e tornate a Puerto Valas.»
 
-«Che la Luce sia con te, Scudiero,» mormorò Tobias, stringendo il pugno sul pomo della sciabola. «Noi non ci muoveremo da qui.»
+«Che la Luce sia con te, Scudiero,» mormora Tobias, stringendo il pugno sul pomo della sciabola. «Noi non ci muoveremo da qui.»
 
-Ariel iniziò l'ascesa lungo una scalinata di pietra erosa dal tempo e dalle intemperie. Ogniqualvolta il respiro si faceva affannoso per la pendenza del sentiero, l'amuleto di giada sotto la veste pulsava di un calore diffuso, purificando i polmoni dall'aria ammorbata del male di Malakor \[Disciplina: Scudo Mentale\].
+Inizi l'ascesa lungo una scalinata di pietra erosa dal tempo e dalle intemperie. Ogniqualvolta il respiro si fa affannoso per la pendenza del sentiero, l'amuleto di giada sotto la veste pulsa di un calore diffuso, purificandoti i polmoni dall'aria ammorbata del male di Malakor \[Disciplina: Scudo Mentale\].
 
-Giunto al perimetro esterno del tempio, Ariel si appostò dietro la base di una colonna crollata, affidandosi alla disciplina mimetica \[Disciplina: Velo d'Ombra\]. Piegando la poca luce residua attorno al proprio corpo, si infuse di una furtività invisibile, superando senza sollevare sospetti le due sentinelle non-morte poste a guardia del portale d'ingresso.
+Giunto al perimetro esterno del tempio, ti apposti dietro la base di una colonna crollata, affidandoti alla disciplina mimetica \[Disciplina: Velo d'Ombra\]. Piegando la poca luce residua attorno al tuo corpo, ti infondi di una furtività invisibile, superando senza sollevare sospetti le due sentinelle non-morte poste a guardia del portale d'ingresso.
 
-L'interno dell'edificio era una vasta navata rettangolare scavata direttamente nella roccia vulcanica. Pilastri incisi con rune profane sostenevano una volta a cupola parzialmente squarciata.
+L'interno dell'edificio è una vasta navata rettangolare scavata direttamente nella roccia vulcanica. Pilastri incisi con rune profane sostengono una volta a cupola parzialmente squarciata.
 
-Al centro della navata si ergeva uno zoccolo monolitico di pietra nerastra: l'altare sacrificale.
+Al centro della navata si erge uno zoccolo monolitico di pietra nerastra: l'altare sacrificale.
 
-Attorno ad esso si trovava una dozzina di cultisti avvolti in tonache di canapa scura, intenti a intonare una litania gutturale nella lingua antica della Necromanzia \[Disciplina: Tracciamento Arcano\]. A capo del gruppo, un Sacerdote d'Ombra dagli occhi incavati e le mani deformate da artigli ossei impugnava un pugnale rituale in ossidiana.
+Attorno ad esso si trova una dozzina di cultisti avvolti in tonache di canapa scura, intenti a intonare una litania gutturale nella lingua antica della Necromanzia \[Disciplina: Tracciamento Arcano\]. A capo del gruppo, un Sacerdote d'Ombra dagli occhi incavati e le mani deformate da artigli ossei impugna un pugnale rituale in ossidiana.
 
-Legata al centro dell'altare con pesanti e spesse catene di ferro battuto strettamente serrate da ceppi runici vi era una giovane incantatrice.
+Legata al centro dell'altare con pesanti e spesse catene di ferro battuto strettamente serrate da ceppi runici vi è una giovane incantatrice.
 
-Indossava vesti pratiche da viandante in cuoio scuro, aderenti nei punti giusti per facilitare il movimento, e parabraccia su cui spiccavano incisioni di protezione. Nonostante i polsi stretti nei ceppi e il volto segnato da qualche sgraffio di polvere, la ragazza emanava una bellezza abbagliante e sfrontata. Le trecce corvine le incorniciavano il viso affilato, e due occhi verdi come smeraldi liquidi ardevano di una provocatoria fierezza.
+Indossa vesti pratiche da viandante in cuoio scuro, aderenti nei punti giusti per facilitare il movimento, e parabraccia su cui spiccano incisioni di protezione. Nonostante i polsi stretti nei ceppi e il volto segnato da qualche sgraffio di polvere, la ragazza emana una bellezza abbagliante e sfrontata. Le trecce corvine le incorniciano il viso affilato, e due occhi verdi come smeraldi liquidi ardono di una provocatoria fierezza.
 
-«Risparmia la tua cantilena, fanatico da quattro soldi\!» sibilò la giovane con tono squillante e irrisorio. «Il tuo presunto Signore non è che un guscio marcito nei fondali del tempo\!»
+«Risparmia la tua cantilena, fanatico da quattro soldi\!» sibila la giovane con tono squillante e irrisorio. «Il tuo presunto Signore non è che un guscio marcito nei fondali del tempo\!»
 
-«Taci, strega eterodossa\!» ruggì il Sacerdote d'Ombra, sollevando la lama d'ossidiana sopra il petto della ragazza. «La tua scintilla arcana aprirà il sigillo della Cripta Primordiale\!»
+«Taci, strega eterodossa\!» ruggisce il Sacerdote d'Ombra, sollevando la lama d'ossidiana sopra il petto della ragazza. «La tua scintilla arcana aprirà il sigillo della Cripta Primordiale\!»
 
-Ariel non attese un secondo di più.
+Non attendi un secondo di più.
 
 *\[Inizio Scontro\]*
 
-*Scattando fuori dall'ombra della colonna, Ariel sciolse il Velo d'Ombra e balzò in avanti, sguainando la spada da cavaliere. Incanalando un Dardo di Forza \[Disciplina: Dardo di Forza\], distese il braccio sinistro scagliando un impulso di energia cinetica concentrata.*
+*Scattando fuori dall'ombra della colonna, sciogli il Velo d'Ombra e balzi in avanti, sguainando la spada da cavaliere. Incanalando un Dardo di Forza \[Disciplina: Dardo di Forza\], distendi il braccio sinistro scagliando un impulso di energia cinetica concentrata.*
 
-*La scarica invisibile investì il Sacerdote d'Ombra in pieno petto prima che il pugnale potesse affondare, scagliandolo a cinque metri di distanza contro la scalinata dell'altare con uno schianto fragoroso.*
+*La scarica invisibile investe il Sacerdote d'Ombra in pieno petto prima che il pugnale possa affondare, scagliandolo a cinque metri di distanza contro la scalinata dell'altare con uno schianto fragoroso.*
 
-*«Intruso\! Un servitore della Corona\!» grida sbigottite s'innalzarono tra i cultisti.*
+*«Intruso\! Un servitore della Corona\!» grida sbigottite s'innalzano tra i cultisti.*
 
-*Senza concedere loro il tempo di ricomporsi, Ariel balzò sul perimetro dell'altare. Notando che le catene di ferro che bloccavano la ragazza erano troppo spesse per la sola lama d'acciaio, sfilò dalla scarsella la flacone della **Pozione Mangiaferro** regalatagli dalla Principessa Lyra e ne versò il liquido grigio e fumante direttamente sui ceppi principali.*
+*Senza concedere loro il tempo di ricomporsi, balzi sul perimetro dell'altare. Notando che le catene di ferro che bloccano la ragazza sono troppo spesse per la sola lama d'acciaio, sfili dalla scarsella la flacone della **Pozione Mangiaferro** regalatati dalla Principessa Lyra e ne versi il liquido grigio e fumante direttamente sui ceppi principali.*
+\[Perdi: Pozione Mangiaferro\]
 
-*Il solvente alchemico reagì istantaneamente con un sibilo sordo: il metallo pesante si sciolse e liquefò in pochi istanti come cera calda, liberando i polsi e le caviglie della maga senza sfiorarle la pelle.*
+*Il solvente alchemico reagisce istantaneamente con un sibilo sordo: il metallo pesante si scioglie e liquefà in pochi istanti come cera calda, liberando i polsi e le caviglie della maga senza sfiorarle la pelle.*
 
-*La giovane incantatrice scattò a sedere con un gesto fluido ed elegante. Invece di mostrarsi spaventata o grata, inclinò la testa di lato, esaminando Ariel con uno sguardo aperto, divertito e spudoratamente audace.*
+*La giovane incantatrice scatta a sedere con un gesto fluido ed elegante. Invece di mostrarsi spaventata o grata, inclina la testa di lato, esaminandoti con uno sguardo aperto, divertito e spudoratamente audace.*
 
-*«Un Cavaliere Arcano dell'Accademia?» mormorò la ragazza con un sorriso malizioso e civettuolo che le piegò le labbra carnose. «Sei in ritardo sulla tabella di marcia, bel cavaliere. Cominciavo a pensare che dovrei farmi salvare da qualcuno con più stile... anche se la magia con le fiale non è affatto male.»*
+*«Un Cavaliere Arcano dell'Accademia?» mormora la ragazza con un sorriso malizioso e civettuolo che le piega le labbra carnose. «Sei in ritardo sulla tabella di marcia, bel cavaliere. Cominciavo a pensare che dovrei farmi salvare da qualcuno con più stile... anche se la magia con le fiale non è affatto male.»*
 
-*Ariel sentì un'improvvisa vampata di calore salirgli alle guance. Cresciuto tra le severe regole del chiostro e il rigore militare delle caserme, era completamente impreparato alla sfacciata confidenza di una ragazza così attraente e pungente.*
+*Senti un'improvvisa vampata di calore salirti alle guance. Cresciuto tra le severe regole del chiostro e il rigore militare delle caserme, sei completamente impreparato alla sfacciata confidenza di una ragazza così attraente e pungente.*
 
-*«Risparmia... risparmia le battute per dopo,» farfugliò Ariel, schiarendosi la voce di colpo e cercando disperatamente di assumere la sua solita postura marziale. «Manteniamo la concentrazione\!»*
+*«Risparmia... risparmia le battute per dopo,» farfugli, schiarendoti la voce di colpo e cercando disperatamente di assumere la tua solita postura marziale. «Manteniamo la concentrazione\!»*
 
-*«Oh, ma come siamo formali\!» ridacchiò lei, allungando una mano per sfiorare per un istante il pettorale di Ariel prima di rimettersi in piedi.*
+*«Oh, ma come siamo formali\!» ridacchia lei, allungando una mano per sfiorarti per un istante il pettorale prima di rimettersi in piedi.*
 
-*La ragazza infilò rapidamente la mano nella scarsella alchemica alla sua cintura, ne estrasse una boccetta di vetro scuro e la scagliò con forza sul selciato al centro del gruppo di cultisti. L'ampolla si infranse sprigionando una densa nube di gas corrosivo e fumo accecante.*
+*La ragazza infila rapidamente la mano nella scarsella alchemica alla sua cintura, ne estrae una boccetta di vetro scuro e la scaglia con forza sul selciato al centro del gruppo di cultisti. L'ampolla si infrange sprigionando una densa nube di gas corrosivo e fumo accecante.*
 
-*Ariel sfruttò il momento di disorientamento. Scattando attraverso la nebbia tossica, menò fendenti precisi ed efficaci \[Disciplina: Scherma dell'Astra\], neutralizzando tre cultisti con il piatto della lama e scagliando un secondo Dardo di Forza \[Disciplina: Dardo di Forza\] che travolse i restanti fanatici.*
+*Sfrutti il momento di disorientamento. Scattando attraverso la nebbia tossica, meni fendenti precisi ed efficaci \[Disciplina: Scherma dell'Astra\], neutralizzando tre cultisti con il piatto della lama e scagliando un secondo Dardo di Forza \[Disciplina: Dardo di Forza\] che travolge i restanti fanatici.*
 
-*Il Sacerdote d'Ombra, riavutosi dall'impatto, tentò di sollevare le mani contorte per invocare una maledizione contro Ariel. Ma Agata fu più veloce: accorciata la distanza con grazia felina, gli sferrò un calcio preciso al ginocchio e gli conficcò uno stilo d'argento nella spalla, facendolo stramazzare svenuto.*
+*Il Sacerdote d'Ombra, riavutosi dall'impatto, tenta di sollevare le mani contorte per invocare una maledizione contro di te. Ma Agata è più veloce: accorciata la distanza con grazia felina, gli sferra un calcio preciso al ginocchio e gli conficca uno stilo d'argento nella spalla, facendolo stramazzare svenuto.*
 
 *\[Fine Scontro\]*
 
-La calma tornò nella navata del tempio. Ariel rinfoderò la spada, col respiro ancora leggermente alterato, e si voltò verso la ragazza cercando di ricomporsi.
+La calma torna nella navata del tempio. Rinfoderi la spada, col respiro ancora leggermente alterato, e ti volti verso la ragazza cercando di ricomporti.
 
-«Io sono Ariel, Scudiero dei Cavalieri dell'Astra,» esordì con la voce più solenne che riuscì a sfoderare. «Qual è il tuo nome, e cosa ci fa una maga fuorilegge nei santuari del Culto?»
+«Io sono Ariel, Scudiero dei Cavalieri dell'Astra,» esordisci con la voce più solenne che riesci a sfoderare. «Qual è il tuo nome, e cosa ci fa una maga fuorilegge nei santuari del Culto?»
 
-La ragazza si spolverò le maniche di cuoio, raddrizzando la schiena e facendo oscillare le trecce corvine. Poi fece un passo verso di lui, riducendo la distanza ben oltre quanto prescritto dalle regole di cortesia della Capitale.
+La ragazza si spolvera le maniche di cuoio, raddrizzando la schiena e facendo oscillare le trecce corvine. Poi fa un passo verso di te, riducendo la distanza ben oltre quanto prescritto dalle regole di cortesia della Capitale.
 
-«Il mio nome è Agata,» disse socchiudendo gli occhi verdi in un'espressione irresistibilmente enigmatica e sfrontata. «E non sono 'fuorilegge', caro Scudiero... sono semplicemente libera dai vostri noiosi dogmi.»
+«Il mio nome è Agata,» dice socchiudendo gli occhi verdi in un'espressione irresistibilmente enigmatica e sfrontata. «E non sono 'fuorilegge', caro Scudiero... sono semplicemente libera dai vostri noiosi dogmi.»
+\[Ottieni: Agata come compagna\]
 
-Agata inclinò il capo, squadrando Ariel da capo a piedi con un'occhiata tutt'altro che pudica, notando la struttura atletica del ragazzo e il suo evidente imbarazzo.
+Agata inclina il capo, squadrandoti da capo a piedi con un'occhiata tutt'altro che pudica, notando la tua struttura atletica e il tuo evidente imbarazzo.
 
-«Ti sbagli se pensi che il loro obiettivo fossi io,» continuò lei, abbassando la voce fino a un sussurro calcolatamente intimo. «Il Culto voleva la mia energia per spezzare il sigillo della Cripta Primordiale qui sotto. Lì c'è una spada antica... una reliquia di potere puro che il Lich brama più di ogni altra cosa.»
+«Ti sbagli se pensi che il loro obiettivo fossi io,» continua lei, abbassando la voce fino a un sussurro calcolatamente intimo. «Il Culto voleva la mia energia per spezzare il sigillo della Cripta Primordiale qui sotto. Lì c'è una spada antica... una reliquia di potere puro che il Lich brama più di ogni altra cosa.»
+\[Ottieni: la posizione della Cripta Primordiale\]
 
-Agata sfiorà con la punta delle dita il colletto della veste di Ariel, proprio vicino all'incavo dove si nascondeva l'amuleto di giada, facendolo sobbalzare appena.
+Agata ti sfiora con la punta delle dita il colletto della veste, proprio vicino all'incavo dove si nasconde l'amuleto di giada, facendoti sobbalzare appena.
 
-«Sono arrivata su quest'isola settimane fa, Ariel,» mormorò con una sfumatura di confidenza quasi seducente. «Sono scesa fin laggiù. L'ho vista. Ma quell'acciaio ha un'oscurità che fa tremare le vene. Ho avuto saggezza a non posare le mani su quell'elsa... o forse solo molta paura.» Un'ombra di stizzita gelosia le balenò negli occhi, subito mascherata da un risetto canzonatorio. «Ma tu... tu hai la spocchia dei cavalieri reali e quest'aria da eroe senza macchia. Vediamo se il tuo rigore reggerà alla prova della cripta.»
+«Sono arrivata su quest'isola settimane fa, Ariel,» mormora con una sfumatura di confidenza quasi seducente. «Sono scesa fin laggiù. L'ho vista. Ma quell'acciaio ha un'oscurità che fa tremare le vene. Ho avuto saggezza a non posare le mani su quell'elsa... o forse solo molta paura.» Un'ombra di stizzita gelosia le balena negli occhi, subito mascherata da un risetto canzonatorio. «Ma tu... tu hai la spocchia dei cavalieri reali e quest'aria da eroe senza macchia. Vediamo se il tuo rigore reggerà alla prova della cripta.»
 
-Ariel deglutì a vuoto, combattuto tra l'irritazione per la sfacciataggine della ragazza e una sottile, incontrollabile attrazione verso la sua figura enigmatica.
+Degluti a vuoto, combattuto tra l'irritazione per la sfacciataggine della ragazza e una sottile, incontrollabile attrazione verso la sua figura enigmatica.
 
-«Guidami alla Cripta, Agata,» disse Ariel posando d'istinto la mano sull'elsa della spada per darsi un contegno. «Metteremo quella reliquia al sicuro.»
+«Guidami alla Cripta, Agata,» dici posando d'istinto la mano sull'elsa della spada per darti un contegno. «Metteremo quella reliquia al sicuro.»
 
-Agata ridacchiò sottovoce, girandogli attorno con passo lento prima di avviarsi verso le scale buie.
+Agata ridacchia sottovoce, girandoti attorno con passo lento prima di avviarsi verso le scale buie.
 
-«Agli ordini, bel capitano,» gli sussurrò all'orecchio passando al suo fianco, lasciando dietro di sé un profumo pungente di lavanda selvaggia e zolfo. «Cerca solo di non svenire se ti guardo troppo da vicino.»
+«Agli ordini, bel capitano,» ti sussurra all'orecchio passando al tuo fianco, lasciando dietro di sé un profumo pungente di lavanda selvaggia e zolfo. «Cerca solo di non svenire se ti guardo troppo da vicino.»
