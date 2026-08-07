@@ -2,7 +2,11 @@ Ti do UN CAPITOLO di un romanzo fantasy. Trasformalo in una CATENA DI
 TAPPE: il pezzo di percorso canonico di un librogame, quello piu' ricco,
 dove il lettore vede tutto e raccoglie tutto.
 
-Non inventare niente e non riscrivere niente. Dividi e cataloga.
+Il libro resta come l'autore l'ha deciso. Puoi tagliarlo in tappe, e
+puoi aggiungere UNA frase per chiudere una tappa che il taglio
+lascerebbe monca: nient'altro. Non riscrivere, non accorciare, non
+convertire la persona o il tempo, non correggere refusi. Se ti viene la
+tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
 
 1. TAGLIA IN TAPPE
    Una tappa finisce dove il protagonista DECIDE qualcosa, o dove cambia
@@ -40,13 +44,20 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
    agisce: un luogo, un antefatto, una scena vista da lontano) o AZIONE
    (il protagonista fa qualcosa).
 
-5. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
+5. DICHIARA OGNI TOCCO AL TESTO. Ogni tappa dice se il testo e' intatto
+   o se hai aggiunto la frase di chiusura. Se l'hai aggiunta, scrivila
+   esatta: l'autore la vede e decide se tenerla.
+
+6. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
    abilita' usate, quante prove, quante acquisizioni, quanti bivi
-   forzati, e quante tappe in terza persona (di cui quante descrittive).
+   forzati, quante tappe in terza persona (di cui quante descrittive) e
+   quante tappe hanno il testo modificato.
 
 FORMATO
 ## Tappa <n> — <titolo> (Cap. 2)
 - **Dal testo**: «<prima frase>» … «<ultima frase>»
+- **Testo**: <intatto | MODIFICATO — aggiunta «<la frase esatta>» per
+  chiudere la tappa>
 - **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuno>
 - **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>

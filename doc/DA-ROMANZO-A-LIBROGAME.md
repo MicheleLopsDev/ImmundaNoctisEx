@@ -9,35 +9,53 @@ prompt, `FORMA-DEI-GRAFI.md` i numeri che lo governano.
 
 ## La regola che viene prima di tutte
 
-> **Il modello non tocca il testo dell'autore. Mai. Nemmeno per
-> migliorarlo.**
+> **Il libro resta come l'autore l'ha deciso. Ogni tocco del modello è
+> minimo e dichiarato.**
 
-Non lo riscrive, non lo accorcia, non aggiunge una frase di raccordo,
-non converte la persona verbale, non corregge un refuso. L'unica cosa
-che gli è permessa è **tagliarlo in tappe**: dove tagliare è una sua
-scelta, cosa c'è scritto no.
+Michele, 07/08/2026: *"il libro deve rimanere per lo più come lo
+scrittore ha deciso; noi possiamo tagliare, cambiare minimamente per
+chiudere una scena — questo è accettabile come cambio, ma deve essere
+anche questo segnalato — e segnalare la terza persona"*.
 
-Michele, 07/08/2026, quando avevo proposto di far convertire al modello
-i sei capitoli dalla terza alla seconda persona: *"significa rivedere
-ogni scena e secondo me non deve essere fatto dal modello, che potrebbe
-cambiare troppo il senso o aggiungere cose che lo scrittore non vuole,
-lo trovo pericoloso"*.
+Cioè: non un divieto, ma la **tracciabilità**. Tre livelli.
 
-Ha ragione due volte. La prima è la ragione di merito: una conversione
-riga per riga è mille micro-decisioni, e a ognuna il modello può
-aggiungere un gesto che «fa scorrere meglio» — dopo mille frasi il testo
-non è più quello dell'autore, e nessuno se n'è accorto perché ogni
-singolo cambiamento sembrava innocuo.
+| il modello | |
+|---|---|
+| **taglia** in tappe | sempre, e non conta come modifica: il testo resta intatto |
+| **aggiunge una frase** per chiudere una tappa | ammesso, ma va **dichiarato** su quella tappa |
+| **riscrive, converte la persona, accorcia, corregge refusi** | mai — si segnala e decide l'autore |
 
-La seconda è che quella conversione contraddiceva un principio già
-scritto in questo stesso metodo: `01-romanzo/` è sola lettura, perché
-contiene l'unica cosa che nessuno può riprodurre.
+Perché la distinzione conta. Nasce da una proposta sbagliata: avevo
+suggerito di far convertire al modello i sei capitoli dalla terza alla
+seconda persona. Una conversione riga per riga è **mille
+micro-decisioni**, e a ognuna il modello può aggiungere un gesto che «fa
+scorrere meglio»: dopo mille frasi il testo non è più quello
+dell'autore, e nessuno se n'è accorto perché nessun singolo cambiamento
+sembrava sbagliato.
 
-**Conseguenza pratica:** se il romanzo arriva in una forma che non va
-bene per il gioco — persona sbagliata, marcatori mancanti — non lo
-sistema il modello. Lo segnala (vedi il controllo della persona in
-Fase 0), e poi o lo riscrive l'autore, o si tiene così. Sono le uniche
-due strade.
+Una frase di raccordo per chiudere una tappa è un'altra cosa: è **una**,
+serve al taglio, e — se dichiarata — l'autore la vede e la accetta o la
+rifiuta. Il pericolo non era il cambiamento: era il cambiamento
+invisibile.
+
+### Come si dichiara
+
+Ogni tappa dice cosa le è successo:
+
+```
+- **Testo**: intatto
+- **Testo**: MODIFICATO — aggiunta in coda «Ti volti verso la porta.»
+              per chiudere la tappa
+```
+
+e il conteggio finale di ogni capitolo riporta **quante tappe hanno il
+testo modificato**: è quello il numero che l'autore controlla, non le
+cinquanta tappe una per una.
+
+**Ciò che il modello non può fare, lo segnala.** Il controllo della
+persona in Fase 0 nasce così: se il romanzo è in terza persona, il
+modello lo dice tappa per tappa e ne conta quante sono — poi o riscrive
+l'autore, o si tiene così. Non converte.
 
 Per questo la [`GUIDA-PER-LO-SCRITTORE.md`](GUIDA-PER-LO-SCRITTORE.md)
 esiste: le convenzioni vanno date **prima** che scriva, non applicate

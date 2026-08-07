@@ -94,17 +94,15 @@ libri/erede-dell-astra/
 | `02-catena/`, `03-`, `04-`, `06-tappe/`, `libro.json` | **il modello** |
 | tutte, in lettura e correzione | **il curatore** |
 
-`01-romanzo/` è **sola lettura** per chiunque non sia l'autore, e non è
-una raccomandazione: il modello non ci scrive mai, nemmeno per
-correggere un refuso o convertire la persona verbale. Se una modifica
-serve, si chiede a lui.
+`01-romanzo/` e `05-risposte/` sono **sola scrittura dell'autore**: il
+modello non ci scrive mai, nemmeno per correggere un refuso o convertire
+la persona verbale.
 
-Vale anche per `05-risposte/`. Il motivo sta in
-[`DA-ROMANZO-A-LIBROGAME.md`](DA-ROMANZO-A-LIBROGAME.md), in cima: una
-conversione automatica è fatta di mille micro-decisioni, e basta che a
-ognuna il modello aggiunga un dettaglio «che fa scorrere meglio» perché
-dopo mille frasi il testo non sia più quello dell'autore — senza che
-nessun singolo cambiamento fosse sbagliato.
+Nelle cartelle a valle il testo dell'autore viene **ricopiato** tagliato
+in tappe. Lì il modello può aggiungere una frase per chiudere una tappa
+monca, ma deve **dichiararlo** tappa per tappa e contarne il totale: il
+principio non è "vietato toccare", è "ogni tocco si vede" — vedi
+[`DA-ROMANZO-A-LIBROGAME.md`](DA-ROMANZO-A-LIBROGAME.md) in cima.
 
 ## I nomi
 

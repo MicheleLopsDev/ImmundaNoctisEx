@@ -415,13 +415,23 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
    agisce: un luogo, un antefatto, una scena vista da lontano) o
    AZIONE (il protagonista fa qualcosa).
 
-5. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
+5. DICHIARA OGNI TOCCO AL TESTO. Il libro resta come l'autore l'ha
+   deciso: tu puoi tagliarlo, e puoi aggiungere UNA frase per chiudere
+   una tappa che il taglio lascerebbe monca. Nient'altro.
+   Ogni tappa dice quale dei due casi e'. Se hai aggiunto qualcosa,
+   scrivi la frase esatta che hai aggiunto, cosi' l'autore la vede e
+   decide se tenerla.
+
+6. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
    abilita' usate, quante prove, quante acquisizioni, quanti bivi
-   forzati, e quante tappe in terza persona (di cui quante descrittive).
+   forzati, quante tappe in terza persona (di cui quante descrittive) e
+   **quante tappe hanno il testo modificato**.
 
 FORMATO
 ## Tappa <n> — <titolo> (Cap. <c>)
 - **Dal testo**: «<prima frase>» … «<ultima frase>»
+- **Testo**: <intatto | MODIFICATO — aggiunta «<la frase esatta>» per
+  chiudere la tappa>
 - **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuno>
 - **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
@@ -508,17 +518,26 @@ Ora lavora SOLO sul capitolo <n>. Numera le sue tappe da <inizio> a
 scrivendo il loro numero.
 
 COME TRATTARE IL TESTO
-- Il testo del capitolo e' gia' scritto: taglialo in tappe e usalo
-  COSI' COM'E'. **Non cambiare nemmeno una parola**: non riscrivere, non
-  accorciare, non aggiungere una frase di raccordo, non correggere la
-  persona verbale o il tempo, non sistemare un refuso. Se un pezzo non
-  funziona come tappa, NON aggiustarlo: segnalalo e basta, decide
-  l'autore.
-- Il taglio e' l'unica cosa che fai al testo dell'autore. Dove tagli e'
-  una tua scelta; cosa c'e' scritto no.
-- Scrivi di tuo SOLO il testo delle deviazioni e delle sconfitte, che
-  nel romanzo non esistono — e solo quando ti viene chiesto
-  esplicitamente. Li' imita il tono del capitolo.
+Il libro resta come l'autore l'ha deciso. Puoi fare tre cose, e solo
+quelle:
+
+- TAGLIARE in tappe: sempre, e non e' una modifica. Dove tagli e' una
+  tua scelta, cosa c'e' scritto no.
+- AGGIUNGERE UNA FRASE per chiudere una tappa, quando il taglio la
+  lascerebbe monca. Una frase, non un paragrafo — e va DICHIARATA (vedi
+  il campo "Testo" nel formato).
+- SEGNALARE tutto il resto senza toccarlo: persona verbale sbagliata,
+  refusi, pezzi che non funzionano come tappa. Decide l'autore.
+
+Non riscrivere, non accorciare le descrizioni, non convertire la
+persona o il tempo, non correggere errori. Se ti viene la tentazione di
+"far scorrere meglio" una frase dell'autore, non farlo: e' esattamente
+il modo in cui un testo smette di essere suo senza che nessuno se ne
+accorga.
+
+Scrivi di tuo SOLO il testo delle deviazioni e delle sconfitte, che nel
+romanzo non esistono — e solo quando ti viene chiesto esplicitamente.
+Li' imita il tono del capitolo.
 - Conserva i marcatori del testo dove li trovi: *[Inizio Scontro]*,
   *[Fine Scontro]*, [Disciplina: Nome]. Servono al motore di gioco.
 - Ogni tappa chiude sulla soglia di una decisione, mai su "prosegue".
