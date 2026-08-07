@@ -57,6 +57,11 @@ tutto il resto rigenerabile. I libri in lavorazione stanno in
 `libri/<nome-corto>/`, non in `doc/` — un cantiere non è documentazione.
 Il primo è `libri/erede-dell-astra/`.
 
+`doc/GUIDA-PER-LO-SCRITTORE.md` è l'unico documento che l'autore deve
+leggere: sei regole con esempi (seconda persona, i marcatori di
+scontro/disciplina/oggetti, come rispondere a una domanda). Se cambia
+una convenzione di marcatura, va cambiata **lì per prima**.
+
 In `doc/ANALISI-RIUSO-V1.md` si trova l'analisi di riuso dal vecchio progetto v1:
 consultala prima di copiare o riscrivere qualunque componente ereditato.
 

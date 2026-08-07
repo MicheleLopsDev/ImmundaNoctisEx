@@ -10,6 +10,10 @@ Questo è quel documento. Il **metodo** sta in
 [`PROMPT-GENERAZIONE-LIBRI.md`](PROMPT-GENERAZIONE-LIBRI.md): qui c'è
 solo dove mettere le cose e come chiamarle.
 
+> Quello da **consegnare all'autore** è un altro ancora:
+> [`GUIDA-PER-LO-SCRITTORE.md`](GUIDA-PER-LO-SCRITTORE.md). Sei regole
+> con esempi, nessun tecnicismo — non deve leggere nient'altro.
+
 ## Perché serve una convenzione
 
 Trasformare un romanzo in libro-game richiede sei o sette passaggi, tre
