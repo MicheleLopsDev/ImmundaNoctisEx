@@ -28,9 +28,21 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
    protagonista e racconta un solo esito. Per ognuno, la scelta
    alternativa che il testo nomina o lascia intendere.
 
-4. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
+4. CONTROLLA LA PERSONA. Il testo di un librogame sta in SECONDA persona
+   singolare ("Apri la porta", "Scarti di lato"): e' il lettore che
+   agisce. Segnala ogni tappa scritta in terza persona ("Ariel apri' la
+   porta").
+   NON correggerla e non riscriverla: e' un AVVISO, decidiamo noi caso
+   per caso. Una scena puramente descrittiva in terza persona puo'
+   restare tale — succede anche nei libri pubblicati — mentre una in cui
+   il protagonista agisce di solito va convertita.
+   Per ognuna di' anche se ti sembra DESCRITTIVA (il protagonista non
+   agisce: un luogo, un antefatto, una scena vista da lontano) o AZIONE
+   (il protagonista fa qualcosa).
+
+5. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
    abilita' usate, quante prove, quante acquisizioni, quanti bivi
-   forzati.
+   forzati, e quante tappe in terza persona (di cui quante descrittive).
 
 FORMATO
 ## Tappa <n> — <titolo> (Cap. 5)
@@ -38,6 +50,7 @@ FORMATO
 - **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuno>
 - **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
+- **Persona**: <seconda | TERZA (descrittiva) | TERZA (azione)>
 
 CAPITOLO 5:
 

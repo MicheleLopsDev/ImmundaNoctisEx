@@ -22,8 +22,25 @@ pratico: in un libro-game il lettore prende decisioni. «Ariel decise di
 entrare» gli toglie la scelta che invece deve essere sua.
 
 Il nome del protagonista puoi usarlo quando parlano gli altri
-personaggi — *«Ariel! Aspetta!» esclamò la principessa* — e nelle
-descrizioni in cui serve.
+personaggi — *«Ariel! Aspetta!» esclama la principessa*.
+
+### L'eccezione: le descrizioni
+
+Capita anche nei libri-game pubblicati che una scena **puramente
+descrittiva** stia in terza persona: un luogo che si apre davanti,
+una battaglia vista da lontano, un antefatto che il protagonista non
+vive di persona.
+
+> *La sala, illuminata da alte vetrate a sesto acuto, trasudava la
+> maestosità della Corona. Su una grande tavola di pietra erano stese
+> antiche mappe.*
+
+Va bene, purché sia **l'eccezione** e non l'abitudine, e purché nel
+paragrafo il protagonista non stia agendo. Appena si muove, torna il
+«tu»: *Avanzi lungo la navata di marmo e ti arresti a distanza rituale.*
+
+Non devi segnalarcele: le troviamo noi rileggendo, e decidiamo insieme
+se tenerle o convertirle.
 
 ---
 
