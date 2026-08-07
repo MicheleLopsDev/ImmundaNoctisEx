@@ -24,9 +24,10 @@ tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
    - PROVA: dove il testo dice che qualcosa poteva andare storto — una
      serratura, un salto, una menzogna, un inseguimento. Anche senza
      marcatore: si riconosce perche' l'esito e' incerto.
-   - ACQUISIZIONE: dove il protagonista ottiene un oggetto, un alleato,
-     un'informazione o un'abilita' che gli servira' dopo. Segna cosa
-     ottiene e, se lo vedi nel testo, dove torna utile.
+   - ACQUISIZIONE: dove il protagonista ottiene o perde qualcosa che
+     contera' dopo — un oggetto, un alleato, un'informazione. Nel testo
+     e' scritto come [Ottieni: ...] o [Perdi: ...]. Segnala anche le
+     acquisizioni che il testo NON marca ma che si capiscono leggendo.
 
 3. SEGNALA I BIVI FORZATI: i punti in cui il romanzo fa scegliere al
    protagonista e racconta un solo esito. Per ognuno, la scelta
@@ -76,78 +77,79 @@ CAPITOLO 5:
 
 # **Capitolo 5: Il Risveglio dell'Erede**
 
-La discesa nei sotterranei del tempio era un viaggio verso il cuore freddo dell'isola. La scalinata di basalto sprofondava nell'oscurità, illuminata soltanto dalle scintille viola delle fiale alchemiche che Agata faceva danzare tra le dita con disinvoltura e dal lieve bagliore azzurrino dell'amuleto *Astro di Giada* sul petto di Ariel.
+La discesa nei sotterranei del tempio è un viaggio verso il cuore freddo dell'isola. La scalinata di basalto sprofonda nell'oscurità, illuminata soltanto dalle scintille viola delle fiale alchemiche che Agata fa danzare tra le dita con disinvoltura e dal lieve bagliore azzurrino dell'amuleto *Astro di Giada* sul tuo petto.
 
-Ad ogni passo, la pressione magica cresceva, rendendo l'aria pesante e sferzata da scosse di carica statica.
+Ad ogni passo, la pressione magica cresce, rendendo l'aria pesante e sferzata da scosse di carica statica.
 
-Ariel manteneva attiva la sensibilità spirituale \[Disciplina: Percezione Arcana\]: i flussi energetici venivano inghiottiti verso il fondo della camera da una forza oscura e colossale.
+Mantieni attiva la sensibilità spirituale \[Disciplina: Percezione Arcana\]: i flussi energetici vengono inghiottiti verso il fondo della camera da una forza oscura e colossale.
 
-Agata gli camminava a fianco, troppo vicina per gli standard d'etichetta di corte. Ogniqualvolta le loro spalle si sfioravano nel passaggio stretto, Ariel avvertiva una lieve scossa elettrica e cercava rigido di scostarsi, scatenando i risetti soffocati della maga.
+Agata ti cammina a fianco, troppo vicina per gli standard d'etichetta di corte. Ogniqualvolta le vostre spalle si sfiorano nel passaggio stretto, avverti una lieve scossa elettrica e cerchi rigido di scostarti, scatenando i risetti soffocati della maga.
 
-«Sei sempre così rigido, Scudiero?» sussurrò Agata inclinandosi verso di lui, con un sorriso malizioso che le illuminò i tratti del volto nel buio. «Guardi la strada come se dovessi superare un esame formale dell'Accademia. Rilassa le spalle... non ti mordo. A meno che non sia io a deciderlo.»
+«Sei sempre così rigido, Scudiero?» sussurra Agata inclinandosi verso di te, con un sorriso malizioso che le illumina i tratti del volto nel buio. «Guardi la strada come se dovessi superare un esame formale dell'Accademia. Rilassa le spalle... non ti mordo. A meno che non sia io a deciderlo.»
 
-Ariel tossì leggermente, distogliendo lo sguardo e fissando le torce in lontananza. «Questa è una missione ufficiale, Agata. La concentrazione è fondamentale per la sopravvivenza.»
+Tossisci leggermente, distogliendo lo sguardo e fissando le torce in lontananza. «Questa è una missione ufficiale, Agata. La concentrazione è fondamentale per la sopravvivenza.»
 
-«Che noia mortale che siete voi dell'Ordine,» ribatté lei facendo schioccare la lingua, anche se nei suoi occhi neri balenò un'innegabile sfumatura di divertimento e fascino per l'ingenuità del giovane.
+«Che noia mortale che siete voi dell'Ordine,» ribatte lei facendo schioccare la lingua, anche se nei suoi occhi neri balena un'innegabile sfumatura di divertimento e fascino per la tua ingenuità.
 
-Poi, l'espressione di Agata si fece più seria, venata da una punta di amara gelosia.
+Poi, l'espressione di Agata si fa più seria, venata da una punta di amara gelosia.
 
-«Io sono arrivata fin qui da sola, settimane fa,» confessò a bassa voce, sfiorando con la mano il braccio corazzato di Ariel. «Ho visto il sigillo. Ma quando mi sono avvicinata... l'oscurità della spada ha cercato di divorarmi la mente. Ho avuto terrore di diventare una marionetta senza volontà, e sono fuggita. Vediamo se la tua disciplina da primo della classe reggerà dove io ho preferito arretrare.»
+«Io sono arrivata fin qui da sola, settimane fa,» confessa a bassa voce, sfiorandoti con la mano il braccio corazzato. «Ho visto il sigillo. Ma quando mi sono avvicinata... l'oscurità della spada ha cercato di divorarmi la mente. Ho avuto terrore di diventare una marionetta senza volontà, e sono fuggita. Vediamo se la tua disciplina da primo della classe reggerà dove io ho preferito arretrare.»
 
-«La paura è saggezza se ti mantiene in vita, Agata,» rispose Ariel con sincera empatia, guardandola negli occhi.
+«La paura è saggezza se ti mantiene in vita, Agata,» rispondi con sincera empatia, guardandola negli occhi.
 
-La ragazza parve sorpresa da quella risposta priva di giudizio, e per un attimo la sua maschera sfrontata cedette il passo a uno sguardo smarrito e vulnerabile.
+La ragazza pare sorpresa da quella risposta priva di giudizio, e per un attimo la sua maschera sfrontata cede il passo a uno sguardo smarrito e vulnerabile.
 
-La scalinata terminava davanti a un imponente portale di pietra vulcanica, spalancato a forza con squarci di piccone e rune di corrosione tracciate dai fanatici del Lich \[Disciplina: Tracciamento Arcano\].
+La scalinata termina davanti a un imponente portale di pietra vulcanica, spalancato a forza con squarci di piccone e rune di corrosione tracciate dai fanatici del Lich \[Disciplina: Tracciamento Arcano\].
 
-Oltre la soglia si apriva la vasta camera del sepolcro primordiale. Al centro, sospesa sopra un altare d'ossidiana circondato da un pozzo d'ombra liquida, galleggiava una spada straordinaria. La lama scura come la notte era solcata da rune purpuree che pulsavano come un cuore battente.
+Oltre la soglia si apre la vasta camera del sepolcro primordiale. Al centro, sospesa sopra un altare d'ossidiana circondato da un pozzo d'ombra liquida, galleggia una spada straordinaria. La lama scura come la notte è solcata da rune purpuree che pulsano come un cuore battente.
 
-Quattro guardiani non-morti e un pugno di cultisti superstiti stavano tentando di spezzare la barriera della reliquia, ma ad ogni approccio venivano respinti da scariche elettriche violate.
+Quattro guardiani non-morti e un pugno di cultisti superstiti stanno tentando di spezzare la barriera della reliquia, ma ad ogni approccio vengono respinti da scariche elettriche violate.
 
 *\[Inizio Scontro\]*
 
-*Senza esitare, Ariel sguainò la spada d'acciaio e scattò all'attacco.*
+*Senza esitare, sguaini la spada d'acciaio e scatti all'attacco.*
 
-*Incanalando la Scherma dell'Astra \[Disciplina: Scherma dell'Astra\], Ariel fece balenare la lama di luce candida, decapitando il primo guardiano spettro con un fendente fluido e potente.*
+*Incanalando la Scherma dell'Astra \[Disciplina: Scherma dell'Astra\], fai balenare la lama di luce candida, decapitando il primo guardiano spettro con un fendente fluido e potente.*
 
-*Un secondo non-morto si scagliò contro di lui con un pesante spadone. Ariel scartò di lato, attivò il Dardo di Forza \[Disciplina: Dardo di Forza\] con il braccio sinistro e scagliò un'onda d'urto cinetica che fece franare il mostro contro le colonne.*
+*Un secondo non-morto si scaglia contro di te con un pesante spadone. Scarti di lato, attivi il Dardo di Forza \[Disciplina: Dardo di Forza\] con il braccio sinistro e scagli un'onda d'urto cinetica che fa franare il mostro contro le colonne.*
 
-*Nel frattempo, Agata diede dimostrazione della sua letale maestria alchemica: scagliò due ampolle corrosive tra i cultisti, scatenando fiamme viola e nubi d'acido che accecarono gli avversari. Muovendosi con grazia provocatoria e spietata agilità, completò la ripulitura del perimetro al fianco di Ariel \[Disciplina: Scherma dell'Astra\].*
+*Nel frattempo, Agata dà dimostrazione della sua letale maestria alchemica: scaglia due ampolle corrosive tra i cultisti, scatenando fiamme viola e nubi d'acido che accecano gli avversari. Muovendosi con grazia provocatoria e spietata agilità, completa la ripulitura del perimetro al tuo fianco \[Disciplina: Scherma dell'Astra\].*
 
 *\[Fine Scontro\]*
 
-La calma tornò a regnare nella stanza.
+La calma torna a regnare nella stanza.
 
-Ariel avanzò lentamente verso l'altare. La spada sospesa smise di emettere scosse rabbiose: al contrario, la lama tremò lievemente, rispondendo al richiamo del sangue di Ariel e alla soppressione emanata dall'amuleto *Astro di Giada* \[Disciplina: Scudo Mentale\].
+Avanzi lentamente verso l'altare. La spada sospesa smette di emettere scosse rabbiose: al contrario, la lama trema lievemente, rispondendo al richiamo del tuo sangue e alla soppressione emanata dall'amuleto *Astro di Giada* \[Disciplina: Scudo Mentale\].
 
-Ariel allungò la mano destra verso l'impugnatura.
+Allunghi la mano destra verso l'impugnatura.
 
-«Ariel, no\!» esclamò Agata, muovendo un passo d'istinto verso di lui con reale spavento. «Ti distruggerà\!»
+«Ariel, no\!» esclama Agata, muovendo un passo d'istinto verso di te con reale spavento. «Ti distruggerà\!»
 
-Ma le dita del cavaliere si serrarono sul cuoio dell'elsa.
+Ma le tue dita si serrano sul cuoio dell'elsa.
 
-Una scossa colossale attraversò il corpo del protagonista. Una voce calda, profonda, cinica e avvolgente rimbombò nella sua psiche.
+Una scossa colossale ti attraversa il corpo. Una voce calda, profonda, cinica e avvolgente rimbomba nella tua psiche.
 
-*«Finalmente...»* sussurrò la Voce della Notte (**Noxumbra**). *«Riconosco questo sangue... il sangue del vero Padrone\! Impugnami, ragazzo, distruggi la maga alle tue spalle e prendi il potere assoluto\!»*
+*«Finalmente...»* sussurra la Voce della Notte (**Noxumbra**). *«Riconosco questo sangue... il sangue del vero Padrone\! Impugnami, ragazzo, distruggi la maga alle tue spalle e prendi il potere assoluto\!»*
 
-Ariel serrò i denti mentre spire d'ombra nera cominciavano a risalire lungo il suo braccio. Ma guardando Agata — che nonostante il terrore non era fuggita, rimanendo lì a fissarlo con occhi spalancati e colmi di un'ansia disperata — Ariel rifiutò la via del massacro. Il suo cuore fu invaso da un desiderio puro di protezione e salvezza per la ragazza.
+Serri i denti mentre spire d'ombra nera cominciano a risalire lungo il tuo braccio. Ma guardando Agata — che nonostante il terrore non è fuggita, rimanendo lì a fissarti con occhi spalancati e colmi di un'ansia disperata — rifiuti la via del massacro. Il tuo cuore è invaso da un desiderio puro di protezione e salvezza per la ragazza.
 
-L'amuleto di giada brillò intensamente \[Disciplina: Scudo Mentale\].
+L'amuleto di giada brilla intensamente \[Disciplina: Scudo Mentale\].
 
-A quel gesto di profonda empatia, le rune sulla lama virarono istantaneamente dal viola a un bagliore dorato, fulgido e solare. Una seconda voce — cristallina, solenne e compassionevole — risuonò nella mente di Ariel.
+A quel gesto di profonda empatia, le rune sulla lama virano istantaneamente dal viola a un bagliore dorato, fulgido e solare. Una seconda voce — cristallina, solenne e compassionevole — risuona nella tua mente.
 
-*«Io ascolto la tua virtù, Erede,»* risuonò la Voce del Giorno (**Solaurora**). *«Finché il tuo cuore rimarrà saldo nell'altruismo, la mia barriera proteggerà la tua vita e quella di chi ami.»*
+*«Io ascolto la tua virtù, Erede,»* risuona la Voce del Giorno (**Solaurora**). *«Finché il tuo cuore rimarrà saldo nell'altruismo, la mia barriera proteggerà la tua vita e quella di chi ami.»*
 
-Un'ondata di luce dorata si irradiò dalla spada, erigendo una cupola di forza protettiva che avvolse Ariel ed Agata.
+Un'ondata di luce dorata si irradia dalla spada, erigendo una cupola di forza protettiva che avvolge te e Agata.
+\[Ottieni: la Spada Duale Noxumbra/Solaurora\]
 
-Agata cadde quasi in ginocchio, coprendosi gli occhi per il bagliore solare, prima di fissare Ariel con una miscela inestricabile di gelosia, meraviglia e timore reverenziale.
+Agata cade quasi in ginocchio, coprendosi gli occhi per il bagliore solare, prima di fissarti con una miscela inestricabile di gelosia, meraviglia e timore reverenziale.
 
-«La spada... ti ha scelto,» mormorò Agata con voce tremante, rialzandosi a fatica. Si avvicinò a lui, e per la prima volta la sua sfacciataggine lasciò il posto a un rispetto profondo. «Ha rifiutato me... e ha scelto te.»
+«La spada... ti ha scelto,» mormora Agata con voce tremante, rialzandosi a fatica. Si avvicina a te, e per la prima volta la sua sfacciataggine lascia il posto a un rispetto profondo. «Ha rifiutato me... e ha scelto te.»
 
-Ariel rinfoderò l'antica spada duale alla cintola.
+Rinfoderi l'antica spada duale alla cintola.
 
-Ma a centinaia di leghe di distanza, nelle sue stanze buie, l'Antico Lich **Malakor** avvertì la vibrazione della reliquia e il risveglio dell'impronta del proprio sangue.
+Ma a centinaia di leghe di distanza, nelle sue stanze buie, l'Antico Lich **Malakor** avverte la vibrazione della reliquia e il risveglio dell'impronta del proprio sangue.
 
-Le orbite vuote del Lich si accesero di spettrale luce viola.
+Le orbite vuote del Lich si accendono di spettrale luce viola.
 
-«Mio figlio è vivo...» sibilò Malakor. «Il contenitore perfetto mi attende.»
+«Mio figlio è vivo...» sibila Malakor. «Il contenitore perfetto mi attende.»

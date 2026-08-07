@@ -56,7 +56,7 @@ precedente.
 | passo | stato |
 |---|---|
 | 01 · romanzo | ✅ completo |
-| 02 · catena (Fase 0) | ⬜ da fare — i pacchetti sono in `prompt/` |
+| 02 · catena (Fase 0) | ⬜ da fare — i pacchetti sono in `prompt/`, rigenerabili con `python prompt/genera-pacchetti.py` |
 | 03 · acquisizioni | ⬜ |
 | 04 · domande | ⬜ |
 | 05 · risposte dell'autore | ⬜ |
