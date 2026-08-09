@@ -56,12 +56,32 @@ precedente.
 | passo | stato |
 |---|---|
 | 01 · romanzo | ✅ completo |
-| 02 · catena (Fase 0) | ⬜ da fare — i pacchetti sono in `prompt/`, rigenerabili con `python prompt/genera-pacchetti.py` |
+| 02 · catena (Fase 0) | ✅ **58 tappe**, tutte col testo intatto — vedi `02-catena/` |
 | 03 · acquisizioni | ⬜ |
 | 04 · domande | ⬜ |
 | 05 · risposte dell'autore | ⬜ |
 | 06 · tappe | ⬜ |
 | `libro.json` | ⬜ |
+
+## Il quadro dopo la Fase 0
+
+| | |
+|---|---|
+| tappe | **58** (1-59, il 29 resta libero) |
+| scontri | **6**, uno per capitolo |
+| usi di disciplina | **37**, tutti censiti |
+| acquisizioni | **31** — 10 marcate nel testo, 21 dedotte |
+| bivi forzati | **20** |
+| forma | **LIBROGAME** su tutti e sei i capitoli |
+| tappe in terza persona | **1** (la 49: Malakor, che il protagonista non vive) |
+| **tappe col testo modificato** | **0 su 58** |
+
+Le **115 citazioni** «Dal testo» sono state verificate una per una
+contro i capitoli: tutte presenti. I tagli sono ancorati al testo vero,
+non a una parafrasi.
+
+Nessuna tappa ha avuto bisogno della frase di raccordo: i punti di
+taglio cadono da soli dove il protagonista decide o cambia luogo.
 
 ## I numeri di partenza
 
