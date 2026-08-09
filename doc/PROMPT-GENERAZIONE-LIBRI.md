@@ -442,9 +442,10 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
 5. DICHIARA OGNI TOCCO AL TESTO. Il libro resta come l'autore l'ha
    deciso: tu puoi tagliarlo, e puoi aggiungere UNA frase per chiudere
    una tappa che il taglio lascerebbe monca. Nient'altro.
-   Ogni tappa dice se il testo viene dal romanzo senza aggiunte oppure
-   se ne ha una: in quel caso scrivi la frase esatta, cosi' l'autore la
-   vede e decide se tenerla.
+   La riga **Testo** compare SOLO sulle tappe che hai toccato, con la
+   frase esatta che hai aggiunto: l'autore la vede e decide se tenerla.
+   Sulle tappe intatte NON scrivere niente — cinquanta righe che dicono
+   tutte "nessuna aggiunta" nascondono le due che dicono altro.
 
 6. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
    abilita' usate, quante prove, quante acquisizioni, quanti bivi
@@ -455,11 +456,12 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
 FORMATO
 ## Tappa <n> — <titolo> (Cap. <c>)
 - **Dal testo**: «<prima frase>» … «<ultima frase>»
-- **Testo**: <dal romanzo, nessuna aggiunta | dal romanzo + aggiunta
-  «<la frase esatta>» in coda, per chiudere la tappa>
 - **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuno>
 - **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
+- **Testo**: <SOLO se hai toccato il testo: aggiunta «<la frase
+  esatta>» in coda, per chiudere la tappa. Ometti la riga sulle tappe
+  intatte>
 - **Nota sulla forma**: <solo se la tappa si discosta dalla forma del
   capitolo: TERZA (descrittiva) | TERZA (azione) | l'altra forma>
 

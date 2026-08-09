@@ -40,15 +40,21 @@ invisibile.
 
 ### Come si dichiara
 
-Ogni tappa dice cosa le è successo:
+**Solo** le tappe che il modello ha toccato dicono qualcosa:
 
 ```
-- **Testo**: intatto
-- **Testo**: MODIFICATO — aggiunta in coda «Ti volti verso la porta.»
-              per chiudere la tappa
+- **Testo**: aggiunta in coda «Ti volti verso la porta.», per chiudere
+             la tappa
 ```
 
-e il conteggio finale di ogni capitolo riporta **quante tappe hanno il
+Le altre non scrivono niente. È una regola imparata sbagliando: la
+prima versione faceva dichiarare a ogni tappa di essere intatta, e su
+58 tappe uscivano 56 righe identiche in mezzo a cui le 2 vere non si
+vedevano più. Una dichiarazione che c'è sempre non dichiara niente —
+vale qui come vale per la forma narrativa, che infatti si dichiara una
+volta per capitolo.
+
+Il conteggio finale di ogni capitolo riporta **quante tappe hanno il
 testo modificato**: è quello il numero che l'autore controlla, non le
 cinquanta tappe una per una.
 

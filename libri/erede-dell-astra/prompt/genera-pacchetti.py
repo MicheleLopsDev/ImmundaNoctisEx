@@ -70,9 +70,11 @@ tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
    antefatto, una scena vista da lontano) o AZIONE (il protagonista fa
    qualcosa).
 
-5. DICHIARA OGNI TOCCO AL TESTO. Ogni tappa dice se il testo viene dal
-   romanzo senza aggiunte, oppure se hai aggiunto la frase di chiusura.
-   Se l'hai aggiunta, scrivila esatta: l'autore la vede e decide.
+5. DICHIARA OGNI TOCCO AL TESTO. La riga **Testo** compare SOLO sulle
+   tappe che hai toccato, con la frase esatta che hai aggiunto:
+   l'autore la vede e decide. Sulle tappe intatte NON scrivere niente —
+   stessa ragione della forma: cinquanta righe che dicono tutte
+   "nessuna aggiunta" nascondono le due che dicono altro.
 
 6. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
    abilita' usate, quante prove, quante acquisizioni, quanti bivi
@@ -83,11 +85,12 @@ tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
 FORMATO
 ## Tappa <n> — <titolo> (Cap. {capitolo})
 - **Dal testo**: «<prima frase>» … «<ultima frase>»
-- **Testo**: <dal romanzo, nessuna aggiunta | dal romanzo + aggiunta
-  «<la frase esatta>» in coda, per chiudere la tappa>
 - **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuno>
 - **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
+- **Testo**: <SOLO se hai toccato il testo: aggiunta «<la frase
+  esatta>» in coda, per chiudere la tappa. Ometti la riga sulle tappe
+  intatte>
 - **Nota sulla forma**: <solo se la tappa si discosta dalla forma del
   capitolo: TERZA (descrittiva) | TERZA (azione) | l'altra forma>
 

@@ -89,6 +89,16 @@ dal testo e la dichiara una volta per capitolo — dichiararla su ogni
 tappa nascondeva le eccezioni in mezzo alla ripetizione (53 righe su
 58 dicevano la stessa cosa).
 
+**Stessa lezione, imparata due volte.** Michele, guardando le catene:
+*"se uguale non serve «Testo: dal romanzo, nessuna aggiunta»"*. Erano
+56 righe identiche su 58, e in mezzo non si vedevano le 2 che dicevano
+altro (i due refusi lasciati com'erano). Ora la riga **Testo** compare
+solo dove c'è qualcosa da dichiarare; che il capitolo sia intatto lo
+dice il conteggio finale, una volta. **Una dichiarazione che c'è
+sempre non dichiara niente** — vale per la forma, vale per il testo, e
+vale per il prossimo campo a cui verrà voglia di mettere un default
+esplicito.
+
 **Il primo giro, davvero fatto.** Sul romanzo di prova
 (`libri/erede-dell-astra/`, sei capitoli): conversione alla forma
 LIBROGAME verificata a mano e a numeri — 7581→7523 parole (−0,8%),
