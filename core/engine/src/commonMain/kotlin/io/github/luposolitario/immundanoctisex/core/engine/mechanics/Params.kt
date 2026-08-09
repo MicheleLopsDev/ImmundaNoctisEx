@@ -1,6 +1,7 @@
 package io.github.luposolitario.immundanoctisex.core.engine.mechanics
 
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
+import io.github.luposolitario.immundanoctisex.core.data.model.StatoAttivazione
 import io.github.luposolitario.immundanoctisex.core.data.model.WeaponType
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
@@ -50,3 +51,10 @@ internal fun itemType(raw: String?): ItemType? =
 
 internal fun weaponType(raw: String?): WeaponType? =
     WeaponType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
+
+// Parametro assente o scritto male = NON_RICHIESTA, cioe' il
+// comportamento di sempre: un oggetto che non parla di attivazione
+// funziona subito (REGOLE.md §5.1, degradare invece di rompere).
+internal fun statoAttivazione(raw: String?): StatoAttivazione =
+    StatoAttivazione.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) }
+        ?: StatoAttivazione.NON_RICHIESTA

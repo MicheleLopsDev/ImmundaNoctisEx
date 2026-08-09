@@ -56,6 +56,45 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 08/08/2026 — la meccanica [Attiva]: oggetti addosso ma spenti
+
+Nasce da una riga della catena del Libro I: *"l'Astro di Giada è già
+addosso al protagonista, ma qui il testo lo **stabilisce** come oggetto
+attivo — non marcato con `[Ottieni:]` perché non viene ricevuto ora"*.
+Michele: *"io proporrei di introdurre la meccanica [Attiva] che rende
+un oggetto speciale abilitato e può permettere di fargli aggiungere
+bonus, altrimenti il suo stato è disabilitato per default"*.
+
+Senza questo stato l'unico modo di raccontarlo era darglielo lì con un
+`addItem`, cioè **mentire su quando l'ha avuto**.
+
+**Tre stati e non un booleano.** `NON_RICHIESTA` (default, l'oggetto
+vale sempre), `INATTIVO` (posseduto ma spento), `ATTIVO`. Un booleano
+avrebbe confuso "non c'è niente da attivare" con "c'è da attivare e non
+è stato attivato", spegnendo i bonus di ogni Elmo mai scritto: col
+default `NON_RICHIESTA` nessun libro esistente cambia comportamento.
+
+Un oggetto `NON_RICHIESTA` **non si può spegnere**: quello stato dice
+"non ho un interruttore", e dargliene uno renderebbe spegnibile
+qualunque oggetto.
+
+Il gate sta nei due punti unici che calcolano i bonus
+(`itemEnduranceBonus`/`itemCombatSkillBonus`), non sparso: attivare un
+oggetto con `ENDURANCE:n` alza anche la corrente come acquisirlo,
+spegnerlo la riclampa. Comandi `activateItem`/`deactivateItem`,
+marcatori `[Attiva:]`/`[Disattiva:]` per lo scrittore, `AttivazioneValidator`
+che avvisa (mai blocca: l'oggetto può venire dal personaggio importato).
+
+**528 test verdi.**
+
+Restano aperte due cose che Michele ha nominato e non sono ancora
+niente: il **concetto di serie** (definire i libri di una serie e gli
+oggetti tramandati, dichiarando quali arrivano attivi) e gli **oggetti
+che non si possono perdere** — cercati nel codice: non esistono, non li
+avevamo mai fatti.
+
+---
+
 ## 07-08/08/2026 — da romanzo a librogame: il metodo, il cantiere, il primo giro
 
 Tre giorni sullo stesso filo: **come si trasforma il romanzo di un

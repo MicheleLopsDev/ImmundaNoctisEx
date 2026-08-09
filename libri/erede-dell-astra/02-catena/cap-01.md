@@ -25,7 +25,7 @@
 - **Riferimento fine**: «…una costante, impercettibile sensazione di calore e protezione [Disciplina: Scudo Mentale].»
 - **Meccaniche di gioco**:
   - ABILITA': Scudo Mentale (passiva dell'amuleto)
-  - ACQUISIZIONE: l'*Astro di Giada* è già addosso al protagonista, ma qui il testo lo **stabilisce** come oggetto attivo — non marcato con `[Ottieni:]` perché non viene ricevuto ora. Torna utile al Cap. 2 (para il raggio necromantico) e al Cap. 5 (regge davanti a Noxumbra)
+  - ATTIVAZIONE: l'*Astro di Giada* è già addosso al protagonista, e qui il testo lo **stabilisce** come oggetto attivo — `[Attiva: Astro di Giada]`, non `[Ottieni:]`, perché non viene ricevuto ora. Torna utile al Cap. 2 (para il raggio necromantico) e al Cap. 5 (regge davanti a Noxumbra)
 - **Bivio forzato**: no
 
 ## Tappa 3 — Il paggio di corte (Cap. 1)

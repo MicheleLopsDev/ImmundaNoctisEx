@@ -9,9 +9,11 @@ import io.github.luposolitario.immundanoctisex.core.data.model.GameMechanic
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
 import io.github.luposolitario.immundanoctisex.core.data.model.SessionData
 import io.github.luposolitario.immundanoctisex.core.data.model.StatType
+import io.github.luposolitario.immundanoctisex.core.data.model.StatoAttivazione
 import io.github.luposolitario.immundanoctisex.core.engine.dice.FixedDiceRoller
 import io.github.luposolitario.immundanoctisex.core.engine.inventory.Inventory
 import io.github.luposolitario.immundanoctisex.core.engine.state.GameState
+import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveCombatSkill
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -322,6 +324,52 @@ class MechanicsExecutorTest {
 
         assertEquals("87", outcome.jumpTo)
         assertEquals(0, Inventory.countOf(state.hero, "Gold Crowns"))
+    }
+
+    @Test
+    fun addItemPuoDareUnOggettoGiaSpento() {
+        // L'Astro di Giada: il protagonista ce l'ha, ma non conta ancora.
+        val state = state()
+        val params = buildJsonObject {
+            put("itemType", "SPECIAL_ITEM"); put("itemName", "Astro di Giada")
+            put("effect", "COMBAT_SKILL:2"); put("attivazione", "INATTIVO")
+        }
+
+        executor().execute(state, listOf(mechanic("addItem", params)))
+
+        assertEquals(15, effectiveCombatSkill(state.hero))
+    }
+
+    @Test
+    fun activateItemAccendeLOggettoDellaScena() {
+        val state = state(
+            items = listOf(
+                GameItem(
+                    name = "Astro di Giada",
+                    type = ItemType.SPECIAL_ITEM,
+                    effect = "COMBAT_SKILL:2",
+                    attivazione = StatoAttivazione.INATTIVO,
+                ),
+            ),
+        )
+        val params = buildJsonObject { put("itemName", "Astro di Giada") }
+
+        executor().execute(state, listOf(mechanic("activateItem", params)))
+
+        assertEquals(17, effectiveCombatSkill(state.hero))
+    }
+
+    @Test
+    fun activateItemSuUnOggettoCheNonSiHaNonBloccaIlGioco() {
+        val state = state()
+
+        val outcome = executor().execute(
+            state,
+            listOf(mechanic("activateItem", buildJsonObject { put("itemName", "Astro di Giada") })),
+        )
+
+        assertNull(outcome.jumpTo)
+        assertTrue(state.hero.inventory.isEmpty())
     }
 
     @Test

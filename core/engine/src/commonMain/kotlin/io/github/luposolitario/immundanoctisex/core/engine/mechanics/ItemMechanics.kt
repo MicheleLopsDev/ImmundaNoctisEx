@@ -23,6 +23,7 @@ internal object ItemMechanics {
             combatUsable = params.stringParam("combatUsable")?.toBooleanStrictOrNull() ?: false,
             effect = params.stringParam("effect"),
             weaponType = weaponType(params.stringParam("weaponType")),
+            attivazione = statoAttivazione(params.stringParam("attivazione")),
         )
         state.updateHero { Inventory.addItem(it, item) }
     }
@@ -31,6 +32,15 @@ internal object ItemMechanics {
         val name = params.stringParam("itemName") ?: return
         val quantity = params.intParam("quantity") ?: 1
         state.updateHero { Inventory.removeItem(it, name, quantity) }
+    }
+
+    // La meccanica [Attiva] (08/08/2026): sveglia un oggetto che il
+    // protagonista ha già addosso. Da qui in poi i suoi bonus contano.
+    // `activateItem` / `deactivateItem` differiscono solo nel verso —
+    // spegnere serve agli artefatti che si esauriscono o si corrompono.
+    fun setItemActive(state: GameState, params: JsonObject, active: Boolean) {
+        val name = params.stringParam("itemName") ?: return
+        state.updateHero { Inventory.setItemActive(it, name, active) }
     }
 
     fun removeAllItems(state: GameState, params: JsonObject) {

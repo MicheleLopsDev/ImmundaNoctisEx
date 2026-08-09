@@ -41,6 +41,8 @@ class MechanicsExecutor(private val dice: DiceRoller) {
             "addItem" -> ItemMechanics.addItem(state, params)
             "removeItem" -> ItemMechanics.removeItem(state, params)
             "removeAllItems" -> ItemMechanics.removeAllItems(state, params)
+            "activateItem" -> ItemMechanics.setItemActive(state, params, active = true)
+            "deactivateItem" -> ItemMechanics.setItemActive(state, params, active = false)
             "rollForQuantity" -> ItemMechanics.rollForQuantity(state, params, dice)
             "rollOnItemTable" -> ItemMechanics.rollOnItemTable(state, params, dice)
             "healStat" -> StatMechanics.healStat(state, params)

@@ -26,7 +26,8 @@ fun effectiveCombatSkill(character: Character): Int {
 // "ENDURANCE:n", es. Elmo +2, Gilet di maglia +4 — canone libro 1): vale
 // finché l'oggetto è nell'inventario, mai persistito nelle stat.
 fun itemEnduranceBonus(item: GameItem): Int =
-    item.effect?.takeIf { it.startsWith("ENDURANCE:") }
+    if (!item.effettiAttivi) 0
+    else item.effect?.takeIf { it.startsWith("ENDURANCE:") }
         ?.substringAfter(":")?.toIntOrNull()?.times(item.quantity) ?: 0
 
 // Stessa idea per la Combattività (01/08/2026, Scudo +2 — canone Lupo
@@ -34,8 +35,11 @@ fun itemEnduranceBonus(item: GameItem): Int =
 // NON è un ENDURANCE:n come Elmo e Gilet). Il formato dell'effetto è
 // dichiarativo ed estensibile senza toccare lo schema, come previsto in
 // STATO.md §4.2.
+// Entrambi i bonus valgono solo a oggetto sveglio (StatoAttivazione):
+// un artefatto INATTIVO è addosso al protagonista ma non fa niente.
 fun itemCombatSkillBonus(item: GameItem): Int =
-    item.effect?.takeIf { it.startsWith("COMBAT_SKILL:") }
+    if (!item.effettiAttivi) 0
+    else item.effect?.takeIf { it.startsWith("COMBAT_SKILL:") }
         ?.substringAfter(":")?.toIntOrNull()?.times(item.quantity) ?: 0
 
 // Somma sugli oggetti posseduti — pubblica perché la Scheda personaggio

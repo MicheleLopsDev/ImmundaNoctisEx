@@ -28,6 +28,11 @@ tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
      contera' dopo — un oggetto, un alleato, un'informazione. Nel testo
      e' scritto come [Ottieni: ...] o [Perdi: ...]. Segnala anche le
      acquisizioni che il testo NON marca ma che si capiscono leggendo.
+   - ATTIVAZIONE: dove un oggetto che il protagonista ha GIA' addosso
+     diventa attivo, o smette di esserlo. Nel testo e' scritto come
+     [Attiva: ...] o [Disattiva: ...]. Non e' un'acquisizione: non lo
+     riceve ora, ce l'aveva. Segnala anche le attivazioni che il testo
+     non marca ma che si capiscono leggendo (un amuleto che "si sveglia").
 
 3. SEGNALA I BIVI FORZATI: i punti in cui il romanzo fa scegliere al
    protagonista e racconta un solo esito. Per ognuno scrivi DUE righe

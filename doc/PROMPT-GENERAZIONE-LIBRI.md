@@ -413,6 +413,9 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
    - ACQUISIZIONE: dove il protagonista ottiene un oggetto, un
      alleato, un'informazione o un'abilita' che gli servira' dopo.
      Segna cosa ottiene e, se lo vedi nel testo, dove torna utile.
+   - ATTIVAZIONE: dove un oggetto che il protagonista ha GIA' addosso
+     diventa attivo, o smette di esserlo ([Attiva: ...] /
+     [Disattiva: ...]). Non e' un'acquisizione: non lo riceve ora.
 
 3. SEGNALA I BIVI FORZATI: i punti in cui il romanzo fa scegliere al
    protagonista e racconta un solo esito. Sono i candidati naturali a

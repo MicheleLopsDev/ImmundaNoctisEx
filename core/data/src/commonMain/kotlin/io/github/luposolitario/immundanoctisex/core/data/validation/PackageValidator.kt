@@ -17,6 +17,7 @@ object PackageValidator {
             CustomResourcesValidator.validate(manifest) +
             SfxValidator.validate(manifest) +
             RollModifierValidator.validate(manifest) +
+            AttivazioneValidator.validate(manifest) +
             EndingsValidator.validate(manifest)
     }
 }

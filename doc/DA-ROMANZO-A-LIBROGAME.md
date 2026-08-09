@@ -221,6 +221,35 @@ Le regole che governano le schede:
   punto: è ciò che permette allo scrittore di scrivere senza rileggere
   tutto, e a noi di sapere quali oggetti il ramo può usare.
 
+### Niente righe che non dicono niente
+
+Solo tre righe sono obbligatorie: **Dove siamo**, **La domanda**,
+**Quanto**. Le altre compaiono **solo se hanno qualcosa da dire**
+(Michele, 08/08/2026: *"se una domanda non aggiunge nulla al contesto
+per lo scrittore… è inutile presentarla nel documento"*).
+
+Concretamente, non si scrive mai:
+
+```
+**Attenzione a**: niente in particolare
+**Le strade possibili**: quelle che preferisci
+**Bivio forzato**: no
+```
+
+Quella è la scheda che dà a chi legge il lavoro di scartare le righe
+vuote. Peggio: quando ogni scheda ha un «Attenzione a», lo scrittore
+smette di leggerlo — e quello vero, sulla scheda dove Tobias deve
+restare vivo, passa inosservato in mezzo a venti «niente in
+particolare».
+
+Stessa regola un piano più su: **una tappa senza niente da chiedere non
+diventa una scheda.** Ventidue domande che valgono sono un lavoro di
+tre settimane; cinquanta di cui trenta ovvie sono un lavoro che
+l'autore abbandona alla quindicesima.
+
+È lo stesso principio della forma narrativa e delle note di
+lavorazione: una dichiarazione che c'è sempre non dichiara niente.
+
 ## Quanto lavoro è, sul Libro I
 
 | | |

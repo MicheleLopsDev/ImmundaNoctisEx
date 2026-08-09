@@ -158,6 +158,28 @@ strada diversa, senza quell'oggetto. Se sappiamo che lì si ottiene la
 Pozione Mangiaferro, sappiamo anche che al Capitolo 4 la porta chiusa
 può restare chiusa — ed è quello che rende le scelte importanti.
 
+### Quando un oggetto che ha già "si accende"
+
+Ci sono oggetti che il protagonista ha addosso **dall'inizio**, e che a
+un certo punto della storia diventano importanti: un amuleto che finora
+era un ricordo di famiglia e che davanti al nemico si sveglia.
+
+Lì non scrivere `[Ottieni:]` — non lo sta ricevendo, ce l'aveva già.
+Scrivi:
+
+```
+Il calore dell'Astro di Giada ti attraversa il petto: la pietra che hai
+portato al collo per tutta la vita si sveglia.
+[Attiva: Astro di Giada]
+```
+
+Da quel momento l'oggetto conta nel gioco; prima era solo una cosa che
+avevi addosso. E se più avanti si spegne, si esaurisce o si corrompe:
+
+```
+[Disattiva: Astro di Giada]
+```
+
 ---
 
 ## 5. Come rispondere quando ti chiediamo una scena
@@ -215,6 +237,7 @@ perché. È una risposta utile quanto le altre.
 | Uso di una dote | `[Disciplina: Nome]` dopo la frase |
 | Oggetto ottenuto | `[Ottieni: cosa]` |
 | Oggetto perso | `[Perdi: cosa]` |
+| Oggetto che si sveglia | `[Attiva: cosa]` (ce l'aveva già) — e `[Disattiva: cosa]` |
 | Formato del file | testo o Markdown, UTF-8 |
 | Nome del file | il codice della domanda: `D-07.md` |
 

@@ -16,7 +16,7 @@ lunga, più saltare quella tappa costa qualcosa che si sente.
 
 | # | tappa | cosa | serve a | distanza |
 |---|---|---|---|---|
-| O1 | 2 | **Astro di Giada** (già addosso) | 18, 23, 27, 33, 45, 50, 59 | — |
+| O1 | 2 | **Astro di Giada** (già addosso, si **attiva** qui) | 18, 23, 27, 33, 45, 50, 59 | — |
 | O2 | 7 | Pergamena col sigillo reale | 13 — requisire la nave | 6 tappe |
 | O3 | 9 | 2 Pozioni di Cura | ovunque | — |
 | O4 | 9 | **Pozione Mangiaferro** | **37** — le catene di Agata | **28 tappe** |

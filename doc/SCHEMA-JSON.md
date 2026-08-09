@@ -491,9 +491,11 @@ calcolano", CLAUDE.md). È quello che fanno già i libri di test in
 
 | `command` | Parametri in `params` | Effetto |
 |---|---|---|
-| `addItem` | `itemName` (str), `itemType` (str: `WEAPON`\|`BACKPACK_ITEM`\|`SPECIAL_ITEM`\|`GOLD`), `quantity` (str numerica, default 1), `combatUsable` (str `"true"`/`"false"`, default false), `effect` (str, es. `"HEAL:4"`), `weaponType` (str, solo se `itemType=WEAPON`, vedi §9) | Aggiunge l'oggetto all'inventario dell'eroe. Se lo zaino/le armi sono già pieni, l'oggetto **si scarta in silenzio** (nessun errore) — per lasciare scegliere al giocatore cosa prendere, usa `offerItem` (ultima riga di questa tabella) invece. |
+| `addItem` | `itemName` (str), `itemType` (str: `WEAPON`\|`BACKPACK_ITEM`\|`SPECIAL_ITEM`\|`GOLD`), `quantity` (str numerica, default 1), `combatUsable` (str `"true"`/`"false"`, default false), `effect` (str, es. `"HEAL:4"`), `weaponType` (str, solo se `itemType=WEAPON`, vedi §9), `attivazione` (str: `NON_RICHIESTA` (default) | `INATTIVO` | `ATTIVO`, vedi §9.4) | Aggiunge l'oggetto all'inventario dell'eroe. Se lo zaino/le armi sono già pieni, l'oggetto **si scarta in silenzio** (nessun errore) — per lasciare scegliere al giocatore cosa prendere, usa `offerItem` (ultima riga di questa tabella) invece. |
 | `removeItem` | `itemName` (str), `quantity` (str numerica, default 1) | Rimuove N unità. Se il giocatore ne ha meno di N, rimuove solo quel che c'è, senza errore. |
 | `removeAllItems` | `type` (str: uno dei 4 `ItemType`) | Svuota tutti gli oggetti di quel tipo. |
+| `activateItem` | `itemName` (str) | **Accende** un oggetto posseduto ma dichiarato `INATTIVO`: da qui in poi i suoi bonus contano (vedi §9.4). Se l'eroe non ha quell'oggetto, o se l'oggetto non ha un interruttore (`NON_RICHIESTA`), non succede niente — nessun errore. |
+| `deactivateItem` | `itemName` (str) | Lo **spegne**: i bonus smettono di contare e la Resistenza corrente si riclampa al nuovo massimo. Per gli artefatti che si esauriscono o si corrompono. |
 | `healStat` | `statName` (str, solo `"ENDURANCE"` ha effetto), `amount` (str numerica oppure `"FULL"`) | Cura la Resistenza fino al massimo (coerceIn 0..massimo effettivo). `"FULL"` = riporta al massimo. |
 | `applyStatModifier` | `statName` (`"ENDURANCE"` \| `"COMBAT_SKILL"`), `amount` (intero, può essere negativo) | `ENDURANCE`: modifica subito `currentEndurance` (un fatto). `COMBAT_SKILL`: aggiunge un modificatore narrativo attivo (`StatModifier`), sommato dal motore quando serve — non un valore diretto. |
 | `requireAction` | `action` (str, solo `"EAT_MEAL"` ha effetto), `penaltyStat` (str), `penaltyValue` (str, es. `"-3"`) | Se l'eroe ha la disciplina HUNTING: nessun effetto (si sfama gratis). Altrimenti, se possiede almeno un Pasto: lo consuma e cura +1 Resistenza. Altrimenti: applica la penalità dichiarata come un `applyStatModifier`. |
@@ -591,6 +593,37 @@ sommano sulla quantità posseduta e non vengono mai persistiti nelle
 stat del personaggio — l'engine li ricalcola a ogni lettura
 (`EffectiveStats.kt`). Perdere l'oggetto fa sparire il bonus da sé.
 Un `effect` non riconosciuto viene ignorato senza errori.
+
+### 9.4 `attivazione` — oggetti addosso ma spenti
+
+Un oggetto può essere nell'inventario **senza contare ancora**
+(08/08/2026). Serve per gli artefatti che il protagonista ha già ma che
+il libro sveglia a un certo punto: l'Astro di Giada è al collo dell'eroe
+dalla prima pagina, ed è una scena precisa a stabilirlo come oggetto
+attivo. Senza questo stato l'unico modo di raccontarlo sarebbe darglielo
+in quel momento con un `addItem`, cioè mentire su quando l'ha avuto.
+
+| Valore | Significato |
+|---|---|
+| `NON_RICHIESTA` (**default**) | L'oggetto vale sempre. Il caso normale: un Elmo non ha bisogno di cerimonie. È il valore che hanno tutti gli oggetti dei libri scritti prima di questo campo — nessun libro esistente cambia comportamento. |
+| `INATTIVO` | Posseduto ma spento: i suoi `effect` di `ENDURANCE:n`/`COMBAT_SKILL:n` **non contano**. |
+| `ATTIVO` | Acceso: i bonus contano. |
+
+Si passa da `INATTIVO` ad `ATTIVO` con la meccanica `activateItem`
+(§8.1), e indietro con `deactivateItem`. Un oggetto `NON_RICHIESTA`
+**non si può spegnere**: quello stato dice "questo oggetto non ha un
+interruttore", e dargliene uno renderebbe spegnibile ogni Elmo mai
+scritto.
+
+Accendere un oggetto con `ENDURANCE:n` alza anche la Resistenza
+**corrente**, come acquisirlo (canone: «aggiunge n punti al tuo
+totale»); spegnerlo la riclampa al nuovo massimo.
+
+Il validatore avvisa (non blocca) se una scena attiva un oggetto che il
+libro non dichiara attivabile, o se un oggetto dichiarato `INATTIVO`
+non viene mai acceso da nessuna scena. Sono avvisi e non errori perché
+l'oggetto può arrivare dal **personaggio importato** da un libro
+precedente.
 
 ---
 

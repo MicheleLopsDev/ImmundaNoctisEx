@@ -3,6 +3,7 @@ package io.github.luposolitario.immundanoctisex.core.engine.inventory
 import io.github.luposolitario.immundanoctisex.core.data.model.Character
 import io.github.luposolitario.immundanoctisex.core.data.model.GameItem
 import io.github.luposolitario.immundanoctisex.core.data.model.ItemType
+import io.github.luposolitario.immundanoctisex.core.data.model.StatoAttivazione
 import io.github.luposolitario.immundanoctisex.core.engine.stats.effectiveMaxEndurance
 import io.github.luposolitario.immundanoctisex.core.engine.stats.itemEnduranceBonus
 
@@ -74,6 +75,40 @@ object Inventory {
             .clearEquipIfMissing()
             .reclampEndurance()
 
+    // Accende o spegne un oggetto già posseduto (08/08/2026, la
+    // meccanica [Attiva]). Nome sconosciuto = nessun effetto, come
+    // equipWeapon: il gioco non si blocca mai.
+    //
+    // Un oggetto NON_RICHIESTA non si tocca: quello stato dice "questo
+    // oggetto non ha un interruttore", e accenderglielo lo renderebbe
+    // spegnibile da lì in poi. Chi vuole un artefatto risvegliabile lo
+    // dichiara INATTIVO nel libro.
+    //
+    // Accendere un oggetto con bonus Resistenza alza anche la corrente,
+    // esattamente come acquisirlo (canone: "aggiunge N punti al tuo
+    // totale"); spegnerlo riclampa al nuovo massimo.
+    fun setItemActive(character: Character, itemName: String, active: Boolean): Character {
+        val nuovoStato = if (active) StatoAttivazione.ATTIVO else StatoAttivazione.INATTIVO
+        val bersaglio = character.inventory.firstOrNull {
+            it.name.equals(itemName, ignoreCase = true) &&
+                it.attivazione != StatoAttivazione.NON_RICHIESTA
+        } ?: return character
+        if (bersaglio.attivazione == nuovoStato) return character
+
+        val aggiornato = character.copy(
+            inventory = character.inventory.map {
+                if (it === bersaglio) it.copy(attivazione = nuovoStato) else it
+            },
+        )
+        if (!active) return aggiornato.reclampEndurance()
+        val guadagno = itemEnduranceBonus(bersaglio.copy(attivazione = nuovoStato))
+        if (guadagno == 0) return aggiornato
+        return aggiornato.copy(
+            currentEndurance = (aggiornato.currentEndurance + guadagno)
+                .coerceAtMost(effectiveMaxEndurance(aggiornato)),
+        )
+    }
+
     fun countOf(character: Character, itemName: String): Int =
         character.inventory
             .filter { it.name.equals(itemName, ignoreCase = true) }
@@ -106,7 +141,11 @@ object Inventory {
 
     private fun merge(inventory: List<GameItem>, item: GameItem): List<GameItem> {
         val existing = inventory.firstOrNull {
-            it.type == item.type && it.name.equals(item.name, ignoreCase = true)
+            it.type == item.type && it.name.equals(item.name, ignoreCase = true) &&
+                // Due copie con stato di attivazione diverso restano
+                // separate: fonderle spegnerebbe (o accenderebbe) quella
+                // che c'era già, senza che nessuna scena l'abbia detto.
+                it.attivazione == item.attivazione
         } ?: return inventory + item
         return inventory.map {
             if (it === existing) it.copy(quantity = it.quantity + item.quantity) else it
