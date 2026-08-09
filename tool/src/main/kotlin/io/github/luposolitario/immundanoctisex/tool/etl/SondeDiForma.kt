@@ -98,6 +98,38 @@ object SondeDiForma {
                 ),
             )
         }
+        // Quanto costa scegliere male. Le due sonde stanno insieme
+        // perche' misurano la stessa cosa da due lati: la morte secca e
+        // la partita persa restando vivi. I bersagli vengono dai cinque
+        // libri di Dever (4,8% e 6,9%), non da un'idea di equilibrio.
+        add(
+            Sonda(
+                etichetta = "uscite che uccidono",
+                valore = percento(m.usciteMortali),
+                bersaglio = "$MORTALI_MIN-$MORTALI_MAX%",
+                salute = saluteInIntervallo(
+                    m.usciteMortali,
+                    MORTALI_MIN,
+                    MORTALI_MAX,
+                    tolleranza = 1.0,
+                ),
+            ),
+        )
+        m.usciteSenzaRitorno?.let { senzaRitorno ->
+            add(
+                Sonda(
+                    etichetta = "uscite senza ritorno",
+                    valore = percento(senzaRitorno),
+                    bersaglio = "$SENZA_RITORNO_MIN-$SENZA_RITORNO_MAX%",
+                    salute = saluteInIntervallo(
+                        senzaRitorno,
+                        SENZA_RITORNO_MIN,
+                        SENZA_RITORNO_MAX,
+                        tolleranza = 1.0,
+                    ),
+                ),
+            )
+        }
         val morti = m.finaliPerEsito[EndingOutcome.DEFEAT] ?: 0
         val attese = (m.scene * MORTI_QUOTA_MIN / 100.0).roundToInt().coerceAtLeast(2)
         val massime = (m.scene * MORTI_QUOTA_MAX / 100.0).roundToInt().coerceAtLeast(4)
@@ -150,4 +182,14 @@ object SondeDiForma {
     const val SCENE_MAX = 60
     const val MORTI_QUOTA_MIN = 3.0
     const val MORTI_QUOTA_MAX = 7.0
+
+    // Sui cinque libri: uscite mortali dal 3,0% al 7,7% (media 4,8),
+    // uscite senza ritorno dal 3,6% al 15,9% (mediana 4,9). Il 15,9% e'
+    // Caverns of Kalte, il libro con fama di essere il piu' punitivo
+    // della prima serie: l'intervallo tiene fuori l'eccezione apposta,
+    // e' la misura che deve accorgersene.
+    const val MORTALI_MIN = 3.0
+    const val MORTALI_MAX = 8.0
+    const val SENZA_RITORNO_MIN = 3.0
+    const val SENZA_RITORNO_MAX = 8.0
 }

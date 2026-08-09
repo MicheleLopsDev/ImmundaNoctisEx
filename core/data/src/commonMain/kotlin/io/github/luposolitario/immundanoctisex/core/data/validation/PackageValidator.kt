@@ -18,6 +18,7 @@ object PackageValidator {
             SfxValidator.validate(manifest) +
             RollModifierValidator.validate(manifest) +
             AttivazioneValidator.validate(manifest) +
+            NoteDiLavorazioneValidator.validate(manifest) +
             EndingsValidator.validate(manifest)
     }
 }

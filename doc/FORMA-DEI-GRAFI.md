@@ -218,6 +218,45 @@ dove questo cambia direttamente cosa si chiede allo scrittore.
 
 Implementato in `forma` come `quotaViva`, soglia 80%.
 
+## Quinto giro: quanto costa scegliere male
+
+Michele, 08/08/2026: *"mi sembra che in Lupo Solitario, quando si
+sceglieva una cosa diversa da quella che l'autore decideva, era per lo
+più morte — io farei un controllo sui primi romanzi per capire come la
+gestiva il buon Joe"*.
+
+Misurato sui **cinque libri** con la struttura completa (1004 bivi,
+2303 uscite di bivio):
+
+| | totale | 01fftd | 02fotw | 03tcok | 04tcod | 05sots |
+|---|---|---|---|---|---|---|
+| uscite → morte immediata | **4,8%** | 5,0 | 4,5 | 7,7 | 3,7 | 3,0 |
+| uscite che **chiudono la vittoria** | **6,9%** | 5,7 | 4,9 | 15,9 | 3,7 | 3,6 |
+| bivi con almeno un'uscita mortale | **10,7%** | 11,2 | 10,0 | 16,8 | 8,5 | 6,9 |
+| distanza mediana dalla morte più vicina | **6 tappe** | 6 | 5 | 5 | 6 | 6 |
+
+**Risposta: no.** Nove bivi su dieci non hanno nessuna uscita mortale,
+e il 93% delle uscite lascia la vittoria raggiungibile. Da una scena
+qualunque la morte è a **sei tappe** di distanza, non a una: Dever non
+puniva la scelta diversa, la faceva costare.
+
+Due precisazioni che il numero da solo non dà.
+
+**Perché l'impressione è diversa.** Venti morti secche per libro sono
+il 4,8% delle uscite e il 100% di ciò che il lettore ricorda: chi le ha
+prese tutte ha ricominciato venti volte. In più il **9,6%** delle
+uscite porta dritto a un combattimento, dove si muore per tiro e non
+per scelta — mortalità reale che questa tabella non conta.
+
+**Un libro è fuori scala.** *Caverns of Kalte* (03tcok) chiude la
+vittoria nel **15,9%** delle uscite, il quadruplo degli altri quattro,
+ed è il libro con fama di essere il più punitivo della prima serie. La
+misura se ne accorge da sola: è la prova che serve a qualcosa.
+
+Implementato in `forma` come `usciteMortali` e `usciteSenzaRitorno`,
+bersaglio **3-8%** per entrambe — l'intervallo tiene fuori Kalte
+apposta.
+
 ## La domanda diretta: ci sono categorie?
 
 Michele, 06/08/2026: *"le mie ipotesi erano giuste o no, ci sono degli

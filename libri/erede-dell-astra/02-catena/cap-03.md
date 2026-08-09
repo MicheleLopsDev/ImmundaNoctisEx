@@ -5,17 +5,16 @@
 > **Forma del capitolo: LIBROGAME** (seconda persona). Le tappe non la
 > ripetono: si annota solo dove il testo se ne discosta.
 >
-> Stessa regola per il testo: le tappe non dichiarano di essere intatte.
-> La riga **Testo** compare **solo** dove il modello ha toccato qualcosa,
-> o dove c'è qualcosa da segnalare a chi rivede. Nessuna riga = parole
-> dell'autore, e basta.
+> Stessa regola per il testo e per il bivio: nessuna tappa dichiara di
+> essere intatta, né di non avere un bivio. Le righe **Testo** e
+> **Bivio forzato** compaiono **solo** dove c'è qualcosa da dire —
+> nessuna riga significa: parole dell'autore, nessun bivio.
 
 ## Tappa 20 — Il Gabbiano prende il largo (Cap. 3)
 
 - **Riferimento inizio**: «Il *Gabbiano di Ferro* prende il largo prima che i primi raggi di sole squarcino le nubi basse di Puerto Valas.»
 - **Riferimento fine**: «…puntando la prua verso le acque sconfinate del Mare Orientale.»
 - **Meccaniche di gioco**: nessuna
-- **Bivio forzato**: no
 
 ## Tappa 21 — Le ferite del vicolo (Cap. 3)
 
@@ -23,14 +22,12 @@
 - **Riferimento fine**: «…la stanchezza della notte insonne si scioglie come sale nell'acqua.»
 - **Meccaniche di gioco**:
   - ABILITA': Rigenerazione Vitale — **chi non ce l'ha entra nel Cap. 3 ferito**. È l'unico punto del libro in cui una disciplina ripara un danno preso prima: pesa il doppio
-- **Bivio forzato**: no
 
 ## Tappa 22 — Il mare che cambia colore (Cap. 3)
 
 - **Riferimento inizio**: «Per i primi due giorni di navigazione, il mare mantiene un'apparente tranquillità.»
 - **Riferimento fine**: «…la vita marina pare svanita nel nulla.»
 - **Meccaniche di gioco**: nessuna
-- **Bivio forzato**: no
 
 ## Tappa 23 — La cortina di nebbia (Cap. 3)
 
@@ -38,7 +35,6 @@
 - **Riferimento fine**: «…avrebbe già instillato un senso di sfinimento e disperazione nei tuoi polmoni.»
 - **Meccaniche di gioco**:
   - ABILITA': Scudo Mentale (l'amuleto) — il testo dice esplicitamente cosa succederebbe **senza**: sfinimento e disperazione. È già scritta l'alternativa per chi non ce l'ha
-- **Bivio forzato**: no
 - **Testo**: refuso `awolge` nell'originale, **non** corretto
 
 ## Tappa 24 — La rotta o il giro largo (Cap. 3)
@@ -59,7 +55,6 @@
 - **Riferimento fine**: «Braccia ai remi e pronte le spingarde\! Ci vengono addosso\!»
 - **Meccaniche di gioco**:
   - ACQUISIZIONE (non marcata): la scoperta che il Culto ha corrotto anche i corsari — i marinai hanno «la pelle grigiastra segnata da piaghe da deperimento»
-- **Bivio forzato**: no
 
 ## Tappa 26 — L'arrembaggio (Cap. 3)
 
@@ -68,7 +63,6 @@
 - **Meccaniche di gioco**:
   - SCONTRO: ciurma di corsari non-morti
   - ABILITA': Scherma dell'Astra, Dardo di Forza
-- **Bivio forzato**: no
 
 ## Tappa 27 — Il Serpente Marino (Cap. 3)
 
@@ -78,7 +72,6 @@
   - SCONTRO: Serpente Marino deformato dalla necromanzia — è un secondo scontro dentro lo stesso blocco, con un avversario di taglia diversa
   - ABILITA': Scudo Mentale (lo scudo sopra la nave), Dardo di Forza (il colpo all'occhio)
   - PROVA: reggere lo scudo. Il testo dice che le gambe vacillano e che **è l'amuleto** a impedire che ceda: senza, la barriera crolla e il tentacolo prende l'albero maestro
-- **Bivio forzato**: no
 
 ## Tappa 28 — L'isola oltre la nebbia (Cap. 3)
 
@@ -86,7 +79,6 @@
 - **Riferimento fine**: «…pronte ad accogliere l'Erede del Lich.»
 - **Meccaniche di gioco**:
   - ACQUISIZIONE (non marcata): il rispetto dell'equipaggio — «uno sguardo carico di rispetto e timore reverenziale». Conta al Cap. 4, quando il protagonista lascia Tobias di guardia alla scialuppa e quello resta
-- **Bivio forzato**: no
 - **Nota sulla forma**: LIBROGAME — l'ultima riga («pronte ad accogliere l'Erede del Lich») è una voce narrante che sa più del protagonista: sconfina nell'onnisciente, ma non è terza persona sul protagonista
 
 ---

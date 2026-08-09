@@ -43,6 +43,10 @@ fun runForma(args: Array<String>) {
     m.quotaObbligata?.let { println("  cammino obbligato    %.0f%%       (libri veri 42-50%%)".format(it)) }
     m.rientroMediano?.let { println("  rientro dei rami     $it tappe   (libri veri: mediana 3)") }
     println("  bivi                 ${m.bivi}, di cui ${m.rientriTardivi.size} a rientro lungo")
+    println("  uscite che uccidono  %.0f%%       (libri veri 3-8%%)".format(m.usciteMortali))
+    m.usciteSenzaRitorno?.let {
+        println("  uscite senza ritorno %.0f%%       (libri veri 4-16%%)".format(it))
+    }
     println("  profondita'          ${m.profondita} tappe")
     val esiti = m.finaliPerEsito.entries.joinToString(", ") { "${it.value} ${it.key}" }
     println("  finali               ${esiti.ifBlank { "nessun esito dichiarato" }}")

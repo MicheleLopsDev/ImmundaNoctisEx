@@ -5,10 +5,10 @@
 > **Forma del capitolo: LIBROGAME** (seconda persona). Le tappe non la
 > ripetono: si annota solo dove il testo se ne discosta.
 >
-> Stessa regola per il testo: le tappe non dichiarano di essere intatte.
-> La riga **Testo** compare **solo** dove il modello ha toccato qualcosa,
-> o dove c'è qualcosa da segnalare a chi rivede. Nessuna riga = parole
-> dell'autore, e basta.
+> Stessa regola per il testo e per il bivio: nessuna tappa dichiara di
+> essere intatta, né di non avere un bivio. Le righe **Testo** e
+> **Bivio forzato** compaiono **solo** dove c'è qualcosa da dire —
+> nessuna riga significa: parole dell'autore, nessun bivio.
 
 ## Tappa 50 — Il ritorno, con la spada alla cintola (Cap. 6)
 
@@ -17,7 +17,6 @@
 - **Meccaniche di gioco**:
   - ABILITA': Scudo Mentale — ora l'amuleto lavora contro **Noxumbra**, cioè contro un oggetto che il protagonista porta addosso. È un cambio di bersaglio importante
   - ACQUISIZIONE (non marcata): che la spada sussurra di continuo, e che l'amuleto la tiene a bada
-- **Bivio forzato**: no
 
 ## Tappa 51 — Agata a prua (Cap. 6)
 
@@ -66,7 +65,6 @@
 - **Riferimento fine**: «…palesemente terrorizzato dal bagliore di *Noxumbra* e dalla presenza della giovane maga.»
 - **Meccaniche di gioco**:
   - ACQUISIZIONE (non marcata): che Vaelen **ha paura** — e la paura arriva prima che chiunque parli. Chiude il filo aperto alla tappa 6, quando fissava l'incavo del collo
-- **Bivio forzato**: no
 
 ## Tappa 56 — L'accusa di Vaelen (Cap. 6)
 
@@ -81,7 +79,6 @@
 - **Riferimento fine**: «Ordina che venga allontanata dal castello\!»
 - **Meccaniche di gioco**:
   - Da notare: è **la stessa Lyra** che alla tappa 9 ha dato le pozioni. Chi ha saltato quella tappa arriva qui senza aver mai parlato con lei, e la sua gelosia perde il suo perché
-- **Bivio forzato**: no
 
 ## Tappa 58 — La difesa di Agata (Cap. 6)
 

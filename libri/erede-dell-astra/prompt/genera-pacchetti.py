@@ -56,6 +56,8 @@ tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
    separate: la strada che il romanzo prende, e quella che il testo
    nomina o lascia intendere e non percorre. Separate, perche' e' la
    seconda che diventa un ramo nuovo.
+   Le tappe SENZA bivio non scrivono niente: un "no" ripetuto trenta
+   volte nasconde le poche righe che dicono qualcosa.
 
 4. CONTROLLA LA FORMA NARRATIVA. Un libro-game si scrive in due modi, e
    l'autore ne sceglie UNO per tutto il libro:
@@ -95,8 +97,9 @@ FORMATO
 - **Riferimento fine**: «<ultima frase della tappa>»
 - **Meccaniche di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuna>
-- **Bivio forzato**: <si' | no>
-  <se si', SOLO allora, due righe rientrate:>
+- **Bivio forzato**: <SOLO se c'e' un bivio, o se il "no" ha una nota
+  che serve (es. "no — un ordine reale, il romanzo non offre il
+  rifiuto"). Un "no" nudo NON si scrive: ometti la riga.>
   - **Il romanzo sceglie**: <la strada che il romanzo prende>
   - **Alternativa**: <quella che il testo lascia intendere e non percorre>
   - **Perché conta**: <solo se c'e' qualcosa da dire: il peso di quel

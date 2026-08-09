@@ -5,10 +5,10 @@
 > **Forma del capitolo: LIBROGAME** (seconda persona). Le tappe non la
 > ripetono: si annota solo dove il testo se ne discosta.
 >
-> Stessa regola per il testo: le tappe non dichiarano di essere intatte.
-> La riga **Testo** compare **solo** dove il modello ha toccato qualcosa,
-> o dove c'è qualcosa da segnalare a chi rivede. Nessuna riga = parole
-> dell'autore, e basta.
+> Stessa regola per il testo e per il bivio: nessuna tappa dichiara di
+> essere intatta, né di non avere un bivio. Le righe **Testo** e
+> **Bivio forzato** compaiono **solo** dove c'è qualcosa da dire —
+> nessuna riga significa: parole dell'autore, nessun bivio.
 
 ## Tappa 30 — Lo sbarco sui ciottoli neri (Cap. 4)
 
@@ -16,7 +16,6 @@
 - **Riferimento fine**: «…per ignorare la stretta del freddo e i miasmi venefici dell'aria.»
 - **Meccaniche di gioco**:
   - ABILITA': Sostentamento Arcano — contro freddo e miasmi. Il testo dice che l'aria è **venefica**: chi non ce l'ha la respira
-- **Bivio forzato**: no
 
 ## Tappa 31 — Il tempio sul promontorio (Cap. 4)
 
@@ -25,7 +24,6 @@
 - **Meccaniche di gioco**:
   - ABILITA': Percezione Arcana — **è lei a trovare il tempio**. Senza, il protagonista non sa dove andare: è la disciplina più strutturalmente necessaria del capitolo
   - ACQUISIZIONE (non marcata): la posizione della sorgente del male
-- **Bivio forzato**: no
 
 ## Tappa 32 — Il congedo da Tobias (Cap. 4)
 
@@ -43,7 +41,6 @@
 - **Riferimento fine**: «…purificandoti i polmoni dall'aria ammorbata del male di Malakor [Disciplina: Scudo Mentale].»
 - **Meccaniche di gioco**:
   - ABILITA': Scudo Mentale (l'amuleto, di nuovo passivo)
-- **Bivio forzato**: no
 
 ## Tappa 34 — Il Velo d'Ombra (Cap. 4)
 
@@ -62,7 +59,6 @@
 - **Meccaniche di gioco**:
   - ABILITA': Tracciamento Arcano — riconosce la lingua della litania
   - PROVA implicita: restare nascosti mentre si osserva. Il testo non la rende incerta, ma una dozzina di cultisti a pochi metri lo è
-- **Bivio forzato**: no
 - **Nota sulla forma**: LIBROGAME — i due paragrafi sull'interno del tempio sono descrittivi (il protagonista guarda), rientrano nell'eccezione
 
 ## Tappa 36 — La prigioniera sull'altare (Cap. 4)
@@ -83,7 +79,6 @@
   - SCONTRO: Sacerdote d'Ombra e una dozzina di cultisti
   - ABILITA': Dardo di Forza
   - ACQUISIZIONE: `[Perdi: Pozione Mangiaferro]` — **la tappa che dà senso a tutto il metodo.** Il testo dice esplicitamente che le catene «sono troppo spesse per la sola lama d'acciaio»: senza la pozione ricevuta alla tappa 9, questa scena non può andare come va
-- **Bivio forzato**: no
 
 ## Tappa 38 — Agata (Cap. 4)
 
@@ -92,7 +87,6 @@
 - **Meccaniche di gioco**:
   - SCONTRO (seconda parte): la ripulitura, con Agata che combatte al fianco
   - ABILITA': Scherma dell'Astra, Dardo di Forza
-- **Bivio forzato**: no
 
 ## Tappa 39 — La Cripta Primordiale (Cap. 4)
 

@@ -43,6 +43,19 @@ object FormaDelGrafo {
         val bivi: Int,
         val rientriTardivi: List<String>,
         val finaliPerEsito: Map<EndingOutcome, Int>,
+        // Quanto costa scegliere male (08/08/2026, Michele: "in Lupo
+        // Solitario quando si sceglieva una cosa diversa da quella che
+        // l'autore decideva era per lo piu' morte?"). Misurato sui
+        // cinque libri: NO, il 4,8% delle uscite di bivio porta a una
+        // sconfitta e il 6,9% chiude la vittoria — nove bivi su dieci
+        // non uccidono nessuno. Vedi FORMA-DEI-GRAFI.md.
+        //
+        // Uscite di bivio la cui destinazione e' un finale di sconfitta.
+        val usciteMortali: Double,
+        // Uscite di bivio dopo le quali la vittoria non e' piu'
+        // raggiungibile: si e' persa la partita anche restando vivi.
+        // null se il libro non dichiara nessuna vittoria.
+        val usciteSenzaRitorno: Double?,
     ) {
         // Uscite per scena, contando SOLO le scene che possono averne: un
         // finale non ha uscite per definizione, e tenerlo al
@@ -86,6 +99,15 @@ object FormaDelGrafo {
             bivi = bivi(uscite).size,
             rientriTardivi = bivi(uscite).filter { (rientroDa(uscite, it) ?: 0) > RIENTRO_MAX }.sorted(),
             finaliPerEsito = finali.mapNotNull { it.outcome }.groupingBy { it }.eachCount(),
+            usciteMortali = run {
+                val sconfitte = finali.filter { it.outcome == EndingOutcome.DEFEAT }.map { it.id }.toSet()
+                percentuale(usciteDaiBivi(uscite).count { it in sconfitte }, usciteDaiBivi(uscite).size)
+            },
+            usciteSenzaRitorno = vittoria?.let {
+                val vive = risalgonoA(uscite, distanze.keys, it)
+                val daBivi = usciteDaiBivi(uscite)
+                percentuale(daBivi.count { destinazione -> destinazione !in vive }, daBivi.size)
+            },
         )
     }
 
@@ -174,6 +196,13 @@ object FormaDelGrafo {
 
     private fun bivi(uscite: Map<String, Set<String>>): List<String> =
         uscite.filterValues { it.size >= 2 }.keys.toList()
+
+    // Tutte le destinazioni raggiungibili DA un bivio, una per ramo. Il
+    // denominatore delle due misure di mortalita': le scene a uscita
+    // unica non sono una scelta, e contarle diluirebbe la misura in
+    // proporzione a quanto il libro e' lineare.
+    private fun usciteDaiBivi(uscite: Map<String, Set<String>>): List<String> =
+        bivi(uscite).flatMap { uscite.getValue(it) }
 
     private fun rientri(uscite: Map<String, Set<String>>): List<Int> =
         bivi(uscite).mapNotNull { rientroDa(uscite, it) }

@@ -5,10 +5,10 @@
 > **Forma del capitolo: LIBROGAME** (seconda persona). Le tappe non la
 > ripetono: si annota solo dove il testo se ne discosta.
 >
-> Stessa regola per il testo: le tappe non dichiarano di essere intatte.
-> La riga **Testo** compare **solo** dove il modello ha toccato qualcosa,
-> o dove c'è qualcosa da segnalare a chi rivede. Nessuna riga = parole
-> dell'autore, e basta.
+> Stessa regola per il testo e per il bivio: nessuna tappa dichiara di
+> essere intatta, né di non avere un bivio. Le righe **Testo** e
+> **Bivio forzato** compaiono **solo** dove c'è qualcosa da dire —
+> nessuna riga significa: parole dell'autore, nessun bivio.
 
 ## Tappa 10 — Quattro giorni di galoppo (Cap. 2)
 
@@ -16,7 +16,6 @@
 - **Riferimento fine**: «…affronti la traversata con minima fatica fisica.»
 - **Meccaniche di gioco**:
   - ABILITA': Sostentamento Arcano — chi non ce l'ha arriva a Puerto Valas stremato
-- **Bivio forzato**: no
 
 ## Tappa 11 — Puerto Valas dal colle (Cap. 2)
 
@@ -24,7 +23,6 @@
 - **Riferimento fine**: «…cercano di lasciarsi alle spalle la giustizia della Corona.»
 - **Meccaniche di gioco**:
   - ACQUISIZIONE (non marcata): che Puerto Valas è porto franco di contrabbandieri e fuggiaschi — spiega perché il Culto ci si muove indisturbato
-- **Bivio forzato**: no
 
 ## Tappa 12 — I vicoli della città bassa (Cap. 2)
 
@@ -33,7 +31,6 @@
 - **Meccaniche di gioco**:
   - ABILITA': Empatia Bestiale — calma il cavallo innervosito
   - PROVA: il cavallo scarta nella calca. Il testo lo risolve con la disciplina, ma è un esito che poteva andare storto: senza Empatia Bestiale, un cavallo imbizzarrito in un vicolo affollato è un guaio
-- **Bivio forzato**: no
 
 ## Tappa 13 — L'ufficio dell'Ammiragliato (Cap. 2)
 
@@ -41,7 +38,6 @@
 - **Riferimento fine**: «…rompendo il timbro e srotolando il documento.»
 - **Meccaniche di gioco**:
   - Qui **si spende** la Pergamena col sigillo reale ottenuta alla tappa 7. Il testo non la marca come persa (resta in mano a Tobias, non si consuma) ma è il momento in cui serve
-- **Bivio forzato**: no
 
 ## Tappa 14 — Il capitano Tobias (Cap. 2)
 
@@ -69,7 +65,6 @@
 - **Riferimento fine**: «Mostratevi,» dici con voce calma, che echeggia nel vicolo deserto.»
 - **Meccaniche di gioco**:
   - ABILITA': Percezione Arcana — è lei a dare l'allarme prima dell'agguato. **Chi non ce l'ha viene colto di sorpresa**: è uno dei punti dove il ramo alternativo è più necessario
-- **Bivio forzato**: no
 
 ## Tappa 17 — I quattro incappucciati (Cap. 2)
 
@@ -78,7 +73,6 @@
 - **Meccaniche di gioco**:
   - ABILITA': Tracciamento Arcano — riconosce le rune del Culto sulle fasce
   - ACQUISIZIONE (non marcata): la conferma che il Culto è già a Puerto Valas e sa della missione
-- **Bivio forzato**: no
 
 ## Tappa 18 — L'agguato dei cultisti (Cap. 2)
 
@@ -88,7 +82,6 @@
   - SCONTRO: quattro cultisti, di cui uno incantatore necromantico
   - ABILITA': Telecinesi Arcana, Scherma dell'Astra, Scudo Mentale (l'amuleto si attiva **da solo**, non è il protagonista a invocarlo)
   - PROVA: il raggio necromantico. Il testo dice esplicitamente che non c'è tempo per il gesto somatico — la salvezza arriva dall'amuleto. È il punto più vicino alla morte di tutto il capitolo
-- **Bivio forzato**: no
 
 ## Tappa 19 — «Il marchio della...» (Cap. 2)
 

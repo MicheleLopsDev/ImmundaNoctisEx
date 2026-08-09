@@ -148,4 +148,71 @@ class SondeDiFormaTest {
         assertTrue(FormaDelGrafo.misura(m).scene < FormaDelGrafo.SCENE_MINIME)
         assertTrue(SondeDiForma.di(FormaDelGrafo.misura(m)).isNotEmpty())
     }
+
+    // --- quanto costa scegliere male (08/08/2026) ---
+
+    // Un bivio dove ogni strada sbagliata uccide: il campo minato che i
+    // libri di Dever NON sono (4,8% di uscite mortali, misurato).
+    private fun campoMinato(): Manifest {
+        val scene = (1..20).flatMap { n ->
+            listOf(
+                scena(
+                    "$n",
+                    listOf(if (n == 20) "vittoria" else "${n + 1}", "morte$n"),
+                    if (n == 1) SceneType.START else SceneType.TRANSITION,
+                ),
+                finale("morte$n", EndingOutcome.DEFEAT),
+            )
+        }
+        return libro(*scene.toTypedArray(), finale("vittoria", EndingOutcome.VICTORY))
+    }
+
+    @Test
+    fun `se meta' delle uscite uccide, la sonda e rossa`() {
+        val s = sonda(campoMinato(), "uscite che uccidono")
+
+        assertEquals("50%", s.valore)
+        assertTrue(s.salute < 0.2f, "salute attesa vicina a zero, era ${s.salute}")
+    }
+
+    @Test
+    fun `una mortalita' da libro pubblicato sta nel verde`() {
+        // Dieci bivi a due strade — la principale e una deviazione che
+        // rientra — e una sola uscita mortale, in fondo: 1 su 20, il 5%,
+        // dentro l'intervallo misurato sui cinque libri.
+        val bivi = (1..10).map { n ->
+            scena(
+                "b$n",
+                listOf(if (n == 10) "vittoria" else "b${n + 1}", if (n == 10) "morte" else "a$n"),
+                if (n == 1) SceneType.START else SceneType.TRANSITION,
+            )
+        }
+        val deviazioni = (1..9).map { n -> scena("a$n", listOf("b${n + 1}")) }
+        val m = libro(
+            *bivi.toTypedArray(), *deviazioni.toTypedArray(),
+            finale("morte", EndingOutcome.DEFEAT), finale("vittoria", EndingOutcome.VICTORY),
+        )
+
+        val s = sonda(m, "uscite che uccidono")
+
+        assertEquals("5%", s.valore)
+        assertEquals(1f, s.salute)
+    }
+
+    @Test
+    fun `un ramo che non uccide ma chiude la vittoria viene visto lo stesso`() {
+        // Il vicolo cieco vivo: non muori, ma da li' non si vince piu'.
+        // E' l'altra meta' del "quanto costa scegliere male", e la sonda
+        // delle uscite mortali da sola non lo vedrebbe.
+        val m = libro(
+            scena("1", listOf("2", "3"), SceneType.START),
+            scena("2", listOf("vittoria")),
+            scena("3", listOf("4")),
+            scena("4", listOf("3")),
+            finale("vittoria", EndingOutcome.VICTORY),
+        )
+
+        assertEquals("0%", sonda(m, "uscite che uccidono").valore)
+        assertEquals("50%", sonda(m, "uscite senza ritorno").valore)
+    }
 }

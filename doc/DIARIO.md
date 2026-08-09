@@ -56,6 +56,57 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 08/08/2026 — quanto costa scegliere male, misurato
+
+Michele: *"in Lupo Solitario, quando si sceglieva una cosa diversa da
+quella che l'autore decideva, era per lo più morte — io farei un
+controllo sui primi romanzi per capire come la gestiva il buon Joe"*.
+
+Controllato sui cinque libri, con la stessa estrazione di archi del
+tool (1004 bivi, 2303 uscite):
+
+| | |
+|---|---|
+| uscite di bivio → morte immediata | **4,8%** (3,0-7,7) |
+| uscite che chiudono la vittoria | **6,9%** (3,6-15,9) |
+| bivi con almeno un'uscita mortale | **10,7%** |
+| distanza mediana dalla morte più vicina | **6 tappe** |
+
+**L'ipotesi non regge: nove bivi su dieci non uccidono nessuno.** Ma
+non era campata in aria — ~20 morti secche per libro sono poche in
+percentuale e moltissime nel ricordo di chi le ha prese tutte. Un libro
+è fuori scala: **Caverns of Kalte** chiude la vittoria nel 15,9% delle
+uscite, il quadruplo degli altri, e ha davvero fama di essere il più
+punitivo della prima serie.
+
+Le due misure sono diventate sonde (`uscite che uccidono`, `uscite
+senza ritorno`, bersaglio 3-8%) e righe del comando `forma`. Il tool
+ridà gli stessi numeri dell'analisi fatta a parte: due strade
+indipendenti, stesso risultato.
+
+Da lì, su richiesta di Michele, `libri/erede-dell-astra/04-rischi-dei-bivi.md`:
+quali dei suoi 19 bivi rischiano di far fallire la missione. Tre gravi
+(T8 le fiale di Lyra — 28 tappe di distanza fra causa ed effetto; T34
+l'ingresso al tempio senza Velo d'Ombra; T45 l'elsa, l'unico pericoloso
+da entrambi i lati), quattro che cambiano le condizioni, sette di solo
+rapporto che però sommati decidono il finale.
+
+**Le note di lavorazione diventano avvisi di validazione**, sempre oggi
+(Michele: *"la Nota sulla forma… la implementerei nel sistema di
+warning dell'editor, così da far risolvere il tutto in fase di
+normalizzazione"*): "Valida libro" ora le elenca tutte insieme, invece
+di costringere ad aprire cinquanta scene per trovarne cinque.
+
+E le catene hanno perso le 34 righe `Bivio forzato: no` — terza
+applicazione della stessa regola in due giorni.
+
+**Le serie restano ferme per scelta** (Michele: *"devo capire bene
+anche io, se un libro-game parte dal testo prima devi leggerti i libri
+e poi capire se ci sono oggetti che devono essere implementati fra
+loro… per adesso gestiamo tutto nello stesso file"*).
+
+---
+
 ## 08/08/2026 — la meccanica [Attiva]: oggetti addosso ma spenti
 
 Nasce da una riga della catena del Libro I: *"l'Astro di Giada è già

@@ -5,10 +5,10 @@
 > **Forma del capitolo: LIBROGAME** (seconda persona). Le tappe non la
 > ripetono: si annota solo dove il testo se ne discosta.
 >
-> Stessa regola per il testo: le tappe non dichiarano di essere intatte.
-> La riga **Testo** compare **solo** dove il modello ha toccato qualcosa,
-> o dove c'è qualcosa da segnalare a chi rivede. Nessuna riga = parole
-> dell'autore, e basta.
+> Stessa regola per il testo e per il bivio: nessuna tappa dichiara di
+> essere intatta, né di non avere un bivio. Le righe **Testo** e
+> **Bivio forzato** compaiono **solo** dove c'è qualcosa da dire —
+> nessuna riga significa: parole dell'autore, nessun bivio.
 
 ## Tappa 1 — L'automa d'addestramento (Cap. 1)
 
@@ -17,7 +17,6 @@
 - **Meccaniche di gioco**:
   - SCONTRO: manichino d'addestramento incantato (avversario da esercizio, non ostile)
   - ABILITA': Dardo di Forza, Scherma dell'Astra
-- **Bivio forzato**: no
 
 ## Tappa 2 — L'Astro di Giada (Cap. 1)
 
@@ -26,7 +25,6 @@
 - **Meccaniche di gioco**:
   - ABILITA': Scudo Mentale (passiva dell'amuleto)
   - ATTIVAZIONE: l'*Astro di Giada* è già addosso al protagonista, e qui il testo lo **stabilisce** come oggetto attivo — `[Attiva: Astro di Giada]`, non `[Ottieni:]`, perché non viene ricevuto ora. Torna utile al Cap. 2 (para il raggio necromantico) e al Cap. 5 (regge davanti a Noxumbra)
-- **Bivio forzato**: no
 
 ## Tappa 3 — Il paggio di corte (Cap. 1)
 
@@ -44,14 +42,12 @@
 - **Meccaniche di gioco**:
   - ABILITA': Percezione Arcana
   - ACQUISIZIONE (non marcata nel testo): l'informazione che qualcosa di grave è già in atto dentro la fortezza — chi non ha Percezione Arcana arriva a corte senza saperlo
-- **Bivio forzato**: no
 
 ## Tappa 5 — La Sala del Trono (Cap. 1)
 
 - **Riferimento inizio**: «Le ampie porte di quercia e bronzo della Sala del Trono si spalancano con un pesante rimbombo.»
 - **Riferimento fine**: «Non c'è tempo per il cerimoniale oggi.»
 - **Meccaniche di gioco**: nessuna
-- **Bivio forzato**: no
 - **Nota sulla forma**: LIBROGAME — ma con **due paragrafi descrittivi in terza persona** («La sala, illuminata da alte vetrate…», «In piedi di fronte al tavolo c'è Re Roderic…»). Sono descrizioni pure: il protagonista non agisce, guarda. Rientrano nell'eccezione ammessa
 
 ## Tappa 6 — Le Isole della Nebbia Grigia (Cap. 1)
@@ -61,7 +57,6 @@
 - **Meccaniche di gioco**:
   - ACQUISIZIONE (non marcata): la missione e la sua natura — l'arcipelago, tre settimane di silenzio, la rete arcana corrotta
   - Da notare: qui il testo semina che **Vaelen fissa l'incavo del collo** dove sta l'amuleto. È un filo che si scioglie al Cap. 6
-- **Bivio forzato**: no
 
 ## Tappa 7 — Il sigillo reale (Cap. 1)
 

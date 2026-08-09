@@ -136,8 +136,9 @@ quello che il Giro A rilegge:
 - **Riferimento inizio**: «<prima frase della tappa, dal romanzo>»
 - **Riferimento fine**: «<ultima frase della tappa, dal romanzo>»
 - **Meccaniche di gioco**: <SCONTRO | ABILITA' | PROVA | ACQUISIZIONE
-  — un punto elenco per ognuna, oppure `nessuna`>
-- **Bivio forzato**: <sì | no>
+  | ATTIVAZIONE — un punto elenco per ognuna, oppure `nessuna`>
+- **Bivio forzato**: <sì — oppure "no — <la nota che serve>". Un "no"
+  nudo non si scrive: si omette la riga>
   - **Il romanzo sceglie**: <la strada presa>
   - **Alternativa**: <quella che il testo lascia intendere>
   - **Perché conta**: <solo se c'è qualcosa da dire>
@@ -146,16 +147,22 @@ quello che il Giro A rilegge:
   dichiarata in testa al capitolo>
 ```
 
+**Sempre presenti: solo le prime tre righe.** Riferimento inizio,
+riferimento fine e meccaniche di gioco. Tutto il resto compare se ha
+qualcosa da dire.
+
 Due regole dietro questa forma:
 
 - **inizio e fine su due righe separate**, non una citazione sola con i
   puntini in mezzo: sono due ancore diverse al testo dell'autore, e
   vanno potute confrontare una per una (le 115 del primo libro sono
   state verificate così);
-- **le ultime tre righe compaiono solo se hanno qualcosa da dire.** Le
-  prime quattro ci sono sempre. Una dichiarazione che c'è sempre non
-  dichiara niente: se ogni tappa scrive "testo intatto", le due che
-  scrivono altro non si vedono più.
+- **si scrive solo ciò che dice qualcosa.** Una dichiarazione che c'è
+  sempre non dichiara niente: se ogni tappa scrive "testo intatto", le
+  due che scrivono altro non si vedono più; se trentaquattro scrivono
+  "bivio forzato: no", le diciannove che ne hanno uno annegano. Vale
+  per il testo, per il bivio e per la forma narrativa — e varrà per il
+  prossimo campo a cui verrà voglia di dare un default esplicito.
 
 ## Come si sa se un file è già stato riletto
 

@@ -5,10 +5,10 @@
 > **Forma del capitolo: LIBROGAME** (seconda persona). Le tappe non la
 > ripetono: si annota solo dove il testo se ne discosta.
 >
-> Stessa regola per il testo: le tappe non dichiarano di essere intatte.
-> La riga **Testo** compare **solo** dove il modello ha toccato qualcosa,
-> o dove c'è qualcosa da segnalare a chi rivede. Nessuna riga = parole
-> dell'autore, e basta.
+> Stessa regola per il testo e per il bivio: nessuna tappa dichiara di
+> essere intatta, né di non avere un bivio. Le righe **Testo** e
+> **Bivio forzato** compaiono **solo** dove c'è qualcosa da dire —
+> nessuna riga significa: parole dell'autore, nessun bivio.
 
 ## Tappa 40 — La discesa nel basalto (Cap. 5)
 
@@ -16,7 +16,6 @@
 - **Riferimento fine**: «…vengono inghiottiti verso il fondo della camera da una forza oscura e colossale.»
 - **Meccaniche di gioco**:
   - ABILITA': Percezione Arcana — misura la forza che aspetta in fondo
-- **Bivio forzato**: no
 
 ## Tappa 41 — Troppo vicina (Cap. 5)
 
@@ -46,7 +45,6 @@
 - **Meccaniche di gioco**:
   - ABILITA': Tracciamento Arcano — legge le rune di corrosione lasciate dai fanatici
   - ACQUISIZIONE (non marcata): che i cultisti stanno **già** tentando di prendere la spada e vengono respinti. Spiega perché la reliquia accetta il protagonista e non loro
-- **Bivio forzato**: no
 
 ## Tappa 44 — I guardiani del sepolcro (Cap. 5)
 
@@ -56,7 +54,6 @@
   - SCONTRO: quattro guardiani non-morti e un pugno di cultisti
   - ABILITA': Scherma dell'Astra, Dardo di Forza
   - Agata combatte al fianco: chi non l'ha liberata al Cap. 4 affronta questo scontro **da solo**
-- **Bivio forzato**: no
 
 ## Tappa 45 — La mano sull'elsa (Cap. 5)
 
@@ -96,14 +93,12 @@
 - **Riferimento fine**: «Rinfoderi l'antica spada duale alla cintola.»
 - **Meccaniche di gioco**:
   - ACQUISIZIONE (non marcata): il rispetto di Agata — «per la prima volta la sua sfacciataggine lascia il posto a un rispetto profondo». Insieme alla tappa 42, è il secondo mattone del legame
-- **Bivio forzato**: no
 
 ## Tappa 49 — Malakor sente (Cap. 5)
 
 - **Riferimento inizio**: «Ma a centinaia di leghe di distanza, nelle sue stanze buie…»
 - **Riferimento fine**: «Il contenitore perfetto mi attende.»
 - **Meccaniche di gioco**: nessuna
-- **Bivio forzato**: no
 - **Nota sulla forma**: **TERZA (descrittiva)** — è l'unica tappa del libro che il protagonista **non vive**: si sposta a centinaia di leghe, nelle stanze del Lich. È uno stacco di scena voluto, del tipo che i libri-game pubblicati si concedono. Rientra nell'eccezione, ma è la sola tappa intera in terza persona di tutto il romanzo
 
 ---
