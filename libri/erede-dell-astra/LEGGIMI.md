@@ -58,8 +58,8 @@ precedente.
 | 01 · romanzo | ✅ completo |
 | 02 · catena (Fase 0) | ✅ **58 tappe**, tutte col testo intatto — vedi `02-catena/` |
 | 03 · acquisizioni | ✅ **30 censite**, 7 candidate saltabili — vedi `03-acquisizioni.md` |
-| 04 · domande | ⬜ |
-| 05 · risposte dell'autore | ⬜ |
+| 04 · domande | ✅ **22 schede** pronte — da approvare e inviare, vedi `04-domande.md` |
+| 05 · risposte dell'autore | ⏸ **tocca all'autore** — ~6.200 parole in 22 pezzi indipendenti |
 | 06 · tappe | ⬜ |
 | `libro.json` | ⬜ |
 
