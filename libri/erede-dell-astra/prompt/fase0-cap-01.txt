@@ -40,10 +40,10 @@ tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
    Tutto il resto e' TERZA persona ("Ariel apri' la porta"), che guarda
    il protagonista da fuori.
 
-   Di' per ogni tappa quale forma usa, e nel conteggio dichiara la forma
-   PREVALENTE del capitolo con quante tappe se ne discostano: e' quello
-   il dato che conta, perche' mescolare le due forme si sente subito
-   alla lettura.
+   Dichiara la forma UNA VOLTA, in testa al capitolo. NON ripeterla su
+   ogni tappa: se il capitolo e' tutto LIBROGAME, cinquanta righe che
+   dicono "LIBROGAME" nascondono le poche che dicono altro. Annotala
+   solo sulle tappe che se ne DISCOSTANO.
 
    NON correggere niente: e' un AVVISO. Una scena puramente descrittiva
    in terza persona puo' restare tale — succede anche nei libri
@@ -53,9 +53,9 @@ tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
    antefatto, una scena vista da lontano) o AZIONE (il protagonista fa
    qualcosa).
 
-5. DICHIARA OGNI TOCCO AL TESTO. Ogni tappa dice se il testo e' intatto
-   o se hai aggiunto la frase di chiusura. Se l'hai aggiunta, scrivila
-   esatta: l'autore la vede e decide se tenerla.
+5. DICHIARA OGNI TOCCO AL TESTO. Ogni tappa dice se il testo viene dal
+   romanzo senza aggiunte, oppure se hai aggiunto la frase di chiusura.
+   Se l'hai aggiunta, scrivila esatta: l'autore la vede e decide.
 
 6. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
    abilita' usate, quante prove, quante acquisizioni, quanti bivi
@@ -66,12 +66,13 @@ tentazione di "far scorrere meglio" una frase dell'autore, non farlo.
 FORMATO
 ## Tappa <n> — <titolo> (Cap. 1)
 - **Dal testo**: «<prima frase>» … «<ultima frase>»
-- **Testo**: <intatto | MODIFICATO — aggiunta «<la frase esatta>» per
-  chiudere la tappa>
+- **Testo**: <dal romanzo, nessuna aggiunta | dal romanzo + aggiunta
+  «<la frase esatta>» in coda, per chiudere la tappa>
 - **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuno>
 - **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
-- **Forma**: <LIBROGAME | DIARIO | TERZA (descrittiva) | TERZA (azione)>
+- **Nota sulla forma**: <solo se la tappa si discosta dalla forma del
+  capitolo: TERZA (descrittiva) | TERZA (azione) | l'altra forma>
 
 CAPITOLO 1:
 

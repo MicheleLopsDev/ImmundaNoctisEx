@@ -412,10 +412,10 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
    Tutto il resto e' TERZA persona ("Ariel apri' la porta"), che guarda
    il protagonista da fuori.
 
-   Di' per ogni tappa quale forma usa. Poi, nel conteggio, dichiara la
-   forma PREVALENTE del capitolo e quante tappe se ne discostano: e'
-   quello il dato che conta, perche' mescolare le due forme si sente
-   subito alla lettura.
+   Dichiara la forma UNA VOLTA, in testa al capitolo. NON ripeterla su
+   ogni tappa: se il capitolo e' tutto LIBROGAME, cinquantatre righe che
+   dicono "LIBROGAME" nascondono le cinque che dicono altro. Annota la
+   forma solo sulle tappe che se ne DISCOSTANO.
 
    NON correggere niente: e' un AVVISO. Una scena puramente descrittiva
    in terza persona puo' restare tale — succede anche nei libri
@@ -428,9 +428,9 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
 5. DICHIARA OGNI TOCCO AL TESTO. Il libro resta come l'autore l'ha
    deciso: tu puoi tagliarlo, e puoi aggiungere UNA frase per chiudere
    una tappa che il taglio lascerebbe monca. Nient'altro.
-   Ogni tappa dice quale dei due casi e'. Se hai aggiunto qualcosa,
-   scrivi la frase esatta che hai aggiunto, cosi' l'autore la vede e
-   decide se tenerla.
+   Ogni tappa dice se il testo viene dal romanzo senza aggiunte oppure
+   se ne ha una: in quel caso scrivi la frase esatta, cosi' l'autore la
+   vede e decide se tenerla.
 
 6. CHIUDI CON UN CONTEGGIO: quante tappe, quanti scontri, quante
    abilita' usate, quante prove, quante acquisizioni, quanti bivi
@@ -441,12 +441,13 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
 FORMATO
 ## Tappa <n> — <titolo> (Cap. <c>)
 - **Dal testo**: «<prima frase>» … «<ultima frase>»
-- **Testo**: <intatto | MODIFICATO — aggiunta «<la frase esatta>» per
-  chiudere la tappa>
+- **Testo**: <dal romanzo, nessuna aggiunta | dal romanzo + aggiunta
+  «<la frase esatta>» in coda, per chiudere la tappa>
 - **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
   ACQUISIZIONE: … | nessuno>
 - **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
-- **Forma**: <LIBROGAME | DIARIO | TERZA (descrittiva) | TERZA (azione)>
+- **Nota sulla forma**: <solo se la tappa si discosta dalla forma del
+  capitolo: TERZA (descrittiva) | TERZA (azione) | l'altra forma>
 
 ROMANZO:
 [qui incolli i capitoli]
