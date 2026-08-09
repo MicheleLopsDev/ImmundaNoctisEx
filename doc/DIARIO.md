@@ -108,6 +108,21 @@ una per una, 0 tappe col testo modificato**, 30 acquisizioni, **22
 domande** per l'autore. La palla ora è all'autore (che in questo caso è
 Michele).
 
+**La scheda di tappa normalizzata**, sempre su indicazione di Michele
+(*"più comodo da capire"*): la citazione si spezza in **Riferimento
+inizio** e **Riferimento fine** — due ancore separate al testo
+dell'autore, confrontabili una per una — *Punti di gioco* diventa
+**Meccaniche di gioco**, e il bivio forzato smette di essere un
+paragrafo da leggere tutto: `sì`/`no` secco, e se `sì`, **Il romanzo
+sceglie** e **Alternativa** su due righe. Separate perché è la seconda
+che diventa un ramo nuovo nel Giro A. Il formato per esteso ora sta in
+`CANTIERE-DI-UN-LIBRO.md`.
+
+Normalizzare ha fatto emergere un errore di conteggio: il capitolo 2
+dichiarava 4 bivi contando due volte la stessa tappa (*"più l'uscita
+notturna"*, che **era** la tappa 15). Sono 19, non 20 — e ora il
+numero si conta a macchina.
+
 **Le note di lavorazione nel JSON** (`NotaDiLavorazione.kt`, campo
 `noteDiLavorazione` su `Scene`, vuoto di default): TESTO_RITOCCATO,
 FORMA, DA_CHIARIRE. Viaggiano nel file e si vedono nell'editor — badge

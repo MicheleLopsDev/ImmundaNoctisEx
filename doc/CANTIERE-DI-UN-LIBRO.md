@@ -124,6 +124,39 @@ principio non è "vietato toccare", è "ogni tocco si vede" — vedi
 
 Tutto in **UTF-8**, a capo `LF`.
 
+### La scheda di una tappa
+
+Dentro `02-catena/` ogni tappa ha sempre la stessa forma. È l'unico
+formato del cantiere che vale la pena scrivere per esteso, perché è
+quello che il Giro A rilegge:
+
+```markdown
+## Tappa 24 — La rotta o il giro largo (Cap. 3)
+
+- **Riferimento inizio**: «<prima frase della tappa, dal romanzo>»
+- **Riferimento fine**: «<ultima frase della tappa, dal romanzo>»
+- **Meccaniche di gioco**: <SCONTRO | ABILITA' | PROVA | ACQUISIZIONE
+  — un punto elenco per ognuna, oppure `nessuna`>
+- **Bivio forzato**: <sì | no>
+  - **Il romanzo sceglie**: <la strada presa>
+  - **Alternativa**: <quella che il testo lascia intendere>
+  - **Perché conta**: <solo se c'è qualcosa da dire>
+- **Testo**: <solo se il modello ha toccato qualcosa>
+- **Nota sulla forma**: <solo se la tappa si discosta dalla forma
+  dichiarata in testa al capitolo>
+```
+
+Due regole dietro questa forma:
+
+- **inizio e fine su due righe separate**, non una citazione sola con i
+  puntini in mezzo: sono due ancore diverse al testo dell'autore, e
+  vanno potute confrontare una per una (le 115 del primo libro sono
+  state verificate così);
+- **le ultime tre righe compaiono solo se hanno qualcosa da dire.** Le
+  prime quattro ci sono sempre. Una dichiarazione che c'è sempre non
+  dichiara niente: se ogni tappa scrive "testo intatto", le due che
+  scrivono altro non si vedono più.
+
 ## Come si sa se un file è già stato riletto
 
 Lo dice il file stesso, non il nome. Ogni file **generato dal modello**

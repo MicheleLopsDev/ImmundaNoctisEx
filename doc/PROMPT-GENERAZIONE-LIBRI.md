@@ -401,7 +401,7 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
    Per ognuna: numero, titolo breve, capitolo, la prima e l'ultima
    frase del testo che contiene (copiate esatte, servono a ritagliare).
 
-2. MARCA I PUNTI DI GIOCO gia' presenti nel testo:
+2. MARCA LE MECCANICHE DI GIOCO gia' presenti nel testo:
    - SCONTRO: dove il testo descrive un combattimento (nel materiale
      e' delimitato da *[Inizio Scontro]* e *[Fine Scontro]*). Segna
      chi combatte.
@@ -416,8 +416,10 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
 
 3. SEGNALA I BIVI FORZATI: i punti in cui il romanzo fa scegliere al
    protagonista e racconta un solo esito. Sono i candidati naturali a
-   diventare bivi veri. Per ognuno, la scelta alternativa che il testo
-   nomina o lascia intendere.
+   diventare bivi veri. Per ognuno scrivi DUE righe separate: la strada
+   che il romanzo prende, e quella che il testo nomina o lascia
+   intendere e non percorre. Separate, perche' e' la seconda che
+   diventa un ramo nuovo.
 
 4. CONTROLLA LA FORMA NARRATIVA. Un libro-game si scrive in due modi, e
    l'autore ne sceglie UNO per tutto il libro:
@@ -455,10 +457,16 @@ Non inventare niente e non riscrivere niente. Dividi e cataloga.
 
 FORMATO
 ## Tappa <n> — <titolo> (Cap. <c>)
-- **Dal testo**: «<prima frase>» … «<ultima frase>»
-- **Punti di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
-  ACQUISIZIONE: … | nessuno>
-- **Bivio forzato**: <la scelta e l'alternativa non percorsa | nessuno>
+- **Riferimento inizio**: «<prima frase della tappa>»
+- **Riferimento fine**: «<ultima frase della tappa>»
+- **Meccaniche di gioco**: <SCONTRO: … | ABILITA': … | PROVA: … |
+  ACQUISIZIONE: … | nessuna>
+- **Bivio forzato**: <si' | no>
+  <se si', SOLO allora, due righe rientrate:>
+  - **Il romanzo sceglie**: <la strada che il romanzo prende>
+  - **Alternativa**: <quella che il testo lascia intendere e non percorre>
+  - **Perché conta**: <solo se c'e' qualcosa da dire: il peso di quel
+    bivio nel libro>
 - **Testo**: <SOLO se hai toccato il testo: aggiunta «<la frase
   esatta>» in coda, per chiudere la tappa. Ometti la riga sulle tappe
   intatte>

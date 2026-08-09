@@ -71,14 +71,14 @@ precedente.
 | scontri | **6**, uno per capitolo |
 | usi di disciplina | **37**, tutti censiti |
 | acquisizioni | **31** — 10 marcate nel testo, 21 dedotte |
-| bivi forzati | **20** |
+| bivi forzati | **19** |
 | forma | **LIBROGAME** su tutti e sei i capitoli |
 | tappe in terza persona | **1** (la 49: Malakor, che il protagonista non vive) |
 | **tappe col testo modificato** | **0 su 58** |
 
-Le **115 citazioni** «Dal testo» sono state verificate una per una
-contro i capitoli: tutte presenti. I tagli sono ancorati al testo vero,
-non a una parafrasi.
+Le **115 citazioni** di riferimento (inizio e fine di ogni tappa) sono
+state verificate una per una contro i capitoli: tutte presenti. I tagli
+sono ancorati al testo vero, non a una parafrasi.
 
 Nessuna tappa ha avuto bisogno della frase di raccordo: i punti di
 taglio cadono da soli dove il protagonista decide o cambia luogo.

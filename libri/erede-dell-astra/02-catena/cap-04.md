@@ -12,81 +12,99 @@
 
 ## Tappa 30 — Lo sbarco sui ciottoli neri (Cap. 4)
 
-- **Dal testo**: «La scialuppa di salvataggio si incaglia sulla battigia di ciottoli neri con un sibilo sordo.» … «…per ignorare la stretta del freddo e i miasmi venefici dell'aria.»
-- **Punti di gioco**:
+- **Riferimento inizio**: «La scialuppa di salvataggio si incaglia sulla battigia di ciottoli neri con un sibilo sordo.»
+- **Riferimento fine**: «…per ignorare la stretta del freddo e i miasmi venefici dell'aria.»
+- **Meccaniche di gioco**:
   - ABILITA': Sostentamento Arcano — contro freddo e miasmi. Il testo dice che l'aria è **venefica**: chi non ce l'ha la respira
-- **Bivio forzato**: nessuno
+- **Bivio forzato**: no
 
 ## Tappa 31 — Il tempio sul promontorio (Cap. 4)
 
-- **Dal testo**: «Incanali la percezione spirituale [Disciplina: Percezione Arcana].» … «…svettano le guglie spezzate di un antico tempio di pietra nera.»
-- **Punti di gioco**:
+- **Riferimento inizio**: «Incanali la percezione spirituale [Disciplina: Percezione Arcana].»
+- **Riferimento fine**: «…svettano le guglie spezzate di un antico tempio di pietra nera.»
+- **Meccaniche di gioco**:
   - ABILITA': Percezione Arcana — **è lei a trovare il tempio**. Senza, il protagonista non sa dove andare: è la disciplina più strutturalmente necessaria del capitolo
   - ACQUISIZIONE (non marcata): la posizione della sorgente del male
-- **Bivio forzato**: nessuno
+- **Bivio forzato**: no
 
 ## Tappa 32 — Il congedo da Tobias (Cap. 4)
 
-- **Dal testo**: «La sorgente del male è lassù,» … «Noi non ci muoveremo da qui.»
-- **Punti di gioco**:
+- **Riferimento inizio**: «La sorgente del male è lassù,»
+- **Riferimento fine**: «Noi non ci muoveremo da qui.»
+- **Meccaniche di gioco**:
   - Si spende qui il rispetto guadagnato al Cap. 3: Tobias resta ad aspettare invece di prendere il largo
-- **Bivio forzato**: **sì** — il protagonista sale **da solo** e lascia due marinai armati di balestra alla scialuppa. L'alternativa è evidente: portarne almeno uno con sé
+- **Bivio forzato**: sì
+  - **Il romanzo sceglie**: salire **da solo**, lasciando due marinai armati di balestra alla scialuppa
+  - **Alternativa**: portarne almeno uno con sé
 
 ## Tappa 33 — L'ascesa (Cap. 4)
 
-- **Dal testo**: «Inizi l'ascesa lungo una scalinata di pietra erosa dal tempo e dalle intemperie.» … «…purificandoti i polmoni dall'aria ammorbata del male di Malakor [Disciplina: Scudo Mentale].»
-- **Punti di gioco**:
+- **Riferimento inizio**: «Inizi l'ascesa lungo una scalinata di pietra erosa dal tempo e dalle intemperie.»
+- **Riferimento fine**: «…purificandoti i polmoni dall'aria ammorbata del male di Malakor [Disciplina: Scudo Mentale].»
+- **Meccaniche di gioco**:
   - ABILITA': Scudo Mentale (l'amuleto, di nuovo passivo)
-- **Bivio forzato**: nessuno
+- **Bivio forzato**: no
 
 ## Tappa 34 — Il Velo d'Ombra (Cap. 4)
 
-- **Dal testo**: «Giunto al perimetro esterno del tempio, ti apposti dietro la base di una colonna crollata…» … «…le due sentinelle non-morte poste a guardia del portale d'ingresso.»
-- **Punti di gioco**:
+- **Riferimento inizio**: «Giunto al perimetro esterno del tempio, ti apposti dietro la base di una colonna crollata…»
+- **Riferimento fine**: «…le due sentinelle non-morte poste a guardia del portale d'ingresso.»
+- **Meccaniche di gioco**:
   - ABILITA': Velo d'Ombra — **unica occorrenza in tutto il libro**. Chi non ce l'ha deve superare due sentinelle non-morte in un altro modo: combatterle, distrarle, trovare un'altra via. È la disciplina che apre il ramo alternativo più netto del capitolo
-- **Bivio forzato**: **sì** — infiltrarsi invisibile invece di forzare l'ingresso
+- **Bivio forzato**: sì
+  - **Il romanzo sceglie**: infiltrarsi invisibile
+  - **Alternativa**: forzare l'ingresso
 
 ## Tappa 35 — La navata e l'altare (Cap. 4)
 
-- **Dal testo**: «L'interno dell'edificio è una vasta navata rettangolare scavata direttamente nella roccia vulcanica.» … «…impugna un pugnale rituale in ossidiana.»
-- **Punti di gioco**:
+- **Riferimento inizio**: «L'interno dell'edificio è una vasta navata rettangolare scavata direttamente nella roccia vulcanica.»
+- **Riferimento fine**: «…impugna un pugnale rituale in ossidiana.»
+- **Meccaniche di gioco**:
   - ABILITA': Tracciamento Arcano — riconosce la lingua della litania
   - PROVA implicita: restare nascosti mentre si osserva. Il testo non la rende incerta, ma una dozzina di cultisti a pochi metri lo è
-- **Bivio forzato**: nessuno
+- **Bivio forzato**: no
 - **Nota sulla forma**: LIBROGAME — i due paragrafi sull'interno del tempio sono descrittivi (il protagonista guarda), rientrano nell'eccezione
 
 ## Tappa 36 — La prigioniera sull'altare (Cap. 4)
 
-- **Dal testo**: «Legata al centro dell'altare con pesanti e spesse catene di ferro battuto…» … «La tua scintilla arcana aprirà il sigillo della Cripta Primordiale\!»
-- **Punti di gioco**:
+- **Riferimento inizio**: «Legata al centro dell'altare con pesanti e spesse catene di ferro battuto…»
+- **Riferimento fine**: «La tua scintilla arcana aprirà il sigillo della Cripta Primordiale\!»
+- **Meccaniche di gioco**:
   - ACQUISIZIONE (non marcata): che il rituale serve ad aprire un sigillo, non a uccidere — l'informazione che rende urgente intervenire
-- **Bivio forzato**: **sì** — il protagonista attacca subito («Non attendi un secondo di più»). L'alternativa: aspettare, ascoltare ancora, cercare di capire cosa ci sia sotto il tempio prima di scoprirsi
+- **Bivio forzato**: sì
+  - **Il romanzo sceglie**: attaccare subito («Non attendi un secondo di più»)
+  - **Alternativa**: aspettare, ascoltare ancora, cercare di capire cosa ci sia sotto il tempio prima di scoprirsi
 
 ## Tappa 37 — L'irruzione e la Mangiaferro (Cap. 4)
 
-- **Dal testo**: «Scattando fuori dall'ombra della colonna, sciogli il Velo d'Ombra e balzi in avanti…» … «…liberando i polsi e le caviglie della maga senza sfiorarle la pelle.»
-- **Punti di gioco**:
+- **Riferimento inizio**: «Scattando fuori dall'ombra della colonna, sciogli il Velo d'Ombra e balzi in avanti…»
+- **Riferimento fine**: «…liberando i polsi e le caviglie della maga senza sfiorarle la pelle.»
+- **Meccaniche di gioco**:
   - SCONTRO: Sacerdote d'Ombra e una dozzina di cultisti
   - ABILITA': Dardo di Forza
   - ACQUISIZIONE: `[Perdi: Pozione Mangiaferro]` — **la tappa che dà senso a tutto il metodo.** Il testo dice esplicitamente che le catene «sono troppo spesse per la sola lama d'acciaio»: senza la pozione ricevuta alla tappa 9, questa scena non può andare come va
-- **Bivio forzato**: nessuno
+- **Bivio forzato**: no
 
 ## Tappa 38 — Agata (Cap. 4)
 
-- **Dal testo**: «La giovane incantatrice scatta a sedere con un gesto fluido ed elegante.» … «…gli sferra un calcio preciso al ginocchio e gli conficca uno stilo d'argento nella spalla, facendolo stramazzare svenuto.»
-- **Punti di gioco**:
+- **Riferimento inizio**: «La giovane incantatrice scatta a sedere con un gesto fluido ed elegante.»
+- **Riferimento fine**: «…gli sferra un calcio preciso al ginocchio e gli conficca uno stilo d'argento nella spalla, facendolo stramazzare svenuto.»
+- **Meccaniche di gioco**:
   - SCONTRO (seconda parte): la ripulitura, con Agata che combatte al fianco
   - ABILITA': Scherma dell'Astra, Dardo di Forza
-- **Bivio forzato**: nessuno
+- **Bivio forzato**: no
 
 ## Tappa 39 — La Cripta Primordiale (Cap. 4)
 
-- **Dal testo**: «La calma torna nella navata del tempio.» … «Cerca solo di non svenire se ti guardo troppo da vicino.»
-- **Punti di gioco**:
+- **Riferimento inizio**: «La calma torna nella navata del tempio.»
+- **Riferimento fine**: «Cerca solo di non svenire se ti guardo troppo da vicino.»
+- **Meccaniche di gioco**:
   - ACQUISIZIONE: `[Ottieni: Agata come compagna]`
   - ACQUISIZIONE: `[Ottieni: la posizione della Cripta Primordiale]`
   - ACQUISIZIONE (non marcata): che Agata **è già scesa** nella cripta e ha visto la spada, e che ha avuto paura di toccarla. Al Cap. 5 quella confessione torna
-- **Bivio forzato**: **sì** — il protagonista chiede ad Agata di guidarlo alla Cripta. L'alternativa che il testo rende plausibile: rientrare alla scialuppa con l'informazione, missione formalmente compiuta (il rituale è sventato), e lasciare la spada dov'è. Agata stessa dice che quell'acciaio «ha un'oscurità che fa tremare le vene»
+- **Bivio forzato**: sì
+  - **Il romanzo sceglie**: chiedere ad Agata di guidarlo alla Cripta
+  - **Alternativa**: rientrare alla scialuppa con l'informazione, missione formalmente compiuta (il rituale è sventato), e lasciare la spada dov'è — Agata stessa dice che quell'acciaio «ha un'oscurità che fa tremare le vene»
 
 ---
 
