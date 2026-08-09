@@ -828,6 +828,7 @@ fun MapScreen(
                     "🩷 scena START  💛 scena ENDING  " +
                     "👻 scena orfana (non raggiungibile da START)  " +
                     "⛔ vicolo cieco (nessuna uscita)  " +
+                    "✎ la scena ha note di lavorazione (da rivedere)  " +
                     "➤ la punta indica dove porta il collegamento; due linee affiancate " +
                     "= le scene si raggiungono a vicenda",
                 style = MaterialTheme.typography.labelSmall,
@@ -1850,6 +1851,20 @@ fun MapScreen(
                                 "⛔",
                                 fontSize = 12.sp,
                                 modifier = Modifier.align(Alignment.BottomEnd).padding(2.dp),
+                            )
+                        }
+                        // Scena con note di lavorazione (07/08/2026): il
+                        // modello le lascia quando ritocca il testo o
+                        // quando la forma narrativa si discosta. Vanno
+                        // viste in revisione, non scoperte per caso
+                        // rileggendo. In alto a sinistra, dove non
+                        // incontra il pallino di salute (in alto a
+                        // destra) né gli altri due badge (in basso).
+                        if (scenaNodo?.noteDiLavorazione?.isNotEmpty() == true) {
+                            Text(
+                                "✎",
+                                fontSize = 12.sp,
+                                modifier = Modifier.align(Alignment.TopStart).padding(2.dp),
                             )
                         }
                         // Colore fisso, non legato al tema: gli sfondi

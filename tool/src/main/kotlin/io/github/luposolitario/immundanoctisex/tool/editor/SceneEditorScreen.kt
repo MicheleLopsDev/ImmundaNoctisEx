@@ -253,6 +253,19 @@ fun SceneEditorScreen(
                     BarraAnteprima(configurazione, statoAnteprima, ::traduciScena)
                 }
                 SezioneScheda("Testo narrato") {
+                    // Il modello ha ritoccato questo testo per chiudere il
+                    // taglio (07/08/2026, Michele: "deve essere esplicita
+                    // in fase di revisione del JSON nell'editor"). Sopra
+                    // il campo e non sotto: va letta PRIMA di rileggere il
+                    // testo, o non si sa cosa cercare.
+                    scene.noteDiLavorazione.forEach { nota ->
+                        Text(
+                            "✎ ${nota.tipo}: ${nota.testo}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.padding(bottom = 4.dp),
+                        )
+                    }
                     OutlinedTextField(
                         value = narrativeText,
                         onValueChange = { narrativeText = it },

@@ -56,6 +56,59 @@ meccaniche e si riempiono con `./gradlew :tool:riempiTesti`.
 
 ---
 
+## 07-08/08/2026 — da romanzo a librogame: il metodo, il cantiere, il primo giro
+
+Tre giorni sullo stesso filo: **come si trasforma il romanzo di un
+autore vivo in un libro-game senza che il modello gli riscriva il
+libro sotto il naso.**
+
+**I documenti.** `doc/DA-ROMANZO-A-LIBROGAME.md` (il metodo: il modello
+non scrive, *fa le domande* — una per ogni casella vuota del JSON),
+`doc/CANTIERE-DI-UN-LIBRO.md` (dove stanno i file e come si chiamano:
+cartelle numerate come le fasi, `01-romanzo/` e `05-risposte/` in sola
+lettura perché contengono le parole dell'autore, tutto il resto
+rigenerabile), `doc/GUIDA-PER-LO-SCRITTORE.md` (l'unico documento che
+l'autore deve leggere: sei regole con esempi). I libri in lavorazione
+vivono in `libri/<nome-corto>/`, non in `doc/`: un cantiere non è
+documentazione.
+
+**Il confine, trovato litigando.** Avevo proposto che il modello
+convertisse i capitoli in seconda persona. Michele: *"lo trovo
+pericoloso, potrebbe cambiare troppo il senso o aggiungere cose che lo
+scrittore non vuole"* — e aveva ragione, era una violazione del
+principio che avevo scritto io due ore prima. Ma la correzione
+opposta (vietare qualunque modifica) lasciava le tappe monche al
+taglio. La forma definitiva è la sua: *"possiamo tagliare, cambiare
+minimamente per chiudere una scena… ma deve essere anche questo
+segnalato"*. **Il pericolo non è il cambiamento: è il cambiamento
+invisibile.**
+
+**Due forme ammesse**, non una: LIBROGAME (seconda persona, "Apri la
+porta") e DIARIO (prima persona). Il modello non sceglie, la deduce
+dal testo e la dichiara una volta per capitolo — dichiararla su ogni
+tappa nascondeva le eccezioni in mezzo alla ripetizione (53 righe su
+58 dicevano la stessa cosa).
+
+**Il primo giro, davvero fatto.** Sul romanzo di prova
+(`libri/erede-dell-astra/`, sei capitoli): conversione alla forma
+LIBROGAME verificata a mano e a numeri — 7581→7523 parole (−0,8%),
+109 dialoghi 0 alterati, 37 discipline intatte, refusi **non**
+corretti; poi la Fase 0 completa: **58 tappe, 115 citazioni verificate
+una per una, 0 tappe col testo modificato**, 30 acquisizioni, **22
+domande** per l'autore. La palla ora è all'autore (che in questo caso è
+Michele).
+
+**Le note di lavorazione nel JSON** (`NotaDiLavorazione.kt`, campo
+`noteDiLavorazione` su `Scene`, vuoto di default): TESTO_RITOCCATO,
+FORMA, DA_CHIARIRE. Viaggiano nel file e si vedono nell'editor — badge
+`✎` sul nodo della mappa, elenco sopra il testo nella maschera di
+scena. Il motore di gioco non le legge mai. I warning per singola
+scena nell'editor sono la prossima puntata, decisa e rimandata.
+
+**511 test verdi.**
+
+---
+
 ## 06/08/2026 — «perché inventare l'acqua calda?»
 
 Michele, dopo il terzo tentativo di rendere leggibile il grafo: *"forse

@@ -77,4 +77,17 @@ data class Scene(
     // RollModifier.kt per il perché stiano sulla scena e non sulle
     // scelte, e RollModifiers.kt (:core:engine) per la valutazione.
     val rollModifiers: List<RollModifier> = emptyList(),
+    // Cosa c'è da sapere su questa scena mentre la si costruisce
+    // (07/08/2026, Michele: "deve essere immagazzinata e deve essere
+    // esplicita in fase di revisione del JSON nell'editor").
+    //
+    // Ci finiscono le due cose che il metodo di conversione da romanzo
+    // impone di dichiarare: una frase che il modello ha aggiunto per
+    // chiudere il taglio, e uno scostamento dalla forma narrativa del
+    // libro. Vuota nel caso normale — un libro scritto direttamente per
+    // il gioco non ne ha nessuna.
+    //
+    // Il motore le ignora del tutto: sono dati di lavorazione, non di
+    // partita. Vedi NotaDiLavorazione.kt per il perché esistono.
+    val noteDiLavorazione: List<NotaDiLavorazione> = emptyList(),
 )

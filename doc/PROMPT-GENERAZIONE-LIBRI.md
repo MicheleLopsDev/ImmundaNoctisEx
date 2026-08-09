@@ -243,7 +243,21 @@ migliori. In particolare:
    scorciatoie, non togliere rami che ti sembrano ridondanti, non
    "sistemare" un ramo che ti pare strano: se una tappa manda a 23, la
    scena manda a 23.
-9. Gli "outcome" dei finali sono quelli dichiarati nelle tappe
+9. Riporta nella scena le NOTE DI LAVORAZIONE che la tappa dichiara —
+   la frase aggiunta per chiudere il taglio, lo scostamento dalla forma
+   narrativa — cosi':
+
+   "noteDiLavorazione": [
+     {"tipo": "TESTO_RITOCCATO", "testo": "aggiunta in coda «...»"},
+     {"tipo": "FORMA", "testo": "due paragrafi in terza persona"}
+   ]
+
+   I tipi ammessi sono TESTO_RITOCCATO, FORMA e DA_CHIARIRE. Servono a
+   chi rivede il libro nell'editor, che le vede segnalate sulla scena;
+   il gioco non le legge mai. Se la tappa non dichiara niente, ometti
+   il campo.
+
+10. Gli "outcome" dei finali sono quelli dichiarati nelle tappe
    (vittoria -> VICTORY, sconfitta -> DEFEAT, neutro -> NEUTRAL).
 
 CONTROLLO PRIMA DI RISPONDERE
